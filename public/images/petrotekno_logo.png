@@ -1,0 +1,5 @@
+<svg width="200" height="80" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="80" fill="#FCCA00"/>
+  <circle cx="40" cy="40" r="30" fill="#161615"/>
+  <text x="85" y="45" font-family="Arial" font-size="20" font-weight="bold" fill="#161615">PETROTEKNO</text>
+</svg>
