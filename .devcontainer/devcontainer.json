@@ -1,11 +1,11 @@
 {
-  "name": "Laravel Codespace",
+  "name": "Laravel Codespace (MariaDB)",
   "build": {
     "dockerfile": "Dockerfile"
   },
   "features": {
-    "ghcr.io/devcontainers/features/mysql:1": {
-      "version": "8.0",
+    "ghcr.io/devcontainers/features/mariadb:1": {
+      "version": "latest",
       "database": "laravel_codespace_db",
       "user": "laravel_user",
       "password": "secret"
