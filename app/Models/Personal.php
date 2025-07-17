@@ -12,11 +12,11 @@ class Personal extends Model
     use SoftDeletes;
 
     protected $table = 'personal';
-    
+
     protected $fillable = [
         'nombre_completo',
         'estatus',
-        'categoria_id'
+        'categoria_id',
     ];
 
     protected $dates = ['deleted_at'];

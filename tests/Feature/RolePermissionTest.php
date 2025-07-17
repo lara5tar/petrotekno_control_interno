@@ -25,23 +25,23 @@ class RolePermissionTest extends TestCase
         $permissions = Permission::take(3)->pluck('id')->toArray();
 
         $response = $this->actingAs($admin, 'sanctum')
-                         ->postJson('/api/roles', [
-                             'nombre_rol' => 'Nuevo Rol',
-                             'descripcion' => 'Descripción del nuevo rol',
-                             'permisos' => $permissions
-                         ]);
+            ->postJson('/api/roles', [
+                'nombre_rol' => 'Nuevo Rol',
+                'descripcion' => 'Descripción del nuevo rol',
+                'permisos' => $permissions,
+            ]);
 
         $response->assertStatus(201)
-                ->assertJsonStructure([
-                    'success',
-                    'message',
-                    'data' => [
-                        'id',
-                        'nombre_rol',
-                        'descripcion',
-                        'permisos'
-                    ]
-                ]);
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'id',
+                    'nombre_rol',
+                    'descripcion',
+                    'permisos',
+                ],
+            ]);
 
         $this->assertDatabaseHas('roles', ['nombre_rol' => 'Nuevo Rol']);
     }
@@ -52,10 +52,10 @@ class RolePermissionTest extends TestCase
         $supervisor = User::where('email', 'supervisor@petrotekno.com')->first();
 
         $response = $this->actingAs($supervisor, 'sanctum')
-                         ->postJson('/api/roles', [
-                             'nombre_rol' => 'Rol Prohibido',
-                             'descripcion' => 'No debería crearse'
-                         ]);
+            ->postJson('/api/roles', [
+                'nombre_rol' => 'Rol Prohibido',
+                'descripcion' => 'No debería crearse',
+            ]);
 
         $response->assertStatus(403);
     }
@@ -67,33 +67,33 @@ class RolePermissionTest extends TestCase
         $adminRole = $admin->rol;
 
         $response = $this->actingAs($admin, 'sanctum')
-                         ->deleteJson("/api/roles/{$adminRole->id}");
+            ->deleteJson("/api/roles/{$adminRole->id}");
 
         $response->assertStatus(400)
-                ->assertJson([
-                    'success' => false,
-                    'message' => 'No se puede eliminar el rol porque tiene usuarios asignados'
-                ]);
+            ->assertJson([
+                'success' => false,
+                'message' => 'No se puede eliminar el rol porque tiene usuarios asignados',
+            ]);
     }
 
     /** @test */
     public function admin_can_assign_permission_to_role()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
-        
+
         // Crear un nuevo rol sin permisos
         $role = Role::create([
             'nombre_rol' => 'Rol Test',
-            'descripcion' => 'Para testing'
+            'descripcion' => 'Para testing',
         ]);
-        
+
         $permission = Permission::first();
 
         $response = $this->actingAs($admin, 'sanctum')
-                         ->postJson("/api/roles/{$role->id}/permissions/{$permission->id}");
+            ->postJson("/api/roles/{$role->id}/permissions/{$permission->id}");
 
         $response->assertStatus(200);
-        
+
         $this->assertTrue($role->fresh()->permisos->contains($permission));
     }
 
@@ -104,13 +104,13 @@ class RolePermissionTest extends TestCase
         $permission = Permission::whereHas('roles')->first();
 
         $response = $this->actingAs($admin, 'sanctum')
-                         ->deleteJson("/api/permissions/{$permission->id}");
+            ->deleteJson("/api/permissions/{$permission->id}");
 
         $response->assertStatus(400)
-                ->assertJson([
-                    'success' => false,
-                    'message' => 'No se puede eliminar el permiso porque está asignado a uno o más roles'
-                ]);
+            ->assertJson([
+                'success' => false,
+                'message' => 'No se puede eliminar el permiso porque está asignado a uno o más roles',
+            ]);
     }
 
     /** @test */
@@ -121,10 +121,10 @@ class RolePermissionTest extends TestCase
 
         // Admin debería tener permisos de crear usuarios
         $this->assertTrue($admin->hasPermission('crear_usuarios'));
-        
+
         // Supervisor NO debería tener permisos de crear usuarios
         $this->assertFalse($supervisor->hasPermission('crear_usuarios'));
-        
+
         // Supervisor debería tener permisos de ver usuarios
         $this->assertTrue($supervisor->hasPermission('ver_usuarios'));
     }
@@ -137,7 +137,7 @@ class RolePermissionTest extends TestCase
 
         // Admin role debería tener todos los permisos
         $this->assertTrue($adminRole->hasPermission('administrar_sistema'));
-        
+
         // Supervisor role NO debería tener permisos de admin
         $this->assertFalse($supervisorRole->hasPermission('administrar_sistema'));
     }

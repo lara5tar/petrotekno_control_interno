@@ -25,23 +25,23 @@ class PersonalManagementTest extends TestCase
         $categoria = CategoriaPersonal::first();
 
         $response = $this->actingAs($admin, 'sanctum')
-                         ->postJson('/api/personal', [
-                             'nombre_completo' => 'Juan Pérez García',
-                             'estatus' => 'activo',
-                             'categoria_id' => $categoria->id
-                         ]);
+            ->postJson('/api/personal', [
+                'nombre_completo' => 'Juan Pérez García',
+                'estatus' => 'activo',
+                'categoria_id' => $categoria->id,
+            ]);
 
         $response->assertStatus(201)
-                ->assertJsonStructure([
-                    'success',
-                    'message',
-                    'data' => [
-                        'id',
-                        'nombre_completo',
-                        'estatus',
-                        'categoria'
-                    ]
-                ]);
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'id',
+                    'nombre_completo',
+                    'estatus',
+                    'categoria',
+                ],
+            ]);
 
         $this->assertDatabaseHas('personal', ['nombre_completo' => 'Juan Pérez García']);
     }
@@ -52,22 +52,22 @@ class PersonalManagementTest extends TestCase
         $supervisor = User::where('email', 'supervisor@petrotekno.com')->first();
 
         $response = $this->actingAs($supervisor, 'sanctum')
-                         ->getJson('/api/personal');
+            ->getJson('/api/personal');
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'success',
+            ->assertJsonStructure([
+                'success',
+                'data' => [
                     'data' => [
-                        'data' => [
-                            '*' => [
-                                'id',
-                                'nombre_completo',
-                                'estatus',
-                                'categoria'
-                            ]
-                        ]
-                    ]
-                ]);
+                        '*' => [
+                            'id',
+                            'nombre_completo',
+                            'estatus',
+                            'categoria',
+                        ],
+                    ],
+                ],
+            ]);
     }
 
     /** @test */
@@ -77,13 +77,13 @@ class PersonalManagementTest extends TestCase
         $personalWithUser = $admin->personal;
 
         $response = $this->actingAs($admin, 'sanctum')
-                         ->deleteJson("/api/personal/{$personalWithUser->id}");
+            ->deleteJson("/api/personal/{$personalWithUser->id}");
 
         $response->assertStatus(400)
-                ->assertJson([
-                    'success' => false,
-                    'message' => 'No se puede eliminar el personal porque tiene un usuario asociado'
-                ]);
+            ->assertJson([
+                'success' => false,
+                'message' => 'No se puede eliminar el personal porque tiene un usuario asociado',
+            ]);
     }
 
     /** @test */
@@ -92,31 +92,31 @@ class PersonalManagementTest extends TestCase
         $admin = User::where('email', 'admin@petrotekno.com')->first();
 
         $response = $this->actingAs($admin, 'sanctum')
-                         ->postJson('/api/personal', [
-                             'nombre_completo' => '',
-                             'estatus' => 'invalid_status',
-                             'categoria_id' => 999
-                         ]);
+            ->postJson('/api/personal', [
+                'nombre_completo' => '',
+                'estatus' => 'invalid_status',
+                'categoria_id' => 999,
+            ]);
 
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['nombre_completo', 'estatus', 'categoria_id']);
+            ->assertJsonValidationErrors(['nombre_completo', 'estatus', 'categoria_id']);
     }
 
     /** @test */
     public function personal_search_works()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
-        
+
         // Crear personal de prueba
         $categoria = CategoriaPersonal::first();
         Personal::create([
             'nombre_completo' => 'María González Test',
             'estatus' => 'activo',
-            'categoria_id' => $categoria->id
+            'categoria_id' => $categoria->id,
         ]);
 
         $response = $this->actingAs($admin, 'sanctum')
-                         ->getJson('/api/personal?search=María');
+            ->getJson('/api/personal?search=María');
 
         $response->assertStatus(200);
         $data = $response->json()['data']['data'];
@@ -129,11 +129,11 @@ class PersonalManagementTest extends TestCase
         $admin = User::where('email', 'admin@petrotekno.com')->first();
 
         $response = $this->actingAs($admin, 'sanctum')
-                         ->getJson('/api/personal?estatus=activo');
+            ->getJson('/api/personal?estatus=activo');
 
         $response->assertStatus(200);
         $data = $response->json()['data']['data'];
-        
+
         foreach ($data as $personal) {
             $this->assertEquals('activo', $personal['estatus']);
         }

@@ -1,12 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonalController;
-use App\Http\Middleware\CheckPermission;
-use App\Http\Middleware\CheckRole;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,7 +22,7 @@ Route::prefix('auth')->group(function () {
 
 // Rutas protegidas por autenticación
 Route::middleware('auth:sanctum')->group(function () {
-    
+
     // Rutas de autenticación del usuario logueado
     Route::prefix('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -36,19 +34,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index'])
             ->middleware('permission:ver_usuarios');
-        
+
         Route::post('/', [UserController::class, 'store'])
             ->middleware('permission:crear_usuarios');
-        
+
         Route::get('/{id}', [UserController::class, 'show'])
             ->middleware('permission:ver_usuarios');
-        
+
         Route::put('/{id}', [UserController::class, 'update'])
             ->middleware('permission:editar_usuarios');
-        
+
         Route::delete('/{id}', [UserController::class, 'destroy'])
             ->middleware('permission:eliminar_usuarios');
-        
+
         Route::post('/{id}/restore', [UserController::class, 'restore'])
             ->middleware('permission:editar_usuarios');
     });
@@ -77,16 +75,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('personal')->group(function () {
         Route::get('/', [PersonalController::class, 'index'])
             ->middleware('permission:ver_personal');
-        
+
         Route::post('/', [PersonalController::class, 'store'])
             ->middleware('permission:crear_personal');
-        
+
         Route::get('/{id}', [PersonalController::class, 'show'])
             ->middleware('permission:ver_personal');
-        
+
         Route::put('/{id}', [PersonalController::class, 'update'])
             ->middleware('permission:editar_personal');
-        
+
         Route::delete('/{id}', [PersonalController::class, 'destroy'])
             ->middleware('permission:eliminar_personal');
     });
@@ -96,21 +94,21 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/categorias-personal', function () {
             return response()->json([
                 'success' => true,
-                'data' => \App\Models\CategoriaPersonal::all()
+                'data' => \App\Models\CategoriaPersonal::all(),
             ]);
         });
-        
+
         Route::get('/roles', function () {
             return response()->json([
                 'success' => true,
-                'data' => \App\Models\Role::all()
+                'data' => \App\Models\Role::all(),
             ]);
         });
-        
+
         Route::get('/permissions', function () {
             return response()->json([
                 'success' => true,
-                'data' => \App\Models\Permission::all()
+                'data' => \App\Models\Permission::all(),
             ]);
         })->middleware('role:Admin');
     });
@@ -120,10 +118,10 @@ Route::middleware('auth:sanctum')->group(function () {
         $logs = \App\Models\LogAccion::with('usuario')
             ->orderBy('fecha_hora', 'desc')
             ->paginate(50);
-        
+
         return response()->json([
             'success' => true,
-            'data' => $logs
+            'data' => $logs,
         ]);
     })->middleware('permission:ver_logs');
 });

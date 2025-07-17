@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Permission extends Model
 {
     protected $table = 'permisos';
-    
+
     protected $fillable = [
         'nombre_permiso',
-        'descripcion'
+        'descripcion',
     ];
 
     public $timestamps = false;

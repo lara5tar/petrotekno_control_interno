@@ -25,34 +25,34 @@ class UserManagementTest extends TestCase
         $admin = User::where('email', 'admin@petrotekno.com')->first();
         $role = Role::where('nombre_rol', 'Supervisor')->first();
         $categoria = CategoriaPersonal::where('nombre_categoria', 'Operador')->first();
-        
+
         // Crear personal primero
         $personal = Personal::create([
             'nombre_completo' => 'Test Usuario',
             'estatus' => 'activo',
-            'categoria_id' => $categoria->id
+            'categoria_id' => $categoria->id,
         ]);
 
         $response = $this->actingAs($admin, 'sanctum')
-                         ->postJson('/api/users', [
-                             'nombre_usuario' => 'testusuario',
-                             'email' => 'test@petrotekno.com',
-                             'password' => 'password123',
-                             'rol_id' => $role->id,
-                             'personal_id' => $personal->id
-                         ]);
+            ->postJson('/api/users', [
+                'nombre_usuario' => 'testusuario',
+                'email' => 'test@petrotekno.com',
+                'password' => 'password123',
+                'rol_id' => $role->id,
+                'personal_id' => $personal->id,
+            ]);
 
         $response->assertStatus(201)
-                ->assertJsonStructure([
-                    'success',
-                    'message',
-                    'data' => [
-                        'id',
-                        'nombre_usuario',
-                        'email',
-                        'rol'
-                    ]
-                ]);
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'id',
+                    'nombre_usuario',
+                    'email',
+                    'rol',
+                ],
+            ]);
     }
 
     /** @test */
@@ -62,12 +62,12 @@ class UserManagementTest extends TestCase
         $role = Role::where('nombre_rol', 'Operador')->first();
 
         $response = $this->actingAs($supervisor, 'sanctum')
-                         ->postJson('/api/users', [
-                             'nombre_usuario' => 'testusuario',
-                             'email' => 'test@petrotekno.com',
-                             'password' => 'password123',
-                             'rol_id' => $role->id
-                         ]);
+            ->postJson('/api/users', [
+                'nombre_usuario' => 'testusuario',
+                'email' => 'test@petrotekno.com',
+                'password' => 'password123',
+                'rol_id' => $role->id,
+            ]);
 
         $response->assertStatus(403);
     }
@@ -78,23 +78,23 @@ class UserManagementTest extends TestCase
         $admin = User::where('email', 'admin@petrotekno.com')->first();
 
         $response = $this->actingAs($admin, 'sanctum')
-                         ->getJson('/api/users');
+            ->getJson('/api/users');
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'success',
+            ->assertJsonStructure([
+                'success',
+                'data' => [
                     'data' => [
-                        'data' => [
-                            '*' => [
-                                'id',
-                                'nombre_usuario',
-                                'email',
-                                'rol',
-                                'personal'
-                            ]
-                        ]
-                    ]
-                ]);
+                        '*' => [
+                            'id',
+                            'nombre_usuario',
+                            'email',
+                            'rol',
+                            'personal',
+                        ],
+                    ],
+                ],
+            ]);
     }
 
     /** @test */
@@ -103,13 +103,13 @@ class UserManagementTest extends TestCase
         $admin = User::where('email', 'admin@petrotekno.com')->first();
 
         $response = $this->actingAs($admin, 'sanctum')
-                         ->deleteJson("/api/users/{$admin->id}");
+            ->deleteJson("/api/users/{$admin->id}");
 
         $response->assertStatus(400)
-                ->assertJson([
-                    'success' => false,
-                    'message' => 'No puedes eliminar tu propio usuario'
-                ]);
+            ->assertJson([
+                'success' => false,
+                'message' => 'No puedes eliminar tu propio usuario',
+            ]);
     }
 
     /** @test */
@@ -118,14 +118,14 @@ class UserManagementTest extends TestCase
         $admin = User::where('email', 'admin@petrotekno.com')->first();
 
         $response = $this->actingAs($admin, 'sanctum')
-                         ->postJson('/api/users', [
-                             'nombre_usuario' => '',
-                             'email' => 'invalid-email',
-                             'password' => '123',
-                             'rol_id' => 999
-                         ]);
+            ->postJson('/api/users', [
+                'nombre_usuario' => '',
+                'email' => 'invalid-email',
+                'password' => '123',
+                'rol_id' => 999,
+            ]);
 
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['nombre_usuario', 'email', 'password', 'rol_id']);
+            ->assertJsonValidationErrors(['nombre_usuario', 'email', 'password', 'rol_id']);
     }
 }

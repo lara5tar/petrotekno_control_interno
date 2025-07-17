@@ -15,19 +15,19 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!$request->user()) {
+        if (! $request->user()) {
             return response()->json([
                 'success' => false,
-                'message' => 'No autenticado'
+                'message' => 'No autenticado',
             ], 401);
         }
 
         $userRole = $request->user()->rol->nombre_rol ?? null;
 
-        if (!$userRole || !in_array($userRole, $roles)) {
+        if (! $userRole || ! in_array($userRole, $roles)) {
             return response()->json([
                 'success' => false,
-                'message' => 'No tienes los permisos necesarios para acceder a este recurso'
+                'message' => 'No tienes los permisos necesarios para acceder a este recurso',
             ], 403);
         }
 

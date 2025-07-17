@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\LogAccion;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -23,7 +22,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['Las credenciales proporcionadas son incorrectas.'],
             ]);
@@ -34,7 +33,7 @@ class AuthController extends Controller
             'usuario_id' => $user->id,
             'fecha_hora' => now(),
             'accion' => 'login',
-            'detalles' => ['ip' => $request->ip()]
+            'detalles' => ['ip' => $request->ip()],
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -50,8 +49,8 @@ class AuthController extends Controller
                     'rol' => $user->rol->nombre_rol ?? null,
                     'permisos' => $user->getPermissions()->pluck('nombre_permiso'),
                 ],
-                'token' => $token
-            ]
+                'token' => $token,
+            ],
         ]);
     }
 
@@ -61,20 +60,20 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $user = $request->user();
-        
+
         // Registrar acción de logout
         LogAccion::create([
             'usuario_id' => $user->id,
             'fecha_hora' => now(),
             'accion' => 'logout',
-            'detalles' => ['ip' => $request->ip()]
+            'detalles' => ['ip' => $request->ip()],
         ]);
 
         $user->currentAccessToken()->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Logout exitoso'
+            'message' => 'Logout exitoso',
         ]);
     }
 
@@ -97,8 +96,8 @@ class AuthController extends Controller
                 'personal' => $user->personal ? [
                     'nombre_completo' => $user->personal->nombre_completo,
                     'categoria' => $user->personal->categoria->nombre_categoria ?? null,
-                ] : null
-            ]
+                ] : null,
+            ],
         ]);
     }
 
@@ -114,14 +113,14 @@ class AuthController extends Controller
 
         $user = $request->user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             throw ValidationException::withMessages([
                 'current_password' => ['La contraseña actual es incorrecta.'],
             ]);
         }
 
         $user->update([
-            'password' => Hash::make($request->new_password)
+            'password' => Hash::make($request->new_password),
         ]);
 
         // Registrar acción
@@ -130,12 +129,12 @@ class AuthController extends Controller
             'fecha_hora' => now(),
             'accion' => 'cambio_password',
             'tabla_afectada' => 'users',
-            'registro_id' => $user->id
+            'registro_id' => $user->id,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Contraseña actualizada exitosamente'
+            'message' => 'Contraseña actualizada exitosamente',
         ]);
     }
 }
