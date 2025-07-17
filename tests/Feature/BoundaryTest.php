@@ -353,7 +353,7 @@ class BoundaryTest extends TestCase
         // Verificar que todas las operaciones fueron manejadas apropiadamente
         foreach ($responses as $index => $response) {
             $this->assertContains($response->status(), [201, 422, 500]);
-            
+
             if ($response->status() === 201) {
                 $email = 'concurrent'.($index + 1).'@example.com';
                 $this->assertDatabaseHas('users', ['email' => $email]);

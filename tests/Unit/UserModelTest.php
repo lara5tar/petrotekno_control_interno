@@ -2,13 +2,13 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Role;
 use App\Models\Permission;
 use App\Models\Personal;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class UserModelTest extends TestCase
 {
@@ -30,7 +30,7 @@ class UserModelTest extends TestCase
 
         // Admin debería tener el permiso de crear usuarios
         $this->assertTrue($user->hasPermission('crear_usuarios'));
-        
+
         // Admin no debería tener un permiso inexistente
         $this->assertFalse($user->hasPermission('permiso_inexistente'));
     }
@@ -45,7 +45,7 @@ class UserModelTest extends TestCase
 
         $this->assertNotNull($admin->rol, 'Admin should have a role');
         $this->assertNotNull($supervisor->rol, 'Supervisor should have a role');
-        
+
         $this->assertEquals('Admin', $admin->rol->nombre_rol);
         $this->assertEquals('Supervisor', $supervisor->rol->nombre_rol);
     }
@@ -56,7 +56,7 @@ class UserModelTest extends TestCase
     public function test_user_personal_relationship(): void
     {
         $user = User::where('email', 'admin@petrotekno.com')->first();
-        
+
         if ($user->personal_id) {
             $this->assertNotNull($user->personal, 'User should have personal data if personal_id is set');
             $this->assertInstanceOf(Personal::class, $user->personal);
@@ -71,7 +71,7 @@ class UserModelTest extends TestCase
         // Crear un usuario de prueba
         $personal = Personal::factory()->create();
         $role = Role::first();
-        
+
         $user = User::factory()->create([
             'personal_id' => $personal->id,
             'rol_id' => $role->id,
@@ -85,11 +85,11 @@ class UserModelTest extends TestCase
 
         // Verificar soft delete
         $this->assertSoftDeleted('users', ['id' => $user->id]);
-        
+
         // Verificar que las relaciones se preservan
         $this->assertDatabaseHas('personal', ['id' => $originalPersonalId]);
         $this->assertDatabaseHas('roles', ['id' => $originalRoleId]);
-        
+
         // Verificar que se puede restaurar la relación
         $deletedUser = User::withTrashed()->find($user->id);
         $this->assertNotNull($deletedUser->personal);
@@ -159,7 +159,7 @@ class UserModelTest extends TestCase
         $role = Role::first();
 
         $plainPassword = 'plaintext_password';
-        
+
         $user = User::create([
             'nombre_usuario' => 'hash_test',
             'email' => 'hash@example.com',
@@ -170,7 +170,7 @@ class UserModelTest extends TestCase
 
         // La contraseña no debe ser igual al texto plano
         $this->assertNotEquals($plainPassword, $user->password);
-        
+
         // Debe poder verificarse con Hash::check
         $this->assertTrue(Hash::check($plainPassword, $user->password));
     }
@@ -182,7 +182,7 @@ class UserModelTest extends TestCase
     {
         // Si existe un scope 'active' en el modelo User
         $activeUsers = User::all();
-        
+
         foreach ($activeUsers as $user) {
             // Verificar que los usuarios devueltos están activos
             // (Adaptar según la lógica específica del modelo)
@@ -196,11 +196,11 @@ class UserModelTest extends TestCase
     public function test_user_attributes_are_properly_cast(): void
     {
         $user = User::first();
-        
+
         // Verificar que timestamps son instancias de Carbon
         $this->assertInstanceOf(\Carbon\Carbon::class, $user->created_at);
         $this->assertInstanceOf(\Carbon\Carbon::class, $user->updated_at);
-        
+
         if ($user->deleted_at) {
             $this->assertInstanceOf(\Carbon\Carbon::class, $user->deleted_at);
         }

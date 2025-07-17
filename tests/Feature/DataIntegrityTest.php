@@ -36,10 +36,10 @@ class DataIntegrityTest extends TestCase
                 'rol_id' => 9999, // ID inexistente
                 'personal_id' => null,
             ]);
-            
+
             // Si no lanza excepción, verificar que el sistema maneja esto apropiadamente
             $this->assertTrue(true, 'Sistema permite crear usuario con rol_id inexistente - revisar constraints');
-            
+
         } catch (QueryException $e) {
             // Se esperaba que fallara por foreign key constraint
             $this->assertStringContainsString('foreign', strtolower($e->getMessage()));
@@ -77,7 +77,7 @@ class DataIntegrityTest extends TestCase
         ]);
 
         $permission = Permission::first();
-        
+
         // Asociar permisos al rol
         $testRole->permisos()->attach($permission->id);
 
@@ -153,7 +153,7 @@ class DataIntegrityTest extends TestCase
     {
         $personal = Personal::factory()->create();
         $role = Role::first();
-        
+
         $user = User::create([
             'nombre_usuario' => 'soft_delete_test',
             'email' => 'softdelete@test.com',
@@ -188,7 +188,7 @@ class DataIntegrityTest extends TestCase
     {
         $personal = Personal::factory()->create();
         $role = Role::first();
-        
+
         $user = User::create([
             'nombre_usuario' => 'personal_soft_delete_test',
             'email' => 'personal_softdelete@test.com',
@@ -224,7 +224,7 @@ class DataIntegrityTest extends TestCase
         try {
             DB::transaction(function () {
                 $role = Role::first();
-                
+
                 // Crear usuario válido
                 User::create([
                     'nombre_usuario' => 'transaction_test1',
@@ -276,7 +276,7 @@ class DataIntegrityTest extends TestCase
         // Esto debería fallar si hay constraints apropiados
         try {
             $categoria->delete();
-            
+
             // Si no falla, verificar que se maneja correctamente
             $personal->refresh();
             $this->assertNotNull($personal->categoria_id);
@@ -331,7 +331,7 @@ class DataIntegrityTest extends TestCase
         ]);
 
         $permission = Permission::first();
-        
+
         // Asociar permiso al rol
         $role->permisos()->attach($permission->id);
 
@@ -344,7 +344,7 @@ class DataIntegrityTest extends TestCase
 
         // Desasociar y verificar limpieza
         $role->permisos()->detach($permission->id);
-        
+
         $this->assertFalse($role->fresh()->permisos->contains($permission));
         $this->assertDatabaseMissing('roles_permisos', [
             'rol_id' => $role->id,

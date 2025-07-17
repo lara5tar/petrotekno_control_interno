@@ -2,11 +2,11 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class RoleModelTest extends TestCase
 {
@@ -31,7 +31,7 @@ class RoleModelTest extends TestCase
 
         // Admin role should have at least the admin user
         $this->assertGreaterThan(0, $adminRole->usuarios->count());
-        
+
         // Verificar que la relación funciona
         foreach ($adminRole->usuarios as $user) {
             $this->assertInstanceOf(User::class, $user);
@@ -45,7 +45,7 @@ class RoleModelTest extends TestCase
     public function test_role_belongs_to_many_permissions(): void
     {
         $adminRole = Role::where('nombre_rol', 'Admin')->first();
-        
+
         $this->assertNotNull($adminRole);
         $this->assertGreaterThan(0, $adminRole->permisos->count());
 
@@ -109,7 +109,7 @@ class RoleModelTest extends TestCase
 
         // Verificar que se adjuntó correctamente
         $this->assertTrue($role->permisos->contains($permission));
-        
+
         // Verificar en base de datos
         $this->assertDatabaseHas('roles_permisos', [
             'rol_id' => $role->id,
@@ -128,14 +128,14 @@ class RoleModelTest extends TestCase
         ]);
 
         $permission = Permission::first();
-        
+
         // Attach and then detach
         $role->permisos()->attach($permission->id);
         $role->permisos()->detach($permission->id);
 
         // Verificar que se removió
         $this->assertFalse($role->permisos->contains($permission));
-        
+
         // Verificar que no existe en base de datos
         $this->assertDatabaseMissing('roles_permisos', [
             'rol_id' => $role->id,
@@ -148,11 +148,11 @@ class RoleModelTest extends TestCase
      */
     public function test_role_fillable_attributes(): void
     {
-        $role = new Role();
+        $role = new Role;
         $fillable = $role->getFillable();
-        
+
         $expectedFillable = ['nombre_rol', 'descripcion'];
-        
+
         foreach ($expectedFillable as $attribute) {
             $this->assertContains($attribute, $fillable);
         }
@@ -163,7 +163,7 @@ class RoleModelTest extends TestCase
      */
     public function test_role_table_name(): void
     {
-        $role = new Role();
+        $role = new Role;
         $this->assertEquals('roles', $role->getTable());
     }
 
@@ -176,7 +176,7 @@ class RoleModelTest extends TestCase
             'nombre_rol' => 'timestamp_test',
             'descripcion' => 'Test timestamps',
         ]);
-        
+
         $this->assertNotNull($role->created_at);
         $this->assertNotNull($role->updated_at);
         $this->assertInstanceOf(\Carbon\Carbon::class, $role->created_at);
@@ -197,13 +197,13 @@ class RoleModelTest extends TestCase
         $role->permisos()->attach($permission->id);
 
         $roleId = $role->id;
-        
+
         // Eliminar rol
         $role->delete();
 
         // Verificar que el rol fue eliminado
         $this->assertDatabaseMissing('roles', ['id' => $roleId]);
-        
+
         // Verificar que las relaciones en tabla pivot también se eliminaron
         $this->assertDatabaseMissing('roles_permisos', ['rol_id' => $roleId]);
     }

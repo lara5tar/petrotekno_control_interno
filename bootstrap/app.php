@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'sanitize' => \App\Http\Middleware\SanitizeInput::class,
         ]);
-        
+
         // Aplicar sanitización a las rutas API donde se recibe input de usuario
         $middleware->group('api', [
             'sanitize',

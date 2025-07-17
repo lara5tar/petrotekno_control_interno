@@ -2,12 +2,12 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Models\Personal;
 use App\Models\CategoriaPersonal;
-use App\Models\User;
+use App\Models\Personal;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class PersonalModelTest extends TestCase
 {
@@ -25,7 +25,7 @@ class PersonalModelTest extends TestCase
     public function test_personal_creation_with_valid_data(): void
     {
         $categoria = CategoriaPersonal::first();
-        
+
         $personalData = [
             'nombre_completo' => 'Juan Pérez',
             'estatus' => 'activo',
@@ -46,7 +46,7 @@ class PersonalModelTest extends TestCase
     public function test_personal_belongs_to_categoria(): void
     {
         $personal = Personal::factory()->create();
-        
+
         $this->assertNotNull($personal->categoria);
         $this->assertInstanceOf(CategoriaPersonal::class, $personal->categoria);
     }
@@ -58,14 +58,14 @@ class PersonalModelTest extends TestCase
     {
         $personal = Personal::factory()->create();
         $role = Role::first();
-        
+
         $user = User::factory()->create([
             'personal_id' => $personal->id,
             'rol_id' => $role->id,
         ]);
 
         $personal->refresh();
-        
+
         $this->assertNotNull($personal->usuario);
         $this->assertInstanceOf(User::class, $personal->usuario);
         $this->assertEquals($user->id, $personal->usuario->id);
@@ -84,7 +84,7 @@ class PersonalModelTest extends TestCase
 
         // Verificar soft delete
         $this->assertSoftDeleted('personal', ['id' => $personalId]);
-        
+
         // Verificar que se puede encontrar con withTrashed
         $deletedPersonal = Personal::withTrashed()->find($personalId);
         $this->assertNotNull($deletedPersonal);
@@ -114,11 +114,11 @@ class PersonalModelTest extends TestCase
      */
     public function test_personal_fillable_attributes(): void
     {
-        $personal = new Personal();
+        $personal = new Personal;
         $fillable = $personal->getFillable();
-        
+
         $expectedFillable = ['nombre_completo', 'estatus', 'categoria_id'];
-        
+
         foreach ($expectedFillable as $attribute) {
             $this->assertContains($attribute, $fillable);
         }
@@ -129,7 +129,7 @@ class PersonalModelTest extends TestCase
      */
     public function test_personal_table_name(): void
     {
-        $personal = new Personal();
+        $personal = new Personal;
         $this->assertEquals('personal', $personal->getTable());
     }
 
@@ -139,7 +139,7 @@ class PersonalModelTest extends TestCase
     public function test_personal_timestamps(): void
     {
         $personal = Personal::factory()->create();
-        
+
         $this->assertNotNull($personal->created_at);
         $this->assertNotNull($personal->updated_at);
         $this->assertInstanceOf(\Carbon\Carbon::class, $personal->created_at);
@@ -152,7 +152,7 @@ class PersonalModelTest extends TestCase
     public function test_personal_estatus_values(): void
     {
         $validStatuses = ['activo', 'inactivo'];
-        
+
         foreach ($validStatuses as $status) {
             $personal = Personal::factory()->create(['estatus' => $status]);
             $this->assertEquals($status, $personal->estatus);
@@ -165,7 +165,7 @@ class PersonalModelTest extends TestCase
     public function test_personal_foreign_key_constraint(): void
     {
         $this->expectException(\Illuminate\Database\QueryException::class);
-        
+
         // Intentar crear personal con categoria_id inexistente
         Personal::create([
             'nombre_completo' => 'Test User',
