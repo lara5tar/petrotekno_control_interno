@@ -35,11 +35,11 @@ class PermissionSeeder extends Seeder
             ['nombre_permiso' => 'editar_personal', 'descripcion' => 'Editar personal existente'],
             ['nombre_permiso' => 'eliminar_personal', 'descripcion' => 'Eliminar personal'],
 
-            // Vehículos (para futuro)
+            // Vehículos
             ['nombre_permiso' => 'ver_vehiculos', 'descripcion' => 'Ver listado de vehículos'],
-            ['nombre_permiso' => 'crear_vehiculos', 'descripcion' => 'Crear registros de vehículos'],
-            ['nombre_permiso' => 'editar_vehiculos', 'descripcion' => 'Editar vehículos existentes'],
-            ['nombre_permiso' => 'eliminar_vehiculos', 'descripcion' => 'Eliminar vehículos'],
+            ['nombre_permiso' => 'crear_vehiculo', 'descripcion' => 'Crear registros de vehículos'],
+            ['nombre_permiso' => 'editar_vehiculo', 'descripcion' => 'Editar vehículos existentes'],
+            ['nombre_permiso' => 'eliminar_vehiculo', 'descripcion' => 'Eliminar vehículos'],
 
             // Sistema
             ['nombre_permiso' => 'ver_logs', 'descripcion' => 'Ver logs del sistema'],
@@ -47,7 +47,10 @@ class PermissionSeeder extends Seeder
         ];
 
         foreach ($permisos as $permiso) {
-            Permission::create($permiso);
+            Permission::updateOrCreate(
+                ['nombre_permiso' => $permiso['nombre_permiso']],
+                $permiso
+            );
         }
     }
 }
