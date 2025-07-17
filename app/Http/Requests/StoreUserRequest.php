@@ -26,30 +26,30 @@ class StoreUserRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'unique:users,nombre_usuario'
+                'unique:users,nombre_usuario',
             ],
             'email' => [
                 'required',
                 'email',
                 'max:255',
-                'unique:users,email'
+                'unique:users,email',
             ],
             'password' => [
                 'required',
                 'string',
                 'min:8',
-                'max:255'
+                'max:255',
             ],
             'rol_id' => [
                 'required',
                 'integer',
-                'exists:roles,id'
+                'exists:roles,id',
             ],
             'personal_id' => [
                 'nullable',
                 'integer',
-                'exists:personal,id'
-            ]
+                'exists:personal,id',
+            ],
         ];
     }
 
@@ -66,7 +66,7 @@ class StoreUserRequest extends FormRequest
             'nombre_usuario.unique' => 'Este nombre de usuario ya está en uso.',
             'email.unique' => 'Este email ya está registrado.',
             'rol_id.exists' => 'El rol seleccionado no existe.',
-            'personal_id.exists' => 'El personal seleccionado no existe.'
+            'personal_id.exists' => 'El personal seleccionado no existe.',
         ];
     }
 }
