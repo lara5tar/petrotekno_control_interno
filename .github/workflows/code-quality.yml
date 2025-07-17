@@ -28,7 +28,8 @@ jobs:
     - name: 🔍 Run PHPStan
       run: |
         mkdir -p storage/logs
-        vendor/bin/phpstan analyse --memory-limit=1G --error-format=github
+        if [ ! -f vendor/bin/phpstan ]; then composer require --dev phpstan/phpstan; fi
+        php vendor/bin/phpstan analyse --memory-limit=1G --error-format=github
 
   pint:
     runs-on: ubuntu-latest
