@@ -29,10 +29,7 @@ class SanitizeInput
         
         foreach ($fieldsToSanitize as $field) {
             if (isset($input[$field])) {
-                // Sanitizar contenido HTML/XSS
-                $input[$field] = Purifier::clean($input[$field]);
-                
-                // Remover scripts y contenido potencialmente peligroso
+                // Solo aplicar sanitización anti-XSS básica sin HTMLPurifier
                 $input[$field] = $this->removeXSSContent($input[$field]);
             }
         }

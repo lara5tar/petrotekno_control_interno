@@ -37,8 +37,15 @@ return [
             "HTML.SafeIframe"      => 'true',
             "URI.SafeIframeRegexp" => "%^(http://|https://|//)(www.youtube.com/embed/|player.vimeo.com/video/)%",
         ],
+        'custom' => [
+            'HTML.Doctype'             => 'HTML 4.01 Transitional',
+            'HTML.Allowed'             => '',  // No permitir ningún HTML
+            'AutoFormat.AutoParagraph' => false,  // No agregar párrafos automáticamente
+            'AutoFormat.RemoveEmpty'   => true,
+            'Core.EscapeNonASCIICharacters' => false,
+            'Core.RemoveInvalidImg' => true,
+        ],
         'custom_definition' => [
-            'id'  => 'html5-definitions',
             'rev' => 1,
             'debug' => false,
             'elements' => [
