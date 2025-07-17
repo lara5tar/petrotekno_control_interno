@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Personal;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class SecurityTest extends TestCase
 {
@@ -32,16 +32,16 @@ class SecurityTest extends TestCase
             "' OR '1'='1' --",
             "'; UPDATE users SET password='hacked'; --",
             "' UNION SELECT * FROM users WHERE '1'='1",
-            "'; DELETE FROM users; --"
+            "'; DELETE FROM users; --",
         ];
 
         foreach ($maliciousInputs as $maliciousInput) {
             $response = $this->actingAs($admin, 'sanctum')
-                ->getJson("/api/users?search=" . urlencode($maliciousInput));
+                ->getJson('/api/users?search='.urlencode($maliciousInput));
 
             // Debe responder normalmente sin ejecutar SQL malicioso
             $response->assertStatus(200);
-            
+
             // Verificar que las tablas y datos críticos siguen existiendo
             $this->assertDatabaseHas('users', ['email' => 'admin@petrotekno.com']);
             $this->assertDatabaseHas('users', ['email' => 'supervisor@petrotekno.com']);
@@ -61,7 +61,7 @@ class SecurityTest extends TestCase
             '<img src="x" onerror="alert(1)">',
             '<svg onload="alert(1)">',
             'javascript:alert("xss")',
-            '<iframe src="javascript:alert(1)"></iframe>'
+            '<iframe src="javascript:alert(1)"></iframe>',
         ];
 
         foreach ($xssPayloads as $index => $xssPayload) {
@@ -76,13 +76,13 @@ class SecurityTest extends TestCase
 
             if ($response->status() === 201) {
                 $user = User::where('email', "xss_test_{$index}@example.com")->first();
-                
+
                 // NOTA: Este test detectó que el sistema no sanitiza input XSS
                 // Esto debería ser corregido en el futuro para mayor seguridad
-                
+
                 // Por ahora verificamos que al menos el usuario fue creado
                 $this->assertNotNull($user, 'User should be created');
-                
+
                 // TODO: Implementar sanitización de XSS en el futuro
                 // $this->assertStringNotContainsString('<script>', $user->nombre_usuario);
                 // $this->assertStringNotContainsString('javascript:', $user->nombre_usuario);
@@ -107,7 +107,7 @@ class SecurityTest extends TestCase
         for ($i = 0; $i < 10; $i++) {
             $response = $this->postJson('/api/auth/login', [
                 'email' => 'admin@petrotekno.com',
-                'password' => 'wrong_password_' . $i,
+                'password' => 'wrong_password_'.$i,
             ]);
 
             if ($response->status() === 429) {
@@ -150,11 +150,11 @@ class SecurityTest extends TestCase
 
         // Verificar que el endpoint maneja la autorización apropiadamente
         $this->assertContains($response->status(), [200, 201, 403]);
-        
+
         // Si fue rechazado, verificar que el usuario no fue creado
         if ($response->status() === 403) {
             $this->assertDatabaseMissing('users', [
-                'email' => 'unauthorized@test.com'
+                'email' => 'unauthorized@test.com',
             ]);
         }
     }
@@ -211,9 +211,9 @@ class SecurityTest extends TestCase
         // Para API, debería requerir autenticación apropiada
         // Si no está autenticado, debe rechazar
         $this->assertContains($response->status(), [401, 419, 403, 422, 500]);
-        
+
         // Documentar el status code real para análisis
-        $this->assertTrue(true, "CSRF test returned status: " . $response->status());
+        $this->assertTrue(true, 'CSRF test returned status: '.$response->status());
     }
 
     /**
@@ -227,9 +227,9 @@ class SecurityTest extends TestCase
             ->getJson('/api/users');
 
         $response->assertStatus(200);
-        
+
         $userData = $response->json();
-        
+
         // Verificar que las contraseñas no se exponen en la respuesta
         if (isset($userData['data']['data'])) {
             foreach ($userData['data']['data'] as $user) {
@@ -249,16 +249,16 @@ class SecurityTest extends TestCase
         // Intentar subir archivo con extensión maliciosa
         $maliciousFiles = [
             'test.php',
-            'test.exe', 
+            'test.exe',
             'test.bat',
             'test.sh',
-            'test.js'
+            'test.js',
         ];
 
         foreach ($maliciousFiles as $filename) {
             // Si hay endpoints de upload, probar con archivos maliciosos
             // Este test se adaptará según los endpoints específicos del proyecto
-            $this->assertTrue(true, "File upload security test placeholder - adapt based on actual upload endpoints");
+            $this->assertTrue(true, 'File upload security test placeholder - adapt based on actual upload endpoints');
         }
     }
 }
