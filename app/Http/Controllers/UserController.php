@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LogAccion;
+use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
+use App\Models\LogAccion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -45,16 +46,8 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreUserRequest $request): JsonResponse
     {
-        $request->validate([
-            'nombre_usuario' => 'required|string|unique:users',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:8',
-            'rol_id' => 'required|exists:roles,id',
-            'personal_id' => 'nullable|exists:personal,id',
-        ]);
-
         $user = User::create([
             'nombre_usuario' => $request->input('nombre_usuario'),
             'email' => $request->input('email'),
@@ -108,14 +101,16 @@ class UserController extends Controller
             'nombre_usuario' => [
                 'required',
                 'string',
+                'max:255',
                 Rule::unique('users')->ignore($user->id),
             ],
             'email' => [
                 'required',
                 'email',
+                'max:255',
                 Rule::unique('users')->ignore($user->id),
             ],
-            'password' => 'nullable|string|min:8',
+            'password' => 'nullable|string|min:8|max:255',
             'rol_id' => 'required|exists:roles,id',
             'personal_id' => 'nullable|exists:personal,id',
         ]);
