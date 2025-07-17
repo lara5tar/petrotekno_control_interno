@@ -7,9 +7,14 @@ on:
     branches: [ dev, main ]
 
 jobs:
-  tests:
+  test:
     runs-on: ubuntu-latest
-    name: 🧪 Tests & Quality Checks
+    name: 🧪 Test Suite (PHP ${{ matrix.php }})
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [8.2, 8.3]
     
     services:
       mysql:
@@ -20,7 +25,7 @@ jobs:
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
+    
     steps:
     - name: 📦 Checkout code
       uses: actions/checkout@v4
@@ -28,164 +33,48 @@ jobs:
     - name: 🐘 Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'
-        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, dom, filter, gd, iconv, json, mbstring, pdo
+        php-version: ${{ matrix.php }}
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql
         tools: composer:v2
         coverage: xdebug
 
-    - name: 📋 Copy environment file
-      run: cp .env.example .env
+    - name: � Get composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-    - name: 🔧 Configure environment
-      run: |
-        sed -i 's/DB_CONNECTION=sqlite/DB_CONNECTION=mysql/' .env
-        sed -i 's/DB_HOST=127.0.0.1/DB_HOST=127.0.0.1/' .env
-        sed -i 's/DB_PORT=3306/DB_PORT=3306/' .env
-        sed -i 's/DB_DATABASE=laravel/DB_DATABASE=petrotekno_test/' .env
-        sed -i 's/DB_USERNAME=root/DB_USERNAME=root/' .env
-        sed -i 's/DB_PASSWORD=/DB_PASSWORD=password/' .env
+    - name: � Cache composer dependencies
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-composer-
 
     - name: 📥 Install Composer dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader
+      run: composer install --prefer-dist --no-progress --no-interaction
 
-    - name: 🔑 Generate application key
-      run: php artisan key:generate
+    - name: � Setup environment
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+        echo "DB_CONNECTION=mysql" >> .env
+        echo "DB_HOST=127.0.0.1" >> .env
+        echo "DB_PORT=3306" >> .env
+        echo "DB_DATABASE=petrotekno_test" >> .env
+        echo "DB_USERNAME=root" >> .env
+        echo "DB_PASSWORD=password" >> .env
 
-    - name: 🗄️ Run database migrations
+    - name: �️ Run migrations
       run: php artisan migrate --force
 
     - name: 🌱 Seed database
       run: php artisan db:seed --force
 
-    - name: 🧪 Run PHPUnit tests
-      run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
+    - name: � Run test suite
+      run: php artisan test --coverage --min=80
 
-    - name: 📊 Upload coverage to Codecov
+    - name: 📊 Upload coverage reports
+      if: matrix.php == '8.2'
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-
-  code-quality:
-    runs-on: ubuntu-latest
-    name: 🔍 Code Quality Analysis
-    
-    steps:
-    - name: 📦 Checkout code
-      uses: actions/checkout@v4
-
-    - name: 🐘 Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
-        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql
-        tools: composer:v2, phpcs, phpstan
-
-    - name: 📥 Install Composer dependencies
-      run: composer install --prefer-dist --no-progress --optimize-autoloader
-
-    - name: 🎨 Run PHP CodeSniffer
-      run: |
-        if [ ! -f vendor/bin/phpcs ]; then
-          composer require --dev squizlabs/php_codesniffer
-        fi
-        vendor/bin/phpcs --standard=PSR12 app/ --ignore=app/Console/Kernel.php || true
-
-    - name: 🔬 Run PHPStan analysis
-      run: |
-        if [ ! -f vendor/bin/phpstan ]; then
-          composer require --dev phpstan/phpstan
-        fi
-        vendor/bin/phpstan analyse app/ --level=5 || true
-
-  security:
-    runs-on: ubuntu-latest
-    name: 🛡️ Security Scan
-    
-    steps:
-    - name: 📦 Checkout code
-      uses: actions/checkout@v4
-
-    - name: 🐘 Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
-        tools: composer:v2
-
-    - name: 📥 Install Composer dependencies
-      run: composer install --prefer-dist --no-progress --optimize-autoloader
-
-    - name: 🔐 Security audit
-      run: |
-        if [ ! -f vendor/bin/security-checker ]; then
-          composer require --dev enlightn/security-checker
-        fi
-        vendor/bin/security-checker security:check composer.lock || true
-
-    - name: 🔍 Check for secrets
-      uses: trufflesecurity/trufflehog@main
-      with:
-        path: ./
-        base: main
-        head: HEAD
-        extra_args: --debug --only-verified
-
-  build:
-    runs-on: ubuntu-latest
-    name: 🔨 Build Verification
-    needs: [tests, code-quality, security]
-    
-    steps:
-    - name: 📦 Checkout code
-      uses: actions/checkout@v4
-
-    - name: 🐘 Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
-        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql
-        tools: composer:v2
-
-    - name: 📥 Install dependencies
-      run: composer install --prefer-dist --no-dev --optimize-autoloader
-
-    - name: 📋 Copy environment file
-      run: cp .env.example .env
-
-    - name: 🔑 Generate application key
-      run: php artisan key:generate
-
-    - name: 🧹 Clear and cache config
-      run: |
-        php artisan config:clear
-        php artisan config:cache
-        php artisan route:cache
-        php artisan view:cache
-
-    - name: ✅ Verify build
-      run: php artisan --version
-
-  auto-merge:
-    runs-on: ubuntu-latest
-    name: 🤖 Auto-merge to dev
-    needs: [tests, code-quality, security, build]
-    if: github.event_name == 'pull_request' && github.base_ref == 'dev' && needs.tests.result == 'success' && needs.code-quality.result == 'success' && needs.security.result == 'success' && needs.build.result == 'success'
-    
-    steps:
-    - name: 🎯 Auto-merge PR
-      uses: pascalgn/merge-action@v0.15.6
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        merge_method: merge
-        merge_commit_title: "🚀 Auto-merge: {pull_request_title}"
-        merge_commit_message: |
-          Auto-merged PR #{pull_request_number}: {pull_request_title}
-          
-          ✅ All CI/CD checks passed:
-          - Tests: ✅ Passed
-          - Code Quality: ✅ Passed  
-          - Security: ✅ Passed
-          - Build: ✅ Passed
-          
-          Branch: {head_ref} → {base_ref}
+        fail_ci_if_error: true
