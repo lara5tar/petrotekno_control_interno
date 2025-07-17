@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Personal;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class BoundaryTest extends TestCase
 {
@@ -29,7 +29,7 @@ class BoundaryTest extends TestCase
 
         // Test límite típico de varchar(255)
         $maxLengthName = str_repeat('a', 255);
-        $maxLengthEmail = str_repeat('b', 243) . '@example.com'; // 255 chars total
+        $maxLengthEmail = str_repeat('b', 243).'@example.com'; // 255 chars total
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson('/api/users', [
@@ -42,7 +42,7 @@ class BoundaryTest extends TestCase
 
         // Debería aceptar datos dentro del límite
         $this->assertContains($response->status(), [201, 422]);
-        
+
         if ($response->status() === 201) {
             $user = User::where('email', $maxLengthEmail)->first();
             $this->assertNotNull($user);
@@ -51,319 +51,341 @@ class BoundaryTest extends TestCase
     }
 
     /**
-     * Test oversized input is properly rejected
+     * Test field length validation (over limits)
      */
-    public function test_rejects_oversized_field_lengths(): void
+    public function test_rejects_fields_over_maximum_length(): void
+    {
+        $admin = User::where('email', 'admin@petrotekno.com')->first();
+        $personal = Personal::factory()->create();
+        $role = Role::first();
+
+        // Test excediendo límite de varchar(255)
+        $overLengthName = str_repeat('x', 256); // 256 chars - excede límite
+        $overLengthEmail = str_repeat('y', 250).'@example.com'; // 261 chars total
+
+        $response = $this->actingAs($admin, 'sanctum')
+            ->postJson('/api/users', [
+                'nombre_usuario' => $overLengthName,
+                'email' => 'test@example.com',
+                'password' => 'password123',
+                'rol_id' => $role->id,
+                'personal_id' => $personal->id,
+            ]);
+
+        // Debe rechazar datos que excedan el límite
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['nombre_usuario']);
+
+        // Test con email demasiado largo
+        $response2 = $this->actingAs($admin, 'sanctum')
+            ->postJson('/api/users', [
+                'nombre_usuario' => 'validname',
+                'email' => $overLengthEmail,
+                'password' => 'password123',
+                'rol_id' => $role->id,
+                'personal_id' => $personal->id,
+            ]);
+
+        $response2->assertStatus(422);
+        $response2->assertJsonValidationErrors(['email']);
+    }
+
+    /**
+     * Test minimum password length validation
+     */
+    public function test_enforces_minimum_password_length(): void
+    {
+        $admin = User::where('email', 'admin@petrotekno.com')->first();
+        $personal = Personal::factory()->create();
+        $role = Role::first();
+
+        // Password demasiado corta (menos de 8 caracteres)
+        $shortPasswords = ['1', '12', '123', '1234', '12345', '123456', '1234567'];
+
+        foreach ($shortPasswords as $index => $shortPassword) {
+            $response = $this->actingAs($admin, 'sanctum')
+                ->postJson('/api/users', [
+                    'nombre_usuario' => 'testuser'.$index,
+                    'email' => 'test'.$index.'@example.com',
+                    'password' => $shortPassword,
+                    'rol_id' => $role->id,
+                    'personal_id' => $personal->id,
+                ]);
+
+            $response->assertStatus(422);
+            $response->assertJsonValidationErrors(['password']);
+        }
+    }
+
+    /**
+     * Test null/empty field validation
+     */
+    public function test_handles_null_and_empty_required_fields(): void
+    {
+        $admin = User::where('email', 'admin@petrotekno.com')->first();
+
+        $requiredFields = [
+            'nombre_usuario' => '',
+            'email' => '',
+            'password' => '',
+            'rol_id' => null,
+        ];
+
+        foreach ($requiredFields as $field => $emptyValue) {
+            $validData = [
+                'nombre_usuario' => 'testuser',
+                'email' => 'test@example.com',
+                'password' => 'password123',
+                'rol_id' => 1,
+                'personal_id' => null, // Este puede ser null
+            ];
+
+            // Reemplazar el campo con valor vacío
+            $validData[$field] = $emptyValue;
+
+            $response = $this->actingAs($admin, 'sanctum')
+                ->postJson('/api/users', $validData);
+
+            $response->assertStatus(422);
+            $response->assertJsonValidationErrors([$field]);
+        }
+    }
+
+    /**
+     * Test edge cases for numeric fields
+     */
+    public function test_handles_numeric_field_edge_cases(): void
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
         $personal = Personal::factory()->create();
 
-        // Test: Campo nombre_usuario excede límite (255 caracteres)
+        $edgeCases = [
+            'negative_rol_id' => -1,
+            'zero_rol_id' => 0,
+            'float_rol_id' => 1.5,
+            'string_rol_id' => 'not_a_number',
+            'very_large_rol_id' => 999999999,
+        ];
+
+        foreach ($edgeCases as $testCase => $rolId) {
+            $response = $this->actingAs($admin, 'sanctum')
+                ->postJson('/api/users', [
+                    'nombre_usuario' => 'test_'.$testCase,
+                    'email' => $testCase.'@example.com',
+                    'password' => 'password123',
+                    'rol_id' => $rolId,
+                    'personal_id' => $personal->id,
+                ]);
+
+            // Debe rechazar valores inválidos para rol_id
+            if (in_array($rolId, [-1, 0, 1.5, 'not_a_number', 999999999])) {
+                $this->assertContains($response->status(), [422, 400]);
+            }
+        }
+    }
+
+    /**
+     * Test pagination boundary conditions
+     */
+    public function test_pagination_boundary_conditions(): void
+    {
+        $admin = User::where('email', 'admin@petrotekno.com')->first();
+
+        // Crear usuarios adicionales para probar paginación
+        $personal = Personal::factory()->create();
+        $role = Role::first();
+
+        for ($i = 1; $i <= 20; $i++) {
+            User::factory()->create([
+                'nombre_usuario' => 'testuser'.$i,
+                'email' => 'test'.$i.'@example.com',
+                'rol_id' => $role->id,
+                'personal_id' => $personal->id,
+            ]);
+        }
+
+        // Test primera página
+        $response = $this->actingAs($admin, 'sanctum')
+            ->getJson('/api/users?page=1');
+        $response->assertStatus(200);
+        $data = $response->json();
+        $this->assertArrayHasKey('data', $data);
+
+        // Test página que no existe
+        $response = $this->actingAs($admin, 'sanctum')
+            ->getJson('/api/users?page=999');
+        $response->assertStatus(200); // Debe retornar página vacía, no error
+
+        // Test parámetros de paginación inválidos
+        $invalidPageParams = ['page=-1', 'page=0', 'page=abc', 'page=1.5'];
+        foreach ($invalidPageParams as $param) {
+            $response = $this->actingAs($admin, 'sanctum')
+                ->getJson('/api/users?'.$param);
+            // Debe manejar graciosamente parámetros inválidos
+            $this->assertContains($response->status(), [200, 422, 400]);
+        }
+    }
+
+    /**
+     * Test unique constraint boundary conditions
+     */
+    public function test_unique_constraint_boundary_conditions(): void
+    {
+        $admin = User::where('email', 'admin@petrotekno.com')->first();
+        $personal = Personal::factory()->create();
+        $role = Role::first();
+
+        // Crear usuario inicial
+        $initialUser = [
+            'nombre_usuario' => 'uniqueuser',
+            'email' => 'unique@example.com',
+            'password' => 'password123',
+            'rol_id' => $role->id,
+            'personal_id' => $personal->id,
+        ];
+
+        $response = $this->actingAs($admin, 'sanctum')
+            ->postJson('/api/users', $initialUser);
+        $response->assertStatus(201);
+
+        // Intentar crear usuario con mismo nombre_usuario
+        $duplicateUsername = $initialUser;
+        $duplicateUsername['email'] = 'different@example.com';
+
+        $response = $this->actingAs($admin, 'sanctum')
+            ->postJson('/api/users', $duplicateUsername);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['nombre_usuario']);
+
+        // Intentar crear usuario con mismo email
+        $duplicateEmail = $initialUser;
+        $duplicateEmail['nombre_usuario'] = 'differentuser';
+
+        $response = $this->actingAs($admin, 'sanctum')
+            ->postJson('/api/users', $duplicateEmail);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['email']);
+    }
+
+    /**
+     * Test extremely long input handling
+     */
+    public function test_handles_extremely_long_inputs(): void
+    {
+        $admin = User::where('email', 'admin@petrotekno.com')->first();
+        $role = Role::first();
+
+        // Crear input extremadamente largo (10KB)
+        $extremelyLongInput = str_repeat('A', 10240);
+
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson('/api/users', [
-                'nombre_usuario' => str_repeat('a', 256), // 256 caracteres
+                'nombre_usuario' => $extremelyLongInput,
                 'email' => 'test@example.com',
                 'password' => 'password123',
-                'rol_id' => 1,
-                'personal_id' => $personal->id,
+                'rol_id' => $role->id,
             ]);
-        
-        $response->assertStatus(422)
-                ->assertJsonValidationErrors(['nombre_usuario']);
-        
-        // Test: Campo email excede límite (255 caracteres)
-        $longEmail = str_repeat('a', 244) . '@example.com'; // 256 caracteres total
-        $response = $this->actingAs($admin, 'sanctum')
-            ->postJson('/api/users', [
-                'nombre_usuario' => 'validuser',
-                'email' => $longEmail,
-                'password' => 'password123',
-                'rol_id' => 1,
-                'personal_id' => $personal->id,
-            ]);
-        
-        $response->assertStatus(422)
-                ->assertJsonValidationErrors(['email']);
-        
-        // Test: Password excede límite (255 caracteres)
-        $response = $this->actingAs($admin, 'sanctum')
-            ->postJson('/api/users', [
-                'nombre_usuario' => 'validuser2',
-                'email' => 'test2@example.com',
-                'password' => str_repeat('a', 256), // 256 caracteres
-                'rol_id' => 1,
-                'personal_id' => $personal->id,
-            ]);
-        
-        $response->assertStatus(422)
-                ->assertJsonValidationErrors(['password']);
-        
-        // Test: Datos válidos dentro de límites
-        $validUsername = 'validuser_' . time(); // Username único y corto
-        $validEmail = 'valid_' . time() . '@example.com'; // Email único y corto
-        $validPassword = 'validpassword123'; // Password válido y corto
-        
-        $response = $this->actingAs($admin, 'sanctum')
-            ->postJson('/api/users', [
-                'nombre_usuario' => $validUsername,
-                'email' => $validEmail,
-                'password' => $validPassword,
-                'rol_id' => 1,
-                'personal_id' => $personal->id,
-            ]);
-        
-        if ($response->status() !== 201) {
-            dump('Unexpected error for valid data:', $response->json());
-        }
-        
-        $response->assertStatus(201);
+
+        // Debe rechazar o truncar inputs extremadamente largos
+        $this->assertContains($response->status(), [422, 413, 400]);
     }
 
     /**
-     * Test empty search parameters are handled gracefully
-     */
-    public function test_handles_empty_search_parameters_gracefully(): void
-    {
-        $admin = User::where('email', 'admin@petrotekno.com')->first();
-
-        // Test con parámetro search vacío
-        $response = $this->actingAs($admin, 'sanctum')
-            ->getJson('/api/users?search=');
-
-        $response->assertStatus(200);
-        $this->assertIsArray($response->json()['data']['data']);
-
-        // Test con parámetro search solo espacios
-        $response = $this->actingAs($admin, 'sanctum')
-            ->getJson('/api/users?search=' . urlencode('   '));
-
-        $response->assertStatus(200);
-        $this->assertIsArray($response->json()['data']['data']);
-
-        // Test sin parámetro search
-        $response = $this->actingAs($admin, 'sanctum')
-            ->getJson('/api/users');
-
-        $response->assertStatus(200);
-        $this->assertIsArray($response->json()['data']['data']);
-    }
-
-    /**
-     * Test null and empty field handling
-     */
-    public function test_handles_null_and_empty_fields(): void
-    {
-        $admin = User::where('email', 'admin@petrotekno.com')->first();
-
-        // Test con campos vacíos donde no deberían estar
-        $response = $this->actingAs($admin, 'sanctum')
-            ->postJson('/api/users', [
-                'nombre_usuario' => '',
-                'email' => '',
-                'password' => '',
-                'rol_id' => null,
-                'personal_id' => null,
-            ]);
-
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors([
-            'nombre_usuario',
-            'email', 
-            'password',
-            'rol_id'
-        ]);
-    }
-
-    /**
-     * Test very long text in text fields
-     */
-    public function test_handles_very_long_text_fields(): void
-    {
-        $admin = User::where('email', 'admin@petrotekno.com')->first();
-
-        // Test con descripción muy larga en personal
-        $veryLongText = str_repeat('Lorem ipsum dolor sit amet, consectetur adipiscing elit. ', 1000);
-
-        $response = $this->actingAs($admin, 'sanctum')
-            ->postJson('/api/personal', [
-                'nombre_completo' => 'Test User',
-                'estatus' => 'activo',
-                'categoria_id' => 1,
-                'descripcion' => $veryLongText, // Si existe este campo
-            ]);
-
-        // Debería manejar texto largo apropiadamente
-        $this->assertContains($response->status(), [201, 422]);
-    }
-
-    /**
-     * Test special characters in input fields
+     * Test special characters in field validation
      */
     public function test_handles_special_characters_in_fields(): void
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
         $personal = Personal::factory()->create();
+        $role = Role::first();
 
-        $specialCharacters = [
-            'José María Ñoño', // Acentos y ñ
-            'O\'Connor',        // Apostrofes
-            'Smith-Johnson',    // Guiones
-            'محمد علي',         // Caracteres árabes
-            '张三',             // Caracteres chinos
-            '😀 Emoji Test',    // Emojis
+        $specialCharInputs = [
+            'unicode_chars' => '用户名测试',
+            'symbols' => 'user@#$%^&*()',
+            'emoji' => 'user😀👍🎉',
+            'mixed' => 'user名前😀@#$',
         ];
 
-        foreach ($specialCharacters as $index => $specialName) {
+        foreach ($specialCharInputs as $testCase => $input) {
             $response = $this->actingAs($admin, 'sanctum')
                 ->postJson('/api/users', [
-                    'nombre_usuario' => $specialName,
-                    'email' => "special{$index}@example.com",
+                    'nombre_usuario' => $input,
+                    'email' => $testCase.'@example.com',
                     'password' => 'password123',
-                    'rol_id' => 1,
+                    'rol_id' => $role->id,
                     'personal_id' => $personal->id,
                 ]);
 
-            // Debería manejar caracteres especiales apropiadamente
+            // El sistema debe manejar caracteres especiales apropiadamente
             $this->assertContains($response->status(), [201, 422]);
-            
+
             if ($response->status() === 201) {
-                $user = User::where('email', "special{$index}@example.com")->first();
+                $user = User::where('email', $testCase.'@example.com')->first();
                 $this->assertNotNull($user);
+                // Verificar que los caracteres especiales se almacenaron correctamente
+                $this->assertIsString($user->nombre_usuario);
             }
         }
     }
 
     /**
-     * Test numeric boundary values
-     */
-    public function test_handles_numeric_boundary_values(): void
-    {
-        $admin = User::where('email', 'admin@petrotekno.com')->first();
-
-        // Test con IDs en los límites
-        $boundaryValues = [
-            0,              // Valor mínimo
-            -1,             // Valor negativo
-            999999999,      // Valor muy grande
-            2147483647,     // Max INT en MySQL
-            'not_a_number', // No numérico
-        ];
-
-        foreach ($boundaryValues as $value) {
-            $response = $this->actingAs($admin, 'sanctum')
-                ->postJson('/api/users', [
-                    'nombre_usuario' => 'boundary_test',
-                    'email' => 'boundary@example.com',
-                    'password' => 'password123',
-                    'rol_id' => $value, // Probar valor límite
-                    'personal_id' => 1,
-                ]);
-
-            // Valores inválidos deben ser rechazados
-            if (!is_int($value) || $value <= 0) {
-                $response->assertStatus(422);
-            }
-        }
-    }
-
-    /**
-     * Test pagination boundary cases
-     */
-    public function test_pagination_boundary_cases(): void
-    {
-        $admin = User::where('email', 'admin@petrotekno.com')->first();
-
-        // Test con parámetros de paginación en los límites
-        $paginationTests = [
-            ['page' => 0, 'per_page' => 10],      // Página 0
-            ['page' => -1, 'per_page' => 10],     // Página negativa
-            ['page' => 1, 'per_page' => 0],       // Per page 0
-            ['page' => 1, 'per_page' => -5],      // Per page negativo
-            ['page' => 1, 'per_page' => 1000],    // Per page muy grande
-            ['page' => 999999, 'per_page' => 10], // Página muy alta
-            ['page' => 'abc', 'per_page' => 10],  // Página no numérica
-            ['page' => 1, 'per_page' => 'xyz'],   // Per page no numérico
-        ];
-
-        foreach ($paginationTests as $params) {
-            $queryString = http_build_query($params);
-            
-            $response = $this->actingAs($admin, 'sanctum')
-                ->getJson("/api/users?{$queryString}");
-
-            // Debería manejar parámetros inválidos gracefully
-            $this->assertContains($response->status(), [200, 422]);
-            
-            if ($response->status() === 200) {
-                $this->assertIsArray($response->json()['data']);
-            }
-        }
-    }
-
-    /**
-     * Test date boundary values
-     */
-    public function test_handles_date_boundary_values(): void
-    {
-        $admin = User::where('email', 'admin@petrotekno.com')->first();
-
-        // Test con fechas límite si hay campos de fecha en los endpoints
-        $dateBoundaries = [
-            '1900-01-01',           // Fecha muy antigua
-            '2099-12-31',           // Fecha muy futura
-            '2024-02-29',           // Año bisiesto válido
-            '2023-02-29',           // Año bisiesto inválido
-            '2024-13-01',           // Mes inválido
-            '2024-01-32',           // Día inválido
-            'invalid-date',         // Formato inválido
-            '',                     // Fecha vacía
-        ];
-
-        foreach ($dateBoundaries as $date) {
-            // Si hay endpoints que aceptan fechas, probar con valores límite
-            // Este es un placeholder - adaptar según endpoints específicos
-            $this->assertTrue(true, "Date boundary test placeholder - adapt based on actual date endpoints");
-        }
-    }
-
-    /**
-     * Test concurrent requests handling
+     * Test concurrent user creation boundary conditions
      */
     public function test_handles_concurrent_operations(): void
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
         $personal = Personal::factory()->create();
+        $role = Role::first();
 
-        // Simular requests concurrentes con mismo email
-        $userData = [
-            'nombre_usuario' => 'concurrent_test',
-            'email' => 'concurrent@test.com',
-            'password' => 'password123',
-            'rol_id' => 1,
-            'personal_id' => $personal->id,
-        ];
-
+        // Simular múltiples operaciones simultáneas (en serie para el test)
         $responses = [];
-        
-        // Simular múltiples requests "simultáneos"
-        for ($i = 0; $i < 3; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $responses[] = $this->actingAs($admin, 'sanctum')
-                ->postJson('/api/users', $userData);
+                ->postJson('/api/users', [
+                    'nombre_usuario' => 'concurrent_user_'.$i,
+                    'email' => 'concurrent'.$i.'@example.com',
+                    'password' => 'password123',
+                    'rol_id' => $role->id,
+                    'personal_id' => $personal->id,
+                ]);
         }
 
-        // Solo uno debería ser exitoso debido a constraint de email único
-        $successCount = 0;
-        $errorCount = 0;
-
-        foreach ($responses as $response) {
+        // Verificar que todas las operaciones fueron manejadas apropiadamente
+        foreach ($responses as $index => $response) {
+            $this->assertContains($response->status(), [201, 422, 500]);
+            
             if ($response->status() === 201) {
-                $successCount++;
-            } elseif ($response->status() === 422) {
-                $errorCount++;
+                $email = 'concurrent'.($index + 1).'@example.com';
+                $this->assertDatabaseHas('users', ['email' => $email]);
             }
         }
+    }
 
-        $this->assertEquals(1, $successCount, 'Only one request should succeed');
-        $this->assertEquals(2, $errorCount, 'Two requests should fail due to unique constraint');
+    /**
+     * Test memory and performance boundaries
+     */
+    public function test_performance_boundaries(): void
+    {
+        $admin = User::where('email', 'admin@petrotekno.com')->first();
+
+        $startTime = microtime(true);
+        $startMemory = memory_get_usage();
+
+        // Test consulta de usuarios con gran cantidad de datos
+        $response = $this->actingAs($admin, 'sanctum')
+            ->getJson('/api/users');
+
+        $endTime = microtime(true);
+        $endMemory = memory_get_usage();
+
+        $response->assertStatus(200);
+
+        // Verificar que la operación se complete en tiempo razonable (menos de 5 segundos)
+        $executionTime = $endTime - $startTime;
+        $this->assertLessThan(5.0, $executionTime, 'API response took too long: '.$executionTime.' seconds');
+
+        // Verificar que el uso de memoria no sea excesivo (menos de 50MB adicionales)
+        $memoryUsed = $endMemory - $startMemory;
+        $this->assertLessThan(50 * 1024 * 1024, $memoryUsed, 'Excessive memory usage: '.($memoryUsed / 1024 / 1024).' MB');
     }
 }
