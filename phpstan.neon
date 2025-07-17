@@ -1,0 +1,17 @@
+includes:
+    - ./app
+
+parameters:
+    level: 6
+    paths:
+        - app
+    excludePaths:
+        - app/Console/Kernel.php
+        - app/Exceptions/Handler.php
+        - app/Http/Kernel.php
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    ignoreErrors:
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder#'
+        - '#Cannot call method [a-zA-Z]+\(\) on Illuminate\\Database\\Eloquent\\Model\|null#'
+        - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model#'
