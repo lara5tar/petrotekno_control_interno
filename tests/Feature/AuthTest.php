@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -21,31 +20,31 @@ class AuthTest extends TestCase
     {
         $response = $this->postJson('/api/auth/login', [
             'email' => 'admin@petrotekno.com',
-            'password' => 'password123'
+            'password' => 'password123',
         ]);
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'success',
-                    'message',
-                    'data' => [
-                        'user' => [
-                            'id',
-                            'nombre_usuario',
-                            'email',
-                            'rol',
-                            'permisos'
-                        ],
-                        'token'
-                    ]
-                ]);
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'user' => [
+                        'id',
+                        'nombre_usuario',
+                        'email',
+                        'rol',
+                        'permisos',
+                    ],
+                    'token',
+                ],
+            ]);
     }
 
     public function test_login_with_invalid_credentials()
     {
         $response = $this->postJson('/api/auth/login', [
             'email' => 'admin@petrotekno.com',
-            'password' => 'wrong_password'
+            'password' => 'wrong_password',
         ]);
 
         $response->assertStatus(422);
@@ -54,21 +53,21 @@ class AuthTest extends TestCase
     public function test_authenticated_user_can_access_protected_routes()
     {
         $user = User::where('email', 'admin@petrotekno.com')->first();
-        
+
         $response = $this->actingAs($user, 'sanctum')
-                         ->getJson('/api/auth/me');
+            ->getJson('/api/auth/me');
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'success',
-                    'data' => [
-                        'id',
-                        'nombre_usuario',
-                        'email',
-                        'rol',
-                        'permisos'
-                    ]
-                ]);
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'id',
+                    'nombre_usuario',
+                    'email',
+                    'rol',
+                    'permisos',
+                ],
+            ]);
     }
 
     public function test_user_can_logout()
@@ -77,7 +76,7 @@ class AuthTest extends TestCase
         $token = $user->createToken('test')->plainTextToken;
 
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->postJson('/api/auth/logout');
 
         $response->assertStatus(200);

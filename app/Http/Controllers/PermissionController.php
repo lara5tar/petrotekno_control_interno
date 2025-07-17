@@ -17,7 +17,7 @@ class PermissionController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $permissions
+            'data' => $permissions,
         ]);
     }
 
@@ -33,7 +33,7 @@ class PermissionController extends Controller
 
         $permission = Permission::create($request->only([
             'nombre_permiso',
-            'descripcion'
+            'descripcion',
         ]));
 
         // Registrar acción
@@ -43,13 +43,13 @@ class PermissionController extends Controller
             'accion' => 'crear_permiso',
             'tabla_afectada' => 'permisos',
             'registro_id' => $permission->id,
-            'detalles' => ['permiso_creado' => $permission->nombre_permiso]
+            'detalles' => ['permiso_creado' => $permission->nombre_permiso],
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Permiso creado exitosamente',
-            'data' => $permission
+            'data' => $permission,
         ], 201);
     }
 
@@ -62,7 +62,7 @@ class PermissionController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $permission
+            'data' => $permission,
         ]);
     }
 
@@ -74,7 +74,7 @@ class PermissionController extends Controller
         $permission = Permission::findOrFail($id);
 
         $request->validate([
-            'nombre_permiso' => 'required|string|unique:permisos,nombre_permiso,' . $permission->id,
+            'nombre_permiso' => 'required|string|unique:permisos,nombre_permiso,'.$permission->id,
             'descripcion' => 'nullable|string',
         ]);
 
@@ -82,7 +82,7 @@ class PermissionController extends Controller
 
         $permission->update($request->only([
             'nombre_permiso',
-            'descripcion'
+            'descripcion',
         ]));
 
         // Registrar acción
@@ -94,14 +94,14 @@ class PermissionController extends Controller
             'registro_id' => $permission->id,
             'detalles' => [
                 'permiso_actualizado' => $permission->nombre_permiso,
-                'cambios' => array_diff_assoc($request->only(['nombre_permiso', 'descripcion']), $oldData)
-            ]
+                'cambios' => array_diff_assoc($request->only(['nombre_permiso', 'descripcion']), $oldData),
+            ],
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Permiso actualizado exitosamente',
-            'data' => $permission
+            'data' => $permission,
         ]);
     }
 
@@ -116,7 +116,7 @@ class PermissionController extends Controller
         if ($permission->roles()->count() > 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'No se puede eliminar el permiso porque está asignado a uno o más roles'
+                'message' => 'No se puede eliminar el permiso porque está asignado a uno o más roles',
             ], 400);
         }
 
@@ -130,12 +130,12 @@ class PermissionController extends Controller
             'accion' => 'eliminar_permiso',
             'tabla_afectada' => 'permisos',
             'registro_id' => $id,
-            'detalles' => ['permiso_eliminado' => $permissionName]
+            'detalles' => ['permiso_eliminado' => $permissionName],
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Permiso eliminado exitosamente'
+            'message' => 'Permiso eliminado exitosamente',
         ]);
     }
 }

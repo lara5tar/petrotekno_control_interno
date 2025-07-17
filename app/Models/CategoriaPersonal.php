@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class CategoriaPersonal extends Model
 {
     protected $table = 'categorias_personal';
-    
+
     protected $fillable = [
-        'nombre_categoria'
+        'nombre_categoria',
     ];
 
     /**

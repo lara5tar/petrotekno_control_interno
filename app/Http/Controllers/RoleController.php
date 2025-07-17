@@ -17,7 +17,7 @@ class RoleController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $roles
+            'data' => $roles,
         ]);
     }
 
@@ -30,7 +30,7 @@ class RoleController extends Controller
             'nombre_rol' => 'required|string|unique:roles',
             'descripcion' => 'nullable|string',
             'permisos' => 'array',
-            'permisos.*' => 'exists:permisos,id'
+            'permisos.*' => 'exists:permisos,id',
         ]);
 
         $role = Role::create([
@@ -49,7 +49,7 @@ class RoleController extends Controller
             'accion' => 'crear_rol',
             'tabla_afectada' => 'roles',
             'registro_id' => $role->id,
-            'detalles' => ['rol_creado' => $role->nombre_rol]
+            'detalles' => ['rol_creado' => $role->nombre_rol],
         ]);
 
         $role->load('permisos');
@@ -57,7 +57,7 @@ class RoleController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Rol creado exitosamente',
-            'data' => $role
+            'data' => $role,
         ], 201);
     }
 
@@ -70,7 +70,7 @@ class RoleController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $role
+            'data' => $role,
         ]);
     }
 
@@ -82,10 +82,10 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
 
         $request->validate([
-            'nombre_rol' => 'required|string|unique:roles,nombre_rol,' . $role->id,
+            'nombre_rol' => 'required|string|unique:roles,nombre_rol,'.$role->id,
             'descripcion' => 'nullable|string',
             'permisos' => 'array',
-            'permisos.*' => 'exists:permisos,id'
+            'permisos.*' => 'exists:permisos,id',
         ]);
 
         $oldData = $role->toArray();
@@ -108,8 +108,8 @@ class RoleController extends Controller
             'registro_id' => $role->id,
             'detalles' => [
                 'rol_actualizado' => $role->nombre_rol,
-                'cambios' => array_diff_assoc($request->only(['nombre_rol', 'descripcion']), $oldData)
-            ]
+                'cambios' => array_diff_assoc($request->only(['nombre_rol', 'descripcion']), $oldData),
+            ],
         ]);
 
         $role->load('permisos');
@@ -117,7 +117,7 @@ class RoleController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Rol actualizado exitosamente',
-            'data' => $role
+            'data' => $role,
         ]);
     }
 
@@ -132,7 +132,7 @@ class RoleController extends Controller
         if ($role->usuarios()->count() > 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'No se puede eliminar el rol porque tiene usuarios asignados'
+                'message' => 'No se puede eliminar el rol porque tiene usuarios asignados',
             ], 400);
         }
 
@@ -146,12 +146,12 @@ class RoleController extends Controller
             'accion' => 'eliminar_rol',
             'tabla_afectada' => 'roles',
             'registro_id' => $id,
-            'detalles' => ['rol_eliminado' => $roleName]
+            'detalles' => ['rol_eliminado' => $roleName],
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Rol eliminado exitosamente'
+            'message' => 'Rol eliminado exitosamente',
         ]);
     }
 
@@ -171,13 +171,13 @@ class RoleController extends Controller
             'tabla_afectada' => 'roles_permisos',
             'detalles' => [
                 'rol' => $role->nombre_rol,
-                'permiso_id' => $permissionId
-            ]
+                'permiso_id' => $permissionId,
+            ],
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Permiso asignado al rol exitosamente'
+            'message' => 'Permiso asignado al rol exitosamente',
         ]);
     }
 
@@ -197,13 +197,13 @@ class RoleController extends Controller
             'tabla_afectada' => 'roles_permisos',
             'detalles' => [
                 'rol' => $role->nombre_rol,
-                'permiso_id' => $permissionId
-            ]
+                'permiso_id' => $permissionId,
+            ],
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Permiso removido del rol exitosamente'
+            'message' => 'Permiso removido del rol exitosamente',
         ]);
     }
 }

@@ -20,9 +20,9 @@ class PersonalController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nombre_completo', 'like', "%{$search}%")
-                  ->orWhereHas('categoria', function ($cq) use ($search) {
-                      $cq->where('nombre_categoria', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('categoria', function ($cq) use ($search) {
+                        $cq->where('nombre_categoria', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -38,7 +38,7 @@ class PersonalController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $personal
+            'data' => $personal,
         ]);
     }
 
@@ -56,7 +56,7 @@ class PersonalController extends Controller
         $personal = Personal::create($request->only([
             'nombre_completo',
             'estatus',
-            'categoria_id'
+            'categoria_id',
         ]));
 
         // Registrar acción
@@ -66,7 +66,7 @@ class PersonalController extends Controller
             'accion' => 'crear_personal',
             'tabla_afectada' => 'personal',
             'registro_id' => $personal->id,
-            'detalles' => ['personal_creado' => $personal->nombre_completo]
+            'detalles' => ['personal_creado' => $personal->nombre_completo],
         ]);
 
         $personal->load('categoria');
@@ -74,7 +74,7 @@ class PersonalController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Personal creado exitosamente',
-            'data' => $personal
+            'data' => $personal,
         ], 201);
     }
 
@@ -87,7 +87,7 @@ class PersonalController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $personal
+            'data' => $personal,
         ]);
     }
 
@@ -109,7 +109,7 @@ class PersonalController extends Controller
         $personal->update($request->only([
             'nombre_completo',
             'estatus',
-            'categoria_id'
+            'categoria_id',
         ]));
 
         // Registrar acción
@@ -121,8 +121,8 @@ class PersonalController extends Controller
             'registro_id' => $personal->id,
             'detalles' => [
                 'personal_actualizado' => $personal->nombre_completo,
-                'cambios' => array_diff_assoc($request->only(['nombre_completo', 'estatus', 'categoria_id']), $oldData)
-            ]
+                'cambios' => array_diff_assoc($request->only(['nombre_completo', 'estatus', 'categoria_id']), $oldData),
+            ],
         ]);
 
         $personal->load('categoria');
@@ -130,7 +130,7 @@ class PersonalController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Personal actualizado exitosamente',
-            'data' => $personal
+            'data' => $personal,
         ]);
     }
 
@@ -145,7 +145,7 @@ class PersonalController extends Controller
         if ($personal->usuario) {
             return response()->json([
                 'success' => false,
-                'message' => 'No se puede eliminar el personal porque tiene un usuario asociado'
+                'message' => 'No se puede eliminar el personal porque tiene un usuario asociado',
             ], 400);
         }
 
@@ -159,12 +159,12 @@ class PersonalController extends Controller
             'accion' => 'eliminar_personal',
             'tabla_afectada' => 'personal',
             'registro_id' => $id,
-            'detalles' => ['personal_eliminado' => $personalName]
+            'detalles' => ['personal_eliminado' => $personalName],
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Personal eliminado exitosamente'
+            'message' => 'Personal eliminado exitosamente',
         ]);
     }
 }

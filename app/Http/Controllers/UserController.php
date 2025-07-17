@@ -22,10 +22,10 @@ class UserController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nombre_usuario', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhereHas('personal', function ($pq) use ($search) {
-                      $pq->where('nombre_completo', 'like', "%{$search}%");
-                  });
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhereHas('personal', function ($pq) use ($search) {
+                        $pq->where('nombre_completo', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -37,7 +37,7 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $users
+            'data' => $users,
         ]);
     }
 
@@ -69,7 +69,7 @@ class UserController extends Controller
             'accion' => 'crear_usuario',
             'tabla_afectada' => 'users',
             'registro_id' => $user->id,
-            'detalles' => ['usuario_creado' => $user->nombre_usuario]
+            'detalles' => ['usuario_creado' => $user->nombre_usuario],
         ]);
 
         $user->load(['rol', 'personal.categoria']);
@@ -77,7 +77,7 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Usuario creado exitosamente',
-            'data' => $user
+            'data' => $user,
         ], 201);
     }
 
@@ -92,7 +92,7 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $user
+            'data' => $user,
         ]);
     }
 
@@ -107,12 +107,12 @@ class UserController extends Controller
             'nombre_usuario' => [
                 'required',
                 'string',
-                Rule::unique('users')->ignore($user->id)
+                Rule::unique('users')->ignore($user->id),
             ],
             'email' => [
                 'required',
                 'email',
-                Rule::unique('users')->ignore($user->id)
+                Rule::unique('users')->ignore($user->id),
             ],
             'password' => 'nullable|string|min:8',
             'rol_id' => 'required|exists:roles,id',
@@ -120,7 +120,7 @@ class UserController extends Controller
         ]);
 
         $oldData = $user->toArray();
-        
+
         $updateData = [
             'nombre_usuario' => $request->nombre_usuario,
             'email' => $request->email,
@@ -143,8 +143,8 @@ class UserController extends Controller
             'registro_id' => $user->id,
             'detalles' => [
                 'usuario_actualizado' => $user->nombre_usuario,
-                'cambios' => array_diff_assoc($updateData, $oldData)
-            ]
+                'cambios' => array_diff_assoc($updateData, $oldData),
+            ],
         ]);
 
         $user->load(['rol', 'personal.categoria']);
@@ -152,7 +152,7 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Usuario actualizado exitosamente',
-            'data' => $user
+            'data' => $user,
         ]);
     }
 
@@ -167,7 +167,7 @@ class UserController extends Controller
         if ($user->id === $request->user()->id) {
             return response()->json([
                 'success' => false,
-                'message' => 'No puedes eliminar tu propio usuario'
+                'message' => 'No puedes eliminar tu propio usuario',
             ], 400);
         }
 
@@ -181,12 +181,12 @@ class UserController extends Controller
             'accion' => 'eliminar_usuario',
             'tabla_afectada' => 'users',
             'registro_id' => $id,
-            'detalles' => ['usuario_eliminado' => $userName]
+            'detalles' => ['usuario_eliminado' => $userName],
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Usuario eliminado exitosamente'
+            'message' => 'Usuario eliminado exitosamente',
         ]);
     }
 
@@ -205,13 +205,13 @@ class UserController extends Controller
             'accion' => 'restaurar_usuario',
             'tabla_afectada' => 'users',
             'registro_id' => $user->id,
-            'detalles' => ['usuario_restaurado' => $user->nombre_usuario]
+            'detalles' => ['usuario_restaurado' => $user->nombre_usuario],
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Usuario restaurado exitosamente',
-            'data' => $user
+            'data' => $user,
         ]);
     }
 }
