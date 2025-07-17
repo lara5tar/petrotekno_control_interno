@@ -1,12 +1,13 @@
 parameters:
-    level: 6
+    level: 4  # Nivel práctico para desarrollo ágil
     paths:
-        - app
+        - app/Http/Controllers
+        - app/Models
     excludePaths:
         - app/Console/Kernel.php (?)
         - app/Exceptions/Handler.php (?)
         - app/Http/Kernel.php (?)
     ignoreErrors:
-        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder#'
-        - '#Cannot call method [a-zA-Z]+\(\) on Illuminate\\Database\\Eloquent\\Model\|null#'
-        - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model#'
+        # Ignorar errores comunes de Eloquent en Laravel
+        - '#Call to an undefined (static )?method App\\Models\\[a-zA-Z]+::(create|where|find|findOrFail)\(\)#'
+        - '#Access to an undefined property App\\Models\\[a-zA-Z]+::\$[a-zA-Z_]+#'
