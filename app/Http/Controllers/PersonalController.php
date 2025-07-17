@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LogAccion;
 use App\Models\Personal;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PersonalController extends Controller
@@ -11,13 +12,13 @@ class PersonalController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $query = Personal::with('categoria');
 
         // Filtros
         if ($request->has('search')) {
-            $search = $request->search;
+            $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('nombre_completo', 'like', "%{$search}%")
                     ->orWhereHas('categoria', function ($cq) use ($search) {
@@ -27,11 +28,11 @@ class PersonalController extends Controller
         }
 
         if ($request->has('categoria_id')) {
-            $query->where('categoria_id', $request->categoria_id);
+            $query->where('categoria_id', $request->input('categoria_id'));
         }
 
         if ($request->has('estatus')) {
-            $query->where('estatus', $request->estatus);
+            $query->where('estatus', $request->input('estatus'));
         }
 
         $personal = $query->paginate(15);
@@ -45,7 +46,7 @@ class PersonalController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'nombre_completo' => 'required|string|max:255',
@@ -81,7 +82,7 @@ class PersonalController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): JsonResponse
     {
         $personal = Personal::with(['categoria', 'usuario'])->findOrFail($id);
 
@@ -94,7 +95,7 @@ class PersonalController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): JsonResponse
     {
         $personal = Personal::findOrFail($id);
 
@@ -137,7 +138,7 @@ class PersonalController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, string $id)
+    public function destroy(Request $request, string $id): JsonResponse
     {
         $personal = Personal::findOrFail($id);
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LogAccion;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -13,16 +14,16 @@ class AuthController extends Controller
     /**
      * Login del usuario
      */
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->input('email'))->first();
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->input('password'), $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['Las credenciales proporcionadas son incorrectas.'],
             ]);
@@ -57,7 +58,7 @@ class AuthController extends Controller
     /**
      * Logout del usuario
      */
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         $user = $request->user();
 
@@ -80,7 +81,7 @@ class AuthController extends Controller
     /**
      * Obtener usuario autenticado
      */
-    public function me(Request $request)
+    public function me(Request $request): JsonResponse
     {
         $user = $request->user();
         $user->load(['rol', 'personal.categoria']);
@@ -104,7 +105,7 @@ class AuthController extends Controller
     /**
      * Cambiar contraseña
      */
-    public function changePassword(Request $request)
+    public function changePassword(Request $request): JsonResponse
     {
         $request->validate([
             'current_password' => 'required',
@@ -113,14 +114,14 @@ class AuthController extends Controller
 
         $user = $request->user();
 
-        if (! Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->input('current_password'), $user->password)) {
             throw ValidationException::withMessages([
                 'current_password' => ['La contraseña actual es incorrecta.'],
             ]);
         }
 
         $user->update([
-            'password' => Hash::make($request->new_password),
+            'password' => Hash::make($request->input('new_password')),
         ]);
 
         // Registrar acción

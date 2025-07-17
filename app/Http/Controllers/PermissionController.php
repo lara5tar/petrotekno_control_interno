@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LogAccion;
 use App\Models\Permission;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PermissionController extends Controller
@@ -11,7 +12,7 @@ class PermissionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $permissions = Permission::with('roles')->get();
 
@@ -24,7 +25,7 @@ class PermissionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'nombre_permiso' => 'required|string|unique:permisos',
@@ -56,7 +57,7 @@ class PermissionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): JsonResponse
     {
         $permission = Permission::with('roles')->findOrFail($id);
 
@@ -69,7 +70,7 @@ class PermissionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): JsonResponse
     {
         $permission = Permission::findOrFail($id);
 
@@ -108,7 +109,7 @@ class PermissionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, string $id)
+    public function destroy(Request $request, string $id): JsonResponse
     {
         $permission = Permission::findOrFail($id);
 

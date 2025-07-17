@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LogAccion;
 use App\Models\Role;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
@@ -11,7 +12,7 @@ class RoleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $roles = Role::with('permisos')->get();
 
@@ -24,7 +25,7 @@ class RoleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'nombre_rol' => 'required|string|unique:roles',
@@ -34,12 +35,12 @@ class RoleController extends Controller
         ]);
 
         $role = Role::create([
-            'nombre_rol' => $request->nombre_rol,
-            'descripcion' => $request->descripcion,
+            'nombre_rol' => $request->input('nombre_rol'),
+            'descripcion' => $request->input('descripcion'),
         ]);
 
         if ($request->has('permisos')) {
-            $role->permisos()->attach($request->permisos);
+            $role->permisos()->attach($request->input('permisos'));
         }
 
         // Registrar acción
@@ -64,7 +65,7 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): JsonResponse
     {
         $role = Role::with('permisos', 'usuarios')->findOrFail($id);
 
@@ -77,7 +78,7 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): JsonResponse
     {
         $role = Role::findOrFail($id);
 
@@ -91,12 +92,12 @@ class RoleController extends Controller
         $oldData = $role->toArray();
 
         $role->update([
-            'nombre_rol' => $request->nombre_rol,
-            'descripcion' => $request->descripcion,
+            'nombre_rol' => $request->input('nombre_rol'),
+            'descripcion' => $request->input('descripcion'),
         ]);
 
         if ($request->has('permisos')) {
-            $role->permisos()->sync($request->permisos);
+            $role->permisos()->sync($request->input('permisos'));
         }
 
         // Registrar acción
@@ -124,7 +125,7 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, string $id)
+    public function destroy(Request $request, string $id): JsonResponse
     {
         $role = Role::findOrFail($id);
 
@@ -158,7 +159,7 @@ class RoleController extends Controller
     /**
      * Asignar permiso a rol
      */
-    public function attachPermission(Request $request, $roleId, $permissionId)
+    public function attachPermission(Request $request, int $roleId, int $permissionId): JsonResponse
     {
         $role = Role::findOrFail($roleId);
         $role->permisos()->attach($permissionId);
@@ -184,7 +185,7 @@ class RoleController extends Controller
     /**
      * Quitar permiso de rol
      */
-    public function detachPermission(Request $request, $roleId, $permissionId)
+    public function detachPermission(Request $request, int $roleId, int $permissionId): JsonResponse
     {
         $role = Role::findOrFail($roleId);
         $role->permisos()->detach($permissionId);

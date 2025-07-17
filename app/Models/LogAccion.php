@@ -18,6 +18,9 @@ class LogAccion extends Model
         'detalles',
     ];
 
+    /**
+     * @var array<string, string>
+     */
     protected $casts = [
         'fecha_hora' => 'datetime',
         'detalles' => 'array',

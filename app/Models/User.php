@@ -95,7 +95,7 @@ class User extends Authenticatable
     /**
      * Obtener todos los permisos del usuario
      */
-    public function getPermissions()
+    public function getPermissions(): \Illuminate\Support\Collection
     {
         return $this->rol ? $this->rol->permisos : collect();
     }

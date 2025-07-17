@@ -12,8 +12,9 @@ class CheckPermission
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  string  ...$permissions
      */
-    public function handle(Request $request, Closure $next, ...$permissions): Response
+    public function handle(Request $request, Closure $next, string ...$permissions): Response
     {
         if (! $request->user()) {
             return response()->json([

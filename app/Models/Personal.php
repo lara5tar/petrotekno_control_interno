@@ -19,6 +19,9 @@ class Personal extends Model
         'categoria_id',
     ];
 
+    /**
+     * @var array<string>
+     */
     protected $dates = ['deleted_at'];
 
     /**
