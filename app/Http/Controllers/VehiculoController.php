@@ -31,11 +31,11 @@ class VehiculoController extends Controller
 
             // Filtros opcionales
             if ($request->filled('marca')) {
-                $query->where('marca', 'like', '%' . $request->marca . '%');
+                $query->where('marca', 'like', '%'.$request->marca.'%');
             }
 
             if ($request->filled('modelo')) {
-                $query->where('modelo', 'like', '%' . $request->modelo . '%');
+                $query->where('modelo', 'like', '%'.$request->modelo.'%');
             }
 
             if ($request->filled('estatus_id')) {
@@ -55,7 +55,6 @@ class VehiculoController extends Controller
                 'message' => 'Vehículos obtenidos exitosamente',
                 'data' => $vehiculos,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -82,7 +81,7 @@ class VehiculoController extends Controller
                 'accion' => 'crear_vehiculo',
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
-                'detalles' => 'Vehículo creado: ' . $vehiculo->nombre_completo,
+                'detalles' => 'Vehículo creado: '.$vehiculo->nombre_completo,
             ]);
 
             DB::commit();
@@ -92,7 +91,6 @@ class VehiculoController extends Controller
                 'message' => 'Vehículo creado exitosamente',
                 'data' => $vehiculo,
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -126,7 +124,7 @@ class VehiculoController extends Controller
                 'accion' => 'ver_vehiculo',
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
-                'detalles' => 'Vehículo consultado: ' . $vehiculo->nombre_completo,
+                'detalles' => 'Vehículo consultado: '.$vehiculo->nombre_completo,
             ]);
 
             return response()->json([
@@ -134,7 +132,6 @@ class VehiculoController extends Controller
                 'message' => 'Vehículo obtenido exitosamente',
                 'data' => $vehiculo,
             ]);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -168,7 +165,7 @@ class VehiculoController extends Controller
                 'accion' => 'editar_vehiculo',
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
-                'detalles' => 'Vehículo actualizado: ' . $vehiculo->nombre_completo,
+                'detalles' => 'Vehículo actualizado: '.$vehiculo->nombre_completo,
             ]);
 
             DB::commit();
@@ -178,7 +175,6 @@ class VehiculoController extends Controller
                 'message' => 'Vehículo actualizado exitosamente',
                 'data' => $vehiculo,
             ]);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -220,7 +216,7 @@ class VehiculoController extends Controller
                 'accion' => 'eliminar_vehiculo',
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
-                'detalles' => 'Vehículo eliminado: ' . $nombreCompleto,
+                'detalles' => 'Vehículo eliminado: '.$nombreCompleto,
             ]);
 
             DB::commit();
@@ -229,7 +225,6 @@ class VehiculoController extends Controller
                 'success' => true,
                 'message' => 'Vehículo eliminado exitosamente',
             ]);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -279,7 +274,7 @@ class VehiculoController extends Controller
                 'accion' => 'restaurar_vehiculo',
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
-                'detalles' => 'Vehículo restaurado: ' . $vehiculo->nombre_completo,
+                'detalles' => 'Vehículo restaurado: '.$vehiculo->nombre_completo,
             ]);
 
             DB::commit();
@@ -289,7 +284,6 @@ class VehiculoController extends Controller
                 'message' => 'Vehículo restaurado exitosamente',
                 'data' => $vehiculo,
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -314,7 +308,6 @@ class VehiculoController extends Controller
                 'message' => 'Estatus obtenidos exitosamente',
                 'data' => $estatus,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
