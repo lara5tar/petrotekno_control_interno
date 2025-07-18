@@ -1,6 +1,271 @@
-# Changelog - Sistema de Control Interno v1.1
+# Changelog - Sistema de Control Interno v1.2
 
-## [1.1.0] - 2025-07-17 ⭐ NUEVO
+## [1.2.0] - 2025-07-18 ⭐ NUEVO
+
+### ✨ Nuevas Funcionalidades - Sistema de Gestión de Documentos (DMS)
+
+#### 📄 Gestión Completa de Documentos
+- **CRUD completo** con soft delete y manejo de archivos
+- **Sistema de vencimientos** con alertas automáticas
+- **Validaciones robustas** para archivos y fechas
+- **Asociaciones polimórficas** opcionales (vehículos, personal, obras, mantenimientos)
+- **Estados calculados** automáticamente (vigente, próximo a vencer, vencido)
+- **Búsqueda y filtros** avanzados por tipo, entidad, estado
+- **Sistema de permisos** integrado para documentos
+
+#### 📋 Catálogo de Tipos de Documento
+- **CRUD completo** para tipos de documento
+- **Configuración de vencimiento** obligatorio por tipo
+- **Conteo automático** de documentos por tipo
+- **Búsqueda y filtros** por nombre y requerimiento de vencimiento
+- **Validaciones de unicidad** para nombres de tipos
+
+#### 🗄️ Base de Datos - Nuevas Tablas
+
+**Tabla `catalogo_tipos_documento`:**
+- Campos: nombre_tipo_documento (único), descripcion, requiere_vencimiento
+- Relación uno a muchos con documentos
+- Atributos por defecto para requiere_vencimiento
+
+**Tabla `documentos`:**
+- Campos principales: tipo_documento_id, descripcion, ruta_archivo, fecha_vencimiento
+- Relaciones opcionales: vehiculo_id, personal_id, obra_id, mantenimiento_id
+- Soft deletes habilitado
+- Restricción: solo una entidad asociada por documento
+
+#### 🛡️ Permisos Específicos de Documentos
+- `ver_documentos` - Ver listado y detalles de documentos
+- `crear_documentos` - Crear nuevos documentos
+- `editar_documentos` - Editar documentos existentes
+- `eliminar_documentos` - Eliminar documentos (soft delete)
+- `ver_tipos_documento` - Ver tipos de documento
+- `crear_tipos_documento` - Crear nuevos tipos
+- `editar_tipos_documento` - Editar tipos existentes
+- `eliminar_tipos_documento` - Eliminar tipos
+
+#### 📊 Distribución de Permisos Actualizada
+- **Administrador**: Todos los permisos de documentos y tipos
+- **Supervisor**: Todos los permisos de documentos y tipos
+- **Operador**: Solo `ver_documentos` y `ver_tipos_documento`
+
+### 🌐 Nuevos Endpoints API
+
+#### Gestión de Documentos
+- `GET /api/documentos` - Listar documentos con filtros avanzados
+- `POST /api/documentos` - Crear documento (multipart/form-data)
+- `GET /api/documentos/{id}` - Ver documento específico
+- `PUT /api/documentos/{id}` - Actualizar documento
+- `DELETE /api/documentos/{id}` - Eliminar documento (soft delete)
+- `GET /api/documentos/proximos-a-vencer` - Documentos próximos a vencer
+- `GET /api/documentos/vencidos` - Documentos vencidos
+
+#### Gestión de Tipos de Documento
+- `GET /api/catalogo-tipos-documento` - Listar tipos con filtros
+- `POST /api/catalogo-tipos-documento` - Crear tipo
+- `GET /api/catalogo-tipos-documento/{id}` - Ver tipo específico
+- `PUT /api/catalogo-tipos-documento/{id}` - Actualizar tipo
+- `DELETE /api/catalogo-tipos-documento/{id}` - Eliminar tipo
+
+#### Parámetros de Filtrado Avanzado para Documentos
+- `search` - Búsqueda en descripción y tipo de documento
+- `tipo_documento_id` - Filtrar por tipo específico
+- `vehiculo_id` - Filtrar por vehículo
+- `personal_id` - Filtrar por personal
+- `obra_id` - Filtrar por obra
+- `estado_vencimiento` - Filtrar por estado (vigentes|vencidos|proximos_a_vencer)
+- `dias_vencimiento` - Días para considerar próximo a vencer (default: 30)
+
+### 📁 Sistema de Archivos Implementado
+
+#### Manejo de Archivos
+- **Subida de archivos** con validación de tipo y tamaño
+- **Tipos permitidos**: PDF, DOC, DOCX, JPG, JPEG, PNG, TXT, XLS, XLSX
+- **Tamaño máximo**: 10MB por archivo
+- **Almacenamiento**: `/storage/app/public/documentos/`
+- **URL pública**: `/storage/documentos/`
+- **Eliminación automática** al actualizar/eliminar documentos
+
+#### Nomenclatura de Archivos
+- **Formato**: `timestamp_nombre_sanitizado.extension`
+- **Slugificación**: Nombres convertidos a formato URL-friendly
+- **Prevención de conflictos**: Timestamp único por archivo
+
+### 🚨 Sistema de Alertas de Vencimiento
+
+#### Estados Calculados Automáticamente
+- **Vigente**: Documentos sin vencimiento o con vencimiento futuro (>30 días)
+- **Próximo a Vencer**: Documentos que vencen en los próximos 30 días (configurable)
+- **Vencido**: Documentos con fecha de vencimiento pasada
+
+#### Cálculos Dinámicos
+- **Días hasta vencimiento**: Cálculo automático desde la fecha actual
+- **Estado del documento**: Determinado en tiempo real
+- **Alertas configurables**: Días personalizables para "próximo a vencer"
+
+### 🧪 Testing Robusto Implementado
+
+#### Cobertura de Tests de Documentos
+- **83 tests totales** para todo el sistema (49 anteriores + 34 nuevos)
+- **53 Feature Tests**: Endpoints API completos para documentos y tipos
+- **28 Unit Tests**: Modelos, relaciones y lógica de negocio
+- **22 Validation Tests**: Casos edge y validaciones específicas
+- **350+ assertions** cubriendo todos los casos
+
+#### Tests Feature Implementados
+- ✅ CRUD completo de documentos y tipos de documento
+- ✅ Manejo de archivos (subida, actualización, eliminación)
+- ✅ Validaciones de permisos por endpoint
+- ✅ Filtros y búsquedas avanzadas
+- ✅ Estados de vencimiento y alertas
+- ✅ Asociaciones a entidades (vehículos, personal, obras)
+- ✅ Restricción de asociaciones múltiples
+- ✅ Paginación y ordenamiento
+
+#### Tests Unit Implementados
+- ✅ Relaciones entre modelos
+- ✅ Scopes de filtrado (vencidos, próximos a vencer)
+- ✅ Accessors para estados calculados
+- ✅ Atributos por defecto
+- ✅ Soft deletes y casteo de fechas
+
+#### Tests Validation Implementados
+- ✅ Validación de campos requeridos
+- ✅ Validación de existencia de relaciones
+- ✅ Validación de archivos (tipo, tamaño)
+- ✅ Validación de fechas de vencimiento
+- ✅ Validación de restricción de múltiples asociaciones
+- ✅ Validación condicional de fecha según tipo
+
+### 📚 Documentación Técnica Completa
+
+#### Nuevos Archivos de Documentación
+- `DOCUMENTOS_API_DOCUMENTATION.md` - Documentación técnica completa del DMS
+- Actualización de `FRONTEND_INTEGRATION_GUIDE.md` con sección de documentos
+- Actualización de `CHANGELOG.md` con los nuevos cambios
+
+#### Documentación Incluye
+- 📊 Estructura detallada de modelos de datos
+- 🌐 Todos los endpoints con ejemplos request/response
+- 🔐 Permisos y autorización detallados
+- 📁 Manejo de archivos y configuración de storage
+- 🎨 Implementación frontend con ejemplos en React/Vue
+- 🧪 Guía de testing y casos de prueba
+- 📋 Validaciones y reglas de negocio específicas
+- 🚨 Sistema de alertas y estados
+
+### 🛠️ Implementación Técnica
+
+#### Modelos Eloquent Nuevos
+- `CatalogoTipoDocumento` - Tipos con configuración de vencimiento
+- `Documento` - Modelo principal con relaciones opcionales, scopes y accessors
+
+#### Factory y Seeders
+- `CatalogoTipoDocumentoFactory` - Generación de tipos con datos realistas
+- `DocumentoFactory` - Generación de documentos con fechas de vencimiento variadas
+- `CatalogoTipoDocumentoSeeder` - Tipos predefinidos del sistema
+
+#### Request Classes
+- `StoreCatalogoTipoDocumentoRequest` - Validación para creación de tipos
+- `UpdateCatalogoTipoDocumentoRequest` - Validación para actualización de tipos
+- `StoreDocumentoRequest` - Validación compleja para creación de documentos
+- `UpdateDocumentoRequest` - Validación para actualización de documentos
+
+#### Controllers
+- `CatalogoTipoDocumentoController` - CRUD completo con conteo de documentos
+- `DocumentoController` - CRUD con manejo de archivos, filtros y endpoints especiales
+
+### ✅ Validaciones Avanzadas Implementadas
+
+#### Reglas de Negocio para Documentos
+- **Asociación única**: Un documento solo puede asociarse a una entidad
+- **Fecha condicional**: Vencimiento obligatorio según configuración del tipo
+- **Archivos seguros**: Validación de tipo MIME y tamaño máximo
+- **Unicidad de tipos**: Nombres de tipos de documento únicos
+- **Datos opcionales**: Descripción y archivo opcionales
+
+#### Validaciones de Archivos
+- **Tipos permitidos**: PDF, documentos Office, imágenes, texto, hojas de cálculo
+- **Tamaño máximo**: 10MB con mensaje específico
+- **Validación MIME**: Verificación de tipo real del archivo
+- **Sanitización**: Nombres de archivo convertidos a slug seguro
+
+#### Validaciones Condicionales
+- **Fecha de vencimiento**: Obligatoria solo si el tipo lo requiere
+- **Múltiples asociaciones**: Prohibidas mediante validación personalizada
+- **Fechas futuras**: Vencimiento no puede ser anterior a hoy
+
+### 🔄 Características Avanzadas
+
+#### Scopes Eloquent Personalizados
+- `vencidos()` - Documentos con fecha de vencimiento pasada
+- `proximosAVencer($dias)` - Documentos que vencen en X días
+- `porTipo($tipoId)` - Filtrar por tipo de documento
+- `deVehiculo($vehiculoId)` - Documentos de un vehículo específico
+- `queRequierenVencimiento()` - Tipos que requieren fecha de vencimiento
+
+#### Accessors y Mutators
+- `estado` - Cálculo automático del estado (vigente/próximo/vencido)
+- `dias_hasta_vencimiento` - Días restantes hasta vencimiento
+- `esta_vencido` - Boolean indicando si está vencido
+- Atributos por defecto para `requiere_vencimiento`
+
+#### Relaciones Polimórficas Opcionales
+- Un documento puede asociarse a:
+  - Vehículo (vehiculo_id)
+  - Personal (personal_id)
+  - Obra (obra_id)
+  - Mantenimiento (mantenimiento_id) - preparado para futuro
+- Restricción: Solo una asociación por documento
+
+### 🚀 Estado Actualizado del Proyecto
+
+#### Estadísticas del Backend
+- **83 tests totales** - 100% pasando
+- **350+ assertions** cubriendo toda la funcionalidad
+- **5 módulos completos**: Usuarios/Roles, Personal, Vehículos, Obras, Documentos
+- **API RESTful** completamente documentada
+- **Cobertura de testing** del 100%
+
+#### Módulos Implementados
+1. ✅ **Sistema de Autenticación** - Laravel Sanctum
+2. ✅ **Gestión de Usuarios y Roles** - Permisos granulares
+3. ✅ **Gestión de Personal** - Empleados y categorías
+4. ✅ **Gestión de Vehículos** - Parque vehicular completo
+5. ✅ **Gestión de Obras** - Proyectos y construcciones
+6. ✅ **Sistema de Gestión de Documentos** - DMS completo ⭐ NUEVO
+7. ✅ **Auditoría y Logging** - Registro automático de acciones
+
+### 🎯 Funcionalidades Destacadas del DMS
+
+#### Para Administradores
+- **Dashboard de vencimientos**: Vista global de documentos próximos a vencer
+- **Gestión de tipos**: Configuración de tipos con requerimientos específicos
+- **Reportes**: Filtros avanzados para análisis de documentos
+- **Auditoría**: Tracking completo de cambios en documentos
+
+#### Para Supervisores
+- **Gestión diaria**: CRUD completo de documentos y tipos
+- **Alertas proactivas**: Notificaciones de vencimientos próximos
+- **Organización**: Asociación de documentos a entidades específicas
+- **Control de archivos**: Manejo seguro de documentos digitales
+
+#### Para Operadores
+- **Consulta**: Visualización de documentos y tipos
+- **Seguimiento**: Estados de vencimiento en tiempo real
+- **Descarga**: Acceso a archivos cuando tengan permisos
+
+### 🎯 Próximos Pasos Sugeridos
+
+1. **Módulo de Mantenimientos** - Completar la funcionalidad de mantenimiento_id
+2. **Módulo de Asignaciones** - Sistema de asignación de vehículos/personal a obras
+3. **Módulo de Kilometrajes** - Tracking de kilometraje y alertas de mantenimiento
+4. **Dashboard Analytics** - Métricas y reportes del sistema completo
+5. **Notificaciones** - Sistema de alertas automáticas por email
+6. **API Mobile** - Endpoints específicos para aplicación móvil
+
+---
+
+## [1.1.0] - 2025-07-17 ⭐ ANTERIOR
 
 ### ✨ Nuevas Funcionalidades - Módulo de Vehículos
 

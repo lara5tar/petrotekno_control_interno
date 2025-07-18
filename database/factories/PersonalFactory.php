@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\CategoriaPersonal;
 use App\Models\Personal;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -14,7 +15,7 @@ class PersonalFactory extends Factory
         return [
             'nombre_completo' => $this->faker->name(),
             'estatus' => $this->faker->randomElement(['activo', 'inactivo']),
-            'categoria_id' => 1, // Usar categoría existente del seeder
+            'categoria_id' => CategoriaPersonal::factory(),
         ];
     }
 }
