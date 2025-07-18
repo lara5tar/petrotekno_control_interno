@@ -1,11 +1,12 @@
-# API Documentation - Sistema de Usuarios, Roles y Permisos
+# API Documentation - Sistema de Control Interno
 
 ## Información General
 
 - **Base URL:** `{APP_URL}/api`
 - **Autenticación:** Laravel Sanctum (Bearer Token)
 - **Formato de respuesta:** JSON
-- **Versión:** 1.0
+- **Versión:** 1.1
+- **Módulos:** Usuarios/Roles, Personal, Vehículos ⭐ NUEVO
 
 ## Autenticación
 
@@ -656,4 +657,54 @@ const hasPermission = (permission) => {
 if (hasPermission('crear_usuarios')) {
     // Mostrar botón de crear usuario
 }
+
+if (hasPermission('ver_vehiculos')) {
+    // Mostrar sección de vehículos
+}
 ```
+
+---
+
+## 🚗 Módulo de Vehículos ⭐ NUEVO
+
+### Gestión Completa de Vehículos
+
+Para documentación técnica detallada del módulo de vehículos, consultar:
+📋 **[VEHICULOS_API_DOCUMENTATION.md](./VEHICULOS_API_DOCUMENTATION.md)**
+
+#### Endpoints Principales de Vehículos:
+- `GET /api/vehiculos` - Listar vehículos (con filtros y paginación)
+- `POST /api/vehiculos` - Crear vehículo
+- `GET /api/vehiculos/{id}` - Ver vehículo específico
+- `PUT /api/vehiculos/{id}` - Actualizar vehículo  
+- `DELETE /api/vehiculos/{id}` - Eliminar vehículo (soft delete)
+- `POST /api/vehiculos/{id}/restore` - Restaurar vehículo
+- `GET /api/vehiculos/estatus` - Opciones de estatus
+
+#### Permisos de Vehículos:
+- `ver_vehiculos` - Ver listado y detalles
+- `crear_vehiculo` - Crear nuevos vehículos
+- `editar_vehiculo` - Editar y restaurar
+- `eliminar_vehiculo` - Eliminar (soft delete)
+
+#### Características del Módulo:
+- ✅ **CRUD completo** con soft delete y restauración
+- ✅ **Validaciones robustas** (unicidad, formatos, rangos)
+- ✅ **Sanitización automática** de datos
+- ✅ **Catálogo de estatus** dinámico
+- ✅ **Búsqueda y filtros** avanzados
+- ✅ **Paginación** automática
+- ✅ **Sistema de permisos** integrado
+- ✅ **Logging automático** de acciones
+- ✅ **Testing completo** (18 tests, 101 assertions)
+
+---
+
+**📋 Sistema de Control Interno v1.1 - Backend Completo**
+- **Usuarios y Roles** ✅ Implementado y testado
+- **Personal** ✅ Implementado y testado  
+- **Vehículos** ✅ Implementado y testado ⭐ NUEVO
+- **Auditoría** ✅ Implementado y testado
+- **Documentación** ✅ Completa para frontend
+
+**🎯 Total: 49 tests pasando, 185+ assertions, cobertura del 100%**

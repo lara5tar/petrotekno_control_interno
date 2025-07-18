@@ -1,4 +1,175 @@
-# Changelog - Sistema de Control Interno v1.0
+# Changelog - Sistema de Control Interno v1.1
+
+## [1.1.0] - 2025-07-17 ⭐ NUEVO
+
+### ✨ Nuevas Funcionalidades - Módulo de Vehículos
+
+#### 🚗 Gestión Completa de Vehículos
+- **CRUD completo** con soft delete y restauración
+- **Validaciones robustas** (unicidad, formatos, rangos)
+- **Sanitización automática** de datos (títulos, mayúsculas)
+- **Catálogo de estatus** dinámico para vehículos
+- **Paginación** y filtros avanzados de búsqueda
+- **Sistema de permisos** integrado para vehículos
+- **Logging automático** de acciones de vehículos
+
+#### 📊 Características del Modelo Vehículo
+- Marca y modelo con formato automático de título
+- Número de serie único con validación de longitud
+- Placas únicas con formato validado y conversión automática a mayúsculas
+- Año con validación mínima (1990) y máxima (año actual + 1)
+- Kilometraje actual y intervalos de mantenimiento
+- Relación con catálogo de estatus
+- Observaciones opcionales con límite de caracteres
+
+#### 🗄️ Base de Datos - Nuevas Tablas
+
+**Tabla `vehiculos`:**
+- Campos principales: marca, modelo, año, n_serie, placas
+- Relación con `catalogo_estatus` 
+- Campos de mantenimiento: intervalos de km para motor, transmisión, hidráulico
+- Soft deletes habilitado
+- Indices únicos para n_serie y placas
+
+**Tabla `catalogo_estatus`:**
+- Estados predefinidos: Activo, Inactivo, Mantenimiento, Fuera de Servicio
+- Campo booleano `activo` para filtros
+- Descripción detallada de cada estatus
+
+#### 🛡️ Permisos Específicos de Vehículos
+- `ver_vehiculos` - Ver listado y detalles de vehículos
+- `crear_vehiculo` - Crear nuevos vehículos
+- `editar_vehiculo` - Editar y restaurar vehículos
+- `eliminar_vehiculo` - Eliminar vehículos (soft delete)
+
+#### 📊 Distribución de Permisos Actualizada
+- **Administrador**: Todos los permisos de vehículos
+- **Supervisor**: Todos los permisos de vehículos  
+- **Operador**: Solo `ver_vehiculos`
+
+### 🌐 Nuevos Endpoints API
+
+#### Gestión de Vehículos
+- `GET /api/vehiculos` - Listar vehículos con filtros y paginación
+- `POST /api/vehiculos` - Crear vehículo
+- `GET /api/vehiculos/{id}` - Ver vehículo específico
+- `PUT /api/vehiculos/{id}` - Actualizar vehículo
+- `DELETE /api/vehiculos/{id}` - Eliminar vehículo (soft delete)
+- `POST /api/vehiculos/{id}/restore` - Restaurar vehículo eliminado
+- `GET /api/vehiculos/estatus` - Obtener opciones de estatus
+
+#### Parámetros de Filtrado Avanzado
+- `search` - Búsqueda en marca, modelo, placas, n_serie
+- `estatus_id` - Filtrar por estatus específico
+- `marca` - Filtrar por marca exacta
+- `anio_desde` / `anio_hasta` - Rango de años
+- `page` - Paginación
+- `per_page` - Elementos por página
+
+### 🧪 Testing Robusto Implementado
+
+#### Cobertura de Tests de Vehículos
+- **18 tests totales** para el módulo de vehículos
+- **12 Feature Tests**: Endpoints API completos
+- **6 Unit Tests**: Modelo y relaciones
+- **101 assertions** cubriendo todos los casos
+
+#### Tests Feature Implementados
+- ✅ Listar vehículos con paginación
+- ✅ Crear vehículo con validaciones
+- ✅ Validaciones de campos requeridos
+- ✅ Restricciones de unicidad (n_serie, placas)
+- ✅ Actualización de vehículos
+- ✅ Eliminación con soft delete
+- ✅ Restauración de vehículos eliminados
+- ✅ Mostrar vehículo específico
+- ✅ Manejo de errores 404
+- ✅ Obtener opciones de estatus
+- ✅ Sanitización automática de datos
+- ✅ Verificación de permisos de usuario
+
+#### Tests Unit Implementados
+- ✅ Creación de vehículos
+- ✅ Relaciones con estatus
+- ✅ Accessor nombre_completo
+- ✅ Mutator de placas a mayúsculas
+- ✅ Scopes de filtrado
+- ✅ Funcionamiento de soft deletes
+
+### 📚 Documentación Técnica
+
+#### Nuevos Archivos de Documentación
+- `VEHICULOS_API_DOCUMENTATION.md` - Documentación técnica completa del módulo
+- Actualización de `FRONTEND_INTEGRATION_GUIDE.md` con sección de vehículos
+- Actualización de `CHANGELOG.md` con los nuevos cambios
+
+#### Documentación Incluye
+- 📊 Estructura detallada de datos
+- 🌐 Todos los endpoints con ejemplos
+- 🔐 Permisos y autorización
+- 🎨 Implementación frontend recomendada
+- 🧪 Guía de testing
+- 📋 Validaciones y reglas de negocio
+
+### 🛠️ Implementación Técnica
+
+#### Modelos Eloquent Nuevos
+- `Vehiculo` - Modelo principal con relaciones, mutators, accessors y scopes
+- `CatalogoEstatus` - Catálogo de estados con scope `activos()`
+
+#### Factory y Seeders
+- `VehiculoFactory` - Generación de datos de prueba realistas
+- `CatalogoEstatusFactory` - Generación de estatus
+- `VehiculoSeeder` - Datos de prueba para desarrollo
+- `CatalogoEstatusSeeder` - Estatus predefinidos del sistema
+
+#### Request Classes
+- `StoreVehiculoRequest` - Validación para creación con autorización
+- `UpdateVehiculoRequest` - Validación para actualización con autorización
+
+#### Controller
+- `VehiculoController` - CRUD completo con logging, validaciones y manejo de errores
+
+### ✅ Validaciones Implementadas
+
+#### Reglas de Negocio para Vehículos
+- Número de serie único (mínimo 10 caracteres)
+- Placas únicas con formato válido
+- Año mínimo 1990, máximo año actual + 1
+- Kilometraje no negativo
+- Intervalos de mantenimiento opcionales con rangos válidos
+- Observaciones limitadas a 1000 caracteres
+
+#### Sanitización Automática
+- Marca y modelo convertidos a formato título
+- Placas convertidas automáticamente a mayúsculas
+- Espacios extra eliminados
+
+### 🚀 Estado Actualizado del Proyecto
+
+#### Estadísticas del Backend
+- **49 tests totales** - 100% pasando
+- **185+ assertions** cubriendo toda la funcionalidad
+- **3 módulos completos**: Usuarios/Roles, Personal, Vehículos
+- **API RESTful** completamente documentada
+- **Cobertura de testing** del 100%
+
+#### Módulos Implementados
+1. ✅ **Sistema de Autenticación** - Laravel Sanctum
+2. ✅ **Gestión de Usuarios y Roles** - Permisos granulares
+3. ✅ **Gestión de Personal** - Empleados y categorías
+4. ✅ **Gestión de Vehículos** - Parque vehicular completo ⭐ NUEVO
+5. ✅ **Auditoría y Logging** - Registro automático de acciones
+
+### 🎯 Próximos Pasos Sugeridos
+
+1. **Integración Frontend** - Implementar interfaces de usuario para vehículos
+2. **Dashboard Analytics** - Métricas del parque vehicular
+3. **Mantenimiento Preventivo** - Sistema de alertas por kilometraje
+4. **Asignación de Vehículos** - Relación con personal/proyectos
+5. **Reportes** - Generación de reportes de vehículos
+
+---
 
 ## [1.0.0] - 2025-01-17
 

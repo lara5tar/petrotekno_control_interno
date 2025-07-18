@@ -5,6 +5,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VehiculoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -89,12 +90,42 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:eliminar_personal');
     });
 
+    // Rutas de vehículos
+    Route::prefix('vehiculos')->group(function () {
+        Route::get('/', [VehiculoController::class, 'index'])
+            ->middleware('permission:ver_vehiculos');
+
+        Route::post('/', [VehiculoController::class, 'store'])
+            ->middleware('permission:crear_vehiculos');
+
+        Route::get('/estatus', [VehiculoController::class, 'estatusOptions']);
+
+        Route::get('/{id}', [VehiculoController::class, 'show'])
+            ->middleware('permission:ver_vehiculos');
+
+        Route::put('/{id}', [VehiculoController::class, 'update'])
+            ->middleware('permission:editar_vehiculos');
+
+        Route::delete('/{id}', [VehiculoController::class, 'destroy'])
+            ->middleware('permission:eliminar_vehiculos');
+
+        Route::post('/{id}/restore', [VehiculoController::class, 'restore'])
+            ->middleware('permission:restaurar_vehiculos');
+    });
+
     // Rutas de consulta general (sin restricciones especiales)
     Route::prefix('data')->group(function () {
         Route::get('/categorias-personal', function () {
             return response()->json([
                 'success' => true,
                 'data' => \App\Models\CategoriaPersonal::all(),
+            ]);
+        });
+
+        Route::get('/estatus-vehiculos', function () {
+            return response()->json([
+                'success' => true,
+                'data' => \App\Models\CatalogoEstatus::activos()->get(),
             ]);
         });
 
