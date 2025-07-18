@@ -36,23 +36,33 @@
                 
                 @if ($errors->any())
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        <p>{{ __('Error en las credenciales.') }}</p>
+                        @if($errors->has('email') || $errors->has('password'))
+                            <p>{{ __('Las credenciales proporcionadas son incorrectas.') }}</p>
+                        @else
+                            <p>{{ __('Error en las credenciales.') }}</p>
+                        @endif
                     </div>
                 @endif
                 
-                <form method="POST" action="{{ config('app.debug') ? route('debug.login') : route('login') }}">
+                <form method="POST" action="{{ route('login') }}">
                     @csrf
                     
                     <div class="mb-4">
                         <label for="email" class="block text-gray-800 font-medium mb-2">{{ __('Correo Electrónico') }}</label>
-                        <input id="email" type="email" name="email" value="{{ old('email') }}" {{ config('app.debug') ? '' : 'required' }} autocomplete="email" autofocus
-                            class="w-full px-3 py-2 bg-white border border-gray-300 text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-petrodark focus:border-transparent">
+                        <input id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus
+                            class="w-full px-3 py-2 bg-white border border-gray-300 text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-petrodark focus:border-transparent @error('email') border-red-500 @enderror">
+                        @error('email')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     
                     <div class="mb-4">
                         <label for="password" class="block text-gray-800 font-medium mb-2">{{ __('Contraseña') }}</label>
-                        <input id="password" type="password" name="password" {{ config('app.debug') ? '' : 'required' }} autocomplete="current-password"
-                            class="w-full px-3 py-2 bg-white border border-gray-300 text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-petrodark focus:border-transparent">
+                        <input id="password" type="password" name="password" required autocomplete="current-password"
+                            class="w-full px-3 py-2 bg-white border border-gray-300 text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-petrodark focus:border-transparent @error('password') border-red-500 @enderror">
+                        @error('password')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     
                     <div class="mb-4">
