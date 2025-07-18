@@ -76,6 +76,9 @@ class UpdateDocumentoRequest extends FormRequest
                 'file',
                 'max:10240',
                 'mimes:pdf,doc,docx,jpg,jpeg,png,txt,xls,xlsx'
+            ],
+            'multiple_associations' => [
+                'prohibited'
             ]
         ];
     }
@@ -96,8 +99,26 @@ class UpdateDocumentoRequest extends FormRequest
             'obra_id.exists' => 'La obra seleccionada no es válida.',
             'archivo.file' => 'Debe seleccionar un archivo válido.',
             'archivo.max' => 'El archivo no puede ser mayor a 10MB.',
-            'archivo.mimes' => 'El archivo debe ser de tipo: PDF, DOC, DOCX, JPG, JPEG, PNG, TXT, XLS, XLSX.'
+            'archivo.mimes' => 'El archivo debe ser de tipo: PDF, DOC, DOCX, JPG, JPEG, PNG, TXT, XLS, XLSX.',
+            'multiple_associations.prohibited' => 'Un documento no puede estar asociado a múltiples entidades al mismo tiempo.'
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        // Asegurar que solo se asocie a una entidad a la vez
+        $entidades = collect(['vehiculo_id', 'personal_id', 'obra_id', 'mantenimiento_id'])
+            ->filter(fn($key) => $this->filled($key))
+            ->count();
+
+        if ($entidades > 1) {
+            $this->merge([
+                'multiple_associations' => true
+            ]);
+        }
     }
 
     /**

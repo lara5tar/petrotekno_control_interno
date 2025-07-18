@@ -158,15 +158,15 @@ class DocumentoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Documento $documento): JsonResponse
+    public function show($id): JsonResponse
     {
         try {
-            $documento->load([
+            $documento = Documento::with([
                 'tipoDocumento:id,nombre_tipo_documento,descripcion,requiere_vencimiento',
                 'vehiculo:id,marca,modelo,placas,n_serie',
                 'personal:id,nombre_completo,categoria_id',
                 'obra:id,nombre_obra,estatus,fecha_inicio,fecha_fin'
-            ]);
+            ])->findOrFail($id);
 
             // Agregar información adicional
             $documento->estado = $documento->estado;
@@ -190,9 +190,10 @@ class DocumentoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDocumentoRequest $request, Documento $documento): JsonResponse
+    public function update(UpdateDocumentoRequest $request, $id): JsonResponse
     {
         try {
+            $documento = Documento::findOrFail($id);
             $data = $request->validated();
 
             // Manejo de archivo si se proporciona
@@ -238,9 +239,11 @@ class DocumentoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Documento $documento): JsonResponse
+    public function destroy($id): JsonResponse
     {
         try {
+            $documento = Documento::findOrFail($id);
+            
             // Eliminar archivo físico si existe
             if ($documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
                 Storage::disk('public')->delete($documento->ruta_archivo);

@@ -102,9 +102,11 @@ class CatalogoTipoDocumentoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(CatalogoTipoDocumento $catalogoTipoDocumento): JsonResponse
+    public function show($id): JsonResponse
     {
         try {
+            $catalogoTipoDocumento = CatalogoTipoDocumento::findOrFail($id);
+            
             // Cargar documentos relacionados si se solicita
             if (request()->boolean('with_documentos')) {
                 $catalogoTipoDocumento->load([
@@ -132,9 +134,10 @@ class CatalogoTipoDocumentoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreCatalogoTipoDocumentoRequest $request, CatalogoTipoDocumento $catalogoTipoDocumento): JsonResponse
+    public function update(StoreCatalogoTipoDocumentoRequest $request, $id): JsonResponse
     {
         try {
+            $catalogoTipoDocumento = CatalogoTipoDocumento::findOrFail($id);
             $catalogoTipoDocumento->update($request->validated());
 
             return response()->json([
@@ -155,9 +158,11 @@ class CatalogoTipoDocumentoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CatalogoTipoDocumento $catalogoTipoDocumento): JsonResponse
+    public function destroy($id): JsonResponse
     {
         try {
+            $catalogoTipoDocumento = CatalogoTipoDocumento::findOrFail($id);
+            
             // Verificar si tiene documentos asociados
             if ($catalogoTipoDocumento->documentos()->exists()) {
                 return response()->json([

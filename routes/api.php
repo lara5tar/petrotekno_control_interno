@@ -176,13 +176,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [CatalogoTipoDocumentoController::class, 'store'])
             ->middleware('permission:crear_catalogos');
 
-        Route::get('/{catalogoTipoDocumento}', [CatalogoTipoDocumentoController::class, 'show'])
+        Route::get('/{id}', [CatalogoTipoDocumentoController::class, 'show'])
             ->middleware('permission:ver_catalogos');
 
-        Route::put('/{catalogoTipoDocumento}', [CatalogoTipoDocumentoController::class, 'update'])
+        Route::put('/{id}', [CatalogoTipoDocumentoController::class, 'update'])
             ->middleware('permission:editar_catalogos');
 
-        Route::delete('/{catalogoTipoDocumento}', [CatalogoTipoDocumentoController::class, 'destroy'])
+        Route::delete('/{id}', [CatalogoTipoDocumentoController::class, 'destroy'])
             ->middleware('permission:eliminar_catalogos');
     });
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,7 +10,7 @@ use Carbon\Carbon;
 
 class Documento extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     /**
      * Atributos que se pueden asignar masivamente
@@ -87,6 +88,7 @@ class Documento extends Model
      */
     public function scopeProximosAVencer($query, $dias = 30)
     {
+        $dias = (int) $dias; // Asegurar que sea entero
         $fechaLimite = now()->addDays($dias);
         return $query->whereNotNull('fecha_vencimiento')
                     ->where('fecha_vencimiento', '<=', $fechaLimite)

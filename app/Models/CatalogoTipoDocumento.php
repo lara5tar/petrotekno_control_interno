@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CatalogoTipoDocumento extends Model
 {
+    use HasFactory;
     /**
      * Nombre de la tabla
      */
@@ -26,6 +28,13 @@ class CatalogoTipoDocumento extends Model
      */
     protected $casts = [
         'requiere_vencimiento' => 'boolean',
+    ];
+
+    /**
+     * Valores por defecto para los atributos
+     */
+    protected $attributes = [
+        'requiere_vencimiento' => false,
     ];
 
     /**

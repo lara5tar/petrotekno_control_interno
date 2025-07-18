@@ -69,6 +69,9 @@ class StoreDocumentoRequest extends FormRequest
                 'file',
                 'max:10240', // 10MB máximo
                 'mimes:pdf,doc,docx,jpg,jpeg,png,txt,xls,xlsx'
+            ],
+            'multiple_associations' => [
+                'prohibited'
             ]
         ];
     }
@@ -90,7 +93,8 @@ class StoreDocumentoRequest extends FormRequest
             'obra_id.exists' => 'La obra seleccionada no es válida.',
             'archivo.file' => 'Debe seleccionar un archivo válido.',
             'archivo.max' => 'El archivo no puede ser mayor a 10MB.',
-            'archivo.mimes' => 'El archivo debe ser de tipo: PDF, DOC, DOCX, JPG, JPEG, PNG, TXT, XLS, XLSX.'
+            'archivo.mimes' => 'El archivo debe ser de tipo: PDF, DOC, DOCX, JPG, JPEG, PNG, TXT, XLS, XLSX.',
+            'multiple_associations.prohibited' => 'Un documento no puede estar asociado a múltiples entidades al mismo tiempo.'
         ];
     }
 
