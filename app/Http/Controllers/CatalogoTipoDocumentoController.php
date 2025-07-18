@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CatalogoTipoDocumento;
 use App\Http\Requests\StoreCatalogoTipoDocumentoRequest;
-use Illuminate\Http\Request;
+use App\Models\CatalogoTipoDocumento;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class CatalogoTipoDocumentoController extends Controller
 {
@@ -64,14 +64,14 @@ class CatalogoTipoDocumentoController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $tipos
+                'data' => $tipos,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener los tipos de documento',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -87,14 +87,14 @@ class CatalogoTipoDocumentoController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Tipo de documento creado exitosamente',
-                'data' => $tipoDocumento
+                'data' => $tipoDocumento,
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al crear el tipo de documento',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -106,27 +106,27 @@ class CatalogoTipoDocumentoController extends Controller
     {
         try {
             $catalogoTipoDocumento = CatalogoTipoDocumento::findOrFail($id);
-            
+
             // Cargar documentos relacionados si se solicita
             if (request()->boolean('with_documentos')) {
                 $catalogoTipoDocumento->load([
                     'documentos' => function ($query) {
                         $query->with(['vehiculo:id,marca,modelo,placas', 'personal:id,nombre_completo', 'obra:id,nombre_obra'])
-                              ->orderBy('created_at', 'desc');
-                    }
+                            ->orderBy('created_at', 'desc');
+                    },
                 ]);
             }
 
             return response()->json([
                 'success' => true,
-                'data' => $catalogoTipoDocumento
+                'data' => $catalogoTipoDocumento,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener el tipo de documento',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -143,14 +143,14 @@ class CatalogoTipoDocumentoController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Tipo de documento actualizado exitosamente',
-                'data' => $catalogoTipoDocumento
+                'data' => $catalogoTipoDocumento,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar el tipo de documento',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -162,12 +162,12 @@ class CatalogoTipoDocumentoController extends Controller
     {
         try {
             $catalogoTipoDocumento = CatalogoTipoDocumento::findOrFail($id);
-            
+
             // Verificar si tiene documentos asociados
             if ($catalogoTipoDocumento->documentos()->exists()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No se puede eliminar el tipo de documento porque tiene documentos asociados'
+                    'message' => 'No se puede eliminar el tipo de documento porque tiene documentos asociados',
                 ], 422);
             }
 
@@ -175,14 +175,14 @@ class CatalogoTipoDocumentoController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Tipo de documento eliminado exitosamente'
+                'message' => 'Tipo de documento eliminado exitosamente',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al eliminar el tipo de documento',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

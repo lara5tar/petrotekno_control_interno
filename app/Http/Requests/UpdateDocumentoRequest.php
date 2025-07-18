@@ -26,48 +26,48 @@ class UpdateDocumentoRequest extends FormRequest
                 'sometimes',
                 'required',
                 'integer',
-                'exists:catalogo_tipos_documento,id'
+                'exists:catalogo_tipos_documento,id',
             ],
             'descripcion' => [
                 'sometimes',
                 'nullable',
                 'string',
-                'max:1000'
+                'max:1000',
             ],
             'ruta_archivo' => [
                 'sometimes',
                 'nullable',
                 'string',
-                'max:500'
+                'max:500',
             ],
             'fecha_vencimiento' => [
                 'sometimes',
                 'nullable',
                 'date',
-                'after_or_equal:today'
+                'after_or_equal:today',
             ],
             'vehiculo_id' => [
                 'sometimes',
                 'nullable',
                 'integer',
-                'exists:vehiculos,id'
+                'exists:vehiculos,id',
             ],
             'personal_id' => [
                 'sometimes',
                 'nullable',
                 'integer',
-                'exists:personal,id'
+                'exists:personal,id',
             ],
             'obra_id' => [
                 'sometimes',
                 'nullable',
                 'integer',
-                'exists:obras,id'
+                'exists:obras,id',
             ],
             'mantenimiento_id' => [
                 'sometimes',
                 'nullable',
-                'integer'
+                'integer',
                 // TODO: Agregar exists cuando se implemente mantenimientos
             ],
             'archivo' => [
@@ -75,11 +75,11 @@ class UpdateDocumentoRequest extends FormRequest
                 'nullable',
                 'file',
                 'max:10240',
-                'mimes:pdf,doc,docx,jpg,jpeg,png,txt,xls,xlsx'
+                'mimes:pdf,doc,docx,jpg,jpeg,png,txt,xls,xlsx',
             ],
             'multiple_associations' => [
-                'prohibited'
-            ]
+                'prohibited',
+            ],
         ];
     }
 
@@ -100,7 +100,7 @@ class UpdateDocumentoRequest extends FormRequest
             'archivo.file' => 'Debe seleccionar un archivo válido.',
             'archivo.max' => 'El archivo no puede ser mayor a 10MB.',
             'archivo.mimes' => 'El archivo debe ser de tipo: PDF, DOC, DOCX, JPG, JPEG, PNG, TXT, XLS, XLSX.',
-            'multiple_associations.prohibited' => 'Un documento no puede estar asociado a múltiples entidades al mismo tiempo.'
+            'multiple_associations.prohibited' => 'Un documento no puede estar asociado a múltiples entidades al mismo tiempo.',
         ];
     }
 
@@ -111,12 +111,12 @@ class UpdateDocumentoRequest extends FormRequest
     {
         // Asegurar que solo se asocie a una entidad a la vez
         $entidades = collect(['vehiculo_id', 'personal_id', 'obra_id', 'mantenimiento_id'])
-            ->filter(fn($key) => $this->filled($key))
+            ->filter(fn ($key) => $this->filled($key))
             ->count();
 
         if ($entidades > 1) {
             $this->merge([
-                'multiple_associations' => true
+                'multiple_associations' => true,
             ]);
         }
     }
@@ -130,8 +130,8 @@ class UpdateDocumentoRequest extends FormRequest
         $validator->after(function ($validator) {
             if ($this->filled('tipo_documento_id')) {
                 $tipoDocumento = \App\Models\CatalogoTipoDocumento::find($this->tipo_documento_id);
-                
-                if ($tipoDocumento && $tipoDocumento->requiere_vencimiento && !$this->filled('fecha_vencimiento')) {
+
+                if ($tipoDocumento && $tipoDocumento->requiere_vencimiento && ! $this->filled('fecha_vencimiento')) {
                     $validator->errors()->add('fecha_vencimiento', 'La fecha de vencimiento es obligatoria para este tipo de documento.');
                 }
             }

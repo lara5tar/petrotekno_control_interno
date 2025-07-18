@@ -26,17 +26,17 @@ class StoreCatalogoTipoDocumentoRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'unique:catalogo_tipos_documento,nombre_tipo_documento'
+                'unique:catalogo_tipos_documento,nombre_tipo_documento',
             ],
             'descripcion' => [
                 'nullable',
                 'string',
-                'max:500'
+                'max:500',
             ],
             'requiere_vencimiento' => [
                 'sometimes',
-                'boolean'
-            ]
+                'boolean',
+            ],
         ];
     }
 
@@ -50,7 +50,7 @@ class StoreCatalogoTipoDocumentoRequest extends FormRequest
             'nombre_tipo_documento.max' => 'El nombre no puede exceder 255 caracteres.',
             'nombre_tipo_documento.unique' => 'Ya existe un tipo de documento con este nombre.',
             'descripcion.max' => 'La descripción no puede exceder 500 caracteres.',
-            'requiere_vencimiento.boolean' => 'El campo requiere vencimiento debe ser verdadero o falso.'
+            'requiere_vencimiento.boolean' => 'El campo requiere vencimiento debe ser verdadero o falso.',
         ];
     }
 }

@@ -32,13 +32,16 @@ class VehiculoFactory extends Factory
         $marca = $this->faker->randomElement($marcas);
         $modelo = $this->faker->randomElement($modelos[$marca]);
 
+        // Obtener un estatus existente o crear uno si no existe
+        $estatus = CatalogoEstatus::first() ?? CatalogoEstatus::factory()->create();
+
         return [
             'marca' => $marca,
             'modelo' => $modelo,
             'anio' => $this->faker->numberBetween(2010, 2024),
             'n_serie' => strtoupper($this->faker->bothify('???######')),
             'placas' => strtoupper($this->faker->bothify('???-###')),
-            'estatus_id' => CatalogoEstatus::factory(),
+            'estatus_id' => $estatus->id,
             'kilometraje_actual' => $this->faker->numberBetween(0, 300000),
             'intervalo_km_motor' => $this->faker->randomElement([5000, 7500, 10000]),
             'intervalo_km_transmision' => $this->faker->randomElement([40000, 60000, 80000]),

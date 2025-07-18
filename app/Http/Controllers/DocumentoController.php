@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Documento;
 use App\Http\Requests\StoreDocumentoRequest;
 use App\Http\Requests\UpdateDocumentoRequest;
-use Illuminate\Http\Request;
+use App\Models\Documento;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -34,7 +34,7 @@ class DocumentoController extends Controller
                 'tipoDocumento:id,nombre_tipo_documento,requiere_vencimiento',
                 'vehiculo:id,marca,modelo,placas',
                 'personal:id,nombre_completo',
-                'obra:id,nombre_obra'
+                'obra:id,nombre_obra',
             ]);
 
             // Filtros
@@ -71,9 +71,9 @@ class DocumentoController extends Controller
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('descripcion', 'like', "%{$search}%")
-                      ->orWhereHas('tipoDocumento', function ($tq) use ($search) {
-                          $tq->where('nombre_tipo_documento', 'like', "%{$search}%");
-                      });
+                        ->orWhereHas('tipoDocumento', function ($tq) use ($search) {
+                            $tq->where('nombre_tipo_documento', 'like', "%{$search}%");
+                        });
                 });
             }
 
@@ -91,6 +91,7 @@ class DocumentoController extends Controller
                 $documento->estado = $documento->estado;
                 $documento->dias_hasta_vencimiento = $documento->dias_hasta_vencimiento;
                 $documento->esta_vencido = $documento->esta_vencido;
+
                 return $documento;
             });
 
@@ -99,15 +100,15 @@ class DocumentoController extends Controller
                 'data' => $documentos,
                 'meta' => [
                     'total_documentos' => $documentos->total(),
-                    'filtros_aplicados' => $request->except(['page', 'per_page'])
-                ]
+                    'filtros_aplicados' => $request->except(['page', 'per_page']),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener los documentos',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -123,7 +124,7 @@ class DocumentoController extends Controller
             // Manejo de archivo si se proporciona
             if ($request->hasFile('archivo')) {
                 $archivo = $request->file('archivo');
-                $nombreArchivo = time() . '_' . Str::slug($archivo->getClientOriginalName(), '_');
+                $nombreArchivo = time().'_'.Str::slug($archivo->getClientOriginalName(), '_');
                 $rutaArchivo = $archivo->storeAs('documentos', $nombreArchivo, 'public');
                 $data['ruta_archivo'] = $rutaArchivo;
             }
@@ -133,7 +134,7 @@ class DocumentoController extends Controller
                 'tipoDocumento:id,nombre_tipo_documento,requiere_vencimiento',
                 'vehiculo:id,marca,modelo,placas',
                 'personal:id,nombre_completo',
-                'obra:id,nombre_obra'
+                'obra:id,nombre_obra',
             ]);
 
             // Agregar información adicional
@@ -143,14 +144,14 @@ class DocumentoController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Documento creado exitosamente',
-                'data' => $documento
+                'data' => $documento,
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al crear el documento',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -165,7 +166,7 @@ class DocumentoController extends Controller
                 'tipoDocumento:id,nombre_tipo_documento,descripcion,requiere_vencimiento',
                 'vehiculo:id,marca,modelo,placas,n_serie',
                 'personal:id,nombre_completo,categoria_id',
-                'obra:id,nombre_obra,estatus,fecha_inicio,fecha_fin'
+                'obra:id,nombre_obra,estatus,fecha_inicio,fecha_fin',
             ])->findOrFail($id);
 
             // Agregar información adicional
@@ -175,14 +176,14 @@ class DocumentoController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $documento
+                'data' => $documento,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener el documento',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -204,7 +205,7 @@ class DocumentoController extends Controller
                 }
 
                 $archivo = $request->file('archivo');
-                $nombreArchivo = time() . '_' . Str::slug($archivo->getClientOriginalName(), '_');
+                $nombreArchivo = time().'_'.Str::slug($archivo->getClientOriginalName(), '_');
                 $rutaArchivo = $archivo->storeAs('documentos', $nombreArchivo, 'public');
                 $data['ruta_archivo'] = $rutaArchivo;
             }
@@ -214,7 +215,7 @@ class DocumentoController extends Controller
                 'tipoDocumento:id,nombre_tipo_documento,requiere_vencimiento',
                 'vehiculo:id,marca,modelo,placas',
                 'personal:id,nombre_completo',
-                'obra:id,nombre_obra'
+                'obra:id,nombre_obra',
             ]);
 
             // Agregar información adicional
@@ -224,14 +225,14 @@ class DocumentoController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Documento actualizado exitosamente',
-                'data' => $documento
+                'data' => $documento,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar el documento',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -243,7 +244,7 @@ class DocumentoController extends Controller
     {
         try {
             $documento = Documento::findOrFail($id);
-            
+
             // Eliminar archivo físico si existe
             if ($documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
                 Storage::disk('public')->delete($documento->ruta_archivo);
@@ -253,14 +254,14 @@ class DocumentoController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Documento eliminado exitosamente'
+                'message' => 'Documento eliminado exitosamente',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al eliminar el documento',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -272,20 +273,21 @@ class DocumentoController extends Controller
     {
         try {
             $dias = $request->get('dias', 30);
-            
+
             $documentos = Documento::with([
                 'tipoDocumento:id,nombre_tipo_documento',
                 'vehiculo:id,marca,modelo,placas',
                 'personal:id,nombre_completo',
-                'obra:id,nombre_obra'
+                'obra:id,nombre_obra',
             ])
-            ->proximosAVencer($dias)
-            ->orderBy('fecha_vencimiento', 'asc')
-            ->get();
+                ->proximosAVencer($dias)
+                ->orderBy('fecha_vencimiento', 'asc')
+                ->get();
 
             // Agregar información adicional
             $documentos->transform(function ($documento) {
                 $documento->dias_hasta_vencimiento = $documento->dias_hasta_vencimiento;
+
                 return $documento;
             });
 
@@ -294,15 +296,15 @@ class DocumentoController extends Controller
                 'data' => $documentos,
                 'meta' => [
                     'total' => $documentos->count(),
-                    'dias_filtro' => $dias
-                ]
+                    'dias_filtro' => $dias,
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener documentos próximos a vencer',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -317,15 +319,16 @@ class DocumentoController extends Controller
                 'tipoDocumento:id,nombre_tipo_documento',
                 'vehiculo:id,marca,modelo,placas',
                 'personal:id,nombre_completo',
-                'obra:id,nombre_obra'
+                'obra:id,nombre_obra',
             ])
-            ->vencidos()
-            ->orderBy('fecha_vencimiento', 'asc')
-            ->get();
+                ->vencidos()
+                ->orderBy('fecha_vencimiento', 'asc')
+                ->get();
 
             // Agregar información adicional
             $documentos->transform(function ($documento) {
-                $documento->dias_vencido = abs($documento->dias_hasta_vencimiento);
+                $documento->setAttribute('dias_vencido', abs($documento->dias_hasta_vencimiento));
+
                 return $documento;
             });
 
@@ -333,15 +336,15 @@ class DocumentoController extends Controller
                 'success' => true,
                 'data' => $documentos,
                 'meta' => [
-                    'total' => $documentos->count()
-                ]
+                    'total' => $documentos->count(),
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener documentos vencidos',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

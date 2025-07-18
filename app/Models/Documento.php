@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
 
 class Documento extends Model
 {
@@ -80,7 +79,7 @@ class Documento extends Model
     public function scopeVencidos($query)
     {
         return $query->whereNotNull('fecha_vencimiento')
-                    ->where('fecha_vencimiento', '<', now());
+            ->where('fecha_vencimiento', '<', now());
     }
 
     /**
@@ -90,9 +89,10 @@ class Documento extends Model
     {
         $dias = (int) $dias; // Asegurar que sea entero
         $fechaLimite = now()->addDays($dias);
+
         return $query->whereNotNull('fecha_vencimiento')
-                    ->where('fecha_vencimiento', '<=', $fechaLimite)
-                    ->where('fecha_vencimiento', '>=', now());
+            ->where('fecha_vencimiento', '<=', $fechaLimite)
+            ->where('fecha_vencimiento', '>=', now());
     }
 
     /**
@@ -132,7 +132,7 @@ class Documento extends Model
      */
     public function getEstaVencidoAttribute(): bool
     {
-        if (!$this->fecha_vencimiento) {
+        if (! $this->fecha_vencimiento) {
             return false;
         }
 
@@ -144,11 +144,11 @@ class Documento extends Model
      */
     public function getDiasHastaVencimientoAttribute(): ?int
     {
-        if (!$this->fecha_vencimiento) {
+        if (! $this->fecha_vencimiento) {
             return null;
         }
 
-        return now()->diffInDays($this->fecha_vencimiento, false);
+        return (int) now()->diffInDays($this->fecha_vencimiento, false);
     }
 
     /**
@@ -156,7 +156,7 @@ class Documento extends Model
      */
     public function getEstadoAttribute(): string
     {
-        if (!$this->fecha_vencimiento) {
+        if (! $this->fecha_vencimiento) {
             return 'vigente';
         }
 

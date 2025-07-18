@@ -25,7 +25,7 @@ class CategoriaPersonalFactory extends Factory
                 'Mecánico',
                 'Supervisor',
                 'Jefe de Taller',
-                'Administrador'
+                'Administrador',
             ]),
         ];
     }

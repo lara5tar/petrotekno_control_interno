@@ -27,7 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class CategoriaPersonal extends Model
 {
     use HasFactory;
-    
+
     protected $table = 'categorias_personal';
 
     protected $fillable = [

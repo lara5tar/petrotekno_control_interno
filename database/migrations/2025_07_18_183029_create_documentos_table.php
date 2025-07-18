@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unsignedBigInteger('mantenimiento_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Índices para optimizar consultas
             $table->index(['tipo_documento_id', 'fecha_vencimiento']);
             $table->index(['vehiculo_id', 'created_at']);

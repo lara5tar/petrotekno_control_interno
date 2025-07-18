@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\CatalogoTipoDocumento;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class CatalogoTipoDocumentoSeeder extends Seeder

@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Permission extends Model
 {
     use HasFactory;
-    
+
     protected $table = 'permisos';
 
     protected $fillable = [

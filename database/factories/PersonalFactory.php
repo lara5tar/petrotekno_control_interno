@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Personal;
 use App\Models\CategoriaPersonal;
+use App\Models\Personal;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PersonalFactory extends Factory

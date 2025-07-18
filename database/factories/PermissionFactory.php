@@ -47,11 +47,11 @@ class PermissionFactory extends Factory
             'administrar_usuarios' => 'Gestionar usuarios del sistema',
             'administrar_roles' => 'Gestionar roles y permisos',
             'ver_reportes' => 'Acceder a reportes del sistema',
-            'exportar_datos' => 'Exportar información del sistema'
+            'exportar_datos' => 'Exportar información del sistema',
         ];
 
         $permiso = $this->faker->randomElement(array_keys($permisos));
-        
+
         return [
             'nombre_permiso' => $permiso,
             'descripcion' => $permisos[$permiso],

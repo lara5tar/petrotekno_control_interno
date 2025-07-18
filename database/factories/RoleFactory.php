@@ -27,7 +27,7 @@ class RoleFactory extends Factory
                 'Mantenimiento',
                 'Recursos Humanos',
                 'Gerente',
-                'Coordinador'
+                'Coordinador',
             ]),
             'descripcion' => $this->faker->sentence(6),
         ];
