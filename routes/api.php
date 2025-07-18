@@ -124,21 +124,22 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:ver_obras');
 
         Route::post('/', [ObraController::class, 'store'])
-            ->middleware('permission:crear_obra');
+            ->middleware('permission:crear_obras');
 
-        Route::get('/estatus', [ObraController::class, 'estatus']);
+        Route::get('/estatus', [ObraController::class, 'getEstatus'])
+            ->middleware('permission:ver_obras');
 
         Route::get('/{obra}', [ObraController::class, 'show'])
             ->middleware('permission:ver_obras');
 
         Route::put('/{obra}', [ObraController::class, 'update'])
-            ->middleware('permission:editar_obra');
+            ->middleware('permission:actualizar_obras');
 
         Route::delete('/{obra}', [ObraController::class, 'destroy'])
-            ->middleware('permission:eliminar_obra');
+            ->middleware('permission:eliminar_obras');
 
-        Route::post('/{obra}/restore', [ObraController::class, 'restore'])
-            ->middleware('permission:editar_obra');
+        Route::post('/{id}/restore', [ObraController::class, 'restore'])
+            ->middleware('permission:restaurar_obras');
     });
 
     // Rutas de consulta general (sin restricciones especiales)

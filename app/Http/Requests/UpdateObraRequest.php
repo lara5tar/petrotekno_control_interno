@@ -13,7 +13,7 @@ class UpdateObraRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->hasPermission('editar_obra');
+        return $this->user() && $this->user()->hasPermission('actualizar_obras');
     }
 
     /**

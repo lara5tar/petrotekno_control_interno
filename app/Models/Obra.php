@@ -81,6 +81,18 @@ class Obra extends Model
     ];
 
     /**
+     * Atributos adicionales que deben agregarse al array/JSON
+     */
+    protected $appends = [
+        'estatus_descripcion',
+        'dias_transcurridos',
+        'dias_restantes',
+        'duracion_total',
+        'esta_atrasada',
+        'porcentaje_tiempo_transcurrido',
+    ];
+
+    /**
      * Preparado para futuras relaciones con asignaciones
      */
     // public function asignaciones(): HasMany

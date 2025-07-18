@@ -157,7 +157,7 @@ class ObraSecurityTest extends TestCase
         $response = $this->getJson('/api/obras');
         $response->assertStatus(200);
 
-        $responseData = $response->json('data');
+        $responseData = $response->json('data.data');
         if (! empty($responseData)) {
             $firstObra = $responseData[0];
 
@@ -296,9 +296,9 @@ class ObraSecurityTest extends TestCase
         // Crear permisos necesarios
         $permissions = [
             'ver_obras',
-            'crear_obra',
-            'editar_obra',
-            'eliminar_obra',
+            'crear_obras',
+            'actualizar_obras',
+            'eliminar_obras',
         ];
 
         foreach ($permissions as $permissionName) {

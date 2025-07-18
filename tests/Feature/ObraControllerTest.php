@@ -35,9 +35,10 @@ class ObraControllerTest extends TestCase
         // Crear permisos necesarios para obras
         $permissions = [
             'ver_obras',
-            'crear_obra',
-            'editar_obra',
-            'eliminar_obra',
+            'crear_obras',
+            'actualizar_obras',
+            'eliminar_obras',
+            'restaurar_obras',
         ];
 
         foreach ($permissions as $permission) {
@@ -53,9 +54,10 @@ class ObraControllerTest extends TestCase
         // Crear permisos específicos para obras (si no existen)
         $permissions = [
             'ver_obras',
-            'crear_obra',
-            'editar_obra',
-            'eliminar_obra',
+            'crear_obras',
+            'actualizar_obras',
+            'eliminar_obras',
+            'restaurar_obras',
         ];
 
         foreach ($permissions as $permissionName) {
@@ -68,7 +70,7 @@ class ObraControllerTest extends TestCase
 
         $supervisorRole = Role::firstOrCreate(['nombre_rol' => 'Supervisor']);
         $supervisorPermissions = Permission::whereIn('nombre_permiso', [
-            'ver_obras', 'crear_obra', 'editar_obra',
+            'ver_obras', 'crear_obras', 'actualizar_obras',
         ])->get();
         $supervisorRole->permisos()->sync($supervisorPermissions);
 
@@ -112,16 +114,29 @@ class ObraControllerTest extends TestCase
             ->assertJsonStructure([
                 'message',
                 'data' => [
-                    '*' => [
-                        'id',
-                        'nombre_obra',
-                        'estatus',
-                        'avance',
-                        'fecha_inicio',
-                        'fecha_fin',
+                    'current_page',
+                    'data' => [
+                        '*' => [
+                            'id',
+                            'nombre_obra',
+                            'estatus',
+                            'avance',
+                            'fecha_inicio',
+                            'fecha_fin',
+                        ],
                     ],
+                    'first_page_url',
+                    'from',
+                    'last_page',
+                    'last_page_url',
+                    'links',
+                    'next_page_url',
+                    'path',
+                    'per_page',
+                    'prev_page_url',
+                    'to',
+                    'total',
                 ],
-                'pagination',
             ]);
     }
 
@@ -135,7 +150,7 @@ class ObraControllerTest extends TestCase
         $response = $this->getJson('/api/obras');
 
         $response->assertStatus(200);
-        $this->assertCount(3, $response->json('data'));
+        $this->assertCount(3, $response->json('data.data'));
     }
 
     #[Test]
@@ -148,7 +163,7 @@ class ObraControllerTest extends TestCase
         $response = $this->getJson('/api/obras');
 
         $response->assertStatus(200);
-        $this->assertCount(2, $response->json('data'));
+        $this->assertCount(2, $response->json('data.data'));
     }
 
     #[Test]
@@ -515,17 +530,17 @@ class ObraControllerTest extends TestCase
         // Test filtro por estatus
         $response = $this->getJson('/api/obras?estatus='.Obra::ESTATUS_EN_PROGRESO);
         $response->assertStatus(200);
-        $this->assertCount(1, $response->json('data'));
+        $this->assertCount(1, $response->json('data.data'));
 
         // Test búsqueda por nombre
         $response = $this->getJson('/api/obras?buscar=Planificada');
         $response->assertStatus(200);
-        $this->assertCount(1, $response->json('data'));
+        $this->assertCount(1, $response->json('data.data'));
 
         // Test filtro obras activas
         $response = $this->getJson('/api/obras?solo_activas=true');
         $response->assertStatus(200);
-        $this->assertCount(3, $response->json('data')); // Todas excepto canceladas
+        $this->assertCount(3, $response->json('data.data')); // Todas excepto canceladas
     }
 
     #[Test]
@@ -580,17 +595,25 @@ class ObraControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'pagination' => [
+                'message',
+                'data' => [
                     'current_page',
                     'last_page',
                     'per_page',
                     'total',
+                    'data' => [
+                        '*' => [
+                            'id',
+                            'nombre_obra',
+                            'estatus',
+                        ],
+                    ],
                 ],
             ]);
 
-        $pagination = $response->json('pagination');
+        $pagination = $response->json('data');
         $this->assertEquals(10, $pagination['per_page']);
-        $this->assertEquals(25, $pagination['total']);
-        $this->assertEquals(3, $pagination['last_page']);
+        $this->assertEquals(25, $pagination['total']); // 25 obras creadas
+        $this->assertEquals(3, $pagination['last_page']); // Math.ceil(25/10) = 3
     }
 }

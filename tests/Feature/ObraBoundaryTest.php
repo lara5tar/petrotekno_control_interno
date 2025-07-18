@@ -51,7 +51,7 @@ class ObraBoundaryTest extends TestCase
             dump('Usuario ID: '.$this->adminUser->id);
             dump('Rol: '.$this->adminUser->rol->nombre_rol);
             dump('Permisos: '.$this->adminUser->rol->permisos->pluck('nombre_permiso')->implode(', '));
-            dump('hasPermission crear_obra: '.($this->adminUser->hasPermission('crear_obra') ? 'true' : 'false'));
+            dump('hasPermission crear_obras: '.($this->adminUser->hasPermission('crear_obras') ? 'true' : 'false'));
             dump('Response status: '.$response->status());
             dump('Response body: '.$response->content());
         }
@@ -272,7 +272,7 @@ class ObraBoundaryTest extends TestCase
         // Test: Página extremadamente alta
         $response = $this->getJson('/api/obras?page=99999');
         $response->assertStatus(200);
-        $this->assertEmpty($response->json('data'));
+        $this->assertEmpty($response->json('data.data'));
 
         // Test: per_page muy grande
         $response = $this->getJson('/api/obras?per_page=1000');
@@ -414,7 +414,8 @@ class ObraBoundaryTest extends TestCase
 
         // Verificar que la respuesta tiene la estructura correcta
         $this->assertIsArray($response->json('data'));
-        $this->assertArrayHasKey('pagination', $response->json());
+        $this->assertArrayHasKey('current_page', $response->json('data'));
+        $this->assertArrayHasKey('total', $response->json('data'));
     }
 
     private function createTestUsers()
@@ -427,9 +428,9 @@ class ObraBoundaryTest extends TestCase
         // Crear permisos necesarios
         $permissions = [
             'ver_obras',
-            'crear_obra',
-            'editar_obra',
-            'eliminar_obra',
+            'crear_obras',
+            'actualizar_obras',
+            'eliminar_obras',
         ];
 
         foreach ($permissions as $permissionName) {
