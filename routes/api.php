@@ -96,7 +96,7 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:ver_vehiculos');
 
         Route::post('/', [VehiculoController::class, 'store'])
-            ->middleware('permission:crear_vehiculo');
+            ->middleware('permission:crear_vehiculos');
 
         Route::get('/estatus', [VehiculoController::class, 'estatusOptions']);
 
@@ -104,13 +104,13 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:ver_vehiculos');
 
         Route::put('/{id}', [VehiculoController::class, 'update'])
-            ->middleware('permission:editar_vehiculo');
+            ->middleware('permission:editar_vehiculos');
 
         Route::delete('/{id}', [VehiculoController::class, 'destroy'])
-            ->middleware('permission:eliminar_vehiculo');
+            ->middleware('permission:eliminar_vehiculos');
 
         Route::post('/{id}/restore', [VehiculoController::class, 'restore'])
-            ->middleware('permission:editar_vehiculo');
+            ->middleware('permission:restaurar_vehiculos');
     });
 
     // Rutas de consulta general (sin restricciones especiales)

@@ -15,7 +15,7 @@ class StoreVehiculoRequest extends FormRequest
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        return Auth::check() && $user && $user->hasPermission('crear_vehiculo');
+        return Auth::check() && $user && $user->hasPermission('crear_vehiculos');
     }
 
     /**

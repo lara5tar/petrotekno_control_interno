@@ -37,9 +37,10 @@ class PermissionSeeder extends Seeder
 
             // Vehículos
             ['nombre_permiso' => 'ver_vehiculos', 'descripcion' => 'Ver listado de vehículos'],
-            ['nombre_permiso' => 'crear_vehiculo', 'descripcion' => 'Crear registros de vehículos'],
-            ['nombre_permiso' => 'editar_vehiculo', 'descripcion' => 'Editar vehículos existentes'],
-            ['nombre_permiso' => 'eliminar_vehiculo', 'descripcion' => 'Eliminar vehículos'],
+            ['nombre_permiso' => 'crear_vehiculos', 'descripcion' => 'Crear registros de vehículos'],
+            ['nombre_permiso' => 'editar_vehiculos', 'descripcion' => 'Editar vehículos existentes'],
+            ['nombre_permiso' => 'eliminar_vehiculos', 'descripcion' => 'Eliminar vehículos'],
+            ['nombre_permiso' => 'restaurar_vehiculos', 'descripcion' => 'Restaurar vehículos eliminados'],
 
             // Sistema
             ['nombre_permiso' => 'ver_logs', 'descripcion' => 'Ver logs del sistema'],
