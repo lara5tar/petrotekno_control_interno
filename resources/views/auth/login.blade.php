@@ -81,19 +81,13 @@
                         </button>
                     </div>
                     
-                    <div class="flex justify-between items-center text-sm">
-                        @if (Route::has('password.request'))
-                            <a class="text-gray-800 hover:text-petrodark" href="{{ route('password.request') }}">
+                    @if (Route::has('password.request'))
+                        <div class="text-center">
+                            <a class="text-sm text-gray-800 hover:text-petrodark" href="{{ route('password.request') }}">
                                 {{ __('¿Olvidó su contraseña?') }}
                             </a>
-                        @endif
-                        
-                        @if (Route::has('register'))
-                            <a class="text-gray-800 hover:text-petrodark" href="{{ route('register') }}">
-                                {{ __('Registrarse') }}
-                            </a>
-                        @endif
-                    </div>
+                        </div>
+                    @endif
                 </form>
             </div>
         </div>

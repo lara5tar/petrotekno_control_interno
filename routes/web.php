@@ -8,8 +8,8 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Rutas de autenticación
-Auth::routes();
+// Rutas de autenticación (sin registro público)
+Auth::routes(['register' => false]);
 
 // Ruta del dashboard después de iniciar sesión
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
