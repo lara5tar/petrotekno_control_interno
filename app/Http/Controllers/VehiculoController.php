@@ -10,6 +10,7 @@ use App\Models\Vehiculo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class VehiculoController extends Controller
 {
@@ -25,37 +26,43 @@ class VehiculoController extends Controller
             ], 403);
         }
 
-        $query = Vehiculo::with('estatus');
+        try {
+            $query = Vehiculo::with('estatus');
 
-        // Aplicar filtros
-        if ($request->filled('marca')) {
-            $query->porMarca($request->marca);
+            // Filtros opcionales
+            if ($request->filled('marca')) {
+                $query->where('marca', 'like', '%' . $request->marca . '%');
+            }
+
+            if ($request->filled('modelo')) {
+                $query->where('modelo', 'like', '%' . $request->modelo . '%');
+            }
+
+            if ($request->filled('estatus_id')) {
+                $query->where('estatus_id', $request->estatus_id);
+            }
+
+            if ($request->filled('anio')) {
+                $query->where('anio', $request->anio);
+            }
+
+            // Paginación
+            $perPage = $request->get('per_page', 15);
+            $vehiculos = $query->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Vehículos obtenidos exitosamente',
+                'data' => $vehiculos,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los vehículos',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        if ($request->filled('modelo')) {
-            $query->porModelo($request->modelo);
-        }
-
-        if ($request->filled('estatus_id')) {
-            $query->porEstatus($request->estatus_id);
-        }
-
-        if ($request->filled('anio_inicio') && $request->filled('anio_fin')) {
-            $query->porAnio($request->anio_inicio, $request->anio_fin);
-        }
-
-        if ($request->filled('buscar')) {
-            $query->buscar($request->buscar);
-        }
-
-        // Incluir eliminados si se solicita
-        if ($request->boolean('incluir_eliminados')) {
-            $query->withTrashed();
-        }
-
-        $vehiculos = $query->paginate($request->get('per_page', 15));
-
-        return response()->json($vehiculos);
     }
 
     /**
@@ -63,22 +70,38 @@ class VehiculoController extends Controller
      */
     public function store(StoreVehiculoRequest $request): JsonResponse
     {
-        $vehiculo = Vehiculo::create($request->validated());
-        $vehiculo->load('estatus');
+        try {
+            DB::beginTransaction();
 
-        // Log de acción
-        LogAccion::create([
-            'usuario_id' => Auth::id(),
-            'accion' => 'crear_vehiculo',
-            'tabla_afectada' => 'vehiculos',
-            'registro_id' => $vehiculo->id,
-            'detalles' => 'Vehículo creado: ' . $vehiculo->nombre_completo,
-        ]);
+            $vehiculo = Vehiculo::create($request->validated());
+            $vehiculo->load('estatus');
 
-        return response()->json([
-            'message' => 'Vehículo creado exitosamente',
-            'vehiculo' => $vehiculo,
-        ], 201);
+            // Log de la acción
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'crear_vehiculo',
+                'tabla_afectada' => 'vehiculos',
+                'registro_id' => $vehiculo->id,
+                'detalles' => 'Vehículo creado: ' . $vehiculo->nombre_completo,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Vehículo creado exitosamente',
+                'data' => $vehiculo,
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear el vehículo',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -93,9 +116,22 @@ class VehiculoController extends Controller
             ], 403);
         }
 
-        $vehiculo->load('estatus');
+        try {
+            $vehiculo->load('estatus');
 
-        return response()->json($vehiculo);
+            return response()->json([
+                'success' => true,
+                'message' => 'Vehículo obtenido exitosamente',
+                'data' => $vehiculo,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener el vehículo',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -103,23 +139,39 @@ class VehiculoController extends Controller
      */
     public function update(UpdateVehiculoRequest $request, Vehiculo $vehiculo): JsonResponse
     {
-        $datosOriginales = $vehiculo->toArray();
-        $vehiculo->update($request->validated());
-        $vehiculo->load('estatus');
+        try {
+            DB::beginTransaction();
 
-        // Log de acción
-        LogAccion::create([
-            'usuario_id' => Auth::id(),
-            'accion' => 'editar_vehiculo',
-            'tabla_afectada' => 'vehiculos',
-            'registro_id' => $vehiculo->id,
-            'detalles' => 'Vehículo actualizado: ' . $vehiculo->nombre_completo,
-        ]);
+            $datosOriginales = $vehiculo->toArray();
+            $vehiculo->update($request->validated());
+            $vehiculo->load('estatus');
 
-        return response()->json([
-            'message' => 'Vehículo actualizado exitosamente',
-            'vehiculo' => $vehiculo,
-        ]);
+            // Log de la acción
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'actualizar_vehiculo',
+                'tabla_afectada' => 'vehiculos',
+                'registro_id' => $vehiculo->id,
+                'detalles' => 'Vehículo actualizado: ' . $vehiculo->nombre_completo,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Vehículo actualizado exitosamente',
+                'data' => $vehiculo,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el vehículo',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -134,21 +186,36 @@ class VehiculoController extends Controller
             ], 403);
         }
 
-        $nombreCompleto = $vehiculo->nombre_completo;
-        $vehiculo->delete();
+        try {
+            DB::beginTransaction();
 
-        // Log de acción
-        LogAccion::create([
-            'usuario_id' => Auth::id(),
-            'accion' => 'eliminar_vehiculo',
-            'tabla_afectada' => 'vehiculos',
-            'registro_id' => $vehiculo->id,
-            'detalles' => 'Vehículo eliminado: ' . $nombreCompleto,
-        ]);
+            $vehiculo->delete();
 
-        return response()->json([
-            'message' => 'Vehículo eliminado exitosamente',
-        ]);
+            // Log de la acción
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'eliminar_vehiculo',
+                'tabla_afectada' => 'vehiculos',
+                'registro_id' => $vehiculo->id,
+                'detalles' => 'Vehículo eliminado: ' . $vehiculo->nombre_completo,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Vehículo eliminado exitosamente',
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar el vehículo',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -163,23 +230,47 @@ class VehiculoController extends Controller
             ], 403);
         }
 
-        $vehiculo = Vehiculo::withTrashed()->findOrFail($id);
-        $vehiculo->restore();
-        $vehiculo->load('estatus');
+        try {
+            DB::beginTransaction();
 
-        // Log de acción
-        LogAccion::create([
-            'usuario_id' => Auth::id(),
-            'accion' => 'restaurar_vehiculo',
-            'tabla_afectada' => 'vehiculos',
-            'registro_id' => $vehiculo->id,
-            'detalles' => 'Vehículo restaurado: ' . $vehiculo->nombre_completo,
-        ]);
+            $vehiculo = Vehiculo::withTrashed()->findOrFail($id);
 
-        return response()->json([
-            'message' => 'Vehículo restaurado exitosamente',
-            'vehiculo' => $vehiculo,
-        ]);
+            if (! $vehiculo->trashed()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El vehículo no está eliminado',
+                ], 400);
+            }
+
+            $vehiculo->restore();
+            $vehiculo->load('estatus');
+
+            // Log de la acción
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'restaurar_vehiculo',
+                'tabla_afectada' => 'vehiculos',
+                'registro_id' => $vehiculo->id,
+                'detalles' => 'Vehículo restaurado: ' . $vehiculo->nombre_completo,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Vehículo restaurado exitosamente',
+                'data' => $vehiculo,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al restaurar el vehículo',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -187,8 +278,21 @@ class VehiculoController extends Controller
      */
     public function estatusOptions(): JsonResponse
     {
-        $estatus = CatalogoEstatus::activos()->get(['id', 'nombre_estatus']);
+        try {
+            $estatus = CatalogoEstatus::activos()->get(['id', 'nombre_estatus']);
 
-        return response()->json($estatus);
+            return response()->json([
+                'success' => true,
+                'message' => 'Estatus obtenidos exitosamente',
+                'data' => $estatus,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los estatus',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
