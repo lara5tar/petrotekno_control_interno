@@ -6,6 +6,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RolePermissionTest extends TestCase
@@ -18,7 +19,7 @@ class RolePermissionTest extends TestCase
         $this->artisan('db:seed');
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_create_role()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
@@ -46,7 +47,7 @@ class RolePermissionTest extends TestCase
         $this->assertDatabaseHas('roles', ['nombre_rol' => 'Nuevo Rol']);
     }
 
-    /** @test */
+    #[Test]
     public function supervisor_cannot_manage_roles()
     {
         $supervisor = User::where('email', 'supervisor@petrotekno.com')->first();
@@ -60,7 +61,7 @@ class RolePermissionTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function role_with_users_cannot_be_deleted()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
@@ -76,7 +77,7 @@ class RolePermissionTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_assign_permission_to_role()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
@@ -97,7 +98,7 @@ class RolePermissionTest extends TestCase
         $this->assertTrue($role->fresh()->permisos->contains($permission));
     }
 
-    /** @test */
+    #[Test]
     public function permission_with_roles_cannot_be_deleted()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
@@ -113,7 +114,7 @@ class RolePermissionTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function user_permission_checking_works()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
@@ -129,7 +130,7 @@ class RolePermissionTest extends TestCase
         $this->assertTrue($supervisor->hasPermission('ver_usuarios'));
     }
 
-    /** @test */
+    #[Test]
     public function role_permission_checking_works()
     {
         $adminRole = Role::where('nombre_rol', 'Admin')->first();

@@ -7,6 +7,7 @@ use App\Models\Personal;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserManagementTest extends TestCase
@@ -19,7 +20,7 @@ class UserManagementTest extends TestCase
         $this->artisan('db:seed');
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_create_user()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
@@ -55,7 +56,7 @@ class UserManagementTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function supervisor_cannot_create_user()
     {
         $supervisor = User::where('email', 'supervisor@petrotekno.com')->first();
@@ -72,7 +73,7 @@ class UserManagementTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_list_users()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
@@ -97,7 +98,7 @@ class UserManagementTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function user_cannot_delete_themselves()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
@@ -112,7 +113,7 @@ class UserManagementTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function user_validation_works()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();

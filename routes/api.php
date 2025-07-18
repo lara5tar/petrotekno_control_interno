@@ -1,11 +1,16 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ObraController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehiculoController;
+use App\Models\CatalogoEstatus;
+use App\Models\LogAccion;
+use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -113,6 +118,30 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:restaurar_vehiculos');
     });
 
+    // Rutas de obras
+    Route::prefix('obras')->group(function () {
+        Route::get('/', [ObraController::class, 'index'])
+            ->middleware('permission:ver_obras');
+
+        Route::post('/', [ObraController::class, 'store'])
+            ->middleware('permission:crear_obras');
+
+        Route::get('/estatus', [ObraController::class, 'getEstatus'])
+            ->middleware('permission:ver_obras');
+
+        Route::get('/{obra}', [ObraController::class, 'show'])
+            ->middleware('permission:ver_obras');
+
+        Route::put('/{obra}', [ObraController::class, 'update'])
+            ->middleware('permission:actualizar_obras');
+
+        Route::delete('/{obra}', [ObraController::class, 'destroy'])
+            ->middleware('permission:eliminar_obras');
+
+        Route::post('/{id}/restore', [ObraController::class, 'restore'])
+            ->middleware('permission:restaurar_obras');
+    });
+
     // Rutas de consulta general (sin restricciones especiales)
     Route::prefix('data')->group(function () {
         Route::get('/categorias-personal', function () {
@@ -125,28 +154,28 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/estatus-vehiculos', function () {
             return response()->json([
                 'success' => true,
-                'data' => \App\Models\CatalogoEstatus::activos()->get(),
+                'data' => CatalogoEstatus::activos()->get(),
             ]);
         });
 
         Route::get('/roles', function () {
             return response()->json([
                 'success' => true,
-                'data' => \App\Models\Role::all(),
+                'data' => Role::all(),
             ]);
         });
 
         Route::get('/permissions', function () {
             return response()->json([
                 'success' => true,
-                'data' => \App\Models\Permission::all(),
+                'data' => Permission::all(),
             ]);
         })->middleware('role:Admin');
     });
 
     // Ruta para obtener logs del sistema - solo administradores
     Route::get('/logs', function (Request $request) {
-        $logs = \App\Models\LogAccion::with('usuario')
+        $logs = LogAccion::with('usuario')
             ->orderBy('fecha_hora', 'desc')
             ->paginate(50);
 

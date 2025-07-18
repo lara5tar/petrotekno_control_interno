@@ -14,20 +14,25 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         // Crear roles
-        $adminRole = Role::create([
-            'nombre_rol' => 'Admin',
-            'descripcion' => 'Administrador con acceso completo al sistema',
-        ]);
+        $adminRole = Role::updateOrCreate(
+            ['nombre_rol' => 'Admin'],
+            ['descripcion' => 'Administrador con acceso completo al sistema']
+        );
 
-        $supervisorRole = Role::create([
-            'nombre_rol' => 'Supervisor',
-            'descripcion' => 'Supervisor con acceso limitado de gestión',
-        ]);
+        $supervisorRole = Role::updateOrCreate(
+            ['nombre_rol' => 'Supervisor'],
+            ['descripcion' => 'Supervisor con acceso limitado de gestión']
+        );
 
-        $operadorRole = Role::create([
-            'nombre_rol' => 'Operador',
-            'descripcion' => 'Operador con acceso básico de consulta',
-        ]);
+        $operadorRole = Role::updateOrCreate(
+            ['nombre_rol' => 'Operador'],
+            ['descripcion' => 'Operador con acceso básico de consulta']
+        );
+
+        // Limpiar permisos existentes antes de reasignar
+        $adminRole->permisos()->detach();
+        $supervisorRole->permisos()->detach();
+        $operadorRole->permisos()->detach();
 
         // Asignar todos los permisos al Admin
         $allPermissions = Permission::all();
@@ -39,6 +44,7 @@ class RoleSeeder extends Seeder
             'ver_roles', 'ver_permisos',
             'ver_personal', 'crear_personal', 'editar_personal',
             'ver_vehiculos', 'crear_vehiculos', 'editar_vehiculos',
+            'ver_obras', 'crear_obra', 'editar_obra',
         ])->get();
         $supervisorRole->permisos()->attach($supervisorPermissions->pluck('id'));
 
@@ -46,6 +52,7 @@ class RoleSeeder extends Seeder
         $operadorPermissions = Permission::whereIn('nombre_permiso', [
             'ver_personal',
             'ver_vehiculos',
+            'ver_obras',
         ])->get();
         $operadorRole->permisos()->attach($operadorPermissions->pluck('id'));
     }
