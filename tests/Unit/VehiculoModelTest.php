@@ -20,7 +20,7 @@ class VehiculoModelTest extends TestCase
     public function test_vehiculo_can_be_created(): void
     {
         $estatus = CatalogoEstatus::first();
-        
+
         $vehiculo = Vehiculo::create([
             'marca' => 'Toyota',
             'modelo' => 'Hilux',
@@ -41,7 +41,7 @@ class VehiculoModelTest extends TestCase
     public function test_vehiculo_belongs_to_estatus(): void
     {
         $estatus = CatalogoEstatus::first();
-        
+
         $vehiculo = Vehiculo::create([
             'marca' => 'Ford',
             'modelo' => 'F-150',
@@ -59,7 +59,7 @@ class VehiculoModelTest extends TestCase
     public function test_vehiculo_nombre_completo_accessor(): void
     {
         $estatus = CatalogoEstatus::first();
-        
+
         $vehiculo = Vehiculo::create([
             'marca' => 'Chevrolet',
             'modelo' => 'Silverado',
@@ -76,7 +76,7 @@ class VehiculoModelTest extends TestCase
     public function test_vehiculo_placas_are_uppercase(): void
     {
         $estatus = CatalogoEstatus::first();
-        
+
         $vehiculo = Vehiculo::create([
             'marca' => 'Nissan',
             'modelo' => 'Frontier',
@@ -93,7 +93,7 @@ class VehiculoModelTest extends TestCase
     public function test_vehiculo_scopes_work_correctly(): void
     {
         $estatus = CatalogoEstatus::first();
-        
+
         $toyota = Vehiculo::create([
             'marca' => 'Toyota',
             'modelo' => 'Corolla',
@@ -133,7 +133,7 @@ class VehiculoModelTest extends TestCase
     public function test_vehiculo_soft_deletes(): void
     {
         $estatus = CatalogoEstatus::first();
-        
+
         $vehiculo = Vehiculo::create([
             'marca' => 'Honda',
             'modelo' => 'Civic',

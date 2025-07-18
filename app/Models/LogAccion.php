@@ -27,6 +27,20 @@ class LogAccion extends Model
     ];
 
     /**
+     * Boot method to set fecha_hora automatically if not provided
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($logAccion) {
+            if (!$logAccion->fecha_hora) {
+                $logAccion->fecha_hora = now();
+            }
+        });
+    }
+
+    /**
      * Relación con User
      */
     public function usuario(): BelongsTo

@@ -73,7 +73,7 @@ class VehiculoController extends Controller
                 'tabla_afectada' => 'vehiculos',
                 'detalles' => json_encode([
                     'filtros' => $request->only(['marca', 'modelo', 'estatus_id', 'buscar']),
-                    'total_resultados' => $vehiculos->total()
+                    'total_resultados' => $vehiculos->total(),
                 ]),
                 'fecha_hora' => now(),
             ]);
@@ -96,7 +96,7 @@ class VehiculoController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener los vehículos',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -118,7 +118,7 @@ class VehiculoController extends Controller
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
                 'detalles' => json_encode([
-                    'vehiculo_creado' => $vehiculo->toArray()
+                    'vehiculo_creado' => $vehiculo->toArray(),
                 ]),
                 'fecha_hora' => now(),
             ]);
@@ -133,11 +133,11 @@ class VehiculoController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al crear el vehículo',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -157,7 +157,7 @@ class VehiculoController extends Controller
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
                 'detalles' => json_encode([
-                    'vehiculo_consultado' => $vehiculo->id
+                    'vehiculo_consultado' => $vehiculo->id,
                 ]),
                 'fecha_hora' => now(),
             ]);
@@ -172,7 +172,7 @@ class VehiculoController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Vehículo no encontrado',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 404);
         }
     }
@@ -187,7 +187,7 @@ class VehiculoController extends Controller
 
             $vehiculo = Vehiculo::findOrFail($id);
             $datosAnteriores = $vehiculo->toArray();
-            
+
             $vehiculo->update($request->validated());
 
             // Log de la acción
@@ -198,7 +198,7 @@ class VehiculoController extends Controller
                 'registro_id' => $vehiculo->id,
                 'detalles' => json_encode([
                     'datos_anteriores' => $datosAnteriores,
-                    'datos_nuevos' => $vehiculo->fresh()->toArray()
+                    'datos_nuevos' => $vehiculo->fresh()->toArray(),
                 ]),
                 'fecha_hora' => now(),
             ]);
@@ -213,11 +213,11 @@ class VehiculoController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar el vehículo',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -232,7 +232,7 @@ class VehiculoController extends Controller
 
             $vehiculo = Vehiculo::findOrFail($id);
             $datosVehiculo = $vehiculo->toArray();
-            
+
             $vehiculo->delete();
 
             // Log de la acción
@@ -242,7 +242,7 @@ class VehiculoController extends Controller
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
                 'detalles' => json_encode([
-                    'vehiculo_eliminado' => $datosVehiculo
+                    'vehiculo_eliminado' => $datosVehiculo,
                 ]),
                 'fecha_hora' => now(),
             ]);
@@ -256,11 +256,11 @@ class VehiculoController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al eliminar el vehículo',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -274,8 +274,8 @@ class VehiculoController extends Controller
             DB::beginTransaction();
 
             $vehiculo = Vehiculo::withTrashed()->findOrFail($id);
-            
-            if (!$vehiculo->trashed()) {
+
+            if (! $vehiculo->trashed()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'El vehículo no está eliminado',
@@ -291,7 +291,7 @@ class VehiculoController extends Controller
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
                 'detalles' => json_encode([
-                    'vehiculo_restaurado' => $vehiculo->toArray()
+                    'vehiculo_restaurado' => $vehiculo->toArray(),
                 ]),
                 'fecha_hora' => now(),
             ]);
@@ -306,11 +306,11 @@ class VehiculoController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al restaurar el vehículo',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -333,7 +333,7 @@ class VehiculoController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener los estatus',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

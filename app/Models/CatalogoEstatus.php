@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class CatalogoEstatus extends Model
 {
     use HasFactory;
+
     /**
      * Nombre de la tabla
      */

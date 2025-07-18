@@ -16,6 +16,7 @@ class VehiculoControllerTest extends TestCase
     use RefreshDatabase;
 
     protected $admin;
+
     protected $estatus;
 
     /**
@@ -27,14 +28,14 @@ class VehiculoControllerTest extends TestCase
             'marca' => 'Toyota',
             'modelo' => 'Hilux',
             'anio' => 2023,
-            'n_serie' => 'TEST' . uniqid(),
-            'placas' => 'TST-' . rand(100, 999),
+            'n_serie' => 'TEST'.uniqid(),
+            'placas' => 'TST-'.rand(100, 999),
             'estatus_id' => $this->estatus->id,
             'kilometraje_actual' => 15000,
             'intervalo_km_motor' => 10000,
             'intervalo_km_transmision' => 50000,
             'intervalo_km_hidraulico' => 30000,
-            'observaciones' => 'Vehículo de prueba'
+            'observaciones' => 'Vehículo de prueba',
         ], $overrides);
     }
 
@@ -45,7 +46,7 @@ class VehiculoControllerTest extends TestCase
         // Crear categoría personal primero (necesaria para personal)
         $categoria = \App\Models\CategoriaPersonal::firstOrCreate([
             'nombre_categoria' => 'Operador',
-            'descripcion' => 'Operador de vehículos'
+            'descripcion' => 'Operador de vehículos',
         ]);
 
         // Crear estatus de catálogo
@@ -56,22 +57,22 @@ class VehiculoControllerTest extends TestCase
             'ver_vehiculos',
             'crear_vehiculo',
             'editar_vehiculo',
-            'eliminar_vehiculo'
+            'eliminar_vehiculo',
         ];
 
         foreach ($permissions as $permissionName) {
             Permission::firstOrCreate([
                 'nombre_permiso' => $permissionName,
-                'descripcion' => 'Permiso para ' . str_replace('_', ' ', $permissionName)
+                'descripcion' => 'Permiso para '.str_replace('_', ' ', $permissionName),
             ]);
         }
 
         // Crear rol administrador
         $adminRole = Role::firstOrCreate([
             'nombre_rol' => 'Administrador',
-            'descripcion' => 'Administrador del sistema con todos los permisos'
+            'descripcion' => 'Administrador del sistema con todos los permisos',
         ]);
-        
+
         // Sincronizar permisos
         $adminRole->permisos()->sync(Permission::whereIn('nombre_permiso', $permissions)->pluck('id'));
 
@@ -79,7 +80,7 @@ class VehiculoControllerTest extends TestCase
         $personal = Personal::factory()->create([
             'categoria_id' => $categoria->id,
             'nombre_completo' => 'Admin Test User',
-            'estatus' => 'activo'
+            'estatus' => 'activo',
         ]);
 
         // Crear usuario administrador
@@ -87,7 +88,7 @@ class VehiculoControllerTest extends TestCase
             'personal_id' => $personal->id,
             'rol_id' => $adminRole->id,
             'nombre_usuario' => 'admin_test',
-            'email' => 'admin.test@petrotekno.com'
+            'email' => 'admin.test@petrotekno.com',
         ]);
 
         // Autenticar usuario
@@ -104,20 +105,20 @@ class VehiculoControllerTest extends TestCase
         $response = $this->getJson('/api/vehiculos');
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'data' => [
-                        '*' => [
-                            'id',
-                            'marca',
-                            'modelo',
-                            'anio',
-                            'n_serie',
-                            'placas',
-                            'estatus_id',
-                            'kilometraje_actual'
-                        ]
-                    ]
-                ]);
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'marca',
+                        'modelo',
+                        'anio',
+                        'n_serie',
+                        'placas',
+                        'estatus_id',
+                        'kilometraje_actual',
+                    ],
+                ],
+            ]);
     }
 
     public function test_admin_can_create_vehiculo()
@@ -128,20 +129,20 @@ class VehiculoControllerTest extends TestCase
             'marca' => 'Toyota',
             'modelo' => 'Hilux',
             'n_serie' => 'ABC123456789',
-            'placas' => 'ABC-123'
+            'placas' => 'ABC-123',
         ]);
 
         $response = $this->postJson('/api/vehiculos', $vehiculoData);
 
         $response->assertStatus(201)
-                ->assertJsonFragment(['marca' => 'Toyota'])
-                ->assertJsonFragment(['modelo' => 'Hilux']);
+            ->assertJsonFragment(['marca' => 'Toyota'])
+            ->assertJsonFragment(['modelo' => 'Hilux']);
 
         $this->assertDatabaseHas('vehiculos', [
             'marca' => 'Toyota',
             'modelo' => 'Hilux',
             'n_serie' => 'ABC123456789',
-            'placas' => 'ABC-123'
+            'placas' => 'ABC-123',
         ]);
     }
 
@@ -153,7 +154,7 @@ class VehiculoControllerTest extends TestCase
         $response = $this->postJson('/api/vehiculos', []);
 
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['marca', 'modelo', 'anio', 'n_serie', 'placas', 'estatus_id', 'kilometraje_actual']);
+            ->assertJsonValidationErrors(['marca', 'modelo', 'anio', 'n_serie', 'placas', 'estatus_id', 'kilometraje_actual']);
 
         // Test invalid year (too old)
         $invalidData = $this->getValidVehiculoData(['anio' => 1989]);
@@ -172,7 +173,7 @@ class VehiculoControllerTest extends TestCase
 
         $vehiculoData = $this->getValidVehiculoData([
             'n_serie' => 'UNIQUE123456',
-            'placas' => 'UNQ-123'
+            'placas' => 'UNQ-123',
         ]);
 
         // Create first vehiculo
@@ -198,19 +199,19 @@ class VehiculoControllerTest extends TestCase
             'marca' => 'Ford',
             'modelo' => 'Ranger',
             'anio' => 2024,
-            'kilometraje_actual' => 20000
+            'kilometraje_actual' => 20000,
         ];
 
         $response = $this->putJson("/api/vehiculos/{$vehiculo->id}", $updateData);
 
         $response->assertStatus(200)
-                ->assertJsonFragment(['marca' => 'Ford'])
-                ->assertJsonFragment(['modelo' => 'Ranger']);
+            ->assertJsonFragment(['marca' => 'Ford'])
+            ->assertJsonFragment(['modelo' => 'Ranger']);
 
         $this->assertDatabaseHas('vehiculos', [
             'id' => $vehiculo->id,
             'marca' => 'Ford',
-            'modelo' => 'Ranger'
+            'modelo' => 'Ranger',
         ]);
     }
 
@@ -223,7 +224,7 @@ class VehiculoControllerTest extends TestCase
         $response = $this->deleteJson("/api/vehiculos/{$vehiculo->id}");
 
         $response->assertStatus(200)
-                ->assertJsonFragment(['message' => 'Vehículo eliminado exitosamente']);
+            ->assertJsonFragment(['message' => 'Vehículo eliminado exitosamente']);
 
         $this->assertSoftDeleted('vehiculos', ['id' => $vehiculo->id]);
     }
@@ -238,10 +239,10 @@ class VehiculoControllerTest extends TestCase
         $response = $this->postJson("/api/vehiculos/{$vehiculo->id}/restore");
 
         $response->assertStatus(200)
-                ->assertJsonFragment(['message' => 'Vehículo restaurado exitosamente']);
+            ->assertJsonFragment(['message' => 'Vehículo restaurado exitosamente']);
 
         $this->assertDatabaseHas('vehiculos', [
-            'id' => $vehiculo->id
+            'id' => $vehiculo->id,
         ]);
 
         // Verificar que el vehículo ya no está marcado como eliminado
@@ -258,8 +259,8 @@ class VehiculoControllerTest extends TestCase
         $response = $this->getJson("/api/vehiculos/{$vehiculo->id}");
 
         $response->assertStatus(200)
-                ->assertJsonFragment(['marca' => $vehiculo->marca])
-                ->assertJsonFragment(['modelo' => $vehiculo->modelo]);
+            ->assertJsonFragment(['marca' => $vehiculo->marca])
+            ->assertJsonFragment(['modelo' => $vehiculo->modelo]);
     }
 
     public function test_vehiculo_not_found_returns_404()
@@ -269,7 +270,7 @@ class VehiculoControllerTest extends TestCase
         $response = $this->getJson('/api/vehiculos/99999');
 
         $response->assertStatus(404)
-                ->assertJsonFragment(['message' => 'Vehículo no encontrado']);
+            ->assertJsonFragment(['message' => 'Vehículo no encontrado']);
     }
 
     public function test_can_get_estatus_options()
@@ -283,13 +284,13 @@ class VehiculoControllerTest extends TestCase
         $response = $this->getJson('/api/vehiculos/estatus');
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'success',
-                    'message',
-                    'data' => [
-                        '*' => ['id', 'nombre_estatus']
-                    ]
-                ]);
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    '*' => ['id', 'nombre_estatus'],
+                ],
+            ]);
 
         $responseData = $response->json('data');
         $this->assertGreaterThanOrEqual(3, count($responseData));
@@ -302,7 +303,7 @@ class VehiculoControllerTest extends TestCase
         $vehiculoData = $this->getValidVehiculoData([
             'marca' => 'toyota', // lowercase should be converted to title case
             'modelo' => 'HILUX', // uppercase should be converted to title case
-            'placas' => 'abc-123' // lowercase should be converted to uppercase
+            'placas' => 'abc-123', // lowercase should be converted to uppercase
         ]);
 
         $response = $this->postJson('/api/vehiculos', $vehiculoData);
@@ -312,7 +313,7 @@ class VehiculoControllerTest extends TestCase
         $this->assertDatabaseHas('vehiculos', [
             'marca' => 'Toyota', // Should be title case
             'modelo' => 'Hilux', // Should be title case
-            'placas' => 'ABC-123' // Should be uppercase
+            'placas' => 'ABC-123', // Should be uppercase
         ]);
     }
 

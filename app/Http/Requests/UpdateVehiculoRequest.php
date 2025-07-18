@@ -15,6 +15,7 @@ class UpdateVehiculoRequest extends FormRequest
     {
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
+
         return Auth::check() && $user && $user->hasPermission('editar_vehiculo');
     }
 
@@ -26,7 +27,7 @@ class UpdateVehiculoRequest extends FormRequest
     public function rules(): array
     {
         $vehiculoId = $this->route('vehiculo') ?? $this->route('id');
-        
+
         return [
             'marca' => [
                 'sometimes',
@@ -47,7 +48,7 @@ class UpdateVehiculoRequest extends FormRequest
                 'required',
                 'integer',
                 'min:1990',
-                'max:' . (date('Y') + 1),
+                'max:'.(date('Y') + 1),
             ],
             'n_serie' => [
                 'sometimes',
@@ -150,13 +151,13 @@ class UpdateVehiculoRequest extends FormRequest
                 'placas' => strtoupper($this->placas),
             ]);
         }
-        
+
         if ($this->has('marca')) {
             $this->merge([
                 'marca' => ucwords(strtolower($this->marca)),
             ]);
         }
-        
+
         if ($this->has('modelo')) {
             $this->merge([
                 'modelo' => ucwords(strtolower($this->modelo)),

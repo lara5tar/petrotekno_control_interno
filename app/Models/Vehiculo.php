@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Vehiculo extends Model
 {
@@ -123,6 +123,7 @@ class Vehiculo extends Model
         if ($anio_fin) {
             return $query->whereBetween('anio', [$anio_inicio, $anio_fin]);
         }
+
         return $query->where('anio', $anio_inicio);
     }
 
@@ -133,9 +134,9 @@ class Vehiculo extends Model
     {
         return $query->where(function ($q) use ($termino) {
             $q->where('marca', 'like', "%{$termino}%")
-              ->orWhere('modelo', 'like', "%{$termino}%")
-              ->orWhere('placas', 'like', "%{$termino}%")
-              ->orWhere('n_serie', 'like', "%{$termino}%");
+                ->orWhere('modelo', 'like', "%{$termino}%")
+                ->orWhere('placas', 'like', "%{$termino}%")
+                ->orWhere('n_serie', 'like', "%{$termino}%");
         });
     }
 

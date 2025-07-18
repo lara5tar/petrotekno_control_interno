@@ -14,6 +14,7 @@ class StoreVehiculoRequest extends FormRequest
     {
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
+
         return Auth::check() && $user && $user->hasPermission('crear_vehiculo');
     }
 
@@ -41,7 +42,7 @@ class StoreVehiculoRequest extends FormRequest
                 'required',
                 'integer',
                 'min:1990',
-                'max:' . (date('Y') + 1),
+                'max:'.(date('Y') + 1),
             ],
             'n_serie' => [
                 'required',
