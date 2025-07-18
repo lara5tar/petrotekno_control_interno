@@ -107,7 +107,7 @@ class VehiculoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Vehiculo $vehiculo): JsonResponse
+    public function show($id): JsonResponse
     {
         // Verificar permisos
         if (! Auth::user()->hasPermission('ver_vehiculos')) {
@@ -117,7 +117,17 @@ class VehiculoController extends Controller
         }
 
         try {
+            $vehiculo = Vehiculo::findOrFail($id);
             $vehiculo->load('estatus');
+
+            // Log de la acción
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'ver_vehiculo',
+                'tabla_afectada' => 'vehiculos',
+                'registro_id' => $vehiculo->id,
+                'detalles' => 'Vehículo consultado: ' . $vehiculo->nombre_completo,
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -125,6 +135,11 @@ class VehiculoController extends Controller
                 'data' => $vehiculo,
             ]);
 
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vehículo no encontrado',
+            ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -137,11 +152,12 @@ class VehiculoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateVehiculoRequest $request, Vehiculo $vehiculo): JsonResponse
+    public function update(UpdateVehiculoRequest $request, $id): JsonResponse
     {
         try {
             DB::beginTransaction();
 
+            $vehiculo = Vehiculo::findOrFail($id);
             $datosOriginales = $vehiculo->toArray();
             $vehiculo->update($request->validated());
             $vehiculo->load('estatus');
@@ -149,7 +165,7 @@ class VehiculoController extends Controller
             // Log de la acción
             LogAccion::create([
                 'usuario_id' => Auth::id(),
-                'accion' => 'actualizar_vehiculo',
+                'accion' => 'editar_vehiculo',
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
                 'detalles' => 'Vehículo actualizado: ' . $vehiculo->nombre_completo,
@@ -163,6 +179,11 @@ class VehiculoController extends Controller
                 'data' => $vehiculo,
             ]);
 
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vehículo no encontrado',
+            ], 404);
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -177,7 +198,7 @@ class VehiculoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Vehiculo $vehiculo): JsonResponse
+    public function destroy($id): JsonResponse
     {
         // Verificar permisos
         if (! Auth::user()->hasPermission('eliminar_vehiculo')) {
@@ -189,6 +210,8 @@ class VehiculoController extends Controller
         try {
             DB::beginTransaction();
 
+            $vehiculo = Vehiculo::findOrFail($id);
+            $nombreCompleto = $vehiculo->nombre_completo;
             $vehiculo->delete();
 
             // Log de la acción
@@ -197,7 +220,7 @@ class VehiculoController extends Controller
                 'accion' => 'eliminar_vehiculo',
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
-                'detalles' => 'Vehículo eliminado: ' . $vehiculo->nombre_completo,
+                'detalles' => 'Vehículo eliminado: ' . $nombreCompleto,
             ]);
 
             DB::commit();
@@ -207,6 +230,11 @@ class VehiculoController extends Controller
                 'message' => 'Vehículo eliminado exitosamente',
             ]);
 
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vehículo no encontrado',
+            ], 404);
         } catch (\Exception $e) {
             DB::rollBack();
 

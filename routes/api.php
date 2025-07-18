@@ -98,7 +98,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [VehiculoController::class, 'store'])
             ->middleware('permission:crear_vehiculo');
 
-        Route::get('/estatus', [VehiculoController::class, 'getEstatus']);
+        Route::get('/estatus', [VehiculoController::class, 'estatusOptions']);
 
         Route::get('/{id}', [VehiculoController::class, 'show'])
             ->middleware('permission:ver_vehiculos');
