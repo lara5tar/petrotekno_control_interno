@@ -23,6 +23,7 @@ class CheckPermission
         }
 
         $user = $request->user();
+        $user->load('rol.permisos'); // Cargar relaciones explícitamente
 
         foreach ($permissions as $permission) {
             if (! $user->hasPermission($permission)) {
