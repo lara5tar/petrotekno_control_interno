@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Obra;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Obra>
@@ -24,7 +24,7 @@ class ObraFactory extends Factory
     {
         $fechaInicio = $this->faker->dateTimeBetween('-2 years', '+6 months');
         $fechaFin = $this->faker->optional(0.8)->dateTimeBetween($fechaInicio, '+1 year');
-        
+
         return [
             'nombre_obra' => $this->faker->unique()->sentence(3, false),
             'estatus' => $this->faker->randomElement(Obra::ESTADOS_VALIDOS),
@@ -70,7 +70,7 @@ class ObraFactory extends Factory
         return $this->state(function (array $attributes) {
             $fechaInicio = $this->faker->dateTimeBetween('-1 year', '-2 months');
             $fechaFin = $this->faker->dateTimeBetween($fechaInicio, '-1 week');
-            
+
             return [
                 'estatus' => Obra::ESTATUS_COMPLETADA,
                 'avance' => 100,
@@ -130,7 +130,7 @@ class ObraFactory extends Factory
         return $this->state(function (array $attributes) {
             $fechaInicio = $this->faker->dateTimeBetween('-1 year', '-6 months');
             $fechaFin = $this->faker->dateTimeBetween($fechaInicio, '-1 month');
-            
+
             return [
                 'estatus' => $this->faker->randomElement([Obra::ESTATUS_EN_PROGRESO, Obra::ESTATUS_SUSPENDIDA]),
                 'avance' => $this->faker->numberBetween(30, 80),

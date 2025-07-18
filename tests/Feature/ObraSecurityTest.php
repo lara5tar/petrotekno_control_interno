@@ -2,15 +2,15 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
+use App\Models\Obra;
+use App\Models\Permission;
 use App\Models\Personal;
 use App\Models\Role;
-use App\Models\Permission;
-use App\Models\Obra;
-use Laravel\Sanctum\Sanctum;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 /**
  * Test de seguridad para el módulo de Obras
@@ -21,6 +21,7 @@ class ObraSecurityTest extends TestCase
     use RefreshDatabase;
 
     private User $adminUser;
+
     private User $operadorUser;
 
     protected function setUp(): void
@@ -44,22 +45,22 @@ class ObraSecurityTest extends TestCase
             "1' UNION SELECT * FROM users --",
             "1'; DELETE FROM obras WHERE 1=1; --",
             "<script>alert('xss')</script>",
-            "../../etc/passwd",
-            "%27%20OR%20%271%27%3D%271",
+            '../../etc/passwd',
+            '%27%20OR%20%271%27%3D%271',
         ];
 
         foreach ($sqlInjectionAttempts as $maliciousInput) {
             // Test en filtro de búsqueda
-            $response = $this->getJson("/api/obras?buscar=" . urlencode($maliciousInput));
+            $response = $this->getJson('/api/obras?buscar='.urlencode($maliciousInput));
             $response->assertStatus(200);
             $this->assertIsArray($response->json('data'));
 
             // Test en filtro de estatus
-            $response = $this->getJson("/api/obras?estatus=" . urlencode($maliciousInput));
+            $response = $this->getJson('/api/obras?estatus='.urlencode($maliciousInput));
             $response->assertStatus(200);
 
             // Test en fechas
-            $response = $this->getJson("/api/obras?fecha_inicio_desde=" . urlencode($maliciousInput));
+            $response = $this->getJson('/api/obras?fecha_inicio_desde='.urlencode($maliciousInput));
             $response->assertStatus(200);
         }
 
@@ -83,29 +84,29 @@ class ObraSecurityTest extends TestCase
 
         foreach ($xssPayloads as $payload) {
             $obraData = [
-                'nombre_obra' => 'Obra Test ' . $payload,
+                'nombre_obra' => 'Obra Test '.$payload,
                 'estatus' => Obra::ESTATUS_PLANIFICADA,
                 'fecha_inicio' => now()->addDays(1)->format('Y-m-d'),
                 'avance' => 0,
             ];
 
             $response = $this->postJson('/api/obras', $obraData);
-            
+
             // ✅ ASSERTION OBLIGATORIA: Verificar que la respuesta es exitosa O rechazada apropiadamente
             $this->assertTrue(
-                in_array($response->status(), [201, 422]), 
-                "XSS payload should be handled properly (accepted and sanitized OR rejected). Got status: " . $response->status()
+                in_array($response->status(), [201, 422]),
+                'XSS payload should be handled properly (accepted and sanitized OR rejected). Got status: '.$response->status()
             );
-            
+
             if ($response->status() === 201) {
                 $obra = $response->json('data');
-                
+
                 // Verificar que el contenido peligroso fue sanitizado
                 $this->assertStringNotContainsString('<script>', $obra['nombre_obra']);
                 $this->assertStringNotContainsString('javascript:', $obra['nombre_obra']);
                 $this->assertStringNotContainsString('<img', $obra['nombre_obra']);
                 $this->assertStringNotContainsString('<svg', $obra['nombre_obra']);
-                
+
                 // Limpiar para siguiente iteración
                 Obra::where('id', $obra['id'])->delete();
             }
@@ -132,13 +133,13 @@ class ObraSecurityTest extends TestCase
         ];
 
         $response = $this->postJson('/api/obras', $maliciousData);
-        
+
         // ✅ ASSERTION OBLIGATORIA: Verificar que la obra se crea exitosamente
-        $this->assertEquals(201, $response->status(), 
-            "Obra should be created despite malicious fields");
-        
+        $this->assertEquals(201, $response->status(),
+            'Obra should be created despite malicious fields');
+
         $obra = $response->json('data');
-        
+
         // Verificar que los campos protegidos no fueron asignados
         $this->assertNotEquals(99999, $obra['id']);
         $this->assertNotEquals('2020-01-01T00:00:00.000000Z', $obra['created_at']);
@@ -155,11 +156,11 @@ class ObraSecurityTest extends TestCase
         // Verificar endpoint index
         $response = $this->getJson('/api/obras');
         $response->assertStatus(200);
-        
+
         $responseData = $response->json('data');
-        if (!empty($responseData)) {
+        if (! empty($responseData)) {
             $firstObra = $responseData[0];
-            
+
             // Verificar que no se exponen campos sensibles internos
             $this->assertArrayNotHasKey('password', $firstObra);
             $this->assertArrayNotHasKey('remember_token', $firstObra);
@@ -169,7 +170,7 @@ class ObraSecurityTest extends TestCase
         // Verificar endpoint show
         $response = $this->getJson("/api/obras/{$obra->id}");
         $response->assertStatus(200);
-        
+
         $obraData = $response->json('data');
         $this->assertArrayNotHasKey('password', $obraData);
         $this->assertArrayNotHasKey('remember_token', $obraData);
@@ -190,9 +191,9 @@ class ObraSecurityTest extends TestCase
 
         foreach ($pathTraversalAttempts as $maliciousPath) {
             // Intentar usar path traversal en filtros
-            $response = $this->getJson("/api/obras?buscar=" . urlencode($maliciousPath));
+            $response = $this->getJson('/api/obras?buscar='.urlencode($maliciousPath));
             $response->assertStatus(200);
-            
+
             // La respuesta debe ser segura, no debe exponer archivos del sistema
             $responseContent = $response->getContent();
             $this->assertStringNotContainsString('root:', $responseContent);
@@ -207,15 +208,15 @@ class ObraSecurityTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $response = $this->getJson('/api/obras');
-        
+
         // Verificar headers de seguridad básicos
-        $this->assertTrue($response->headers->has('Content-Type'), 
+        $this->assertTrue($response->headers->has('Content-Type'),
             'Content-Type header should be present');
-        
+
         // Verificar que no se exponen headers sensibles
-        $this->assertFalse($response->headers->has('Server'), 
+        $this->assertFalse($response->headers->has('Server'),
             'Server header should not be exposed for security');
-        $this->assertFalse($response->headers->has('X-Powered-By'), 
+        $this->assertFalse($response->headers->has('X-Powered-By'),
             'X-Powered-By header should not be exposed for security');
     }
 
@@ -227,7 +228,7 @@ class ObraSecurityTest extends TestCase
         // Simular múltiples requests rápidos (no debe causar errores 500)
         for ($i = 0; $i < 10; $i++) {
             $response = $this->getJson('/api/obras');
-            
+
             // Debe responder con 200 o 429 (rate limit), nunca 500
             $this->assertTrue(
                 in_array($response->status(), [200, 429]),
@@ -253,9 +254,9 @@ class ObraSecurityTest extends TestCase
                 'estatus' => Obra::ESTATUS_PLANIFICADA,
                 'fecha_inicio' => now()->format('Y-m-d'),
             ]);
-            
+
             // Debe requerir autenticación
-            $this->assertEquals(401, $response->status(), 
+            $this->assertEquals(401, $response->status(),
                 "Endpoint $method $endpoint should require authentication");
         }
     }
@@ -273,7 +274,7 @@ class ObraSecurityTest extends TestCase
             'estatus' => Obra::ESTATUS_PLANIFICADA,
             'fecha_inicio' => now()->format('Y-m-d'),
         ]);
-        
+
         $this->assertEquals(403, $response->status());
 
         // Operador no puede eliminar
@@ -289,7 +290,7 @@ class ObraSecurityTest extends TestCase
     {
         // Crear categorías de personal primero (para foreign key)
         $categoria = \App\Models\CategoriaPersonal::firstOrCreate([
-            'nombre_categoria' => 'Operador'
+            'nombre_categoria' => 'Operador',
         ]);
 
         // Crear permisos necesarios
@@ -297,9 +298,9 @@ class ObraSecurityTest extends TestCase
             'ver_obras',
             'crear_obra',
             'editar_obra',
-            'eliminar_obra'
+            'eliminar_obra',
         ];
-        
+
         foreach ($permissions as $permissionName) {
             Permission::firstOrCreate(['nombre_permiso' => $permissionName]);
         }

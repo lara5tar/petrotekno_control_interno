@@ -2,17 +2,15 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
+use App\Models\CategoriaPersonal;
+use App\Models\Obra;
 use App\Models\Personal;
 use App\Models\Role;
-use App\Models\Permission;
-use App\Models\Obra;
-use App\Models\CategoriaPersonal;
+use App\Models\User;
 use Carbon\Carbon;
-use Laravel\Sanctum\Sanctum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 /**
  * Test de límites y casos extremos simplificado para el módulo de Obras
@@ -34,7 +32,7 @@ class ObraBoundarySimpleTest extends TestCase
     public function test_fechas_extremas_en_modelo_obra()
     {
         // Test modelo directamente sin API
-        
+
         // Fecha futura extrema (año 2100)
         $fechaFuturaExtrema = Carbon::create(2100, 12, 31);
         $obra1 = Obra::create([
@@ -44,7 +42,7 @@ class ObraBoundarySimpleTest extends TestCase
             'fecha_fin' => $fechaFuturaExtrema->copy()->addDays(30),
             'avance' => 0,
         ]);
-        
+
         $this->assertInstanceOf(Obra::class, $obra1);
         $this->assertEquals('2100-12-31', $obra1->fecha_inicio->format('Y-m-d'));
 
@@ -57,7 +55,7 @@ class ObraBoundarySimpleTest extends TestCase
             'fecha_fin' => $fechaPasadaExtrema->copy()->addDays(30),
             'avance' => 100,
         ]);
-        
+
         $this->assertInstanceOf(Obra::class, $obra2);
         $this->assertEquals('1900-01-01', $obra2->fecha_inicio->format('Y-m-d'));
 
@@ -69,7 +67,7 @@ class ObraBoundarySimpleTest extends TestCase
             'fecha_inicio' => $fechaBisiesto,
             'avance' => 0,
         ]);
-        
+
         $this->assertInstanceOf(Obra::class, $obra3);
         $this->assertEquals('2024-02-29', $obra3->fecha_inicio->format('Y-m-d'));
     }
@@ -81,7 +79,7 @@ class ObraBoundarySimpleTest extends TestCase
 
         // Valores límite válidos
         $avancesValidos = [0, 1, 50, 99, 100];
-        
+
         foreach ($avancesValidos as $avance) {
             $obra->avance = $avance;
             $obra->save();
@@ -96,12 +94,12 @@ class ObraBoundarySimpleTest extends TestCase
             ['input' => 150, 'expected' => 100],
             ['input' => 999, 'expected' => 100],
         ];
-        
+
         foreach ($casosLimite as $caso) {
             $obra->avance = $caso['input'];
             $obra->save();
             $this->assertEquals(
-                $caso['expected'], 
+                $caso['expected'],
                 $obra->fresh()->avance,
                 "Avance {$caso['input']} should be normalized to {$caso['expected']}"
             );
@@ -113,7 +111,7 @@ class ObraBoundarySimpleTest extends TestCase
     {
         // Nombre en el límite (255 caracteres) - debería funcionar
         $nombreLimite = str_repeat('A', 255);
-        
+
         try {
             $obra = Obra::create([
                 'nombre_obra' => $nombreLimite,
@@ -121,7 +119,7 @@ class ObraBoundarySimpleTest extends TestCase
                 'fecha_inicio' => now(),
                 'avance' => 0,
             ]);
-            
+
             $this->assertInstanceOf(Obra::class, $obra);
             $this->assertEquals(255, strlen($obra->nombre_obra));
         } catch (\Exception $e) {
@@ -136,7 +134,7 @@ class ObraBoundarySimpleTest extends TestCase
             'fecha_inicio' => now(),
             'avance' => 0,
         ]);
-        
+
         // El mutator permite cadenas vacías, así que verificamos que se permita
         $this->assertInstanceOf(Obra::class, $obraVacia);
         $this->assertEquals('', $obraVacia->nombre_obra, 'Empty name should remain empty after mutator processing');
@@ -161,13 +159,13 @@ class ObraBoundarySimpleTest extends TestCase
                     'fecha_inicio' => now(),
                     'avance' => 0,
                 ]);
-                
+
                 $this->assertInstanceOf(Obra::class, $obra);
                 $this->assertNotEmpty($obra->nombre_obra);
-                
+
                 // Limpiar para siguiente iteración
                 $obra->delete();
-                
+
             } catch (\Exception $e) {
                 // Si falla, verificar que sea por una razón válida
                 $this->assertStringContainsString('nombre_obra', $e->getMessage());
@@ -180,9 +178,9 @@ class ObraBoundarySimpleTest extends TestCase
     {
         // Crear muchas obras para probar rendimiento
         $cantidadObras = 200;
-        
+
         $initialMemory = memory_get_usage();
-        
+
         // Crear obras en lotes para eficiencia
         $obras = [];
         for ($i = 0; $i < $cantidadObras; $i++) {
@@ -195,19 +193,19 @@ class ObraBoundarySimpleTest extends TestCase
                 'updated_at' => now(),
             ];
         }
-        
+
         \DB::table('obras')->insert($obras);
-        
+
         // Consultar todas las obras
         $todasLasObras = Obra::all();
         $this->assertCount($cantidadObras, $todasLasObras);
-        
+
         // Verificar uso de memoria
         $finalMemory = memory_get_usage();
         $memoryUsed = $finalMemory - $initialMemory;
-        
+
         // No debería usar más de 20MB para 200 registros
-        $this->assertLessThan(20 * 1024 * 1024, $memoryUsed, 
+        $this->assertLessThan(20 * 1024 * 1024, $memoryUsed,
             'Memory usage should not exceed 20MB for 200 records');
 
         // Test paginación
@@ -250,18 +248,18 @@ class ObraBoundarySimpleTest extends TestCase
 
         // Búsqueda case-insensitive
         $resultados = Obra::buscar('construcción')->get();
-        
+
         // Debug: ver qué nombres se crearon realmente
-        $nombresCreados = collect($obras)->map(function($obra) {
+        $nombresCreados = collect($obras)->map(function ($obra) {
             return $obra->fresh()->nombre_obra;
         })->toArray();
-        
-        $this->assertGreaterThanOrEqual(2, $resultados->count(), 
-            'Should find at least 2 obras. Names created: ' . implode(', ', $nombresCreados));
+
+        $this->assertGreaterThanOrEqual(2, $resultados->count(),
+            'Should find at least 2 obras. Names created: '.implode(', ', $nombresCreados));
 
         // Búsqueda con caracteres especiales
         $busquedasEspeciales = ['%', '_', '*', '?', '[', ']', '\\'];
-        
+
         foreach ($busquedasEspeciales as $busqueda) {
             $resultado = Obra::buscar($busqueda)->get();
             $this->assertIsIterable($resultado);
@@ -347,7 +345,7 @@ class ObraBoundarySimpleTest extends TestCase
         $categoria = CategoriaPersonal::create(['nombre_categoria' => 'Test']);
         $personal = Personal::factory()->create(['categoria_id' => $categoria->id]);
         $role = Role::create(['nombre_rol' => 'Test']);
-        
+
         $this->user = User::factory()->create([
             'personal_id' => $personal->id,
             'rol_id' => $role->id,

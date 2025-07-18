@@ -64,7 +64,7 @@ class Role extends Model
         if ($this->relationLoaded('permisos')) {
             return $this->permisos->pluck('nombre_permiso')->contains($permission);
         }
-        
+
         // Si no está cargada, hacer consulta
         return $this->permisos()->where('nombre_permiso', $permission)->exists();
     }

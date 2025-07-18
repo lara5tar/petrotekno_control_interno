@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Modelo para la gestión de obras del sistema
- * 
+ *
  * @property int $id
  * @property string $nombre_obra
  * @property string $estatus
@@ -39,9 +39,13 @@ class Obra extends Model
      * Estados válidos para las obras
      */
     const ESTATUS_PLANIFICADA = 'planificada';
+
     const ESTATUS_EN_PROGRESO = 'en_progreso';
+
     const ESTATUS_SUSPENDIDA = 'suspendida';
+
     const ESTATUS_COMPLETADA = 'completada';
+
     const ESTATUS_CANCELADA = 'cancelada';
 
     /**
@@ -161,7 +165,7 @@ class Obra extends Model
      */
     public function setEstatusAttribute($value)
     {
-        if (!in_array($value, self::ESTADOS_VALIDOS)) {
+        if (! in_array($value, self::ESTADOS_VALIDOS)) {
             throw new \InvalidArgumentException("Estatus '{$value}' no es válido.");
         }
         $this->attributes['estatus'] = $value;
@@ -183,13 +187,9 @@ class Obra extends Model
      */
     public function getDiasTranscurridosAttribute()
     {
-        if (!$this->fecha_inicio) {
-            return 0;
-        }
-
         $fechaInicio = Carbon::parse($this->fecha_inicio)->startOfDay();
         $fechaActual = Carbon::now()->startOfDay();
-        
+
         return (int) $fechaInicio->diffInDays($fechaActual);
     }
 
@@ -198,13 +198,13 @@ class Obra extends Model
      */
     public function getDiasRestantesAttribute()
     {
-        if (!$this->fecha_fin) {
+        if (! $this->fecha_fin) {
             return null;
         }
 
         $fechaFin = Carbon::parse($this->fecha_fin)->endOfDay();
         $fechaActual = Carbon::now()->startOfDay();
-        
+
         if ($fechaFin->isPast()) {
             return 0;
         }
@@ -217,13 +217,13 @@ class Obra extends Model
      */
     public function getDuracionTotalAttribute()
     {
-        if (!$this->fecha_inicio || !$this->fecha_fin) {
+        if (! $this->fecha_fin) {
             return null;
         }
 
         $fechaInicio = Carbon::parse($this->fecha_inicio)->startOfDay();
         $fechaFin = Carbon::parse($this->fecha_fin)->endOfDay();
-        
+
         return (int) ($fechaInicio->diffInDays($fechaFin) + 1);
     }
 
@@ -232,11 +232,11 @@ class Obra extends Model
      */
     public function getEstaAtrasadaAttribute()
     {
-        if (!$this->fecha_fin || $this->estatus === self::ESTATUS_COMPLETADA) {
+        if (! $this->fecha_fin || $this->estatus === self::ESTATUS_COMPLETADA) {
             return false;
         }
 
-        return Carbon::parse($this->fecha_fin)->isPast() && 
+        return Carbon::parse($this->fecha_fin)->isPast() &&
                in_array($this->estatus, [self::ESTATUS_PLANIFICADA, self::ESTATUS_EN_PROGRESO]);
     }
 
@@ -245,7 +245,7 @@ class Obra extends Model
      */
     public function getPorcentajeTiempoTranscurridoAttribute()
     {
-        if (!$this->duracion_total || $this->duracion_total <= 0) {
+        if (! $this->duracion_total || $this->duracion_total <= 0) {
             return 0;
         }
 
@@ -274,7 +274,7 @@ class Obra extends Model
     public function cambiarEstatus($nuevoEstatus, $motivo = null)
     {
         $estatusAnterior = $this->estatus;
-        
+
         // Validar transiciones permitidas
         $transicionesPermitidas = [
             self::ESTATUS_PLANIFICADA => [self::ESTATUS_EN_PROGRESO, self::ESTATUS_CANCELADA],
@@ -284,14 +284,14 @@ class Obra extends Model
             self::ESTATUS_CANCELADA => [], // No se puede cambiar desde cancelada
         ];
 
-        if (!in_array($nuevoEstatus, $transicionesPermitidas[$estatusAnterior] ?? [])) {
+        if (! in_array($nuevoEstatus, $transicionesPermitidas[$estatusAnterior] ?? [])) {
             throw new \InvalidArgumentException(
                 "No se puede cambiar de '{$estatusAnterior}' a '{$nuevoEstatus}'"
             );
         }
 
         $this->estatus = $nuevoEstatus;
-        
+
         // Si se completa, establecer avance al 100%
         if ($nuevoEstatus === self::ESTATUS_COMPLETADA) {
             $this->avance = 100;

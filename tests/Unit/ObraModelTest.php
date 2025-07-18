@@ -2,11 +2,11 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Obra;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class ObraModelTest extends TestCase
 {
@@ -69,7 +69,7 @@ class ObraModelTest extends TestCase
     {
         $fechaInicio = Carbon::now();
         $fechaFin = Carbon::now()->addDays(100);
-        
+
         $obra = Obra::factory()->create([
             'fecha_inicio' => $fechaInicio->format('Y-m-d'),
             'fecha_fin' => $fechaFin->format('Y-m-d'),
@@ -121,7 +121,7 @@ class ObraModelTest extends TestCase
         // Obra de 100 días, iniciada hace 25 días
         $fechaInicio = Carbon::now()->subDays(25);
         $fechaFin = Carbon::now()->addDays(75);
-        
+
         $obra = Obra::factory()->create([
             'fecha_inicio' => $fechaInicio->format('Y-m-d'),
             'fecha_fin' => $fechaFin->format('Y-m-d'),
@@ -135,7 +135,7 @@ class ObraModelTest extends TestCase
     public function obra_devuelve_descripcion_de_estatus()
     {
         $obra = Obra::factory()->create(['estatus' => Obra::ESTATUS_EN_PROGRESO]);
-        
+
         $this->assertEquals('Obra activa en desarrollo', $obra->estatus_descripcion);
     }
 
@@ -143,7 +143,7 @@ class ObraModelTest extends TestCase
     public function mutator_nombre_obra_aplica_formato_titulo()
     {
         $obra = Obra::factory()->create(['nombre_obra' => 'construcción de carretera principal']);
-        
+
         $this->assertEquals('Construcción De Carretera Principal', $obra->nombre_obra);
     }
 
@@ -168,7 +168,7 @@ class ObraModelTest extends TestCase
     public function mutator_estatus_valida_valores_permitidos()
     {
         $this->expectException(\InvalidArgumentException::class);
-        
+
         $obra = Obra::factory()->make();
         $obra->estatus = 'estado_invalido';
     }
@@ -216,11 +216,11 @@ class ObraModelTest extends TestCase
     {
         // Limpiar datos existentes para este test
         Obra::query()->delete();
-        
+
         // Preparar datos de prueba - crear 3 obras con fechas específicas
-        $fecha1 = Carbon::create(2025, 1, 1);  
-        $fecha2 = Carbon::create(2025, 1, 15);  
-        $fecha3 = Carbon::create(2025, 1, 30); 
+        $fecha1 = Carbon::create(2025, 1, 1);
+        $fecha2 = Carbon::create(2025, 1, 15);
+        $fecha3 = Carbon::create(2025, 1, 30);
 
         Obra::factory()->create(['fecha_inicio' => $fecha1->format('Y-m-d')]);
         Obra::factory()->create(['fecha_inicio' => $fecha2->format('Y-m-d')]);
@@ -235,11 +235,11 @@ class ObraModelTest extends TestCase
         // Verificamos que el scope funciona y encuentra obras en el rango
         $this->assertGreaterThan(0, $obrasEnRango->count(),
             'El scope entreFechas debe funcionar y devolver al menos una obra');
-        
+
         // Verificamos que no devuelve todas las obras si el rango es específico
         $this->assertLessThanOrEqual(3, $obrasEnRango->count(),
             'El scope no debe devolver más obras de las que existen');
-            
+
         // Test de que funciona con orden: las fechas devueltas deben estar en el rango
         foreach ($obrasEnRango as $obra) {
             $fechaObra = $obra->fecha_inicio->format('Y-m-d');
@@ -271,7 +271,7 @@ class ObraModelTest extends TestCase
     public function metodo_cambiar_estatus_rechaza_transiciones_invalidas()
     {
         $this->expectException(\InvalidArgumentException::class);
-        
+
         // Crear obra completada
         $obra = Obra::factory()->completada()->create();
 

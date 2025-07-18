@@ -1,12 +1,12 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ObraController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehiculoController;
-use App\Http\Controllers\ObraController;
 use App\Models\CatalogoEstatus;
 use App\Models\LogAccion;
 use App\Models\Permission;

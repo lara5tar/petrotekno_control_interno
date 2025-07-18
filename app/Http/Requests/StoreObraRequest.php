@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Obra;
+use Illuminate\Foundation\Http\FormRequest;
 
 class StoreObraRequest extends FormRequest
 {
@@ -29,29 +29,29 @@ class StoreObraRequest extends FormRequest
                 'min:5',
                 'max:200',
                 'unique:obras,nombre_obra',
-                'regex:/^[a-zA-ZÀ-ÿ\s\d\-\.\,\(\)]+$/'
+                'regex:/^[a-zA-ZÀ-ÿ\s\d\-\.\,\(\)]+$/',
             ],
             'estatus' => [
                 'required',
                 'string',
-                'in:' . implode(',', Obra::ESTADOS_VALIDOS)
+                'in:'.implode(',', Obra::ESTADOS_VALIDOS),
             ],
             'avance' => [
                 'nullable',
                 'integer',
                 'min:0',
-                'max:100'
+                'max:100',
             ],
             'fecha_inicio' => [
                 'required',
                 'date',
-                'after_or_equal:today'
+                'after_or_equal:today',
             ],
             'fecha_fin' => [
                 'nullable',
                 'date',
-                'after:fecha_inicio'
-            ]
+                'after:fecha_inicio',
+            ],
         ];
     }
 
@@ -66,18 +66,18 @@ class StoreObraRequest extends FormRequest
             'nombre_obra.max' => 'El nombre de la obra no puede exceder 200 caracteres.',
             'nombre_obra.unique' => 'Ya existe una obra con este nombre.',
             'nombre_obra.regex' => 'El nombre de la obra contiene caracteres no permitidos.',
-            
+
             'estatus.required' => 'El estatus de la obra es obligatorio.',
             'estatus.in' => 'El estatus seleccionado no es válido.',
-            
+
             'avance.integer' => 'El avance debe ser un número entero.',
             'avance.min' => 'El avance no puede ser menor a 0%.',
             'avance.max' => 'El avance no puede ser mayor a 100%.',
-            
+
             'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
             'fecha_inicio.date' => 'La fecha de inicio debe ser una fecha válida.',
             'fecha_inicio.after_or_equal' => 'La fecha de inicio debe ser hoy o posterior.',
-            
+
             'fecha_fin.date' => 'La fecha de fin debe ser una fecha válida.',
             'fecha_fin.after' => 'La fecha de fin debe ser posterior a la fecha de inicio.',
         ];
@@ -110,13 +110,13 @@ class StoreObraRequest extends FormRequest
         }
 
         // Establecer avance por defecto según estatus
-        if ($this->has('estatus') && !$this->has('avance')) {
-            $avanceDefecto = match($this->estatus) {
+        if ($this->has('estatus') && ! $this->has('avance')) {
+            $avanceDefecto = match ($this->estatus) {
                 Obra::ESTATUS_PLANIFICADA => 0,
                 Obra::ESTATUS_COMPLETADA => 100,
                 default => null
             };
-            
+
             if ($avanceDefecto !== null) {
                 $this->merge(['avance' => $avanceDefecto]);
             }
@@ -140,7 +140,7 @@ class StoreObraRequest extends FormRequest
             }
 
             // Validación personalizada: Fecha fin requerida para obras completadas
-            if ($this->estatus === Obra::ESTATUS_COMPLETADA && !$this->fecha_fin) {
+            if ($this->estatus === Obra::ESTATUS_COMPLETADA && ! $this->fecha_fin) {
                 $validator->errors()->add('fecha_fin', 'Una obra completada debe tener fecha de finalización.');
             }
         });

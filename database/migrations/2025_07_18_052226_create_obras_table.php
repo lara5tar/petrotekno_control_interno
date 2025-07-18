@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('nombre_obra', 200)->unique();
             $table->enum('estatus', [
                 'planificada',
-                'en_progreso', 
+                'en_progreso',
                 'suspendida',
                 'completada',
-                'cancelada'
+                'cancelada',
             ])->default('planificada');
             $table->integer('avance')->nullable()->default(0)->comment('Porcentaje de avance (0-100)');
             $table->date('fecha_inicio');

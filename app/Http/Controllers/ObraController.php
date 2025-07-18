@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use App\Models\Obra;
-use App\Models\LogAccion;
 use App\Http\Requests\StoreObraRequest;
 use App\Http\Requests\UpdateObraRequest;
+use App\Models\LogAccion;
+use App\Models\Obra;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ObraController extends Controller
 {
@@ -22,19 +22,16 @@ class ObraController extends Controller
 
     /**
      * Display a listing of the resource.
-     * 
-     * @param Request $request
-     * @return JsonResponse
      */
     public function index(Request $request): JsonResponse
     {
         try {
-            // Los permisos ya se verifican en el middleware, 
+            // Los permisos ya se verifican en el middleware,
             // pero mantenemos verificación adicional por seguridad
-            if (!$request->user()->hasPermission('ver_obras')) {
+            if (! $request->user()->hasPermission('ver_obras')) {
                 return response()->json([
                     'message' => 'No tienes permisos para ver las obras.',
-                    'error' => 'Acceso denegado'
+                    'error' => 'Acceso denegado',
                 ], 403);
             }
 
@@ -54,7 +51,7 @@ class ObraController extends Controller
             if ($request->has('fecha_inicio_desde') && $request->has('fecha_inicio_hasta')) {
                 $query->whereBetween('fecha_inicio', [
                     $request->fecha_inicio_desde,
-                    $request->fecha_inicio_hasta
+                    $request->fecha_inicio_hasta,
                 ]);
             }
 
@@ -71,14 +68,14 @@ class ObraController extends Controller
             // Filtro por obras atrasadas
             if ($request->has('atrasadas') && $request->atrasadas === 'true') {
                 $query->whereNotNull('fecha_fin')
-                      ->where('fecha_fin', '<', now())
-                      ->whereNotIn('estatus', [Obra::ESTATUS_COMPLETADA, Obra::ESTATUS_CANCELADA]);
+                    ->where('fecha_fin', '<', now())
+                    ->whereNotIn('estatus', [Obra::ESTATUS_COMPLETADA, Obra::ESTATUS_CANCELADA]);
             }
 
             // Ordenamiento
             $sortBy = $request->get('sort_by', 'created_at');
             $sortOrder = $request->get('sort_order', 'desc');
-            
+
             $allowedSorts = ['nombre_obra', 'estatus', 'avance', 'fecha_inicio', 'fecha_fin', 'created_at'];
             if (in_array($sortBy, $allowedSorts)) {
                 $query->orderBy($sortBy, $sortOrder);
@@ -98,7 +95,7 @@ class ObraController extends Controller
                     'estatus' => $obra->estatus,
                     'estatus_descripcion' => $obra->estatus_descripcion,
                     'avance' => $obra->avance,
-                    'fecha_inicio' => $obra->fecha_inicio?->format('Y-m-d'),
+                    'fecha_inicio' => $obra->fecha_inicio->format('Y-m-d'),
                     'fecha_fin' => $obra->fecha_fin?->format('Y-m-d'),
                     'dias_transcurridos' => $obra->dias_transcurridos,
                     'dias_restantes' => $obra->dias_restantes,
@@ -116,7 +113,7 @@ class ObraController extends Controller
                 'fecha_hora' => now(),
                 'accion' => 'listar_obras',
                 'tabla_afectada' => 'obras',
-                'detalles' => 'Listado de obras consultado con filtros: ' . json_encode($request->only(['estatus', 'buscar', 'solo_activas']))
+                'detalles' => 'Listado de obras consultado con filtros: '.json_encode($request->only(['estatus', 'buscar', 'solo_activas'])),
             ]);
 
             return response()->json([
@@ -136,16 +133,13 @@ class ObraController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al obtener las obras.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Store a newly created resource in storage.
-     * 
-     * @param StoreObraRequest $request
-     * @return JsonResponse
      */
     public function store(StoreObraRequest $request): JsonResponse
     {
@@ -159,7 +153,7 @@ class ObraController extends Controller
                 'accion' => 'crear_obra',
                 'tabla_afectada' => 'obras',
                 'registro_id' => $obra->id,
-                'detalles' => "Obra creada: {$obra->nombre_obra}"
+                'detalles' => "Obra creada: {$obra->nombre_obra}",
             ]);
 
             return response()->json([
@@ -170,7 +164,7 @@ class ObraController extends Controller
                     'estatus' => $obra->estatus,
                     'estatus_descripcion' => $obra->estatus_descripcion,
                     'avance' => $obra->avance,
-                    'fecha_inicio' => $obra->fecha_inicio?->format('Y-m-d'),
+                    'fecha_inicio' => $obra->fecha_inicio->format('Y-m-d'),
                     'fecha_fin' => $obra->fecha_fin?->format('Y-m-d'),
                     'dias_transcurridos' => $obra->dias_transcurridos,
                     'dias_restantes' => $obra->dias_restantes,
@@ -179,41 +173,35 @@ class ObraController extends Controller
                     'esta_atrasada' => $obra->esta_atrasada,
                     'created_at' => $obra->created_at,
                     'updated_at' => $obra->updated_at,
-                ]
+                ],
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al crear la obra.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Display the specified resource.
-     * 
-     * @param int $obra
-     * @param Request $request
-     * @return JsonResponse
+     *
+     * @param  mixed  $obra
      */
     public function show($obra, Request $request): JsonResponse
     {
         try {
-            // Los permisos ya se verifican en el middleware
-            if (!$request->user()->hasPermission('ver_obras')) {
+            // Verificar permisos
+            if (! $request->user()->hasPermission('ver_obras')) {
                 return response()->json([
                     'message' => 'No tienes permisos para ver esta obra.',
-                    'error' => 'Acceso denegado'
+                    'error' => 'Acceso denegado',
                 ], 403);
             }
 
-            // Resolver la obra ya sea por model binding o ID
-            if ($obra instanceof \App\Models\Obra) {
-                $obraModel = $obra;
-            } else {
-                $obraModel = \App\Models\Obra::findOrFail($obra);
-            }
+            // Obtener la obra por ID
+            $obraModel = \App\Models\Obra::findOrFail($obra);
 
             // Registrar acción en log
             LogAccion::create([
@@ -222,7 +210,7 @@ class ObraController extends Controller
                 'accion' => 'ver_obra',
                 'tabla_afectada' => 'obras',
                 'registro_id' => $obraModel->id,
-                'detalles' => "Obra consultada: {$obraModel->nombre_obra}"
+                'detalles' => "Obra consultada: {$obraModel->nombre_obra}",
             ]);
 
             return response()->json([
@@ -233,7 +221,7 @@ class ObraController extends Controller
                     'estatus' => $obraModel->estatus,
                     'estatus_descripcion' => $obraModel->estatus_descripcion,
                     'avance' => $obraModel->avance,
-                    'fecha_inicio' => $obraModel->fecha_inicio?->format('Y-m-d'),
+                    'fecha_inicio' => $obraModel->fecha_inicio->format('Y-m-d'),
                     'fecha_fin' => $obraModel->fecha_fin?->format('Y-m-d'),
                     'dias_transcurridos' => $obraModel->dias_transcurridos,
                     'dias_restantes' => $obraModel->dias_restantes,
@@ -242,28 +230,26 @@ class ObraController extends Controller
                     'esta_atrasada' => $obraModel->esta_atrasada,
                     'created_at' => $obraModel->created_at,
                     'updated_at' => $obraModel->updated_at,
-                ]
+                ],
             ], 200);
 
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'Obra no encontrada.',
-                'error' => 'La obra especificada no existe.'
+                'error' => 'La obra especificada no existe.',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al obtener la obra.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Update the specified resource in storage.
-     * 
-     * @param UpdateObraRequest $request
-     * @param mixed $obra
-     * @return JsonResponse
+     *
+     * @param  mixed  $obra
      */
     public function update(UpdateObraRequest $request, $obra): JsonResponse
     {
@@ -274,9 +260,9 @@ class ObraController extends Controller
             } else {
                 $obraModel = \App\Models\Obra::findOrFail($obra);
             }
-            
+
             $datosAnteriores = $obraModel->toArray();
-            
+
             $obraModel->update($request->validated());
 
             // Registrar acción en log
@@ -286,7 +272,7 @@ class ObraController extends Controller
                 'accion' => 'actualizar_obra',
                 'tabla_afectada' => 'obras',
                 'registro_id' => $obraModel->id,
-                'detalles' => "Obra actualizada: {$obraModel->nombre_obra}. Campos modificados: " . implode(', ', array_keys($request->validated()))
+                'detalles' => "Obra actualizada: {$obraModel->nombre_obra}. Campos modificados: ".implode(', ', array_keys($request->validated())),
             ]);
 
             return response()->json([
@@ -297,7 +283,7 @@ class ObraController extends Controller
                     'estatus' => $obraModel->estatus,
                     'estatus_descripcion' => $obraModel->estatus_descripcion,
                     'avance' => $obraModel->avance,
-                    'fecha_inicio' => $obraModel->fecha_inicio?->format('Y-m-d'),
+                    'fecha_inicio' => $obraModel->fecha_inicio->format('Y-m-d'),
                     'fecha_fin' => $obraModel->fecha_fin?->format('Y-m-d'),
                     'dias_transcurridos' => $obraModel->dias_transcurridos,
                     'dias_restantes' => $obraModel->dias_restantes,
@@ -306,37 +292,35 @@ class ObraController extends Controller
                     'esta_atrasada' => $obraModel->esta_atrasada,
                     'created_at' => $obraModel->created_at,
                     'updated_at' => $obraModel->updated_at,
-                ]
+                ],
             ], 200);
 
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'Obra no encontrada.',
-                'error' => 'La obra especificada no existe.'
+                'error' => 'La obra especificada no existe.',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al actualizar la obra.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Remove the specified resource from storage (Soft Delete).
-     * 
-     * @param mixed $obra
-     * @param Request $request
-     * @return JsonResponse
+     *
+     * @param  mixed  $obra
      */
     public function destroy($obra, Request $request): JsonResponse
     {
         try {
             // Los permisos ya se verifican en el middleware
-            if (!$request->user()->hasPermission('eliminar_obra')) {
+            if (! $request->user()->hasPermission('eliminar_obra')) {
                 return response()->json([
                     'message' => 'No tienes permisos para eliminar obras.',
-                    'error' => 'Acceso denegado'
+                    'error' => 'Acceso denegado',
                 ], 403);
             }
 
@@ -349,7 +333,7 @@ class ObraController extends Controller
 
             $nombreObra = $obraModel->nombre_obra;
             $obraId = $obraModel->id; // Guardar ID antes del delete
-            
+
             $obraModel->delete(); // Soft delete
 
             // Registrar acción en log
@@ -359,7 +343,7 @@ class ObraController extends Controller
                 'accion' => 'eliminar_obra',
                 'tabla_afectada' => 'obras',
                 'registro_id' => $obraId,
-                'detalles' => "Obra eliminada (soft delete): {$nombreObra}"
+                'detalles' => "Obra eliminada (soft delete): {$nombreObra}",
             ]);
 
             return response()->json([
@@ -367,47 +351,43 @@ class ObraController extends Controller
                 'data' => [
                     'id' => $obraId,
                     'nombre_obra' => $nombreObra,
-                    'eliminada_en' => now()
-                ]
+                    'eliminada_en' => now(),
+                ],
             ], 200);
 
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'Obra no encontrada.',
-                'error' => 'La obra especificada no existe.'
+                'error' => 'La obra especificada no existe.',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al eliminar la obra.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Restore a soft deleted resource.
-     * 
-     * @param int $id
-     * @param Request $request
-     * @return JsonResponse
      */
     public function restore(int $id, Request $request): JsonResponse
     {
         try {
             // Los permisos ya se verifican en el middleware
-            if (!$request->user()->hasPermission('editar_obra')) {
+            if (! $request->user()->hasPermission('editar_obra')) {
                 return response()->json([
                     'message' => 'No tienes permisos para restaurar obras.',
-                    'error' => 'Acceso denegado'
+                    'error' => 'Acceso denegado',
                 ], 403);
             }
 
             $obra = Obra::withTrashed()->findOrFail($id);
 
-            if (!$obra->trashed()) {
+            if (! $obra->trashed()) {
                 return response()->json([
                     'message' => 'La obra no está eliminada.',
-                    'error' => 'No se puede restaurar una obra que no está eliminada.'
+                    'error' => 'No se puede restaurar una obra que no está eliminada.',
                 ], 400);
             }
 
@@ -420,7 +400,7 @@ class ObraController extends Controller
                 'accion' => 'restaurar_obra',
                 'tabla_afectada' => 'obras',
                 'registro_id' => $obra->id,
-                'detalles' => "Obra restaurada: {$obra->nombre_obra}"
+                'detalles' => "Obra restaurada: {$obra->nombre_obra}",
             ]);
 
             return response()->json([
@@ -429,37 +409,34 @@ class ObraController extends Controller
                     'id' => $obra->id,
                     'nombre_obra' => $obra->nombre_obra,
                     'estatus' => $obra->estatus,
-                    'restaurada_en' => now()
-                ]
+                    'restaurada_en' => now(),
+                ],
             ], 200);
 
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'Obra no encontrada.',
-                'error' => 'La obra especificada no existe.'
+                'error' => 'La obra especificada no existe.',
             ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al restaurar la obra.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Get available statuses for obras.
-     * 
-     * @param Request $request
-     * @return JsonResponse
      */
     public function estatus(Request $request): JsonResponse
     {
         try {
             // Los permisos ya se verifican en el middleware
-            if (!$request->user()->hasPermission('ver_obras')) {
+            if (! $request->user()->hasPermission('ver_obras')) {
                 return response()->json([
                     'message' => 'No tienes permisos para ver los estatus.',
-                    'error' => 'Acceso denegado'
+                    'error' => 'Acceso denegado',
                 ], 403);
             }
 
@@ -475,19 +452,19 @@ class ObraController extends Controller
                 return [
                     'valor' => $estatus,
                     'nombre' => ucwords(str_replace('_', ' ', $estatus)),
-                    'descripcion' => $descripciones[$estatus] ?? 'Sin descripción'
+                    'descripcion' => $descripciones[$estatus] ?? 'Sin descripción',
                 ];
             });
 
             return response()->json([
                 'message' => 'Estatus obtenidos exitosamente.',
-                'data' => $estatusDisponibles
+                'data' => $estatusDisponibles,
             ], 200);
 
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al obtener los estatus.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

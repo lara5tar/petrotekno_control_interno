@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Obra;
-use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class ObraSeeder extends Seeder
 {
@@ -122,11 +120,11 @@ class ObraSeeder extends Seeder
             ->create();
 
         $this->command->info('✅ Obras creadas exitosamente.');
-        $this->command->info('📊 Total obras: ' . Obra::count());
-        $this->command->info('🚧 En progreso: ' . Obra::porEstatus(Obra::ESTATUS_EN_PROGRESO)->count());
-        $this->command->info('✅ Completadas: ' . Obra::porEstatus(Obra::ESTATUS_COMPLETADA)->count());
-        $this->command->info('📋 Planificadas: ' . Obra::porEstatus(Obra::ESTATUS_PLANIFICADA)->count());
-        $this->command->info('⏸️ Suspendidas: ' . Obra::porEstatus(Obra::ESTATUS_SUSPENDIDA)->count());
-        $this->command->info('❌ Canceladas: ' . Obra::porEstatus(Obra::ESTATUS_CANCELADA)->count());
+        $this->command->info('📊 Total obras: '.Obra::count());
+        $this->command->info('🚧 En progreso: '.Obra::porEstatus(Obra::ESTATUS_EN_PROGRESO)->count());
+        $this->command->info('✅ Completadas: '.Obra::porEstatus(Obra::ESTATUS_COMPLETADA)->count());
+        $this->command->info('📋 Planificadas: '.Obra::porEstatus(Obra::ESTATUS_PLANIFICADA)->count());
+        $this->command->info('⏸️ Suspendidas: '.Obra::porEstatus(Obra::ESTATUS_SUSPENDIDA)->count());
+        $this->command->info('❌ Canceladas: '.Obra::porEstatus(Obra::ESTATUS_CANCELADA)->count());
     }
 }

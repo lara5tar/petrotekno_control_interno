@@ -2,30 +2,31 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Role;
+use App\Models\Obra;
 use App\Models\Permission;
 use App\Models\Personal;
-use App\Models\Obra;
-use App\Models\LogAccion;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class ObraControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
     protected $adminUser;
+
     protected $supervisorUser;
+
     protected $operadorUser;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Ejecutar seeders necesarios
         $this->seed([
             \Database\Seeders\CategoriaPersonalSeeder::class,
@@ -52,11 +53,11 @@ class ObraControllerTest extends TestCase
         // Crear permisos específicos para obras (si no existen)
         $permissions = [
             'ver_obras',
-            'crear_obra', 
+            'crear_obra',
             'editar_obra',
-            'eliminar_obra'
+            'eliminar_obra',
         ];
-        
+
         foreach ($permissions as $permissionName) {
             Permission::firstOrCreate(['nombre_permiso' => $permissionName]);
         }
@@ -67,13 +68,13 @@ class ObraControllerTest extends TestCase
 
         $supervisorRole = Role::firstOrCreate(['nombre_rol' => 'Supervisor']);
         $supervisorPermissions = Permission::whereIn('nombre_permiso', [
-            'ver_obras', 'crear_obra', 'editar_obra'
+            'ver_obras', 'crear_obra', 'editar_obra',
         ])->get();
         $supervisorRole->permisos()->sync($supervisorPermissions);
 
         $operadorRole = Role::firstOrCreate(['nombre_rol' => 'Operador']);
         $operadorPermissions = Permission::whereIn('nombre_permiso', [
-            'ver_obras'
+            'ver_obras',
         ])->get();
         $operadorRole->permisos()->sync($operadorPermissions);
 
@@ -101,34 +102,34 @@ class ObraControllerTest extends TestCase
     public function admin_puede_listar_obras()
     {
         Sanctum::actingAs($this->adminUser);
-        
+
         // Crear obras de prueba
         $obras = Obra::factory()->count(5)->create();
 
         $response = $this->getJson('/api/obras');
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'message',
-                    'data' => [
-                        '*' => [
-                            'id',
-                            'nombre_obra',
-                            'estatus',
-                            'avance',
-                            'fecha_inicio',
-                            'fecha_fin',
-                        ]
+            ->assertJsonStructure([
+                'message',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'nombre_obra',
+                        'estatus',
+                        'avance',
+                        'fecha_inicio',
+                        'fecha_fin',
                     ],
-                    'pagination'
-                ]);
+                ],
+                'pagination',
+            ]);
     }
 
     #[Test]
     public function supervisor_puede_listar_obras()
     {
         Sanctum::actingAs($this->supervisorUser);
-        
+
         Obra::factory()->count(3)->create();
 
         $response = $this->getJson('/api/obras');
@@ -141,7 +142,7 @@ class ObraControllerTest extends TestCase
     public function operador_puede_ver_obras_pero_solo_lectura()
     {
         Sanctum::actingAs($this->operadorUser);
-        
+
         Obra::factory()->count(2)->create();
 
         $response = $this->getJson('/api/obras');
@@ -174,18 +175,18 @@ class ObraControllerTest extends TestCase
         $response = $this->postJson('/api/obras', $obraData);
 
         $response->assertStatus(201)
-                ->assertJsonStructure([
-                    'message',
-                    'data' => [
-                        'id',
-                        'nombre_obra',
-                        'estatus',
-                        'estatus_descripcion',
-                        'avance',
-                        'fecha_inicio',
-                        'fecha_fin'
-                    ]
-                ]);
+            ->assertJsonStructure([
+                'message',
+                'data' => [
+                    'id',
+                    'nombre_obra',
+                    'estatus',
+                    'estatus_descripcion',
+                    'avance',
+                    'fecha_inicio',
+                    'fecha_fin',
+                ],
+            ]);
 
         $this->assertDatabaseHas('obras', [
             'nombre_obra' => 'Construcción De Nueva Carretera', // Título automático
@@ -249,9 +250,9 @@ class ObraControllerTest extends TestCase
 
         // Test campos requeridos
         $response = $this->postJson('/api/obras', []);
-        
+
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['nombre_obra', 'estatus', 'fecha_inicio']);
+            ->assertJsonValidationErrors(['nombre_obra', 'estatus', 'fecha_inicio']);
 
         // Test nombre obra muy corto
         $response = $this->postJson('/api/obras', [
@@ -259,9 +260,9 @@ class ObraControllerTest extends TestCase
             'estatus' => Obra::ESTATUS_PLANIFICADA,
             'fecha_inicio' => now()->format('Y-m-d'),
         ]);
-        
+
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['nombre_obra']);
+            ->assertJsonValidationErrors(['nombre_obra']);
 
         // Test estatus inválido
         $response = $this->postJson('/api/obras', [
@@ -269,9 +270,9 @@ class ObraControllerTest extends TestCase
             'estatus' => 'estado_inexistente',
             'fecha_inicio' => now()->format('Y-m-d'),
         ]);
-        
+
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['estatus']);
+            ->assertJsonValidationErrors(['estatus']);
 
         // Test avance fuera de rango
         $response = $this->postJson('/api/obras', [
@@ -280,9 +281,9 @@ class ObraControllerTest extends TestCase
             'avance' => 150, // Mayor a 100
             'fecha_inicio' => now()->format('Y-m-d'),
         ]);
-        
+
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['avance']);
+            ->assertJsonValidationErrors(['avance']);
 
         // Test fecha fin anterior a fecha inicio
         $response = $this->postJson('/api/obras', [
@@ -291,9 +292,9 @@ class ObraControllerTest extends TestCase
             'fecha_inicio' => now()->format('Y-m-d'),
             'fecha_fin' => now()->subDays(10)->format('Y-m-d'),
         ]);
-        
+
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['fecha_fin']);
+            ->assertJsonValidationErrors(['fecha_fin']);
     }
 
     #[Test]
@@ -312,7 +313,7 @@ class ObraControllerTest extends TestCase
         ]);
 
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['nombre_obra']);
+            ->assertJsonValidationErrors(['nombre_obra']);
     }
 
     #[Test]
@@ -325,28 +326,28 @@ class ObraControllerTest extends TestCase
         $response = $this->getJson("/api/obras/{$obra->id}");
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'message',
-                    'data' => [
-                        'id',
-                        'nombre_obra',
-                        'estatus',
-                        'estatus_descripcion',
-                        'avance',
-                        'fecha_inicio',
-                        'fecha_fin',
-                        'dias_transcurridos',
-                        'dias_restantes',
-                        'duracion_total',
-                        'esta_atrasada'
-                    ]
-                ])
-                ->assertJson([
-                    'data' => [
-                        'id' => $obra->id,
-                        'nombre_obra' => $obra->nombre_obra,
-                    ]
-                ]);
+            ->assertJsonStructure([
+                'message',
+                'data' => [
+                    'id',
+                    'nombre_obra',
+                    'estatus',
+                    'estatus_descripcion',
+                    'avance',
+                    'fecha_inicio',
+                    'fecha_fin',
+                    'dias_transcurridos',
+                    'dias_restantes',
+                    'duracion_total',
+                    'esta_atrasada',
+                ],
+            ])
+            ->assertJson([
+                'data' => [
+                    'id' => $obra->id,
+                    'nombre_obra' => $obra->nombre_obra,
+                ],
+            ]);
 
         // Verificar log
         $this->assertDatabaseHas('log_acciones', [
@@ -382,13 +383,13 @@ class ObraControllerTest extends TestCase
         $response = $this->putJson("/api/obras/{$obra->id}", $datosActualizacion);
 
         $response->assertStatus(200)
-                ->assertJson([
-                    'data' => [
-                        'nombre_obra' => 'Obra Actualizada',
-                        'estatus' => Obra::ESTATUS_EN_PROGRESO,
-                        'avance' => 30,
-                    ]
-                ]);
+            ->assertJson([
+                'data' => [
+                    'nombre_obra' => 'Obra Actualizada',
+                    'estatus' => Obra::ESTATUS_EN_PROGRESO,
+                    'avance' => 30,
+                ],
+            ]);
 
         $this->assertDatabaseHas('obras', [
             'id' => $obra->id,
@@ -412,7 +413,7 @@ class ObraControllerTest extends TestCase
 
         // Crear obra completada
         $obra = Obra::factory()->completada()->create();
-        
+
         // Debug: verificar el estado de la obra
         $this->assertEquals(Obra::ESTATUS_COMPLETADA, $obra->estatus);
 
@@ -422,7 +423,7 @@ class ObraControllerTest extends TestCase
         ]);
 
         $response->assertStatus(422)
-                ->assertJsonValidationErrors(['estatus']);
+            ->assertJsonValidationErrors(['estatus']);
     }
 
     #[Test]
@@ -512,7 +513,7 @@ class ObraControllerTest extends TestCase
         Obra::factory()->completada()->create(['nombre_obra' => 'Obra Completada']);
 
         // Test filtro por estatus
-        $response = $this->getJson('/api/obras?estatus=' . Obra::ESTATUS_EN_PROGRESO);
+        $response = $this->getJson('/api/obras?estatus='.Obra::ESTATUS_EN_PROGRESO);
         $response->assertStatus(200);
         $this->assertCount(1, $response->json('data'));
 
@@ -553,16 +554,16 @@ class ObraControllerTest extends TestCase
         $response = $this->getJson('/api/obras/estatus');
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'message',
-                    'data' => [
-                        '*' => [
-                            'valor',
-                            'nombre',
-                            'descripcion'
-                        ]
-                    ]
-                ]);
+            ->assertJsonStructure([
+                'message',
+                'data' => [
+                    '*' => [
+                        'valor',
+                        'nombre',
+                        'descripcion',
+                    ],
+                ],
+            ]);
 
         $this->assertCount(5, $response->json('data')); // 5 estados válidos
     }
@@ -578,14 +579,14 @@ class ObraControllerTest extends TestCase
         $response = $this->getJson('/api/obras?per_page=10');
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'pagination' => [
-                        'current_page',
-                        'last_page',
-                        'per_page',
-                        'total',
-                    ]
-                ]);
+            ->assertJsonStructure([
+                'pagination' => [
+                    'current_page',
+                    'last_page',
+                    'per_page',
+                    'total',
+                ],
+            ]);
 
         $pagination = $response->json('pagination');
         $this->assertEquals(10, $pagination['per_page']);
