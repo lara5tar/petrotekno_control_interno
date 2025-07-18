@@ -1,13 +1,13 @@
+includes:
+    - ./vendor/larastan/larastan/extension.neon
+
 parameters:
     level: 4  # Nivel práctico para desarrollo ágil
     paths:
         - app/Http/Controllers
         - app/Models
+        - app/Http/Requests
     excludePaths:
         - app/Console/Kernel.php (?)
         - app/Exceptions/Handler.php (?)
         - app/Http/Kernel.php (?)
-    ignoreErrors:
-        # Ignorar errores comunes de Eloquent en Laravel
-        - '#Call to an undefined (static )?method App\\Models\\[a-zA-Z]+::(create|where|find|findOrFail)\(\)#'
-        - '#Access to an undefined property App\\Models\\[a-zA-Z]+::\$[a-zA-Z_]+#'

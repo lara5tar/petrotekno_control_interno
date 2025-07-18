@@ -29,7 +29,7 @@ class VehiculoControllerTest extends TestCase
             'nombre_estatus' => 'Activo',
         ]);
 
-                // Crear permisos necesarios para vehículos
+        // Crear permisos necesarios para vehículos
         $permissions = [
             'ver_vehiculos',
             'crear_vehiculos',
@@ -282,7 +282,7 @@ class VehiculoControllerTest extends TestCase
     {
         // Crear un rol sin permisos de vehículos
         $operadorRole = Role::firstOrCreate(['nombre_rol' => 'Operador']);
-        
+
         $unauthorizedUser = User::factory()->create([
             'rol_id' => $operadorRole->id,
         ]);

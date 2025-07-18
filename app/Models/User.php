@@ -15,6 +15,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @method bool hasPermission(string $permission)
  * @method bool hasRole(string $role)
  * @method \Illuminate\Support\Collection getPermissions()
+ *
  * @property int $id
  * @property string $nombre_usuario
  * @property string $email
@@ -34,6 +35,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read \App\Models\Role|null $rol
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
+ *
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
@@ -52,6 +54,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class User extends Authenticatable

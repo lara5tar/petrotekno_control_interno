@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $fecha_eliminacion
  * @property-read \App\Models\CatalogoEstatus $estatus
  * @property-read mixed $nombre_completo
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo buscar($termino)
  * @method static \Database\Factories\VehiculoFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo newModelQuery()
@@ -53,6 +54,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Vehiculo extends Model

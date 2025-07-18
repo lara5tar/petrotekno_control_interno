@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\CategoriaPersonal $categoria
  * @property-read \App\Models\User|null $usuario
+ *
  * @method static \Database\Factories\PersonalFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal newQuery()
@@ -32,6 +33,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Personal extends Model

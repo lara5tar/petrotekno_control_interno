@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Vehiculo> $vehiculos
  * @property-read int|null $vehiculos_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CatalogoEstatus activos()
  * @method static \Database\Factories\CatalogoEstatusFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CatalogoEstatus newModelQuery()
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CatalogoEstatus whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CatalogoEstatus whereNombreEstatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CatalogoEstatus whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class CatalogoEstatus extends Model
