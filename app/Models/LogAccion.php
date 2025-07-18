@@ -34,7 +34,7 @@ class LogAccion extends Model
         parent::boot();
 
         static::creating(function ($logAccion) {
-            if (!$logAccion->fecha_hora) {
+            if (! $logAccion->fecha_hora) {
                 $logAccion->fecha_hora = now();
             }
         });

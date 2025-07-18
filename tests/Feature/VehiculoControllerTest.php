@@ -198,15 +198,16 @@ class VehiculoControllerTest extends TestCase
         $updateData = [
             'marca' => 'Ford',
             'modelo' => 'Ranger',
-            'anio' => 2024,
-            'kilometraje_actual' => 20000,
+            'anio' => 2023,
+            'estatus_id' => $this->estatus->id,
         ];
 
         $response = $this->putJson("/api/vehiculos/{$vehiculo->id}", $updateData);
 
         $response->assertStatus(200)
-            ->assertJsonFragment(['marca' => 'Ford'])
-            ->assertJsonFragment(['modelo' => 'Ranger']);
+            ->assertJsonPath('data.marca', 'Ford')
+            ->assertJsonPath('data.modelo', 'Ranger')
+            ->assertJsonPath('success', true);
 
         $this->assertDatabaseHas('vehiculos', [
             'id' => $vehiculo->id,
@@ -259,8 +260,9 @@ class VehiculoControllerTest extends TestCase
         $response = $this->getJson("/api/vehiculos/{$vehiculo->id}");
 
         $response->assertStatus(200)
-            ->assertJsonFragment(['marca' => $vehiculo->marca])
-            ->assertJsonFragment(['modelo' => $vehiculo->modelo]);
+            ->assertJsonPath('data.marca', $vehiculo->marca)
+            ->assertJsonPath('data.modelo', $vehiculo->modelo)
+            ->assertJsonPath('success', true);
     }
 
     public function test_vehiculo_not_found_returns_404()

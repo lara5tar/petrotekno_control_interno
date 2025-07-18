@@ -15,22 +15,21 @@ use Illuminate\Support\Facades\DB;
 class VehiculoController extends Controller
 {
     /**
-     * Constructor para aplicar middleware de autenticación
-     */
-    public function __construct()
-    {
-        $this->middleware('auth:sanctum');
-    }
-
-    /**
      * Display a listing of the resource.
      */
     public function index(Request $request): JsonResponse
     {
+        // Verificar permisos
+        if (! Auth::user()->hasPermission('ver_vehiculos')) {
+            return response()->json([
+                'message' => 'No tienes permisos para ver vehículos',
+            ], 403);
+        }
+
         try {
             $query = Vehiculo::with('estatus');
 
-            // Filtros
+            // Aplicar filtros
             if ($request->filled('marca')) {
                 $query->porMarca($request->marca);
             }
@@ -75,7 +74,6 @@ class VehiculoController extends Controller
                     'filtros' => $request->only(['marca', 'modelo', 'estatus_id', 'buscar']),
                     'total_resultados' => $vehiculos->total(),
                 ]),
-                'fecha_hora' => now(),
             ]);
 
             return response()->json([
@@ -110,6 +108,7 @@ class VehiculoController extends Controller
             DB::beginTransaction();
 
             $vehiculo = Vehiculo::create($request->validated());
+            $vehiculo->load('estatus');
 
             // Log de la acción
             LogAccion::create([
@@ -117,10 +116,7 @@ class VehiculoController extends Controller
                 'accion' => 'crear_vehiculo',
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
-                'detalles' => json_encode([
-                    'vehiculo_creado' => $vehiculo->toArray(),
-                ]),
-                'fecha_hora' => now(),
+                'detalles' => 'Vehículo creado: '.$vehiculo->nombre_completo,
             ]);
 
             DB::commit();
@@ -128,7 +124,7 @@ class VehiculoController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Vehículo creado exitosamente',
-                'data' => $vehiculo->load('estatus'),
+                'data' => $vehiculo,
             ], 201);
 
         } catch (\Exception $e) {
@@ -145,10 +141,18 @@ class VehiculoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id): JsonResponse
+    public function show($id): JsonResponse
     {
+        // Verificar permisos
+        if (! Auth::user()->hasPermission('ver_vehiculos')) {
+            return response()->json([
+                'message' => 'No tienes permisos para ver vehículos',
+            ], 403);
+        }
+
         try {
-            $vehiculo = Vehiculo::with('estatus')->findOrFail($id);
+            $vehiculo = Vehiculo::findOrFail($id);
+            $vehiculo->load('estatus');
 
             // Log de la acción
             LogAccion::create([
@@ -156,10 +160,7 @@ class VehiculoController extends Controller
                 'accion' => 'ver_vehiculo',
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
-                'detalles' => json_encode([
-                    'vehiculo_consultado' => $vehiculo->id,
-                ]),
-                'fecha_hora' => now(),
+                'detalles' => 'Vehículo consultado: '.$vehiculo->nombre_completo,
             ]);
 
             return response()->json([
@@ -168,39 +169,40 @@ class VehiculoController extends Controller
                 'data' => $vehiculo,
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Vehículo no encontrado',
-                'error' => $e->getMessage(),
             ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener el vehículo',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateVehiculoRequest $request, string $id): JsonResponse
+    public function update(UpdateVehiculoRequest $request, $id): JsonResponse
     {
         try {
             DB::beginTransaction();
 
             $vehiculo = Vehiculo::findOrFail($id);
-            $datosAnteriores = $vehiculo->toArray();
-
+            $datosOriginales = $vehiculo->toArray();
             $vehiculo->update($request->validated());
+            $vehiculo->load('estatus');
 
             // Log de la acción
             LogAccion::create([
                 'usuario_id' => Auth::id(),
-                'accion' => 'actualizar_vehiculo',
+                'accion' => 'editar_vehiculo',
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
-                'detalles' => json_encode([
-                    'datos_anteriores' => $datosAnteriores,
-                    'datos_nuevos' => $vehiculo->fresh()->toArray(),
-                ]),
-                'fecha_hora' => now(),
+                'detalles' => 'Vehículo actualizado: '.$vehiculo->nombre_completo,
             ]);
 
             DB::commit();
@@ -208,9 +210,14 @@ class VehiculoController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Vehículo actualizado exitosamente',
-                'data' => $vehiculo->load('estatus'),
+                'data' => $vehiculo,
             ]);
 
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vehículo no encontrado',
+            ], 404);
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -225,14 +232,20 @@ class VehiculoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy($id): JsonResponse
     {
+        // Verificar permisos
+        if (! Auth::user()->hasPermission('eliminar_vehiculo')) {
+            return response()->json([
+                'message' => 'No tienes permisos para eliminar vehículos',
+            ], 403);
+        }
+
         try {
             DB::beginTransaction();
 
             $vehiculo = Vehiculo::findOrFail($id);
-            $datosVehiculo = $vehiculo->toArray();
-
+            $nombreCompleto = $vehiculo->nombre_completo;
             $vehiculo->delete();
 
             // Log de la acción
@@ -241,10 +254,7 @@ class VehiculoController extends Controller
                 'accion' => 'eliminar_vehiculo',
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
-                'detalles' => json_encode([
-                    'vehiculo_eliminado' => $datosVehiculo,
-                ]),
-                'fecha_hora' => now(),
+                'detalles' => 'Vehículo eliminado: '.$nombreCompleto,
             ]);
 
             DB::commit();
@@ -254,6 +264,11 @@ class VehiculoController extends Controller
                 'message' => 'Vehículo eliminado exitosamente',
             ]);
 
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vehículo no encontrado',
+            ], 404);
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -266,10 +281,17 @@ class VehiculoController extends Controller
     }
 
     /**
-     * Restore a soft deleted resource.
+     * Restore the specified resource from storage.
      */
-    public function restore(string $id): JsonResponse
+    public function restore($id): JsonResponse
     {
+        // Verificar permisos
+        if (! Auth::user()->hasPermission('editar_vehiculo')) {
+            return response()->json([
+                'message' => 'No tienes permisos para restaurar vehículos',
+            ], 403);
+        }
+
         try {
             DB::beginTransaction();
 
@@ -283,6 +305,7 @@ class VehiculoController extends Controller
             }
 
             $vehiculo->restore();
+            $vehiculo->load('estatus');
 
             // Log de la acción
             LogAccion::create([
@@ -290,10 +313,7 @@ class VehiculoController extends Controller
                 'accion' => 'restaurar_vehiculo',
                 'tabla_afectada' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
-                'detalles' => json_encode([
-                    'vehiculo_restaurado' => $vehiculo->toArray(),
-                ]),
-                'fecha_hora' => now(),
+                'detalles' => 'Vehículo restaurado: '.$vehiculo->nombre_completo,
             ]);
 
             DB::commit();
@@ -301,7 +321,7 @@ class VehiculoController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Vehículo restaurado exitosamente',
-                'data' => $vehiculo->load('estatus'),
+                'data' => $vehiculo,
             ]);
 
         } catch (\Exception $e) {
@@ -316,12 +336,12 @@ class VehiculoController extends Controller
     }
 
     /**
-     * Get all status options for dropdowns
+     * Get estatus options for vehicles.
      */
-    public function getEstatus(): JsonResponse
+    public function estatusOptions(): JsonResponse
     {
         try {
-            $estatus = CatalogoEstatus::activos()->get();
+            $estatus = CatalogoEstatus::activos()->get(['id', 'nombre_estatus']);
 
             return response()->json([
                 'success' => true,
