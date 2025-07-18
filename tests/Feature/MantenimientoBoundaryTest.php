@@ -539,13 +539,16 @@ class MantenimientoBoundaryTest extends TestCase
     {
         Sanctum::actingAs($this->adminUser);
 
-        $vehiculo = Vehiculo::factory()->create();
+        $vehiculo = Vehiculo::factory()->create([
+            'kilometraje_actual' => 100000, // Aseguramos un kilometraje base alto
+        ]);
         $tipoServicio = CatalogoTipoServicio::factory()->create();
 
-        // Crear mantenimiento
+        // Crear mantenimiento con kilometraje seguro
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $vehiculo->id,
             'tipo_servicio_id' => $tipoServicio->id,
+            'kilometraje_servicio' => 95000, // Menor al kilometraje actual del vehículo
             'costo' => 1000.00,
             'proveedor' => 'Proveedor Original',
         ]);
@@ -560,7 +563,7 @@ class MantenimientoBoundaryTest extends TestCase
                 'proveedor' => "Proveedor Actualizado $i",
                 'descripcion' => "Descripción Actualizada $i",
                 'fecha_inicio' => $mantenimiento->fecha_inicio,
-                'kilometraje_servicio' => $mantenimiento->kilometraje_servicio,
+                'kilometraje_servicio' => 95000 + ($i * 1000), // Incremento gradual dentro del rango válido
                 'costo' => 1000.00 + ($i * 100),
             ]);
         }
@@ -577,6 +580,8 @@ class MantenimientoBoundaryTest extends TestCase
         $this->assertIsString($mantenimientoFinal->proveedor);
         $this->assertIsNumeric($mantenimientoFinal->costo);
         $this->assertGreaterThanOrEqual(1000.00, $mantenimientoFinal->costo);
+        $this->assertGreaterThanOrEqual(95000, $mantenimientoFinal->kilometraje_servicio);
+        $this->assertLessThanOrEqual(99000, $mantenimientoFinal->kilometraje_servicio);
     }
 
     #[Test]

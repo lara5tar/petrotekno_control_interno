@@ -2,7 +2,7 @@
 
 ## Resumen del Sistema Implementado
 
-El backend incluye un sistema completo de **usuarios, roles, permisos, personal y vehículos** con las siguientes características principales:
+El backend incluye un sistema completo de **usuarios, roles, permisos, personal, vehículos y mantenimientos** con las siguientes características principales:
 
 ### ✅ Funcionalidades Implementadas:
 - **Autenticación con Laravel Sanctum** (tokens API)
@@ -10,6 +10,8 @@ El backend incluye un sistema completo de **usuarios, roles, permisos, personal 
 - **Gestión completa de usuarios** (CRUD + soft delete)
 - **Gestión de personal** con categorías
 - **Gestión completa de vehículos** (CRUD + soft delete + restauración)
+- **Gestión completa de mantenimientos** (CRUD + estadísticas + alertas) ⭐ NUEVO
+- **Catálogo de tipos de servicio** para mantenimientos ⭐ NUEVO
 - **Catálogo de estatus para vehículos**
 - **Auditoría automática** de todas las acciones
 - **Middleware de autorización** por roles/permisos
@@ -40,13 +42,24 @@ personal (empleados de la empresa)
 categorias_personal (categorías de empleados)
 └── muchos personal
 
-vehiculos (vehículos de la empresa) ⭐ NUEVO
+vehiculos (vehículos de la empresa)
 ├── estatus_id → catalogo_estatus
+├── muchos mantenimientos ⭐ NUEVO
 ├── soft deletes habilitado
 ├── validaciones únicas (n_serie, placas)
 └── intervalos de mantenimiento
 
-catalogo_estatus (estados de vehículos) ⭐ NUEVO
+mantenimientos (servicios de vehículos) ⭐ NUEVO
+├── vehiculo_id → vehiculos
+├── tipo_servicio_id → catalogo_tipos_servicio
+├── muchos documentos
+├── soft deletes habilitado
+└── relación con usuarios para auditoría
+
+catalogo_tipos_servicio (tipos de mantenimiento) ⭐ NUEVO
+└── muchos mantenimientos
+
+catalogo_estatus (estados de vehículos)
 └── muchos vehiculos
 
 obras (proyectos de la empresa) ⭐ NUEVO
@@ -339,6 +352,118 @@ GET /api/documentos/vencidos
 // Tipos de documento para formularios
 GET /api/catalogo-tipos-documento?sin_paginar=true
 // Respuesta: [{"id": 1, "nombre_tipo_documento": "Licencia", "requiere_vencimiento": true}, ...]
+```
+
+### 🔧 **Gestión de Mantenimientos** ⭐ NUEVO
+```javascript
+// Listar mantenimientos con filtros avanzados
+GET /api/mantenimientos?vehiculo_id=1&fecha_inicio=2024-01-01&fecha_fin=2024-12-31&page=1
+
+// Respuesta estructurada
+{
+    "data": [
+        {
+            "id": 1,
+            "vehiculo_id": 1,
+            "tipo_servicio_id": 1,
+            "proveedor": "Taller ABC",
+            "descripcion": "Cambio de aceite y filtro",
+            "fecha_inicio": "2024-07-15",
+            "fecha_fin": "2024-07-15",
+            "kilometraje_servicio": 15000,
+            "costo": "1500.00",
+            "vehiculo": {
+                "marca": "Toyota",
+                "modelo": "Hilux",
+                "placas": "ABC-123"
+            },
+            "tipo_servicio": {
+                "nombre_tipo_servicio": "Mantenimiento Preventivo"
+            },
+            "documentos": []
+        }
+    ],
+    "meta": { "current_page": 1, "total": 45 }
+}
+
+// Crear mantenimiento (requiere permiso 'crear_mantenimiento')
+POST /api/mantenimientos
+{
+    "vehiculo_id": 1,
+    "tipo_servicio_id": 1,
+    "proveedor": "Taller ABC",
+    "descripcion": "Cambio de aceite",
+    "fecha_inicio": "2024-07-15",
+    "fecha_fin": "2024-07-15",
+    "kilometraje_servicio": 15000,
+    "costo": 1500.00
+}
+
+// Estadísticas de mantenimientos
+GET /api/mantenimientos/stats?year=2024&month=7
+
+// Respuesta con estadísticas completas
+{
+    "data": {
+        "total_mantenimientos": 45,
+        "costo_total": "125500.00",
+        "costo_promedio": "2788.89",
+        "mantenimientos_por_tipo": [
+            {
+                "tipo_servicio": "Mantenimiento Preventivo",
+                "cantidad": 30,
+                "costo_total": "85000.00"
+            }
+        ],
+        "vehiculos_mas_mantenidos": [
+            {
+                "vehiculo_id": 1,
+                "marca": "Toyota",
+                "modelo": "Hilux",
+                "placas": "ABC-123",
+                "total_mantenimientos": 8,
+                "costo_total": "18500.00"
+            }
+        ]
+    }
+}
+
+// Próximos mantenimientos por kilometraje
+GET /api/mantenimientos/proximos-por-kilometraje?limite_km=1000
+
+// Alertas de mantenimiento preventivo
+{
+    "data": [
+        {
+            "vehiculo_id": 1,
+            "marca": "Toyota",
+            "modelo": "Hilux",
+            "placas": "ABC-123",
+            "kilometraje_actual": 18500,
+            "ultimo_mantenimiento": {
+                "fecha": "2024-07-15",
+                "kilometraje": 15000,
+                "tipo_servicio": "Mantenimiento Preventivo"
+            },
+            "kilometros_desde_ultimo": 3500,
+            "requiere_atencion": true,
+            "intervalos": {
+                "motor": 5000,
+                "transmision": 10000,
+                "hidraulico": 8000
+            }
+        }
+    ]
+}
+
+// Gestión de Catálogo de Tipos de Servicio
+GET /api/catalogo-tipos-servicio
+// Respuesta: [{"id": 1, "nombre_tipo_servicio": "Mantenimiento Preventivo"}, ...]
+
+POST /api/catalogo-tipos-servicio
+{
+    "nombre_tipo_servicio": "Reparación de Emergencia"
+}
 ```
 
 ## Implementación de Seguridad
@@ -953,21 +1078,24 @@ const handleApiError = (error) => {
 ## Testing y Validación
 
 ### ✅ **Backend Completamente Testado**
-- **83 tests pasando** con 350+ assertions
-- **Cobertura completa** de funcionalidades (usuarios, personal, vehículos, obras, documentos)
+- **91+ tests pasando** con 469+ assertions
+- **Cobertura completa** de funcionalidades (usuarios, personal, vehículos, obras, documentos, mantenimientos)
 - **Validación de permisos** en todos los endpoints
 - **Casos edge** cubiertos (eliminación con dependencias, validaciones únicas, etc.)
 - **Módulo de vehículos** 100% testado (12 feature tests + 6 unit tests)
-- **Módulo de documentos** 100% testado (17 feature tests + 14 unit tests + 22 validation tests) ⭐ NUEVO
-- **Sistema de gestión documental** completo con manejo de archivos y vencimientos ⭐ NUEVO
+- **Módulo de documentos** 100% testado (17 feature tests + 14 unit tests + 22 validation tests)
+- **Módulo de mantenimientos** 100% testado (unit, feature, security y boundary tests) ⭐ NUEVO
+- **Sistema de gestión documental** completo con manejo de archivos y vencimientos
+- **Sistema de mantenimientos** con estadísticas, alertas y control de kilometrajes ⭐ NUEVO
 
 ### 🔧 **Endpoints Listos para Producción**
 - Autenticación robusta
 - Validaciones completas
 - Manejo de errores consistente
 - Logging automático funcional
-- **Sistema de documentos** con archivos, vencimientos y alertas ⭐ NUEVO
+- **Sistema de documentos** con archivos, vencimientos y alertas
+- **Sistema de mantenimientos** con control preventivo y correctivo ⭐ NUEVO
 
 ---
 
-**⚡ El backend está 100% funcional y listo para integración frontend inmediata con el nuevo Sistema de Gestión de Documentos.**
+**⚡ El backend está 100% funcional y listo para integración frontend inmediata con los nuevos Sistemas de Gestión de Documentos y Mantenimientos.**
