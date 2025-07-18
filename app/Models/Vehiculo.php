@@ -8,6 +8,53 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property string $marca
+ * @property string $modelo
+ * @property int $anio
+ * @property string $n_serie
+ * @property string $placas
+ * @property int $estatus_id
+ * @property int $kilometraje_actual
+ * @property int|null $intervalo_km_motor Intervalo de cambio de aceite de motor
+ * @property int|null $intervalo_km_transmision Intervalo de cambio de aceite de transmisión
+ * @property int|null $intervalo_km_hidraulico Intervalo de cambio de aceite hidráulico
+ * @property string|null $observaciones
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fecha_eliminacion
+ * @property-read \App\Models\CatalogoEstatus $estatus
+ * @property-read mixed $nombre_completo
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo buscar($termino)
+ * @method static \Database\Factories\VehiculoFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo porAnio($anio_inicio, $anio_fin = null)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo porEstatus($estatus_id)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo porMarca($marca)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo porModelo($modelo)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereAnio($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereEstatusId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereFechaEliminacion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereIntervaloKmHidraulico($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereIntervaloKmMotor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereIntervaloKmTransmision($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereKilometrajeActual($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereMarca($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereModelo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereNSerie($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereObservaciones($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo wherePlacas($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Vehiculo extends Model
 {
     use HasFactory, SoftDeletes;
