@@ -49,6 +49,25 @@ vehiculos (vehículos de la empresa) ⭐ NUEVO
 catalogo_estatus (estados de vehículos) ⭐ NUEVO
 └── muchos vehiculos
 
+obras (proyectos de la empresa) ⭐ NUEVO
+├── fechas inicio/fin
+├── control de avance
+└── gestión de estatus
+
+documentos (sistema gestión documental) ⭐ NUEVO
+├── tipo_documento_id → catalogo_tipos_documento
+├── vehiculo_id → vehiculos (opcional)
+├── personal_id → personal (opcional)
+├── obra_id → obras (opcional)
+├── manejo de archivos
+├── fechas de vencimiento
+├── soft deletes habilitado
+└── estados calculados (vigente/vencido/próximo a vencer)
+
+catalogo_tipos_documento (tipos de documentos) ⭐ NUEVO
+├── requiere_vencimiento (boolean)
+└── muchos documentos
+
 log_acciones (auditoría del sistema)
 ├── user_id → users
 └── registro automático de acciones
@@ -63,6 +82,9 @@ log_acciones (auditoría del sistema)
 - Gestión de permisos (crear, ver, editar, eliminar)
 - Gestión de personal (crear, ver, editar, eliminar)
 - **Gestión de vehículos** (crear, ver, editar, eliminar, restaurar) ⭐ NUEVO
+- **Gestión de obras** (crear, ver, editar, eliminar) ⭐ NUEVO
+- **Gestión de documentos** (crear, ver, editar, eliminar) ⭐ NUEVO
+- **Gestión de tipos de documento** (crear, ver, editar, eliminar) ⭐ NUEVO
 - **Ver logs de auditoría**
 
 ### 👨‍💼 **Supervisor** (ID: 2)
@@ -71,6 +93,9 @@ log_acciones (auditoría del sistema)
 - **No puede** gestionar roles ni permisos
 - **Ver y gestionar** personal (crear, ver, editar, eliminar)
 - **Ver y gestionar** vehículos (crear, ver, editar, eliminar, restaurar) ⭐ NUEVO
+- **Ver y gestionar** obras (crear, ver, editar, eliminar) ⭐ NUEVO
+- **Ver y gestionar** documentos (crear, ver, editar, eliminar) ⭐ NUEVO
+- **Ver y gestionar** tipos de documento (crear, ver, editar, eliminar) ⭐ NUEVO
 - **No puede ver** logs de auditoría
 
 ### 🔧 **Operador** (ID: 3)
@@ -78,6 +103,9 @@ log_acciones (auditoría del sistema)
 - **Solo ver** usuarios
 - **Solo ver** personal
 - **Solo ver** vehículos ⭐ NUEVO
+- **Solo ver** obras ⭐ NUEVO
+- **Solo ver** documentos ⭐ NUEVO
+- **Solo ver** tipos de documento ⭐ NUEVO
 - **No gestión** de roles/permisos/logs
 
 ## Usuarios por Defecto
@@ -221,6 +249,98 @@ GET /api/vehiculos/estatus
 // Respuesta: [{"id": 1, "nombre_estatus": "Activo"}, ...]
 ```
 
+### 🏗️ **Gestión de Obras** ⭐ NUEVO
+```javascript
+// Listar obras con paginación y filtros
+GET /api/obras?search=puente&estatus=en_progreso&page=1
+
+// Respuesta estructurada
+{
+    "data": [
+        {
+            "id": 1,
+            "nombre_obra": "Construcción Puente Central",
+            "estatus": "en_progreso",
+            "avance": 65,
+            "fecha_inicio": "2025-01-15",
+            "fecha_fin": "2025-12-31",
+            "created_at": "2025-01-15T08:00:00.000000Z"
+        }
+    ],
+    "links": { "first": "...", "last": "...", "next": "..." },
+    "meta": { "current_page": 1, "total": 10 }
+}
+
+// Crear obra (requiere permiso 'crear_obra')
+POST /api/obras
+{
+    "nombre_obra": "Nueva Construcción",
+    "estatus": "planificado",
+    "avance": 0,
+    "fecha_inicio": "2025-08-01",
+    "fecha_fin": "2025-12-31"
+}
+```
+
+### 📄 **Gestión de Documentos** ⭐ NUEVO
+```javascript
+// Listar documentos con filtros avanzados
+GET /api/documentos?search=licencia&tipo_documento_id=1&estado_vencimiento=proximos_a_vencer
+
+// Respuesta estructurada
+{
+    "data": [
+        {
+            "id": 1,
+            "tipo_documento_id": 1,
+            "descripcion": "Licencia de Juan Pérez",
+            "ruta_archivo": "documentos/1642519200_licencia.pdf",
+            "fecha_vencimiento": "2025-12-31",
+            "vehiculo_id": 1,
+            "personal_id": null,
+            "obra_id": null,
+            "estado": "vigente",
+            "dias_hasta_vencimiento": 165,
+            "esta_vencido": false,
+            "tipo_documento": {
+                "nombre_tipo_documento": "Licencia de Conducir",
+                "requiere_vencimiento": true
+            },
+            "vehiculo": {
+                "marca": "Toyota",
+                "modelo": "Hilux",
+                "placas": "ABC-123"
+            }
+        }
+    ],
+    "meta": {
+        "total_vigentes": 10,
+        "total_vencidos": 2,
+        "total_proximos_vencer": 3
+    }
+}
+
+// Crear documento con archivo (requiere permiso 'crear_documentos')
+POST /api/documentos (multipart/form-data)
+{
+    "tipo_documento_id": 1,
+    "descripcion": "Nueva licencia",
+    "fecha_vencimiento": "2026-12-31",
+    "vehiculo_id": 1,
+    "archivo": [FILE]
+}
+
+// Documentos próximos a vencer
+GET /api/documentos/proximos-a-vencer?dias=30
+
+// Documentos vencidos
+GET /api/documentos/vencidos
+
+// Tipos de documento para formularios
+GET /api/catalogo-tipos-documento?sin_paginar=true
+// Respuesta: [{"id": 1, "nombre_tipo_documento": "Licencia", "requiere_vencimiento": true}, ...]
+```
+
 ## Implementación de Seguridad
 
 ### 🛡️ **Headers Requeridos**
@@ -304,10 +424,14 @@ GET /api/logs?user_id=2&accion=login&fecha_desde=2025-01-01
 9. **Año mínimo 1990** para vehículos ⭐ NUEVO
 10. **Placas formato válido** (letras-números o números-letras) ⭐ NUEVO
 11. **Kilometraje no negativo** ⭐ NUEVO
+12. **Un documento solo puede asociarse a una entidad** (vehículo O personal O obra) ⭐ NUEVO
+13. **Fecha de vencimiento obligatoria** si el tipo de documento lo requiere ⭐ NUEVO
+14. **Archivos máximo 10MB** con tipos permitidos (PDF, DOC, DOCX, JPG, PNG, TXT, XLS, XLSX) ⭐ NUEVO
+15. **Nombre de tipo de documento único** ⭐ NUEVO
 
 ### 🚫 **Restricciones por Rol**
 - **Supervisor**: NO puede crear usuarios, NO puede ver logs
-- **Operador**: Solo lectura de usuarios, personal y vehículos
+- **Operador**: Solo lectura de usuarios, personal, vehículos, obras y documentos
 - **Admin**: Acceso completo sin restricciones
 
 ## Ejemplos de Integración
@@ -329,6 +453,15 @@ const loadDashboard = async () => {
     
     if (hasPermission('ver_vehiculos')) {
         loadVehiculosWidget();
+    }
+    
+    if (hasPermission('ver_obras')) {
+        loadObrasWidget();
+    }
+    
+    if (hasPermission('ver_documentos')) {
+        loadDocumentosWidget();
+        loadVencimientosWidget(); // Alertas de documentos próximos a vencer
     }
     
     if (hasPermission('ver_logs')) {
@@ -383,6 +516,170 @@ const loadVehiculoFormOptions = async () => {
 };
 ```
 
+### 📄 **Formulario de Documento** ⭐ NUEVO
+```javascript
+const createDocumento = async (documentoData) => {
+    // Validar permisos antes de enviar
+    if (!hasPermission('crear_documentos')) {
+        showError('Sin permisos para crear documentos');
+        return;
+    }
+    
+    // Validaciones frontend
+    if (!documentoData.tipo_documento_id) {
+        showError('Tipo de documento es requerido');
+        return;
+    }
+    
+    // Validar que solo se asocie a una entidad
+    const entidades = [documentoData.vehiculo_id, documentoData.personal_id, documentoData.obra_id, documentoData.mantenimiento_id];
+    const entidadesSeleccionadas = entidades.filter(id => id && id !== '').length;
+    
+    if (entidadesSeleccionadas > 1) {
+        showError('Un documento solo puede asociarse a una entidad (vehículo, personal, obra o mantenimiento)');
+        return;
+    }
+    
+    // Validar archivo si existe
+    if (documentoData.archivo) {
+        if (!isValidFileType(documentoData.archivo)) {
+            showError('Tipo de archivo no permitido. Solo: PDF, DOC, DOCX, JPG, PNG, TXT, XLS, XLSX');
+            return;
+        }
+        
+        if (!isValidFileSize(documentoData.archivo)) {
+            showError('El archivo no puede ser mayor a 10MB');
+            return;
+        }
+    }
+    
+    // Crear FormData para manejar archivo
+    const formData = new FormData();
+    Object.keys(documentoData).forEach(key => {
+        if (documentoData[key] !== null && documentoData[key] !== undefined && documentoData[key] !== '') {
+            formData.append(key, documentoData[key]);
+        }
+    });
+    
+    try {
+        const response = await apiCall('/documentos', 'POST', formData, {
+            'Content-Type': 'multipart/form-data'
+        });
+        showSuccess('Documento creado exitosamente');
+        refreshDocumentosList();
+        closeDocumentoModal();
+    } catch (error) {
+        if (error.status === 422) {
+            showValidationErrors(error.errors);
+        }
+    }
+};
+
+// Cargar opciones para el formulario de documentos
+const loadDocumentoFormOptions = async () => {
+    const [tiposDocumento, vehiculos, personal, obras] = await Promise.all([
+        apiCall('/catalogo-tipos-documento?sin_paginar=true'),
+        apiCall('/vehiculos?sin_paginar=true'),
+        apiCall('/personal?sin_paginar=true'),
+        apiCall('/obras?sin_paginar=true')
+    ]);
+    
+    populateTiposDocumentoSelect(tiposDocumento.data);
+    populateVehiculosSelect(vehiculos.data);
+    populatePersonalSelect(personal.data);
+    populateObrasSelect(obras.data);
+};
+
+// Validar si el tipo requiere fecha de vencimiento
+const onTipoDocumentoChange = async (tipoId) => {
+    if (!tipoId) return;
+    
+    const tipo = await apiCall(`/catalogo-tipos-documento/${tipoId}`);
+    const fechaVencimientoField = document.getElementById('fecha_vencimiento');
+    const fechaLabel = document.querySelector('label[for="fecha_vencimiento"]');
+    
+    if (tipo.data.requiere_vencimiento) {
+        fechaVencimientoField.required = true;
+        fechaLabel.innerHTML = 'Fecha de Vencimiento <span class="text-danger">*</span>';
+        fechaVencimientoField.classList.remove('d-none');
+    } else {
+        fechaVencimientoField.required = false;
+        fechaLabel.innerHTML = 'Fecha de Vencimiento <span class="text-muted">(Opcional)</span>';
+    }
+};
+
+// Utilidades para archivos
+const isValidFileType = (file) => {
+    const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'text/plain',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+    return allowedTypes.includes(file.type);
+};
+
+const isValidFileSize = (file) => {
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    return file.size <= maxSize;
+};
+
+const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+// Widget de alertas de vencimiento
+const loadVencimientosWidget = async () => {
+    try {
+        const [proximosVencer, vencidos] = await Promise.all([
+            apiCall('/documentos/proximos-a-vencer?dias=30'),
+            apiCall('/documentos/vencidos')
+        ]);
+        
+        renderVencimientosAlerts(proximosVencer.data, vencidos.data);
+    } catch (error) {
+        console.error('Error cargando alertas de vencimiento:', error);
+    }
+};
+
+const renderVencimientosAlerts = (proximosVencer, vencidos) => {
+    const alertsContainer = document.getElementById('vencimientos-alerts');
+    
+    let alertsHtml = '';
+    
+    if (vencidos.length > 0) {
+        alertsHtml += `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>${vencidos.length} documento(s) vencido(s)</strong>
+                <a href="/documentos?estado_vencimiento=vencidos" class="alert-link">Ver detalles</a>
+            </div>
+        `;
+    }
+    
+    if (proximosVencer.length > 0) {
+        alertsHtml += `
+            <div class="alert alert-warning">
+                <i class="fas fa-clock"></i>
+                <strong>${proximosVencer.length} documento(s) próximo(s) a vencer</strong>
+                <a href="/documentos?estado_vencimiento=proximos_a_vencer" class="alert-link">Ver detalles</a>
+            </div>
+        `;
+    }
+    
+    alertsContainer.innerHTML = alertsHtml;
+};
+```
+
 ### 🔍 **Búsqueda y Filtros**
 ```javascript
 const searchUsers = async (filters) => {
@@ -410,6 +707,35 @@ const searchVehiculos = async (filters) => {
     const vehiculos = await apiCall(`/vehiculos?${params}`);
     renderVehiculosList(vehiculos.data);
     renderPagination(vehiculos.links, vehiculos.meta);
+};
+
+// Búsqueda específica para documentos ⭐ NUEVO
+const searchDocumentos = async (filters) => {
+    const params = new URLSearchParams();
+    
+    if (filters.search) params.append('search', filters.search);
+    if (filters.tipo_documento_id) params.append('tipo_documento_id', filters.tipo_documento_id);
+    if (filters.vehiculo_id) params.append('vehiculo_id', filters.vehiculo_id);
+    if (filters.personal_id) params.append('personal_id', filters.personal_id);
+    if (filters.obra_id) params.append('obra_id', filters.obra_id);
+    if (filters.estado_vencimiento) params.append('estado_vencimiento', filters.estado_vencimiento);
+    if (filters.dias_vencimiento) params.append('dias_vencimiento', filters.dias_vencimiento);
+    if (filters.page) params.append('page', filters.page);
+    
+    const documentos = await apiCall(`/documentos?${params}`);
+    renderDocumentosList(documentos.data);
+    renderPagination(documentos.links, documentos.meta);
+    renderDocumentosStats(documentos.meta);
+};
+
+// Filtros rápidos para documentos
+const applyDocumentoQuickFilter = async (filter) => {
+    const filters = { estado_vencimiento: filter };
+    await searchDocumentos(filters);
+    
+    // Actualizar UI del filtro activo
+    document.querySelectorAll('.quick-filter-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
 };
 ```
 
@@ -483,6 +809,126 @@ const renderVehiculoCard = (vehiculo) => {
         </div>
     `;
 };
+
+// Mostrar/ocultar elementos según permisos para documentos ⭐ NUEVO
+const renderDocumentoActions = (documento) => {
+    const actions = [];
+    
+    // Ver archivo si existe
+    if (documento.ruta_archivo) {
+        actions.push(`<button onclick="viewFile('${documento.ruta_archivo}')" class="btn btn-info btn-sm">
+            <i class="fas fa-eye"></i> Ver
+        </button>`);
+        
+        actions.push(`<button onclick="downloadFile('${documento.ruta_archivo}')" class="btn btn-secondary btn-sm">
+            <i class="fas fa-download"></i> Descargar
+        </button>`);
+    }
+    
+    if (hasPermission('editar_documentos')) {
+        actions.push(`<button onclick="editDocumento(${documento.id})" class="btn btn-primary btn-sm">
+            <i class="fas fa-edit"></i> Editar
+        </button>`);
+    }
+    
+    if (hasPermission('eliminar_documentos')) {
+        actions.push(`<button onclick="deleteDocumento(${documento.id})" class="btn btn-danger btn-sm">
+            <i class="fas fa-trash"></i> Eliminar
+        </button>`);
+    }
+    
+    return `<div class="btn-group">${actions.join('')}</div>`;
+};
+
+// Renderizar card de documento
+const renderDocumentoCard = (documento) => {
+    const estadoBadge = getEstadoBadge(documento.estado);
+    const entidadInfo = getEntidadInfo(documento);
+    const vencimientoInfo = getVencimientoInfo(documento);
+    
+    return `
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5 class="card-title">
+                            ${documento.tipo_documento?.nombre_tipo_documento || 'Sin tipo'}
+                            ${estadoBadge}
+                        </h5>
+                        <p class="card-text">${documento.descripcion || 'Sin descripción'}</p>
+                        <small class="text-muted">
+                            ${entidadInfo}<br>
+                            ${vencimientoInfo}
+                        </small>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        ${renderDocumentoActions(documento)}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+// Utilidades para renderizado de documentos
+const getEstadoBadge = (estado) => {
+    const badges = {
+        'vigente': '<span class="badge badge-success">Vigente</span>',
+        'proximo_a_vencer': '<span class="badge badge-warning">Próximo a Vencer</span>',
+        'vencido': '<span class="badge badge-danger">Vencido</span>'
+    };
+    return badges[estado] || '<span class="badge badge-secondary">Sin Estado</span>';
+};
+
+const getEntidadInfo = (documento) => {
+    if (documento.vehiculo) {
+        return `<i class="fas fa-car"></i> Vehículo: ${documento.vehiculo.marca} ${documento.vehiculo.modelo} (${documento.vehiculo.placas})`;
+    }
+    if (documento.personal) {
+        return `<i class="fas fa-user"></i> Personal: ${documento.personal.nombre_completo}`;
+    }
+    if (documento.obra) {
+        return `<i class="fas fa-building"></i> Obra: ${documento.obra.nombre_obra}`;
+    }
+    return '<i class="fas fa-file"></i> Documento general';
+};
+
+const getVencimientoInfo = (documento) => {
+    if (!documento.fecha_vencimiento) {
+        return 'Sin fecha de vencimiento';
+    }
+    
+    const fecha = new Date(documento.fecha_vencimiento);
+    const fechaFormatted = fecha.toLocaleDateString('es-ES');
+    
+    if (documento.dias_hasta_vencimiento === null) {
+        return `Vence: ${fechaFormatted}`;
+    }
+    
+    if (documento.dias_hasta_vencimiento > 0) {
+        return `Vence: ${fechaFormatted} (en ${documento.dias_hasta_vencimiento} días)`;
+    } else if (documento.dias_hasta_vencimiento === 0) {
+        return `Vence: ${fechaFormatted} (HOY)`;
+    } else {
+        return `Vencido: ${fechaFormatted} (hace ${Math.abs(documento.dias_hasta_vencimiento)} días)`;
+    }
+};
+
+// Funciones para manejo de archivos
+const viewFile = (rutaArchivo) => {
+    const fileUrl = `/storage/${rutaArchivo}`;
+    window.open(fileUrl, '_blank');
+};
+
+const downloadFile = (rutaArchivo) => {
+    const fileUrl = `/storage/${rutaArchivo}`;
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = rutaArchivo.split('/').pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
 ```
 
 ### 🚨 **Manejo de Errores**
@@ -507,18 +953,21 @@ const handleApiError = (error) => {
 ## Testing y Validación
 
 ### ✅ **Backend Completamente Testado**
-- **49 tests pasando** con 185+ assertions
-- **Cobertura completa** de funcionalidades (usuarios, personal, vehículos)
+- **83 tests pasando** con 350+ assertions
+- **Cobertura completa** de funcionalidades (usuarios, personal, vehículos, obras, documentos)
 - **Validación de permisos** en todos los endpoints
 - **Casos edge** cubiertos (eliminación con dependencias, validaciones únicas, etc.)
 - **Módulo de vehículos** 100% testado (12 feature tests + 6 unit tests)
+- **Módulo de documentos** 100% testado (17 feature tests + 14 unit tests + 22 validation tests) ⭐ NUEVO
+- **Sistema de gestión documental** completo con manejo de archivos y vencimientos ⭐ NUEVO
 
 ### 🔧 **Endpoints Listos para Producción**
 - Autenticación robusta
 - Validaciones completas
 - Manejo de errores consistente
 - Logging automático funcional
+- **Sistema de documentos** con archivos, vencimientos y alertas ⭐ NUEVO
 
 ---
 
-**⚡ El backend está 100% funcional y listo para integración frontend inmediata.**
+**⚡ El backend está 100% funcional y listo para integración frontend inmediata con el nuevo Sistema de Gestión de Documentos.**
