@@ -26,7 +26,7 @@ class StoreCatalogoTipoServicioRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'unique:catalogo_tipos_servicio,nombre_tipo_servicio'
+                'unique:catalogo_tipos_servicio,nombre_tipo_servicio',
             ],
         ];
     }

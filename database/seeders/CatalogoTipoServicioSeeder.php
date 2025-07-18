@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\CatalogoTipoServicio;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class CatalogoTipoServicioSeeder extends Seeder
@@ -33,12 +32,12 @@ class CatalogoTipoServicioSeeder extends Seeder
             'Reparación de Dirección',
             'Servicio de Enfriamiento',
             'Revisión de Escape',
-            'Mantenimiento Correctivo'
+            'Mantenimiento Correctivo',
         ];
 
         foreach ($tiposServicio as $tipo) {
             CatalogoTipoServicio::firstOrCreate([
-                'nombre_tipo_servicio' => $tipo
+                'nombre_tipo_servicio' => $tipo,
             ]);
         }
     }

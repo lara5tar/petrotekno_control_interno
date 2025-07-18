@@ -30,7 +30,7 @@ class UpdateCatalogoTipoServicioRequest extends FormRequest
                 'string',
                 'max:255',
                 Rule::unique('catalogo_tipos_servicio', 'nombre_tipo_servicio')
-                    ->ignore($tipoServicioId)
+                    ->ignore($tipoServicioId),
             ],
         ];
     }

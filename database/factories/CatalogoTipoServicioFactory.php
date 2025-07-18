@@ -31,7 +31,7 @@ class CatalogoTipoServicioFactory extends Factory
             'Servicio de Aire Acondicionado',
             'Inspección General',
             'Reparación de Suspensión',
-            'Cambio de Filtros'
+            'Cambio de Filtros',
         ];
 
         return [

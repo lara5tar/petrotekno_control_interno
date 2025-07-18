@@ -22,6 +22,7 @@ return new class extends Migration
             $table->integer('kilometraje_servicio');
             $table->decimal('costo', 10, 2)->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -26,46 +26,46 @@ class UpdateMantenimientoRequest extends FormRequest
                 'sometimes',
                 'required',
                 'integer',
-                'exists:vehiculos,id'
+                'exists:vehiculos,id',
             ],
             'tipo_servicio_id' => [
                 'sometimes',
                 'required',
                 'integer',
-                'exists:catalogo_tipos_servicio,id'
+                'exists:catalogo_tipos_servicio,id',
             ],
             'proveedor' => [
                 'nullable',
                 'string',
-                'max:255'
+                'max:255',
             ],
             'descripcion' => [
                 'sometimes',
                 'required',
-                'string'
+                'string',
             ],
             'fecha_inicio' => [
                 'sometimes',
                 'required',
                 'date',
-                'before_or_equal:today'
+                'before_or_equal:today',
             ],
             'fecha_fin' => [
                 'nullable',
                 'date',
-                'after_or_equal:fecha_inicio'
+                'after_or_equal:fecha_inicio',
             ],
             'kilometraje_servicio' => [
                 'sometimes',
                 'required',
                 'integer',
-                'min:0'
+                'min:0',
             ],
             'costo' => [
                 'nullable',
                 'numeric',
                 'min:0',
-                'max:999999.99'
+                'max:999999.99',
             ],
         ];
     }

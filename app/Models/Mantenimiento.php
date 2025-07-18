@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Builder;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Mantenimiento extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
     /**
      * The table associated with the model.
      */
@@ -89,7 +90,7 @@ class Mantenimiento extends Model
         if ($startDate) {
             $query->whereDate('fecha_inicio', '>=', $startDate);
         }
-        
+
         if ($endDate) {
             $query->whereDate('fecha_inicio', '<=', $endDate);
         }
@@ -118,11 +119,11 @@ class Mantenimiento extends Model
      */
     public function getDuracionDiasAttribute(): ?int
     {
-        if (!$this->fecha_fin) {
+        if (! $this->fecha_fin) {
             return null;
         }
 
-        return $this->fecha_inicio->diffInDays($this->fecha_fin);
+        return (int) $this->fecha_inicio->diffInDays($this->fecha_fin);
     }
 
     /**
@@ -130,6 +131,6 @@ class Mantenimiento extends Model
      */
     public function getIsCompletadoAttribute(): bool
     {
-        return !is_null($this->fecha_fin);
+        return ! is_null($this->fecha_fin);
     }
 }

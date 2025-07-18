@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\Mantenimiento;
-use App\Models\Vehiculo;
 use App\Models\CatalogoTipoServicio;
+use App\Models\Mantenimiento;
 use App\Models\User;
+use App\Models\Vehiculo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -15,18 +15,20 @@ class MantenimientoTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     private User $user;
+
     private Vehiculo $vehiculo;
+
     private CatalogoTipoServicio $tipoServicio;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Crear datos base para las pruebas
         $this->user = User::factory()->create();
         $this->vehiculo = Vehiculo::factory()->create();
         $this->tipoServicio = CatalogoTipoServicio::factory()->create();
-        
+
         $this->actingAs($this->user, 'sanctum');
     }
 
@@ -51,7 +53,7 @@ class MantenimientoTest extends TestCase
         $this->assertInstanceOf(Mantenimiento::class, $mantenimiento);
         $this->assertEquals($this->vehiculo->id, $mantenimiento->vehiculo_id);
         $this->assertEquals($this->tipoServicio->id, $mantenimiento->tipo_servicio_id);
-        
+
         $this->assertDatabaseHas('mantenimientos', [
             'vehiculo_id' => $this->vehiculo->id,
             'descripcion' => 'Cambio de aceite y filtros completo',
@@ -78,7 +80,7 @@ class MantenimientoTest extends TestCase
         $this->assertNull($mantenimiento->proveedor);
         $this->assertNull($mantenimiento->fecha_fin);
         $this->assertNull($mantenimiento->costo);
-        
+
         $this->assertDatabaseHas('mantenimientos', [
             'vehiculo_id' => $this->vehiculo->id,
             'tipo_servicio_id' => $this->tipoServicio->id,
@@ -95,7 +97,7 @@ class MantenimientoTest extends TestCase
         $mantenimientos = Mantenimiento::factory(5)->create();
 
         $this->assertCount(5, Mantenimiento::all());
-        
+
         $primerMantenimiento = Mantenimiento::first();
         $this->assertNotNull($primerMantenimiento->vehiculo_id);
         $this->assertNotNull($primerMantenimiento->tipo_servicio_id);
@@ -134,9 +136,16 @@ class MantenimientoTest extends TestCase
 
         $mantenimiento->delete();
 
-        $this->assertDatabaseMissing('mantenimientos', [
-            'id' => $mantenimientoId
+        // Verificar que el mantenimiento fue soft deleted
+        $this->assertDatabaseHas('mantenimientos', [
+            'id' => $mantenimientoId,
         ]);
+
+        // Verificar que no aparece en consultas normales
+        $this->assertNull(Mantenimiento::find($mantenimientoId));
+
+        // Verificar que sí aparece con withTrashed
+        $this->assertNotNull(Mantenimiento::withTrashed()->find($mantenimientoId));
     }
 
     /**
@@ -231,10 +240,10 @@ class MantenimientoTest extends TestCase
     public function test_required_fields_validation(): void
     {
         $this->expectException(\Illuminate\Database\QueryException::class);
-        
+
         // Intentar crear mantenimiento sin campos requeridos
         Mantenimiento::create([
-            'descripcion' => 'Test sin vehiculo_id'
+            'descripcion' => 'Test sin vehiculo_id',
         ]);
     }
 

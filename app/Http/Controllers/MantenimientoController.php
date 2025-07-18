@@ -20,12 +20,12 @@ class MantenimientoController extends Controller
             $buscar = $request->buscar;
             $query->where(function ($q) use ($buscar) {
                 $q->where('proveedor', 'like', "%{$buscar}%")
-                  ->orWhere('descripcion', 'like', "%{$buscar}%")
-                  ->orWhereHas('vehiculo', function ($vq) use ($buscar) {
-                      $vq->where('marca', 'like', "%{$buscar}%")
-                        ->orWhere('modelo', 'like', "%{$buscar}%")
-                        ->orWhere('placas', 'like', "%{$buscar}%");
-                  });
+                    ->orWhere('descripcion', 'like', "%{$buscar}%")
+                    ->orWhereHas('vehiculo', function ($vq) use ($buscar) {
+                        $vq->where('marca', 'like', "%{$buscar}%")
+                            ->orWhere('modelo', 'like', "%{$buscar}%")
+                            ->orWhere('placas', 'like', "%{$buscar}%");
+                    });
             });
         }
 

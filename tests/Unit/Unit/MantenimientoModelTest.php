@@ -2,13 +2,13 @@
 
 namespace Tests\Unit\Unit;
 
-use App\Models\Mantenimiento;
-use App\Models\Vehiculo;
 use App\Models\CatalogoTipoServicio;
 use App\Models\Documento;
+use App\Models\Mantenimiento;
+use App\Models\Vehiculo;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Carbon\Carbon;
 
 class MantenimientoModelTest extends TestCase
 {
@@ -62,7 +62,7 @@ class MantenimientoModelTest extends TestCase
         $documento = Documento::factory()->create([
             'mantenimiento_id' => $mantenimiento->id,
         ]);
-        
+
         $this->assertTrue($mantenimiento->documentos->contains($documento));
     }
 
@@ -148,7 +148,7 @@ class MantenimientoModelTest extends TestCase
 
         $this->assertInstanceOf(Carbon::class, $mantenimiento->fecha_inicio);
         $this->assertInstanceOf(Carbon::class, $mantenimiento->fecha_fin);
-        
+
         $this->assertEquals('2025-07-15', $mantenimiento->fecha_inicio->format('Y-m-d'));
         $this->assertEquals('2025-07-20', $mantenimiento->fecha_fin->format('Y-m-d'));
     }
@@ -161,29 +161,29 @@ class MantenimientoModelTest extends TestCase
         // Crear exactamente los registros que necesitamos
         $vehiculo = Vehiculo::factory()->create();
         $tipoServicio = CatalogoTipoServicio::factory()->create();
-        
+
         $mantenimiento1 = Mantenimiento::create([
             'vehiculo_id' => $vehiculo->id,
             'tipo_servicio_id' => $tipoServicio->id,
             'descripcion' => 'Test Junio',
             'fecha_inicio' => '2025-06-01',
-            'kilometraje_servicio' => 100000
+            'kilometraje_servicio' => 100000,
         ]);
-        
+
         $mantenimiento2 = Mantenimiento::create([
             'vehiculo_id' => $vehiculo->id,
             'tipo_servicio_id' => $tipoServicio->id,
             'descripcion' => 'Test Julio',
             'fecha_inicio' => '2025-07-01',
-            'kilometraje_servicio' => 101000
+            'kilometraje_servicio' => 101000,
         ]);
-        
+
         $mantenimiento3 = Mantenimiento::create([
             'vehiculo_id' => $vehiculo->id,
             'tipo_servicio_id' => $tipoServicio->id,
             'descripcion' => 'Test Agosto',
             'fecha_inicio' => '2025-08-01',
-            'kilometraje_servicio' => 102000
+            'kilometraje_servicio' => 102000,
         ]);
 
         // Verificar que se crearon correctamente
@@ -203,7 +203,7 @@ class MantenimientoModelTest extends TestCase
         $mantenimientos = Mantenimiento::byDateRange('2025-07-01')->get();
         $this->assertCount(2, $mantenimientos, 'Scope: desde julio en adelante');
 
-        // Test del scope: hasta julio inclusive  
+        // Test del scope: hasta julio inclusive
         $mantenimientos = Mantenimiento::byDateRange(null, '2025-07-01')->get();
         $this->assertCount(2, $mantenimientos, 'Scope: hasta julio inclusive');
 

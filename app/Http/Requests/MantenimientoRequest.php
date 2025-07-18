@@ -106,13 +106,13 @@ class MantenimientoRequest extends FormRequest
     {
         // Remove HTML tags
         $input = strip_tags($input);
-        
+
         // Remove javascript: and other dangerous protocols
         $input = preg_replace('/javascript:|data:|vbscript:/i', '', $input);
-        
+
         // Remove event handlers
         $input = preg_replace('/on\w+\s*=/i', '', $input);
-        
+
         return trim($input);
     }
 }

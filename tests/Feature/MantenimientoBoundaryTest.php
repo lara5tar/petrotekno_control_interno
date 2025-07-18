@@ -378,7 +378,7 @@ class MantenimientoBoundaryTest extends TestCase
             'Proveedor with "quotes" and \'apostrophes\'', // Comillas
             'Proveedor & Symbols % $ # @', // Símbolos especiales
             "Proveedor\ncon\nsaltos\nde\nlínea", // Saltos de línea
-            "Proveedor	con	tabs", // Tabulaciones
+            'Proveedor	con	tabs', // Tabulaciones
         ];
 
         foreach ($textosEspeciales as $proveedor) {

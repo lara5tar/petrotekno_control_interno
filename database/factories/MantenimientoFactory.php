@@ -38,6 +38,7 @@ class MantenimientoFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $fechaInicio = $attributes['fecha_inicio'];
+
             return [
                 'fecha_fin' => $this->faker->dateTimeBetween($fechaInicio, 'now'),
             ];

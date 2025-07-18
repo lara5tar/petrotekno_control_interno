@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class CatalogoTipoServicio extends Model
 {
     use HasFactory;
+
     /**
      * The table associated with the model.
      */
