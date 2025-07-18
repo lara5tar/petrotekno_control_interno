@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\LogAccion;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AuditLoggingTest extends TestCase
@@ -17,7 +18,7 @@ class AuditLoggingTest extends TestCase
         $this->artisan('db:seed');
     }
 
-    /** @test */
+    #[Test]
     public function login_action_is_logged()
     {
         $initialLogCount = LogAccion::count();
@@ -40,7 +41,7 @@ class AuditLoggingTest extends TestCase
         $this->assertArrayHasKey('ip', $log->detalles);
     }
 
-    /** @test */
+    #[Test]
     public function logout_action_is_logged()
     {
         $user = User::where('email', 'admin@petrotekno.com')->first();
@@ -62,7 +63,7 @@ class AuditLoggingTest extends TestCase
         $this->assertEquals($user->id, $log->usuario_id);
     }
 
-    /** @test */
+    #[Test]
     public function user_creation_is_logged()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
@@ -90,7 +91,7 @@ class AuditLoggingTest extends TestCase
         $this->assertArrayHasKey('usuario_creado', $log->detalles);
     }
 
-    /** @test */
+    #[Test]
     public function password_change_is_logged()
     {
         $user = User::where('email', 'admin@petrotekno.com')->first();
@@ -116,7 +117,7 @@ class AuditLoggingTest extends TestCase
         $this->assertEquals($user->id, $log->registro_id);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_view_logs()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
@@ -144,7 +145,7 @@ class AuditLoggingTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function supervisor_cannot_view_logs()
     {
         $supervisor = User::where('email', 'supervisor@petrotekno.com')->first();
@@ -155,7 +156,7 @@ class AuditLoggingTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function logs_include_user_information()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();

@@ -12,6 +12,7 @@ use App\Models\CategoriaPersonal;
 use Carbon\Carbon;
 use Laravel\Sanctum\Sanctum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Test de límites y casos extremos simplificado para el módulo de Obras
@@ -29,7 +30,7 @@ class ObraBoundarySimpleTest extends TestCase
         $this->setupBasicUser();
     }
 
-    /** @test */
+    #[Test]
     public function test_fechas_extremas_en_modelo_obra()
     {
         // Test modelo directamente sin API
@@ -73,7 +74,7 @@ class ObraBoundarySimpleTest extends TestCase
         $this->assertEquals('2024-02-29', $obra3->fecha_inicio->format('Y-m-d'));
     }
 
-    /** @test */
+    #[Test]
     public function test_avance_valores_limite_modelo()
     {
         $obra = Obra::factory()->create(['avance' => 50]);
@@ -107,7 +108,7 @@ class ObraBoundarySimpleTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function test_nombres_longitud_maxima_modelo()
     {
         // Nombre en el límite (255 caracteres) - debería funcionar
@@ -141,7 +142,7 @@ class ObraBoundarySimpleTest extends TestCase
         $this->assertEquals('', $obraVacia->nombre_obra, 'Empty name should remain empty after mutator processing');
     }
 
-    /** @test */
+    #[Test]
     public function test_caracteres_especiales_modelo()
     {
         $nombresEspeciales = [
@@ -174,7 +175,7 @@ class ObraBoundarySimpleTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function test_consultas_grandes_volumenes()
     {
         // Crear muchas obras para probar rendimiento
@@ -222,7 +223,7 @@ class ObraBoundarySimpleTest extends TestCase
         $this->assertEquals(0, $obrasEnProgreso); // Todas son planificadas
     }
 
-    /** @test */
+    #[Test]
     public function test_busquedas_casos_extremos()
     {
         // Crear obras con nombres específicos
@@ -277,7 +278,7 @@ class ObraBoundarySimpleTest extends TestCase
         $this->assertIsIterable($resultado);
     }
 
-    /** @test */
+    #[Test]
     public function test_transiciones_estados_casos_limite()
     {
         $obra = Obra::create([
@@ -301,7 +302,7 @@ class ObraBoundarySimpleTest extends TestCase
         $obra->cambiarEstatus(Obra::ESTATUS_EN_PROGRESO);
     }
 
-    /** @test */
+    #[Test]
     public function test_accessors_casos_extremos()
     {
         // Obra sin fecha fin

@@ -10,6 +10,7 @@ use App\Models\Permission;
 use App\Models\Obra;
 use Laravel\Sanctum\Sanctum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Test de seguridad para el módulo de Obras
@@ -28,7 +29,7 @@ class ObraSecurityTest extends TestCase
         $this->createTestUsers();
     }
 
-    /** @test */
+    #[Test]
     public function test_previene_inyeccion_sql_en_filtros_obras()
     {
         Sanctum::actingAs($this->adminUser);
@@ -66,7 +67,7 @@ class ObraSecurityTest extends TestCase
         $this->assertEquals(3, Obra::count());
     }
 
-    /** @test */
+    #[Test]
     public function test_previene_xss_en_campos_obras()
     {
         Sanctum::actingAs($this->adminUser);
@@ -112,7 +113,7 @@ class ObraSecurityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function test_mass_assignment_protection_obras()
     {
         Sanctum::actingAs($this->adminUser);
@@ -144,7 +145,7 @@ class ObraSecurityTest extends TestCase
         $this->assertArrayNotHasKey('deleted_at', $obra);
     }
 
-    /** @test */
+    #[Test]
     public function test_datos_sensibles_no_expuestos_en_respuestas()
     {
         Sanctum::actingAs($this->adminUser);
@@ -174,7 +175,7 @@ class ObraSecurityTest extends TestCase
         $this->assertArrayNotHasKey('remember_token', $obraData);
     }
 
-    /** @test */
+    #[Test]
     public function test_proteccion_contra_path_traversal()
     {
         Sanctum::actingAs($this->adminUser);
@@ -200,7 +201,7 @@ class ObraSecurityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function test_headers_seguridad_presentes()
     {
         Sanctum::actingAs($this->adminUser);
@@ -218,7 +219,7 @@ class ObraSecurityTest extends TestCase
             'X-Powered-By header should not be exposed for security');
     }
 
-    /** @test */
+    #[Test]
     public function test_rate_limiting_proteccion()
     {
         Sanctum::actingAs($this->adminUser);
@@ -235,7 +236,7 @@ class ObraSecurityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function test_autenticacion_requerida_endpoints_sensibles()
     {
         // Sin autenticación
@@ -259,7 +260,7 @@ class ObraSecurityTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function test_operador_no_puede_acceder_datos_sensibles()
     {
         Sanctum::actingAs($this->operadorUser);

@@ -12,6 +12,7 @@ use App\Models\Personal;
 use App\Models\Obra;
 use App\Models\LogAccion;
 use Laravel\Sanctum\Sanctum;
+use PHPUnit\Framework\Attributes\Test;
 
 class ObraControllerTest extends TestCase
 {
@@ -96,7 +97,7 @@ class ObraControllerTest extends TestCase
         ]);
     }
 
-        /** @test */
+    #[Test]
     public function admin_puede_listar_obras()
     {
         Sanctum::actingAs($this->adminUser);
@@ -123,7 +124,7 @@ class ObraControllerTest extends TestCase
                 ]);
     }
 
-    /** @test */
+    #[Test]
     public function supervisor_puede_listar_obras()
     {
         Sanctum::actingAs($this->supervisorUser);
@@ -136,7 +137,7 @@ class ObraControllerTest extends TestCase
         $this->assertCount(3, $response->json('data'));
     }
 
-    /** @test */
+    #[Test]
     public function operador_puede_ver_obras_pero_solo_lectura()
     {
         Sanctum::actingAs($this->operadorUser);
@@ -149,7 +150,7 @@ class ObraControllerTest extends TestCase
         $this->assertCount(2, $response->json('data'));
     }
 
-    /** @test */
+    #[Test]
     public function usuario_no_autenticado_no_puede_acceder()
     {
         $response = $this->getJson('/api/obras');
@@ -157,7 +158,7 @@ class ObraControllerTest extends TestCase
         $response->assertStatus(401);
     }
 
-    /** @test */
+    #[Test]
     public function admin_puede_crear_obra()
     {
         Sanctum::actingAs($this->adminUser);
@@ -200,7 +201,7 @@ class ObraControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function supervisor_puede_crear_obra()
     {
         Sanctum::actingAs($this->supervisorUser);
@@ -222,7 +223,7 @@ class ObraControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function operador_no_puede_crear_obra()
     {
         Sanctum::actingAs($this->operadorUser);
@@ -241,7 +242,7 @@ class ObraControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function validaciones_de_creacion_funcionan()
     {
         Sanctum::actingAs($this->adminUser);
@@ -295,7 +296,7 @@ class ObraControllerTest extends TestCase
                 ->assertJsonValidationErrors(['fecha_fin']);
     }
 
-    /** @test */
+    #[Test]
     public function restricciones_unicas_funcionan()
     {
         Sanctum::actingAs($this->adminUser);
@@ -314,7 +315,7 @@ class ObraControllerTest extends TestCase
                 ->assertJsonValidationErrors(['nombre_obra']);
     }
 
-    /** @test */
+    #[Test]
     public function admin_puede_ver_obra_especifica()
     {
         Sanctum::actingAs($this->adminUser);
@@ -355,7 +356,7 @@ class ObraControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function error_404_para_obra_inexistente()
     {
         Sanctum::actingAs($this->adminUser);
@@ -365,7 +366,7 @@ class ObraControllerTest extends TestCase
         $response->assertStatus(404);
     }
 
-    /** @test */
+    #[Test]
     public function admin_puede_actualizar_obra()
     {
         Sanctum::actingAs($this->adminUser);
@@ -404,7 +405,7 @@ class ObraControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function validaciones_de_transicion_de_estados()
     {
         Sanctum::actingAs($this->adminUser);
@@ -424,7 +425,7 @@ class ObraControllerTest extends TestCase
                 ->assertJsonValidationErrors(['estatus']);
     }
 
-    /** @test */
+    #[Test]
     public function admin_puede_eliminar_obra()
     {
         Sanctum::actingAs($this->adminUser);
@@ -446,7 +447,7 @@ class ObraControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function operador_no_puede_eliminar_obra()
     {
         Sanctum::actingAs($this->operadorUser);
@@ -464,7 +465,7 @@ class ObraControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_puede_restaurar_obra()
     {
         Sanctum::actingAs($this->adminUser);
@@ -488,7 +489,7 @@ class ObraControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function error_restaurar_obra_no_eliminada()
     {
         Sanctum::actingAs($this->adminUser);
@@ -500,7 +501,7 @@ class ObraControllerTest extends TestCase
         $response->assertStatus(400);
     }
 
-    /** @test */
+    #[Test]
     public function filtros_funcionan_correctamente()
     {
         Sanctum::actingAs($this->adminUser);
@@ -526,7 +527,7 @@ class ObraControllerTest extends TestCase
         $this->assertCount(3, $response->json('data')); // Todas excepto canceladas
     }
 
-    /** @test */
+    #[Test]
     public function sanitizacion_de_datos_funciona()
     {
         Sanctum::actingAs($this->adminUser);
@@ -544,7 +545,7 @@ class ObraControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function endpoint_estatus_funciona()
     {
         Sanctum::actingAs($this->adminUser);
@@ -566,7 +567,7 @@ class ObraControllerTest extends TestCase
         $this->assertCount(5, $response->json('data')); // 5 estados válidos
     }
 
-    /** @test */
+    #[Test]
     public function paginacion_funciona_correctamente()
     {
         Sanctum::actingAs($this->adminUser);

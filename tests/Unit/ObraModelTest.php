@@ -6,12 +6,13 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Obra;
 use Carbon\Carbon;
+use PHPUnit\Framework\Attributes\Test;
 
 class ObraModelTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function obra_puede_ser_creada()
     {
         $obra = Obra::factory()->create([
@@ -28,7 +29,7 @@ class ObraModelTest extends TestCase
         $this->assertEquals(0, $obra->avance);
     }
 
-    /** @test */
+    #[Test]
     public function obra_calcula_dias_transcurridos_correctamente()
     {
         // Obra iniciada hace 30 días
@@ -40,7 +41,7 @@ class ObraModelTest extends TestCase
         $this->assertEquals(30, $obra->dias_transcurridos);
     }
 
-    /** @test */
+    #[Test]
     public function obra_calcula_dias_restantes_correctamente()
     {
         // Obra que termina en 60 días
@@ -53,7 +54,7 @@ class ObraModelTest extends TestCase
         $this->assertEquals(60, $obra->dias_restantes);
     }
 
-    /** @test */
+    #[Test]
     public function obra_sin_fecha_fin_devuelve_null_en_dias_restantes()
     {
         $obra = Obra::factory()->create([
@@ -63,7 +64,7 @@ class ObraModelTest extends TestCase
         $this->assertNull($obra->dias_restantes);
     }
 
-    /** @test */
+    #[Test]
     public function obra_calcula_duracion_total_correctamente()
     {
         $fechaInicio = Carbon::now();
@@ -77,7 +78,7 @@ class ObraModelTest extends TestCase
         $this->assertEquals(101, $obra->duracion_total); // +1 día incluye el día final
     }
 
-    /** @test */
+    #[Test]
     public function obra_detecta_si_esta_atrasada()
     {
         // Obra con fecha fin en el pasado y no completada
@@ -90,7 +91,7 @@ class ObraModelTest extends TestCase
         $this->assertTrue($obra->esta_atrasada);
     }
 
-    /** @test */
+    #[Test]
     public function obra_completada_no_esta_atrasada()
     {
         // Obra completada aunque fecha fin sea pasada
@@ -103,7 +104,7 @@ class ObraModelTest extends TestCase
         $this->assertFalse($obra->esta_atrasada);
     }
 
-    /** @test */
+    #[Test]
     public function obra_sin_fecha_fin_no_esta_atrasada()
     {
         $obra = Obra::factory()->create([
@@ -114,7 +115,7 @@ class ObraModelTest extends TestCase
         $this->assertFalse($obra->esta_atrasada);
     }
 
-    /** @test */
+    #[Test]
     public function obra_calcula_porcentaje_tiempo_transcurrido()
     {
         // Obra de 100 días, iniciada hace 25 días
@@ -130,7 +131,7 @@ class ObraModelTest extends TestCase
         $this->assertEquals(24.8, $obra->porcentaje_tiempo_transcurrido);
     }
 
-    /** @test */
+    #[Test]
     public function obra_devuelve_descripcion_de_estatus()
     {
         $obra = Obra::factory()->create(['estatus' => Obra::ESTATUS_EN_PROGRESO]);
@@ -138,7 +139,7 @@ class ObraModelTest extends TestCase
         $this->assertEquals('Obra activa en desarrollo', $obra->estatus_descripcion);
     }
 
-    /** @test */
+    #[Test]
     public function mutator_nombre_obra_aplica_formato_titulo()
     {
         $obra = Obra::factory()->create(['nombre_obra' => 'construcción de carretera principal']);
@@ -146,7 +147,7 @@ class ObraModelTest extends TestCase
         $this->assertEquals('Construcción De Carretera Principal', $obra->nombre_obra);
     }
 
-    /** @test */
+    #[Test]
     public function mutator_avance_valida_rango()
     {
         // Test valor negativo se convierte a 0
@@ -163,7 +164,7 @@ class ObraModelTest extends TestCase
         $this->assertEquals(50, $obra->avance);
     }
 
-    /** @test */
+    #[Test]
     public function mutator_estatus_valida_valores_permitidos()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -172,7 +173,7 @@ class ObraModelTest extends TestCase
         $obra->estatus = 'estado_invalido';
     }
 
-    /** @test */
+    #[Test]
     public function scope_por_estatus_funciona()
     {
         Obra::factory()->count(3)->create(['estatus' => Obra::ESTATUS_EN_PROGRESO]);
@@ -185,7 +186,7 @@ class ObraModelTest extends TestCase
         $this->assertCount(2, $obrasCompletadas);
     }
 
-    /** @test */
+    #[Test]
     public function scope_activas_excluye_canceladas()
     {
         Obra::factory()->count(2)->create(['estatus' => Obra::ESTATUS_EN_PROGRESO]);
@@ -197,7 +198,7 @@ class ObraModelTest extends TestCase
         $this->assertCount(3, $obrasActivas); // 2 en progreso + 1 completada
     }
 
-    /** @test */
+    #[Test]
     public function scope_buscar_funciona()
     {
         Obra::factory()->create(['nombre_obra' => 'Construcción de Carretera']);
@@ -210,7 +211,7 @@ class ObraModelTest extends TestCase
         $this->assertStringContainsString('Carretera', $resultados->first()->nombre_obra);
     }
 
-    /** @test */
+    #[Test]
     public function scope_entre_fechas_funciona()
     {
         // Limpiar datos existentes para este test
@@ -249,7 +250,7 @@ class ObraModelTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function metodo_cambiar_estatus_valida_transiciones()
     {
         // Crear obra planificada
@@ -266,7 +267,7 @@ class ObraModelTest extends TestCase
         $this->assertEquals(100, $obra->avance); // Debe ser 100% al completar
     }
 
-    /** @test */
+    #[Test]
     public function metodo_cambiar_estatus_rechaza_transiciones_invalidas()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -278,7 +279,7 @@ class ObraModelTest extends TestCase
         $obra->cambiarEstatus(Obra::ESTATUS_EN_PROGRESO);
     }
 
-    /** @test */
+    #[Test]
     public function soft_deletes_funciona()
     {
         $obra = Obra::factory()->create();
@@ -300,7 +301,7 @@ class ObraModelTest extends TestCase
         $this->assertNotNull(Obra::find($obraId));
     }
 
-    /** @test */
+    #[Test]
     public function obra_tiene_timestamps_actualizados()
     {
         $obra = Obra::factory()->create();
@@ -317,7 +318,7 @@ class ObraModelTest extends TestCase
         $this->assertNotEquals($timestampOriginal, $obra->fresh()->updated_at);
     }
 
-    /** @test */
+    #[Test]
     public function constantes_de_estados_estan_definidas()
     {
         $this->assertEquals('planificada', Obra::ESTATUS_PLANIFICADA);

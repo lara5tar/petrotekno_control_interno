@@ -6,6 +6,7 @@ use App\Models\CategoriaPersonal;
 use App\Models\Personal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PersonalManagementTest extends TestCase
@@ -18,7 +19,7 @@ class PersonalManagementTest extends TestCase
         $this->artisan('db:seed');
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_create_personal()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
@@ -46,7 +47,7 @@ class PersonalManagementTest extends TestCase
         $this->assertDatabaseHas('personal', ['nombre_completo' => 'Juan Pérez García']);
     }
 
-    /** @test */
+    #[Test]
     public function supervisor_can_view_personal()
     {
         $supervisor = User::where('email', 'supervisor@petrotekno.com')->first();
@@ -70,7 +71,7 @@ class PersonalManagementTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function personal_with_user_cannot_be_deleted()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
@@ -86,7 +87,7 @@ class PersonalManagementTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function personal_validation_works()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
@@ -102,7 +103,7 @@ class PersonalManagementTest extends TestCase
             ->assertJsonValidationErrors(['nombre_completo', 'estatus', 'categoria_id']);
     }
 
-    /** @test */
+    #[Test]
     public function personal_search_works()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();
@@ -123,7 +124,7 @@ class PersonalManagementTest extends TestCase
         $this->assertTrue(collect($data)->contains('nombre_completo', 'María González Test'));
     }
 
-    /** @test */
+    #[Test]
     public function personal_can_be_filtered_by_status()
     {
         $admin = User::where('email', 'admin@petrotekno.com')->first();

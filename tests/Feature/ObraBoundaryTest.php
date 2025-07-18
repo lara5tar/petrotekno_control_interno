@@ -11,6 +11,7 @@ use App\Models\Obra;
 use Carbon\Carbon;
 use Laravel\Sanctum\Sanctum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Test de límites y casos extremos para el módulo de Obras
@@ -28,7 +29,7 @@ class ObraBoundaryTest extends TestCase
         $this->createTestUsers();
     }
 
-    /** @test */
+    #[Test]
     public function test_fechas_extremas_obras()
     {
         Sanctum::actingAs($this->adminUser);
@@ -92,7 +93,7 @@ class ObraBoundaryTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function test_avance_valores_limite()
     {
         Sanctum::actingAs($this->adminUser);
@@ -148,7 +149,7 @@ class ObraBoundaryTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function test_nombres_longitud_maxima()
     {
         Sanctum::actingAs($this->adminUser);
@@ -209,7 +210,7 @@ class ObraBoundaryTest extends TestCase
         $this->assertEquals(422, $response->status());
     }
 
-    /** @test */
+    #[Test]
     public function test_caracteres_especiales_y_unicode()
     {
         Sanctum::actingAs($this->adminUser);
@@ -252,7 +253,7 @@ class ObraBoundaryTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function test_paginacion_condiciones_limite()
     {
         Sanctum::actingAs($this->adminUser);
@@ -292,7 +293,7 @@ class ObraBoundaryTest extends TestCase
         $response->assertStatus(200); // Laravel debería manejar esto graciosamente
     }
 
-    /** @test */
+    #[Test]
     public function test_filtros_busqueda_casos_extremos()
     {
         Sanctum::actingAs($this->adminUser);
@@ -349,7 +350,7 @@ class ObraBoundaryTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function test_operaciones_concurrentes_mismo_recurso()
     {
         Sanctum::actingAs($this->adminUser);
@@ -390,7 +391,7 @@ class ObraBoundaryTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function test_memoria_consultas_grandes_volumenes()
     {
         Sanctum::actingAs($this->adminUser);
