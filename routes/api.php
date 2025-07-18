@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CatalogoTipoDocumentoController;
+use App\Http\Controllers\CatalogoTipoServicioController;
 use App\Http\Controllers\DocumentoController;
+use App\Http\Controllers\MantenimientoController;
 use App\Http\Controllers\ObraController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonalController;
@@ -184,6 +186,51 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::delete('/{id}', [CatalogoTipoDocumentoController::class, 'destroy'])
             ->middleware('permission:eliminar_catalogos');
+    });
+
+    // Rutas de catálogo de tipos de servicio
+    Route::prefix('catalogo-tipos-servicio')->group(function () {
+        Route::get('/', [CatalogoTipoServicioController::class, 'index'])
+            ->middleware('permission:ver_catalogos');
+
+        Route::post('/', [CatalogoTipoServicioController::class, 'store'])
+            ->middleware('permission:crear_catalogos');
+
+        Route::get('/{catalogoTipoServicio}', [CatalogoTipoServicioController::class, 'show'])
+            ->middleware('permission:ver_catalogos');
+
+        Route::put('/{catalogoTipoServicio}', [CatalogoTipoServicioController::class, 'update'])
+            ->middleware('permission:editar_catalogos');
+
+        Route::delete('/{catalogoTipoServicio}', [CatalogoTipoServicioController::class, 'destroy'])
+            ->middleware('permission:eliminar_catalogos');
+    });
+
+    // Rutas de mantenimientos
+    Route::prefix('mantenimientos')->group(function () {
+        Route::get('/', [MantenimientoController::class, 'index'])
+            ->middleware('permission:ver_mantenimientos');
+
+        Route::post('/', [MantenimientoController::class, 'store'])
+            ->middleware('permission:crear_mantenimientos');
+
+        Route::get('/proximos-por-kilometraje', [MantenimientoController::class, 'proximosPorKilometraje'])
+            ->middleware('permission:ver_mantenimientos');
+
+        Route::get('/estadisticas', [MantenimientoController::class, 'estadisticas'])
+            ->middleware('permission:ver_mantenimientos');
+
+        Route::get('/{mantenimiento}', [MantenimientoController::class, 'show'])
+            ->middleware('permission:ver_mantenimientos');
+
+        Route::put('/{mantenimiento}', [MantenimientoController::class, 'update'])
+            ->middleware('permission:actualizar_mantenimientos');
+
+        Route::delete('/{mantenimiento}', [MantenimientoController::class, 'destroy'])
+            ->middleware('permission:eliminar_mantenimientos');
+
+        Route::post('/{id}/restore', [MantenimientoController::class, 'restore'])
+            ->middleware('permission:restaurar_mantenimientos');
     });
 
     // Rutas de consulta general (sin restricciones especiales)
