@@ -85,7 +85,9 @@ class ObraController extends Controller
             }
 
             // Paginación
-            $perPage = min($request->get('per_page', 15), 100);
+            $perPage = $request->get('per_page', 15);
+            // Validar que per_page sea un número positivo
+            $perPage = is_numeric($perPage) && $perPage > 0 ? min($perPage, 100) : 15;
             $obras = $query->paginate($perPage);
 
             // Agregar atributos calculados a cada obra
@@ -191,11 +193,11 @@ class ObraController extends Controller
     /**
      * Display the specified resource.
      * 
-     * @param int $id
+     * @param int $obra
      * @param Request $request
      * @return JsonResponse
      */
-    public function show(int $id, Request $request): JsonResponse
+    public function show($obra, Request $request): JsonResponse
     {
         try {
             // Los permisos ya se verifican en el middleware
@@ -206,7 +208,12 @@ class ObraController extends Controller
                 ], 403);
             }
 
-            $obra = Obra::findOrFail($id);
+            // Resolver la obra ya sea por model binding o ID
+            if ($obra instanceof \App\Models\Obra) {
+                $obraModel = $obra;
+            } else {
+                $obraModel = \App\Models\Obra::findOrFail($obra);
+            }
 
             // Registrar acción en log
             LogAccion::create([
@@ -214,27 +221,27 @@ class ObraController extends Controller
                 'fecha_hora' => now(),
                 'accion' => 'ver_obra',
                 'tabla_afectada' => 'obras',
-                'registro_id' => $obra->id,
-                'detalles' => "Obra consultada: {$obra->nombre_obra}"
+                'registro_id' => $obraModel->id,
+                'detalles' => "Obra consultada: {$obraModel->nombre_obra}"
             ]);
 
             return response()->json([
                 'message' => 'Obra obtenida exitosamente.',
                 'data' => [
-                    'id' => $obra->id,
-                    'nombre_obra' => $obra->nombre_obra,
-                    'estatus' => $obra->estatus,
-                    'estatus_descripcion' => $obra->estatus_descripcion,
-                    'avance' => $obra->avance,
-                    'fecha_inicio' => $obra->fecha_inicio?->format('Y-m-d'),
-                    'fecha_fin' => $obra->fecha_fin?->format('Y-m-d'),
-                    'dias_transcurridos' => $obra->dias_transcurridos,
-                    'dias_restantes' => $obra->dias_restantes,
-                    'duracion_total' => $obra->duracion_total,
-                    'porcentaje_tiempo_transcurrido' => $obra->porcentaje_tiempo_transcurrido,
-                    'esta_atrasada' => $obra->esta_atrasada,
-                    'created_at' => $obra->created_at,
-                    'updated_at' => $obra->updated_at,
+                    'id' => $obraModel->id,
+                    'nombre_obra' => $obraModel->nombre_obra,
+                    'estatus' => $obraModel->estatus,
+                    'estatus_descripcion' => $obraModel->estatus_descripcion,
+                    'avance' => $obraModel->avance,
+                    'fecha_inicio' => $obraModel->fecha_inicio?->format('Y-m-d'),
+                    'fecha_fin' => $obraModel->fecha_fin?->format('Y-m-d'),
+                    'dias_transcurridos' => $obraModel->dias_transcurridos,
+                    'dias_restantes' => $obraModel->dias_restantes,
+                    'duracion_total' => $obraModel->duracion_total,
+                    'porcentaje_tiempo_transcurrido' => $obraModel->porcentaje_tiempo_transcurrido,
+                    'esta_atrasada' => $obraModel->esta_atrasada,
+                    'created_at' => $obraModel->created_at,
+                    'updated_at' => $obraModel->updated_at,
                 ]
             ], 200);
 
@@ -255,16 +262,22 @@ class ObraController extends Controller
      * Update the specified resource in storage.
      * 
      * @param UpdateObraRequest $request
-     * @param int $id
+     * @param mixed $obra
      * @return JsonResponse
      */
-    public function update(UpdateObraRequest $request, int $id): JsonResponse
+    public function update(UpdateObraRequest $request, $obra): JsonResponse
     {
         try {
-            $obra = Obra::findOrFail($id);
-            $datosAnteriores = $obra->toArray();
+            // Resolver la obra ya sea por model binding o ID
+            if ($obra instanceof \App\Models\Obra) {
+                $obraModel = $obra;
+            } else {
+                $obraModel = \App\Models\Obra::findOrFail($obra);
+            }
             
-            $obra->update($request->validated());
+            $datosAnteriores = $obraModel->toArray();
+            
+            $obraModel->update($request->validated());
 
             // Registrar acción en log
             LogAccion::create([
@@ -272,27 +285,27 @@ class ObraController extends Controller
                 'fecha_hora' => now(),
                 'accion' => 'actualizar_obra',
                 'tabla_afectada' => 'obras',
-                'registro_id' => $obra->id,
-                'detalles' => "Obra actualizada: {$obra->nombre_obra}. Campos modificados: " . implode(', ', array_keys($request->validated()))
+                'registro_id' => $obraModel->id,
+                'detalles' => "Obra actualizada: {$obraModel->nombre_obra}. Campos modificados: " . implode(', ', array_keys($request->validated()))
             ]);
 
             return response()->json([
                 'message' => 'Obra actualizada exitosamente.',
                 'data' => [
-                    'id' => $obra->id,
-                    'nombre_obra' => $obra->nombre_obra,
-                    'estatus' => $obra->estatus,
-                    'estatus_descripcion' => $obra->estatus_descripcion,
-                    'avance' => $obra->avance,
-                    'fecha_inicio' => $obra->fecha_inicio?->format('Y-m-d'),
-                    'fecha_fin' => $obra->fecha_fin?->format('Y-m-d'),
-                    'dias_transcurridos' => $obra->dias_transcurridos,
-                    'dias_restantes' => $obra->dias_restantes,
-                    'duracion_total' => $obra->duracion_total,
-                    'porcentaje_tiempo_transcurrido' => $obra->porcentaje_tiempo_transcurrido,
-                    'esta_atrasada' => $obra->esta_atrasada,
-                    'created_at' => $obra->created_at,
-                    'updated_at' => $obra->updated_at,
+                    'id' => $obraModel->id,
+                    'nombre_obra' => $obraModel->nombre_obra,
+                    'estatus' => $obraModel->estatus,
+                    'estatus_descripcion' => $obraModel->estatus_descripcion,
+                    'avance' => $obraModel->avance,
+                    'fecha_inicio' => $obraModel->fecha_inicio?->format('Y-m-d'),
+                    'fecha_fin' => $obraModel->fecha_fin?->format('Y-m-d'),
+                    'dias_transcurridos' => $obraModel->dias_transcurridos,
+                    'dias_restantes' => $obraModel->dias_restantes,
+                    'duracion_total' => $obraModel->duracion_total,
+                    'porcentaje_tiempo_transcurrido' => $obraModel->porcentaje_tiempo_transcurrido,
+                    'esta_atrasada' => $obraModel->esta_atrasada,
+                    'created_at' => $obraModel->created_at,
+                    'updated_at' => $obraModel->updated_at,
                 ]
             ], 200);
 
@@ -312,11 +325,11 @@ class ObraController extends Controller
     /**
      * Remove the specified resource from storage (Soft Delete).
      * 
-     * @param int $id
+     * @param mixed $obra
      * @param Request $request
      * @return JsonResponse
      */
-    public function destroy(int $id, Request $request): JsonResponse
+    public function destroy($obra, Request $request): JsonResponse
     {
         try {
             // Los permisos ya se verifican en el middleware
@@ -327,10 +340,17 @@ class ObraController extends Controller
                 ], 403);
             }
 
-            $obra = Obra::findOrFail($id);
-            $nombreObra = $obra->nombre_obra;
+            // Resolver la obra ya sea por model binding o ID
+            if ($obra instanceof \App\Models\Obra) {
+                $obraModel = $obra;
+            } else {
+                $obraModel = \App\Models\Obra::findOrFail($obra);
+            }
+
+            $nombreObra = $obraModel->nombre_obra;
+            $obraId = $obraModel->id; // Guardar ID antes del delete
             
-            $obra->delete(); // Soft delete
+            $obraModel->delete(); // Soft delete
 
             // Registrar acción en log
             LogAccion::create([
@@ -338,16 +358,16 @@ class ObraController extends Controller
                 'fecha_hora' => now(),
                 'accion' => 'eliminar_obra',
                 'tabla_afectada' => 'obras',
-                'registro_id' => $obra->id,
+                'registro_id' => $obraId,
                 'detalles' => "Obra eliminada (soft delete): {$nombreObra}"
             ]);
 
             return response()->json([
                 'message' => 'Obra eliminada exitosamente.',
                 'data' => [
-                    'id' => $obra->id,
+                    'id' => $obraId,
                     'nombre_obra' => $nombreObra,
-                    'eliminada_en' => $obra->deleted_at
+                    'eliminada_en' => now()
                 ]
             ], 200);
 

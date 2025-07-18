@@ -12,7 +12,7 @@ class StoreObraRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->can('crear_obra');
+        return $this->user() && $this->user()->hasPermission('crear_obra');
     }
 
     /**

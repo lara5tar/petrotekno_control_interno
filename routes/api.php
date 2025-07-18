@@ -128,16 +128,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/estatus', [ObraController::class, 'estatus']);
 
-        Route::get('/{id}', [ObraController::class, 'show'])
+        Route::get('/{obra}', [ObraController::class, 'show'])
             ->middleware('permission:ver_obras');
 
-        Route::put('/{id}', [ObraController::class, 'update'])
+        Route::put('/{obra}', [ObraController::class, 'update'])
             ->middleware('permission:editar_obra');
 
-        Route::delete('/{id}', [ObraController::class, 'destroy'])
+        Route::delete('/{obra}', [ObraController::class, 'destroy'])
             ->middleware('permission:eliminar_obra');
 
-        Route::post('/{id}/restore', [ObraController::class, 'restore'])
+        Route::post('/{obra}/restore', [ObraController::class, 'restore'])
             ->middleware('permission:editar_obra');
     });
 

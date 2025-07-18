@@ -13,7 +13,7 @@ class UpdateObraRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->can('editar_obra');
+        return $this->user() && $this->user()->hasPermission('editar_obra');
     }
 
     /**
@@ -23,7 +23,16 @@ class UpdateObraRequest extends FormRequest
      */
     public function rules(): array
     {
-        $obraId = $this->route('obra')?->id ?? $this->route('id');
+        // Obtener el ID de la obra ya sea por model binding o parámetro
+        $obraId = null;
+        $obra = $this->route('obra');
+        
+        if ($obra instanceof \App\Models\Obra) {
+            $obraId = $obra->id;
+        } else {
+            // Fallback para usar el ID directamente
+            $obraId = $obra ?? $this->route('id');
+        }
         
         return [
             'nombre_obra' => [
@@ -122,7 +131,14 @@ class UpdateObraRequest extends FormRequest
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
+            // Obtener la obra usando model binding o buscarla por ID
             $obra = $this->route('obra');
+            
+            if (!($obra instanceof \App\Models\Obra)) {
+                // Si no es un objeto Obra, buscarla por ID
+                $obraId = $obra ?? $this->route('id');
+                $obra = \App\Models\Obra::find($obraId);
+            }
             
             // Validación de transiciones de estatus
             if ($this->has('estatus') && $obra) {

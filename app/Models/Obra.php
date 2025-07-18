@@ -187,10 +187,10 @@ class Obra extends Model
             return 0;
         }
 
-        $fechaInicio = Carbon::parse($this->fecha_inicio);
-        $fechaActual = Carbon::now();
+        $fechaInicio = Carbon::parse($this->fecha_inicio)->startOfDay();
+        $fechaActual = Carbon::now()->startOfDay();
         
-        return $fechaInicio->diffInDays($fechaActual);
+        return (int) $fechaInicio->diffInDays($fechaActual);
     }
 
     /**
@@ -202,14 +202,14 @@ class Obra extends Model
             return null;
         }
 
-        $fechaFin = Carbon::parse($this->fecha_fin);
-        $fechaActual = Carbon::now();
+        $fechaFin = Carbon::parse($this->fecha_fin)->endOfDay();
+        $fechaActual = Carbon::now()->startOfDay();
         
         if ($fechaFin->isPast()) {
             return 0;
         }
 
-        return $fechaActual->diffInDays($fechaFin);
+        return (int) $fechaActual->diffInDays($fechaFin);
     }
 
     /**
@@ -221,10 +221,10 @@ class Obra extends Model
             return null;
         }
 
-        $fechaInicio = Carbon::parse($this->fecha_inicio);
-        $fechaFin = Carbon::parse($this->fecha_fin);
+        $fechaInicio = Carbon::parse($this->fecha_inicio)->startOfDay();
+        $fechaFin = Carbon::parse($this->fecha_fin)->endOfDay();
         
-        return $fechaInicio->diffInDays($fechaFin) + 1;
+        return (int) ($fechaInicio->diffInDays($fechaFin) + 1);
     }
 
     /**

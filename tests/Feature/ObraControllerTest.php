@@ -411,6 +411,9 @@ class ObraControllerTest extends TestCase
 
         // Crear obra completada
         $obra = Obra::factory()->completada()->create();
+        
+        // Debug: verificar el estado de la obra
+        $this->assertEquals(Obra::ESTATUS_COMPLETADA, $obra->estatus);
 
         // Intentar cambiar de completada a en progreso (no permitido)
         $response = $this->putJson("/api/obras/{$obra->id}", [
