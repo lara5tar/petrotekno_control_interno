@@ -66,12 +66,11 @@ class Documento extends Model
 
     /**
      * Relación con mantenimiento (opcional)
-     * TODO: Descomentar cuando se implemente el modelo Mantenimiento
      */
-    // public function mantenimiento(): BelongsTo
-    // {
-    //     return $this->belongsTo(Mantenimiento::class);
-    // }
+    public function mantenimiento(): BelongsTo
+    {
+        return $this->belongsTo(Mantenimiento::class);
+    }
 
     /**
      * Scope para documentos vencidos
@@ -125,6 +124,14 @@ class Documento extends Model
     public function scopeDeObra($query, $obraId)
     {
         return $query->where('obra_id', $obraId);
+    }
+
+    /**
+     * Scope para documentos de mantenimiento
+     */
+    public function scopeDeMantenimiento($query, $mantenimientoId)
+    {
+        return $query->where('mantenimiento_id', $mantenimientoId);
     }
 
     /**

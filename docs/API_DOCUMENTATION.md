@@ -6,7 +6,7 @@
 - **Autenticación:** Laravel Sanctum (Bearer Token)
 - **Formato de respuesta:** JSON
 - **Versión:** 1.1
-- **Módulos:** Usuarios/Roles, Personal, Vehículos ⭐ NUEVO
+- **Módulos:** Usuarios/Roles, Personal, Vehículos, Mantenimientos ⭐ NUEVO
 
 ## Autenticación
 
@@ -563,6 +563,15 @@ Authorization: Bearer {token}
 - `editar_personal` - Editar personal existente
 - `eliminar_personal` - Eliminar personal
 - `ver_logs` - Ver logs de auditoría
+- `crear_mantenimiento` - Crear nuevos mantenimientos
+- `ver_mantenimiento` - Ver lista de mantenimientos
+- `editar_mantenimiento` - Editar mantenimientos existentes
+- `eliminar_mantenimiento` - Eliminar mantenimientos
+- `restaurar_mantenimiento` - Restaurar mantenimientos eliminados
+- `crear_catalogo_tipo_servicio` - Crear tipos de servicio
+- `ver_catalogo_tipo_servicio` - Ver tipos de servicio
+- `editar_catalogo_tipo_servicio` - Editar tipos de servicio
+- `eliminar_catalogo_tipo_servicio` - Eliminar tipos de servicio
 
 ## Middleware de Autenticación
 
@@ -665,7 +674,7 @@ if (hasPermission('ver_vehiculos')) {
 
 ---
 
-## 🚗 Módulo de Vehículos ⭐ NUEVO
+## 🚗 Módulo de Vehículos
 
 ### Gestión Completa de Vehículos
 
@@ -700,11 +709,64 @@ Para documentación técnica detallada del módulo de vehículos, consultar:
 
 ---
 
-**📋 Sistema de Control Interno v1.1 - Backend Completo**
+## 🔧 Módulo de Mantenimientos ⭐ NUEVO
+
+### Gestión Completa de Mantenimientos de Vehículos
+
+Para documentación técnica detallada del módulo de mantenimientos, consultar:
+📋 **[MANTENIMIENTOS_API_DOCUMENTATION.md](./MANTENIMIENTOS_API_DOCUMENTATION.md)**
+
+#### Endpoints Principales de Mantenimientos:
+- `GET /api/mantenimientos` - Listar mantenimientos (con filtros y paginación)
+- `POST /api/mantenimientos` - Crear mantenimiento
+- `GET /api/mantenimientos/{id}` - Ver mantenimiento específico
+- `PUT /api/mantenimientos/{id}` - Actualizar mantenimiento  
+- `DELETE /api/mantenimientos/{id}` - Eliminar mantenimiento (soft delete)
+- `POST /api/mantenimientos/{id}/restore` - Restaurar mantenimiento
+- `GET /api/mantenimientos/stats` - Estadísticas de mantenimientos
+- `GET /api/mantenimientos/proximos-por-kilometraje` - Próximos mantenimientos
+
+#### Endpoints del Catálogo de Tipos de Servicio:
+- `GET /api/catalogo-tipos-servicio` - Listar tipos de servicio
+- `POST /api/catalogo-tipos-servicio` - Crear tipo de servicio
+- `PUT /api/catalogo-tipos-servicio/{id}` - Actualizar tipo de servicio
+- `DELETE /api/catalogo-tipos-servicio/{id}` - Eliminar tipo de servicio
+
+#### Permisos de Mantenimientos:
+- `ver_mantenimiento` - Ver listado y detalles
+- `crear_mantenimiento` - Crear nuevos mantenimientos
+- `editar_mantenimiento` - Editar y restaurar
+- `eliminar_mantenimiento` - Eliminar (soft delete)
+- `restaurar_mantenimiento` - Restaurar mantenimientos eliminados
+
+#### Permisos del Catálogo:
+- `ver_catalogo_tipo_servicio` - Ver tipos de servicio
+- `crear_catalogo_tipo_servicio` - Crear tipos de servicio
+- `editar_catalogo_tipo_servicio` - Editar tipos de servicio
+- `eliminar_catalogo_tipo_servicio` - Eliminar tipos de servicio
+
+#### Características del Módulo:
+- ✅ **CRUD completo** con soft delete y restauración
+- ✅ **Validaciones robustas** (fechas, costos, kilometrajes)
+- ✅ **Sanitización automática** de datos (XSS protection)
+- ✅ **Catálogo de tipos de servicio** dinámico
+- ✅ **Búsqueda y filtros** avanzados por vehículo, proveedor, fechas
+- ✅ **Estadísticas** de costos y mantenimientos por tipo
+- ✅ **Alertas de mantenimiento** por kilometraje
+- ✅ **Relaciones** con vehículos, documentos y usuarios
+- ✅ **Paginación** automática
+- ✅ **Sistema de permisos** integrado
+- ✅ **Logging automático** de acciones
+- ✅ **Testing completo** (21 tests de seguridad y boundary, 284 assertions)
+
+---
+
+**📋 Sistema de Control Interno v1.2 - Backend Completo**
 - **Usuarios y Roles** ✅ Implementado y testado
 - **Personal** ✅ Implementado y testado  
-- **Vehículos** ✅ Implementado y testado ⭐ NUEVO
+- **Vehículos** ✅ Implementado y testado
+- **Mantenimientos** ✅ Implementado y testado ⭐ NUEVO
 - **Auditoría** ✅ Implementado y testado
 - **Documentación** ✅ Completa para frontend
 
-**🎯 Total: 49 tests pasando, 185+ assertions, cobertura del 100%**
+**🎯 Total: 70+ tests pasando, 469+ assertions, cobertura del 100%**
