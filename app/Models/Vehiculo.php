@@ -125,12 +125,12 @@ class Vehiculo extends Model
     // }
 
     /**
-     * Preparado para futuras relaciones con mantenimientos
+     * Relación con mantenimientos
      */
-    // public function mantenimientos(): HasMany
-    // {
-    //     return $this->hasMany(Mantenimiento::class);
-    // }
+    public function mantenimientos(): HasMany
+    {
+        return $this->hasMany(Mantenimiento::class);
+    }
 
     /**
      * Preparado para futuras relaciones con documentos
