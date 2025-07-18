@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CatalogoTipoDocumentoController;
+use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\ObraController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonalController;
@@ -140,6 +142,48 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/{id}/restore', [ObraController::class, 'restore'])
             ->middleware('permission:restaurar_obras');
+    });
+
+    // Rutas de documentos
+    Route::prefix('documentos')->group(function () {
+        Route::get('/', [DocumentoController::class, 'index'])
+            ->middleware('permission:ver_documentos');
+
+        Route::post('/', [DocumentoController::class, 'store'])
+            ->middleware('permission:crear_documentos');
+
+        Route::get('/proximos-a-vencer', [DocumentoController::class, 'proximosAVencer'])
+            ->middleware('permission:ver_documentos');
+
+        Route::get('/vencidos', [DocumentoController::class, 'vencidos'])
+            ->middleware('permission:ver_documentos');
+
+        Route::get('/{documento}', [DocumentoController::class, 'show'])
+            ->middleware('permission:ver_documentos');
+
+        Route::put('/{documento}', [DocumentoController::class, 'update'])
+            ->middleware('permission:editar_documentos');
+
+        Route::delete('/{documento}', [DocumentoController::class, 'destroy'])
+            ->middleware('permission:eliminar_documentos');
+    });
+
+    // Rutas de catálogo de tipos de documento
+    Route::prefix('catalogo-tipos-documento')->group(function () {
+        Route::get('/', [CatalogoTipoDocumentoController::class, 'index'])
+            ->middleware('permission:ver_catalogos');
+
+        Route::post('/', [CatalogoTipoDocumentoController::class, 'store'])
+            ->middleware('permission:crear_catalogos');
+
+        Route::get('/{catalogoTipoDocumento}', [CatalogoTipoDocumentoController::class, 'show'])
+            ->middleware('permission:ver_catalogos');
+
+        Route::put('/{catalogoTipoDocumento}', [CatalogoTipoDocumentoController::class, 'update'])
+            ->middleware('permission:editar_catalogos');
+
+        Route::delete('/{catalogoTipoDocumento}', [CatalogoTipoDocumentoController::class, 'destroy'])
+            ->middleware('permission:eliminar_catalogos');
     });
 
     // Rutas de consulta general (sin restricciones especiales)

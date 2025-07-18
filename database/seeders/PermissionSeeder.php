@@ -49,6 +49,18 @@ class PermissionSeeder extends Seeder
             ['nombre_permiso' => 'eliminar_obras', 'descripcion' => 'Eliminar obras'],
             ['nombre_permiso' => 'restaurar_obras', 'descripcion' => 'Restaurar obras eliminadas'],
 
+            // Documentos
+            ['nombre_permiso' => 'ver_documentos', 'descripcion' => 'Ver listado de documentos'],
+            ['nombre_permiso' => 'crear_documentos', 'descripcion' => 'Crear nuevos documentos'],
+            ['nombre_permiso' => 'editar_documentos', 'descripcion' => 'Editar documentos existentes'],
+            ['nombre_permiso' => 'eliminar_documentos', 'descripcion' => 'Eliminar documentos'],
+
+            // Catálogos
+            ['nombre_permiso' => 'ver_catalogos', 'descripcion' => 'Ver catálogos del sistema'],
+            ['nombre_permiso' => 'crear_catalogos', 'descripcion' => 'Crear elementos en catálogos'],
+            ['nombre_permiso' => 'editar_catalogos', 'descripcion' => 'Editar elementos de catálogos'],
+            ['nombre_permiso' => 'eliminar_catalogos', 'descripcion' => 'Eliminar elementos de catálogos'],
+
             // Sistema
             ['nombre_permiso' => 'ver_logs', 'descripcion' => 'Ver logs del sistema'],
             ['nombre_permiso' => 'administrar_sistema', 'descripcion' => 'Administración completa del sistema'],
