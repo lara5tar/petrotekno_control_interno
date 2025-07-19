@@ -75,6 +75,31 @@ class Mantenimiento extends Model
     }
 
     /**
+     * Scope a query to only include mantenimientos for a specific vehiculo.
+     * Alias for backwards compatibility with tests.
+     */
+    public function scopePorVehiculo(Builder $query, int $vehiculoId): Builder
+    {
+        return $this->scopeByVehiculo($query, $vehiculoId);
+    }
+
+    /**
+     * Scope a query to filter by fecha.
+     */
+    public function scopePorFecha(Builder $query, $fecha): Builder
+    {
+        return $query->whereDate('fecha_inicio', $fecha);
+    }
+
+    /**
+     * Scope a query to filter between dates.
+     */
+    public function scopeEntreFechas(Builder $query, $fechaInicio, $fechaFin): Builder
+    {
+        return $query->whereBetween('fecha_inicio', [$fechaInicio, $fechaFin]);
+    }
+
+    /**
      * Scope a query to only include mantenimientos by tipo servicio.
      */
     public function scopeByTipoServicio(Builder $query, int $tipoServicioId): Builder
@@ -124,6 +149,18 @@ class Mantenimiento extends Model
         }
 
         return (int) $this->fecha_inicio->diffInDays($this->fecha_fin);
+    }
+
+    /**
+     * Get formatted cost.
+     */
+    public function getCostoFormateadoAttribute(): ?string
+    {
+        if (is_null($this->costo)) {
+            return null;
+        }
+
+        return '$'.number_format((float) $this->costo, 2);
     }
 
     /**
