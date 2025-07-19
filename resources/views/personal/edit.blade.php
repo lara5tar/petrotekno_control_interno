@@ -11,29 +11,32 @@
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
                 <li class="inline-flex items-center">
                     <a href="{{ route('home') }}" class="text-gray-700 hover:text-petroyellow">
-                        Dashboard
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                        </svg>
+                        Inicio
                     </a>
                 </li>
                 <li>
                     <div class="flex items-center">
-                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                         </svg>
                         <a href="{{ route('personal.index') }}" class="text-gray-700 hover:text-petroyellow ml-1 md:ml-2">Personal</a>
                     </div>
                 </li>
                 <li>
                     <div class="flex items-center">
-                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                         </svg>
                         <a href="{{ route('personal.show', $personal->id) }}" class="text-gray-700 hover:text-petroyellow ml-1 md:ml-2">{{ $personal->nombre_completo }}</a>
                     </div>
                 </li>
                 <li>
                     <div class="flex items-center">
-                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                         </svg>
                         <span class="text-gray-500 ml-1 md:ml-2">Editar</span>
                     </div>
@@ -48,277 +51,393 @@
             <h2 class="text-2xl font-bold text-gray-800">Editar Personal</h2>
             <p class="text-gray-600">{{ $personal->nombre_completo }} - ID: #{{ $personal->id }}</p>
         </div>
-        <div class="flex space-x-3">
-            <a href="{{ route('personal.show', $personal->id) }}" 
-               class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-                </svg>
-                Cancelar
-            </a>
-        </div>
+        <a href="{{ route('personal.show', $personal->id) }}" 
+           class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+            Volver al detalle
+        </a>
     </div>
 
-    <!-- Alertas de sesión -->
-    @if(session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6" role="alert">
-            <span class="block sm:inline">{{ session('success') }}</span>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
-            <span class="block sm:inline">{{ session('error') }}</span>
-        </div>
-    @endif
-
     <!-- Formulario -->
-    <div class="bg-white rounded-lg shadow p-6">
+    <div class="bg-white rounded-lg shadow p-6" x-data="formController()">
         <form action="{{ route('personal.update', $personal->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="space-y-8">
                 <!-- Información Personal -->
-                <div class="space-y-6">
-                    <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
+                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                    <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                        </svg>
                         Información Personal
                     </h3>
-
-                    <!-- Nombre Completo -->
-                    <div>
-                        <label for="nombre_completo" class="block text-sm font-medium text-gray-700 mb-2">
-                            Nombre Completo <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" 
-                               id="nombre_completo" 
-                               name="nombre_completo" 
-                               value="{{ old('nombre_completo', $personal->nombre_completo) }}"
-                               required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow {{ $errors->has('nombre_completo') ? 'border-red-500' : '' }}">
-                        @error('nombre_completo')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    
+                    <div class="grid grid-cols-1 gap-6">
+                        <x-form-input 
+                            name="nombre_completo" 
+                            label="Nombre Completo" 
+                            required="true"
+                            value="{{ old('nombre_completo', $personal->nombre_completo) }}" />
                     </div>
-
-                    <!-- CURP -->
-                    <div>
-                        <label for="curp" class="block text-sm font-medium text-gray-700 mb-2">
-                            CURP <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" 
-                               id="curp" 
-                               name="curp" 
-                               value="{{ old('curp', $personal->curp) }}"
-                               pattern="[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9]{2}"
-                               maxlength="18"
-                               required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow {{ $errors->has('curp') ? 'border-red-500' : '' }}">
-                        @error('curp')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                        <p class="mt-1 text-sm text-gray-500">Formato: ABCD123456HMNPRS99</p>
-                    </div>
-
-                    <!-- RFC -->
-                    <div>
-                        <label for="rfc" class="block text-sm font-medium text-gray-700 mb-2">
-                            RFC
-                        </label>
-                        <input type="text" 
-                               id="rfc" 
-                               name="rfc" 
-                               value="{{ old('rfc', $personal->rfc) }}"
-                               maxlength="13"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow {{ $errors->has('rfc') ? 'border-red-500' : '' }}">
-                        @error('rfc')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- NSS -->
-                    <div>
-                        <label for="nss" class="block text-sm font-medium text-gray-700 mb-2">
-                            NSS (Número de Seguridad Social)
-                        </label>
-                        <input type="text" 
-                               id="nss" 
-                               name="nss" 
-                               value="{{ old('nss', $personal->nss) }}"
-                               maxlength="11"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow {{ $errors->has('nss') ? 'border-red-500' : '' }}">
-                        @error('nss')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Dirección -->
-                    <div>
-                        <label for="direccion" class="block text-sm font-medium text-gray-700 mb-2">
-                            Dirección
-                        </label>
-                        <textarea id="direccion" 
-                                  name="direccion" 
-                                  rows="3"
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow {{ $errors->has('direccion') ? 'border-red-500' : '' }}">{{ old('direccion', $personal->direccion) }}</textarea>
-                        @error('direccion')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="form-group">
+                            <label for="categoria_personal_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                Categoría <span class="text-red-500">*</span>
+                            </label>
+                            <select name="categoria_personal_id" 
+                                    id="categoria_personal_id" 
+                                    required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('categoria_personal_id') border-red-500 @enderror">
+                                <option value="">Seleccione una categoría</option>
+                                @foreach($categorias as $categoria)
+                                    <option value="{{ $categoria->id }}" {{ old('categoria_personal_id', $personal->categoria_id) == $categoria->id ? 'selected' : '' }}>
+                                        {{ $categoria->nombre_categoria }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('categoria_personal_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="estatus" class="block text-sm font-medium text-gray-700 mb-2">
+                                Estatus <span class="text-red-500">*</span>
+                            </label>
+                            <select name="estatus" 
+                                    id="estatus" 
+                                    required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('estatus') border-red-500 @enderror">
+                                <option value="">Seleccione el estatus</option>
+                                <option value="activo" {{ old('estatus', $personal->estatus) == 'activo' ? 'selected' : '' }}>Activo</option>
+                                <option value="inactivo" {{ old('estatus', $personal->estatus) == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+                            </select>
+                            @error('estatus') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                        </div>
                     </div>
                 </div>
 
-                <!-- Información Laboral -->
-                <div class="space-y-6">
-                    <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
-                        Información Laboral
-                    </h3>
+                <!-- Sección de Gestión de Usuario -->
+                @if($personal->usuario)
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                        <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-3 0a5 5 0 11-10 0 5 5 0 0110 0z" clip-rule="evenodd" />
+                            </svg>
+                            Usuario del Sistema
+                        </h3>
 
-                    <!-- Categoría -->
-                    <div>
-                        <label for="categoria_personal_id" class="block text-sm font-medium text-gray-700 mb-2">
-                            Categoría <span class="text-red-500">*</span>
-                        </label>
-                        <select id="categoria_personal_id" 
-                                name="categoria_personal_id" 
-                                required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow {{ $errors->has('categoria_personal_id') ? 'border-red-500' : '' }}">
-                            <option value="">Seleccionar categoría</option>
-                            @foreach($categorias as $categoria)
-                                <option value="{{ $categoria->id }}" {{ old('categoria_personal_id', $personal->categoria_personal_id) == $categoria->id ? 'selected' : '' }}>
-                                    {{ $categoria->nombre_categoria }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('categoria_personal_id')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                            <div class="flex">
+                                <svg class="h-5 w-5 text-green-400 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <div class="text-sm text-green-800">
+                                    <p class="font-medium">Usuario Existente:</p>
+                                    <p>Este personal ya tiene un usuario del sistema asociado: <strong>{{ $personal->usuario->email }}</strong></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <x-form-input 
+                                name="email_usuario" 
+                                label="Email del Usuario" 
+                                type="email" 
+                                value="{{ old('email_usuario', $personal->usuario->email) }}" />
+                            <p class="mt-1 text-xs text-gray-500">
+                                Puedes actualizar el email del usuario. Los cambios se reflejarán en su cuenta del sistema.
+                            </p>
+                        </div>
+                    </div>
+                @else
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                        <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-3 0a5 5 0 11-10 0 5 5 0 0110 0z" clip-rule="evenodd" />
+                            </svg>
+                            Crear Usuario del Sistema
+                        </h3>
+
+                        <!-- Toggle para crear usuario -->
+                        <div class="mb-6">
+                            <div class="flex items-center">
+                                <input type="checkbox" 
+                                       id="crear_usuario" 
+                                       name="crear_usuario" 
+                                       x-model="crearUsuario"
+                                       class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300 rounded" />
+                                <label for="crear_usuario" class="ml-3 text-sm font-medium text-gray-700">
+                                    Crear usuario del sistema para este personal
+                                </label>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">
+                                Al activar esta opción, se creará automáticamente un usuario para que el personal pueda acceder al sistema.
+                            </p>
+                        </div>
+
+                        <!-- Campo de email (solo visible si se activa el toggle) -->
+                        <div x-show="crearUsuario" x-transition class="space-y-4">
+                            <div>
+                                <x-form-input 
+                                    name="email_usuario" 
+                                    label="Email del Usuario" 
+                                    type="email" 
+                                    placeholder="correo@petrotekno.com"
+                                    x-bind:required="crearUsuario" />
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Este será el email para acceder al sistema y donde se enviará la contraseña temporal.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                
+                <!-- Sección de Documentos -->
+                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                    <h4 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clip-rule="evenodd" />
+                        </svg>
+                        Documentos del Personal
+                    </h4>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- 1. Identificación INE -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Identificación (INE)
+                            </label>
+                            <div class="flex items-center space-x-3">
+                                <input type="text" 
+                                       name="no_identificacion" 
+                                       placeholder="Número de INE" 
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
+                                <div class="flex-shrink-0">
+                                    <input type="file" 
+                                           id="identificacion_file" 
+                                           name="identificacion_file" 
+                                           accept=".pdf,.jpg,.jpeg,.png" 
+                                           class="hidden" 
+                                           @change="handleFileInput($event, 'identificacion')" />
+                                    <label for="identificacion_file" 
+                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
+                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                        </svg>
+                                        Adjuntar
+                                    </label>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500" x-text="fileStatus.identificacion || 'PDF, JPG, PNG (máx. 5MB)'"></p>
+                        </div>
+
+                        <!-- 2. CURP -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-medium text-gray-700">CURP</label>
+                            <div class="flex items-center space-x-3">
+                                <input type="text" 
+                                       name="curp_numero" 
+                                       placeholder="CURP de 18 caracteres" 
+                                       maxlength="18"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
+                                <div class="flex-shrink-0">
+                                    <input type="file" 
+                                           id="curp_file" 
+                                           name="curp_file" 
+                                           accept=".pdf,.jpg,.jpeg,.png" 
+                                           class="hidden" 
+                                           @change="handleFileInput($event, 'curp')" />
+                                    <label for="curp_file" 
+                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
+                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                        </svg>
+                                        Adjuntar
+                                    </label>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500" x-text="fileStatus.curp || 'PDF, JPG, PNG (máx. 5MB)'"></p>
+                        </div>
+
+                        <!-- 3. RFC -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-medium text-gray-700">RFC</label>
+                            <div class="flex items-center space-x-3">
+                                <input type="text" 
+                                       name="rfc" 
+                                       value="{{ old('rfc') }}"
+                                       placeholder="Ingrese RFC" 
+                                       maxlength="13"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('rfc') border-red-500 @enderror" />
+                                <div class="flex-shrink-0">
+                                    <input type="file" 
+                                           id="rfc_file" 
+                                           name="rfc_file" 
+                                           accept=".pdf,.jpg,.jpeg,.png" 
+                                           class="hidden" 
+                                           @change="handleFileInput($event, 'rfc')" />
+                                    <label for="rfc_file" 
+                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
+                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                        </svg>
+                                        Adjuntar
+                                    </label>
+                                </div>
+                            </div>
+                            @error('rfc') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <p class="text-xs text-gray-500" x-text="fileStatus.rfc || 'PDF, JPG, PNG (máx. 5MB)'"></p>
+                        </div>
+
+                        <!-- 4. NSS -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-medium text-gray-700">NSS</label>
+                            <div class="flex items-center space-x-3">
+                                <input type="text" 
+                                       name="nss" 
+                                       value="{{ old('nss') }}"
+                                       placeholder="Número de Seguro Social" 
+                                       maxlength="11"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('nss') border-red-500 @enderror" />
+                                <div class="flex-shrink-0">
+                                    <input type="file" 
+                                           id="nss_file" 
+                                           name="nss_file" 
+                                           accept=".pdf,.jpg,.jpeg,.png" 
+                                           class="hidden" 
+                                           @change="handleFileInput($event, 'nss')" />
+                                    <label for="nss_file" 
+                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
+                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                        </svg>
+                                        Adjuntar
+                                    </label>
+                                </div>
+                            </div>
+                            @error('nss') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <p class="text-xs text-gray-500" x-text="fileStatus.nss || 'PDF, JPG, PNG (máx. 5MB)'"></p>
+                        </div>
+
+                        <!-- 5. Licencia de Manejo -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Licencia de Manejo
+                            </label>
+                            <div class="flex items-center space-x-3">
+                                <input type="text" 
+                                       name="no_licencia" 
+                                       placeholder="Número de Licencia" 
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
+                                <div class="flex-shrink-0">
+                                    <input type="file" 
+                                           id="licencia_file" 
+                                           name="licencia_file" 
+                                           accept=".pdf,.jpg,.jpeg,.png" 
+                                           class="hidden" 
+                                           @change="handleFileInput($event, 'licencia')" />
+                                    <label for="licencia_file" 
+                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
+                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                        </svg>
+                                        Adjuntar
+                                    </label>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500" x-text="fileStatus.licencia || 'PDF, JPG, PNG (máx. 5MB)'"></p>
+                        </div>
                     </div>
 
-                    <!-- Puesto -->
-                    <div>
-                        <label for="puesto" class="block text-sm font-medium text-gray-700 mb-2">
-                            Puesto
+                    <!-- Comprobante de Domicilio -->
+                    <div class="mt-6 space-y-3">
+                        <label class="block text-sm font-medium text-gray-700">
+                            Comprobante de Domicilio
                         </label>
-                        <input type="text" 
-                               id="puesto" 
-                               name="puesto" 
-                               value="{{ old('puesto', $personal->puesto) }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow {{ $errors->has('puesto') ? 'border-red-500' : '' }}">
-                        @error('puesto')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <textarea name="direccion" 
+                                rows="2" 
+                                placeholder="Dirección completa" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('direccion') border-red-500 @enderror">{{ old('direccion') }}</textarea>
+                        @error('direccion') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                        <div class="flex items-center">
+                            <input type="file" 
+                                   id="comprobante_file" 
+                                   name="comprobante_file" 
+                                   accept=".pdf,.jpg,.jpeg,.png" 
+                                   class="hidden" 
+                                   @change="handleFileInput($event, 'comprobante')" />
+                            <label for="comprobante_file" 
+                                   class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
+                                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                </svg>
+                                Adjuntar Comprobante
+                            </label>
+                        </div>
+                        <p class="text-xs text-gray-500" x-text="fileStatus.comprobante || 'PDF, JPG, PNG (máx. 5MB)'"></p>
                     </div>
 
-                    <!-- Teléfono -->
-                    <div>
-                        <label for="telefono" class="block text-sm font-medium text-gray-700 mb-2">
-                            Teléfono
+                    <!-- CV Profesional -->
+                    <div class="mt-6 space-y-3">
+                        <label class="block text-sm font-medium text-gray-700">
+                            CV Profesional
                         </label>
-                        <input type="tel" 
-                               id="telefono" 
-                               name="telefono" 
-                               value="{{ old('telefono', $personal->telefono) }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow {{ $errors->has('telefono') ? 'border-red-500' : '' }}">
-                        @error('telefono')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Email -->
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                            Email
-                        </label>
-                        <input type="email" 
-                               id="email" 
-                               name="email" 
-                               value="{{ old('email', $personal->email) }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow {{ $errors->has('email') ? 'border-red-500' : '' }}">
-                        @error('email')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Fecha de Ingreso -->
-                    <div>
-                        <label for="fecha_ingreso" class="block text-sm font-medium text-gray-700 mb-2">
-                            Fecha de Ingreso
-                        </label>
-                        <input type="date" 
-                               id="fecha_ingreso" 
-                               name="fecha_ingreso" 
-                               value="{{ old('fecha_ingreso', $personal->fecha_ingreso ? $personal->fecha_ingreso->format('Y-m-d') : '') }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow {{ $errors->has('fecha_ingreso') ? 'border-red-500' : '' }}">
-                        @error('fecha_ingreso')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Estatus -->
-                    <div>
-                        <label for="estatus" class="block text-sm font-medium text-gray-700 mb-2">
-                            Estatus <span class="text-red-500">*</span>
-                        </label>
-                        <select id="estatus" 
-                                name="estatus" 
-                                required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow {{ $errors->has('estatus') ? 'border-red-500' : '' }}">
-                            <option value="activo" {{ old('estatus', $personal->estatus) == 'activo' ? 'selected' : '' }}>Activo</option>
-                            <option value="inactivo" {{ old('estatus', $personal->estatus) == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
-                        </select>
-                        @error('estatus')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Usuario Asignado -->
-                    <div>
-                        <label for="user_id" class="block text-sm font-medium text-gray-700 mb-2">
-                            Usuario Asignado (Opcional)
-                        </label>
-                        <select id="user_id" 
-                                name="user_id"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow {{ $errors->has('user_id') ? 'border-red-500' : '' }}">
-                            <option value="">Sin usuario asignado</option>
-                            @foreach($usuarios as $usuario)
-                                <option value="{{ $usuario->id }}" {{ old('user_id', $personal->user_id) == $usuario->id ? 'selected' : '' }}>
-                                    {{ $usuario->nombre_usuario }} ({{ $usuario->email }})
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('user_id')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <div class="border-2 border-dashed border-gray-300 rounded-md p-6 text-center hover:border-petroyellow transition-colors">
+                            <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <input type="file" 
+                                   id="cv_file" 
+                                   name="cv_file" 
+                                   accept=".pdf,.doc,.docx" 
+                                   class="hidden" 
+                                   @change="handleFileInput($event, 'cv')" />
+                            <label for="cv_file" 
+                                   class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
+                                Seleccionar CV
+                            </label>
+                            <p class="mt-2 text-xs text-gray-500" x-show="!fileStatus.cv">
+                                PDF, DOC, DOCX (máx. 10MB)
+                            </p>
+                            <p class="mt-2 text-sm text-petroyellow font-medium" x-show="fileStatus.cv" x-text="fileStatus.cv">
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Notas adicionales -->
-            <div class="mt-6">
-                <label for="notas" class="block text-sm font-medium text-gray-700 mb-2">
-                    Notas Adicionales
-                </label>
-                <textarea id="notas" 
-                          name="notas" 
-                          rows="4"
-                          placeholder="Información adicional sobre el personal..."
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow {{ $errors->has('notas') ? 'border-red-500' : '' }}">{{ old('notas', $personal->notas) }}</textarea>
-                @error('notas')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Información de modificación -->
-            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                <h4 class="text-sm font-medium text-gray-900 mb-2">Información de Registro</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                    <div>
-                        <span class="font-medium">Fecha de registro:</span>
-                        {{ $personal->created_at->format('d M Y, H:i') }}
-                    </div>
-                    <div>
-                        <span class="font-medium">Última actualización:</span>
-                        {{ $personal->updated_at->format('d M Y, H:i') }}
+                <!-- Información de Registro -->
+                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                    <h4 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                        </svg>
+                        Información de Registro
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Fecha de Registro
+                            </label>
+                            <div class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900">
+                                {{ $personal->created_at->format('d M Y, H:i') }}
+                            </div>
+                            <p class="text-xs text-gray-500">Fecha en que se creó este registro</p>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Última Actualización
+                            </label>
+                            <div class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900">
+                                {{ $personal->updated_at->format('d M Y, H:i') }}
+                            </div>
+                            <p class="text-xs text-gray-500">Fecha de la última modificación</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -326,11 +445,11 @@
             <!-- Botones de acción -->
             <div class="mt-8 flex justify-end space-x-4">
                 <a href="{{ route('personal.show', $personal->id) }}" 
-                   class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-6 rounded-md transition duration-200">
+                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
                     Cancelar
                 </a>
                 <button type="submit" 
-                        class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-6 rounded-md transition duration-200">
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-petrodark bg-petroyellow hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-petroyellow">
                     Actualizar Personal
                 </button>
             </div>
@@ -339,15 +458,52 @@
 @endsection
 
 @push('scripts')
+<script src="//unpkg.com/alpinejs" defer></script>
 <script>
-    // Formatear CURP en mayúsculas
-    document.getElementById('curp').addEventListener('input', function() {
-        this.value = this.value.toUpperCase();
-    });
-    
-    // Formatear RFC en mayúsculas
-    document.getElementById('rfc').addEventListener('input', function() {
-        this.value = this.value.toUpperCase();
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('formController', () => ({
+            crearUsuario: false,
+            fileStatus: {
+                identificacion: '',
+                curp: '',
+                rfc: '',
+                nss: '',
+                licencia: '',
+                comprobante: '',
+                cv: ''
+            },
+            
+            handleFileInput(event, type) {
+                const file = event.target.files[0];
+                if (!file) {
+                    this.fileStatus[type] = '';
+                    return;
+                }
+
+                // Validar tamaño (10MB para CV, 5MB para otros)
+                const maxSize = type === 'cv' ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+                if (file.size > maxSize) {
+                    alert(`El archivo es demasiado grande. Máximo ${maxSize / 1024 / 1024}MB`);
+                    event.target.value = '';
+                    this.fileStatus[type] = '';
+                    return;
+                }
+
+                // Validar tipo de archivo
+                const allowedTypes = type === 'cv' 
+                    ? ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+                    : ['application/pdf', 'image/jpeg', 'image/png'];
+                
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Formato de archivo no permitido');
+                    event.target.value = '';
+                    this.fileStatus[type] = '';
+                    return;
+                }
+
+                this.fileStatus[type] = `Archivo seleccionado: ${file.name}`;
+            }
+        }));
     });
 </script>
 @endpush
