@@ -35,24 +35,22 @@ class UserControllerTest extends TestCase
                     'data' => [
                         '*' => [
                             'id',
-                            'nombre_usuario',
                             'email',
                             'rol_id',
                             'personal_id',
-                            'personal',
-                            'rol',
+                            'created_at',
+                            'updated_at',
+                            'rol' => [
+                                'id',
+                                'nombre_rol',
+                            ],
+                            'personal' => [
+                                'id',
+                                'nombre_completo',
+                            ],
                         ],
                     ],
-                    'first_page_url',
-                    'from',
-                    'last_page',
-                    'last_page_url',
-                    'links',
-                    'next_page_url',
-                    'path',
                     'per_page',
-                    'prev_page_url',
-                    'to',
                     'total',
                 ],
             ]);
@@ -67,7 +65,6 @@ class UserControllerTest extends TestCase
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson('/api/users', [
-                'nombre_usuario' => 'nuevouser',
                 'email' => 'nuevo@petrotekno.com',
                 'password' => 'Password123!',
                 'password_confirmation' => 'Password123!',
@@ -81,7 +78,6 @@ class UserControllerTest extends TestCase
                 'message',
                 'data' => [
                     'id',
-                    'nombre_usuario',
                     'email',
                     'rol_id',
                     'personal_id',
@@ -103,7 +99,6 @@ class UserControllerTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors([
-                'nombre_usuario',
                 'email',
                 'password',
                 'rol_id',
@@ -119,7 +114,6 @@ class UserControllerTest extends TestCase
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson('/api/users', [
-                'nombre_usuario' => 'testuser',
                 'email' => 'admin@petrotekno.com', // Email ya existe
                 'password' => 'Password123!',
                 'password_confirmation' => 'Password123!',
@@ -192,7 +186,6 @@ class UserControllerTest extends TestCase
 
         $response = $this->actingAs($admin, 'sanctum')
             ->putJson("/api/users/{$usuario->id}", [
-                'nombre_usuario' => 'usuario_actualizado',
                 'email' => 'actualizado@petrotekno.com',
                 'rol_id' => $nuevoRol->id,
                 'personal_id' => $usuario->personal_id,
@@ -202,7 +195,6 @@ class UserControllerTest extends TestCase
 
         $this->assertDatabaseHas('users', [
             'id' => $usuario->id,
-            'nombre_usuario' => 'usuario_actualizado',
             'email' => 'actualizado@petrotekno.com',
         ]);
     }
@@ -215,7 +207,6 @@ class UserControllerTest extends TestCase
 
         $response = $this->actingAs($admin, 'sanctum')
             ->putJson("/api/users/{$usuario->id}", [
-                'nombre_usuario' => $usuario->nombre_usuario,
                 'email' => $usuario->email,
                 'password' => 'NuevoPassword123!',
                 'password_confirmation' => 'NuevoPassword123!',

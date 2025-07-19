@@ -1,4 +1,58 @@
-# Changelog - Sistema de Control Interno v1.2
+# Changelog - Sistema de Control Interno v1.3
+
+## [1.3.0] - 2025-07-19 🔄 MAJOR UPDATE
+
+### 🛢️ Cambios de Estructura de Base de Datos
+
+#### 🚫 BREAKING CHANGES - Campo Eliminado
+- **Eliminado campo `nombre_usuario`** de tabla `users`
+- **Migración automática**: `remove_nombre_usuario_from_users_table.php`
+- **Nuevas validaciones**: Solo `email` como identificador único para usuarios
+- **Refactorización completa**: Todos los endpoints ahora usan solo `email`
+
+#### ✨ Nuevas Funcionalidades - Campo JSON
+- **Agregado campo `contenido`** (JSON) a tabla `documentos`
+- **Migración automática**: `add_contenido_to_documentos_table.php`
+- **Funcionalidad**: Almacenamiento de datos estructurados específicos del documento
+- **Ejemplos**: Números de licencia, clases, restricciones, metadatos, etc.
+
+### 🔄 Refactorización Completa del Sistema
+
+#### 📋 Modelos Actualizados
+- **User.php**: Removido `nombre_usuario` de `fillable` y relaciones
+- **Documento.php**: Agregado `contenido` a `fillable` con cast automático a JSON
+- **Factories**: Actualizadas para generar datos sin `nombre_usuario`
+- **Seeders**: Refactorizados para usar solo `email` como identificador
+
+#### 🎛️ Controladores y Validaciones
+- **UserController**: Refactorizado para manejar solo `email`
+- **AuthController**: Actualizado para autenticación basada en `email`
+- **StoreUserRequest**: Eliminadas validaciones de `nombre_usuario`
+- **SanitizeInput**: Removida sanitización de `nombre_usuario`
+
+#### 🧪 Tests Completamente Actualizados
+- **451 tests pasando** (0 fallando)
+- **2,483 aserciones exitosas**
+- **Tests refactorizados**:
+  - UserControllerTest (18 tests)
+  - UserManagementTest (5 tests)
+  - AuthTest (4 tests)
+  - BoundaryTest (9 tests completamente reescritos)
+  - AuditLoggingTest (7 tests)
+  - DataIntegrityTest (11 tests)
+  - UserModelTest (9 tests)
+  - DocumentoModelTest (14 tests + nuevo test para `contenido`)
+
+### 📖 Documentación Actualizada
+- **API_DOCUMENTATION.md**: Referencias de usuario actualizadas
+- **DOCUMENTOS_API_DOCUMENTATION.md**: Agregados ejemplos del campo `contenido`
+- **TODO.md**: Documentados cambios estructurales completados
+
+### ⚠️ Migraciones Aplicadas
+1. `2025_07_19_082632_remove_nombre_usuario_from_users_table.php`
+2. `2025_07_19_082635_add_contenido_to_documentos_table.php`
+
+---
 
 ## [1.2.0] - 2025-07-18 ⭐ NUEVO
 

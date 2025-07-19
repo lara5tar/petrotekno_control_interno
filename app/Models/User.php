@@ -17,7 +17,6 @@ use Laravel\Sanctum\HasApiTokens;
  * @method \Illuminate\Support\Collection getPermissions()
  *
  * @property int $id
- * @property string $nombre_usuario
  * @property string $email
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property string $password
@@ -68,7 +67,6 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'nombre_usuario',
         'personal_id',
         'email',
         'password',

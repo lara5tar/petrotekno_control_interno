@@ -39,7 +39,6 @@ class DataIntegrityTest extends TestCase
 
             // Si no lanza excepción, verificar que el sistema maneja esto apropiadamente
             $this->assertTrue(true, 'Sistema permite crear usuario con rol_id inexistente - revisar constraints');
-
         } catch (QueryException $e) {
             // Se esperaba que fallara por foreign key constraint
             $this->assertStringContainsString('foreign', strtolower($e->getMessage()));
@@ -304,13 +303,13 @@ class DataIntegrityTest extends TestCase
         ]);
 
         // Realizar múltiples operaciones
-        $user->update(['nombre_usuario' => 'updated_consistency_test']);
+        $user->update(['email' => 'updated_consistency_test@test.com']);
         $user->delete();
         $user->restore();
 
         // Verificar consistencia
         $user->refresh();
-        $this->assertEquals('updated_consistency_test', $user->nombre_usuario);
+        $this->assertEquals('updated_consistency_test@test.com', $user->email);
         $this->assertNull($user->deleted_at);
         $this->assertEquals($role->id, $user->rol_id);
         $this->assertEquals($personal->id, $user->personal_id);

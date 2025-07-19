@@ -23,6 +23,7 @@ class Documento extends Model
         'personal_id',
         'obra_id',
         'mantenimiento_id',
+        'contenido',
     ];
 
     /**
@@ -30,6 +31,7 @@ class Documento extends Model
      */
     protected $casts = [
         'fecha_vencimiento' => 'date',
+        'contenido' => 'array',
     ];
 
     /**

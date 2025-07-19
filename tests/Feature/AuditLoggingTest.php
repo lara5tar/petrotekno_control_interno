@@ -195,6 +195,6 @@ class AuditLoggingTest extends TestCase
         $latestLog = $logs[0];
 
         $this->assertArrayHasKey('usuario', $latestLog);
-        $this->assertEquals($admin->nombre_usuario, $latestLog['usuario']['nombre_usuario']);
+        $this->assertEquals($admin->email, $latestLog['usuario']['email']);
     }
 }

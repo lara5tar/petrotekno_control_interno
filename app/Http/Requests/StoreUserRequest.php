@@ -22,12 +22,6 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre_usuario' => [
-                'required',
-                'string',
-                'max:255',
-                'unique:users,nombre_usuario',
-            ],
             'email' => [
                 'required',
                 'email',
@@ -60,11 +54,9 @@ class StoreUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nombre_usuario.max' => 'El nombre de usuario no puede exceder 255 caracteres.',
             'email.max' => 'El email no puede exceder 255 caracteres.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.max' => 'La contraseña no puede exceder 255 caracteres.',
-            'nombre_usuario.unique' => 'Este nombre de usuario ya está en uso.',
             'email.unique' => 'Este email ya está registrado.',
             'rol_id.exists' => 'El rol seleccionado no existe.',
             'personal_id.exists' => 'El personal seleccionado no existe.',
