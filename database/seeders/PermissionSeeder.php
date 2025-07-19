@@ -55,6 +55,20 @@ class PermissionSeeder extends Seeder
             ['nombre_permiso' => 'editar_documentos', 'descripcion' => 'Editar documentos existentes'],
             ['nombre_permiso' => 'eliminar_documentos', 'descripcion' => 'Eliminar documentos'],
 
+            // Mantenimientos
+            ['nombre_permiso' => 'ver_mantenimientos', 'descripcion' => 'Ver listado de mantenimientos'],
+            ['nombre_permiso' => 'crear_mantenimientos', 'descripcion' => 'Crear nuevos mantenimientos'],
+            ['nombre_permiso' => 'actualizar_mantenimientos', 'descripcion' => 'Actualizar mantenimientos existentes'],
+            ['nombre_permiso' => 'eliminar_mantenimientos', 'descripcion' => 'Eliminar mantenimientos'],
+            ['nombre_permiso' => 'restaurar_mantenimientos', 'descripcion' => 'Restaurar mantenimientos eliminados'],
+
+            // Asignaciones
+            ['nombre_permiso' => 'ver_asignaciones', 'descripcion' => 'Ver listado de asignaciones'],
+            ['nombre_permiso' => 'crear_asignaciones', 'descripcion' => 'Crear nuevas asignaciones'],
+            ['nombre_permiso' => 'editar_asignaciones', 'descripcion' => 'Editar asignaciones existentes'],
+            ['nombre_permiso' => 'eliminar_asignaciones', 'descripcion' => 'Eliminar asignaciones'],
+            ['nombre_permiso' => 'liberar_asignaciones', 'descripcion' => 'Liberar asignaciones activas'],
+
             // Catálogos
             ['nombre_permiso' => 'ver_catalogos', 'descripcion' => 'Ver catálogos del sistema'],
             ['nombre_permiso' => 'crear_catalogos', 'descripcion' => 'Crear elementos en catálogos'],

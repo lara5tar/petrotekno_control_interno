@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AsignacionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CatalogoTipoDocumentoController;
 use App\Http\Controllers\CatalogoTipoServicioController;
@@ -231,6 +232,36 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/{id}/restore', [MantenimientoController::class, 'restore'])
             ->middleware('permission:restaurar_mantenimientos');
+    });
+
+    // Rutas de asignaciones
+    Route::prefix('asignaciones')->group(function () {
+        Route::get('/', [AsignacionController::class, 'index'])
+            ->middleware('permission:ver_asignaciones');
+
+        Route::post('/', [AsignacionController::class, 'store'])
+            ->middleware('permission:crear_asignaciones');
+
+        Route::get('/estadisticas', [AsignacionController::class, 'estadisticas'])
+            ->middleware('permission:ver_asignaciones');
+
+        Route::get('/vehiculo/{vehiculoId}', [AsignacionController::class, 'porVehiculo'])
+            ->middleware('permission:ver_asignaciones');
+
+        Route::get('/operador/{personalId}', [AsignacionController::class, 'porOperador'])
+            ->middleware('permission:ver_asignaciones');
+
+        Route::get('/{id}', [AsignacionController::class, 'show'])
+            ->middleware('permission:ver_asignaciones');
+
+        Route::put('/{id}', [AsignacionController::class, 'update'])
+            ->middleware('permission:editar_asignaciones');
+
+        Route::post('/{id}/liberar', [AsignacionController::class, 'liberar'])
+            ->middleware('permission:liberar_asignaciones');
+
+        Route::delete('/{id}', [AsignacionController::class, 'destroy'])
+            ->middleware('permission:eliminar_asignaciones');
     });
 
     // Rutas de consulta general (sin restricciones especiales)
