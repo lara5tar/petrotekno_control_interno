@@ -20,8 +20,6 @@ class ObraBoundarySimpleTest extends TestCase
 {
     use RefreshDatabase;
 
-    private User $user;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -165,7 +163,6 @@ class ObraBoundarySimpleTest extends TestCase
 
                 // Limpiar para siguiente iteración
                 $obra->delete();
-
             } catch (\Exception $e) {
                 // Si falla, verificar que sea por una razón válida
                 $this->assertStringContainsString('nombre_obra', $e->getMessage());
@@ -205,8 +202,11 @@ class ObraBoundarySimpleTest extends TestCase
         $memoryUsed = $finalMemory - $initialMemory;
 
         // No debería usar más de 20MB para 200 registros
-        $this->assertLessThan(20 * 1024 * 1024, $memoryUsed,
-            'Memory usage should not exceed 20MB for 200 records');
+        $this->assertLessThan(
+            20 * 1024 * 1024,
+            $memoryUsed,
+            'Memory usage should not exceed 20MB for 200 records'
+        );
 
         // Test paginación
         $obrasPaginadas = Obra::paginate(50);
@@ -254,8 +254,11 @@ class ObraBoundarySimpleTest extends TestCase
             return $obra->fresh()->nombre_obra;
         })->toArray();
 
-        $this->assertGreaterThanOrEqual(2, $resultados->count(),
-            'Should find at least 2 obras. Names created: '.implode(', ', $nombresCreados));
+        $this->assertGreaterThanOrEqual(
+            2,
+            $resultados->count(),
+            'Should find at least 2 obras. Names created: ' . implode(', ', $nombresCreados)
+        );
 
         // Búsqueda con caracteres especiales
         $busquedasEspeciales = ['%', '_', '*', '?', '[', ']', '\\'];
@@ -346,7 +349,7 @@ class ObraBoundarySimpleTest extends TestCase
         $personal = Personal::factory()->create(['categoria_id' => $categoria->id]);
         $role = Role::create(['nombre_rol' => 'Test']);
 
-        $this->user = User::factory()->create([
+        $user = User::factory()->create([
             'personal_id' => $personal->id,
             'rol_id' => $role->id,
         ]);

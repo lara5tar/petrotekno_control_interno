@@ -101,7 +101,10 @@ class PersonalModelTest extends TestCase
 
         // Soft delete y restore
         $personal->delete();
-        $personal->restore();
+
+        // Obtener el modelo eliminado y restaurarlo
+        $deletedPersonal = Personal::withTrashed()->find($personalId);
+        $deletedPersonal->restore();
 
         // Verificar que está activo nuevamente
         $restoredPersonal = Personal::find($personalId);

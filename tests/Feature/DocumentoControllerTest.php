@@ -22,8 +22,6 @@ class DocumentoControllerTest extends TestCase
 
     private User $adminUser;
 
-    private User $regularUser;
-
     private User $userWithoutPermissions;
 
     private Role $adminRole;
@@ -35,10 +33,6 @@ class DocumentoControllerTest extends TestCase
     private CatalogoTipoDocumento $tipoDocumento;
 
     private Vehiculo $vehiculo;
-
-    private Personal $personal;
-
-    private Obra $obra;
 
     protected function setUp(): void
     {
@@ -55,22 +49,21 @@ class DocumentoControllerTest extends TestCase
         $deletePermission = Permission::factory()->withName('eliminar_documentos')->create();
 
         $this->adminRole->permisos()->attach([
-            $createPermission->id, $viewPermission->id,
-            $editPermission->id, $deletePermission->id,
+            $createPermission->id,
+            $viewPermission->id,
+            $editPermission->id,
+            $deletePermission->id,
         ]);
         $this->userRole->permisos()->attach([$viewPermission->id]);
         // noPermissionRole no tiene permisos de documentos
 
         // Crear usuarios
         $this->adminUser = User::factory()->create(['rol_id' => $this->adminRole->id]);
-        $this->regularUser = User::factory()->create(['rol_id' => $this->userRole->id]);
         $this->userWithoutPermissions = User::factory()->create(['rol_id' => $this->noPermissionRole->id]);
 
         // Crear datos de prueba
         $this->tipoDocumento = CatalogoTipoDocumento::factory()->create();
         $this->vehiculo = Vehiculo::factory()->create();
-        $this->personal = Personal::factory()->create();
-        $this->obra = Obra::factory()->create();
 
         Storage::fake('public');
     }

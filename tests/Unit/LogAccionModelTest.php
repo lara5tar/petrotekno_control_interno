@@ -153,6 +153,7 @@ class LogAccionModelTest extends TestCase
         ]);
 
         $this->assertEquals($detallesComplejos, $logAccion->detalles);
-        $this->assertIsArray(json_decode($logAccion->detalles, true));
+        $decodedDetalles = json_decode($logAccion->detalles, true);
+        $this->assertIsArray($decodedDetalles);
     }
 }

@@ -19,6 +19,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Carbon\Carbon|null $fecha_fin
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon|null $deleted_at
+ * @property int|null $avance
+ * @property \Carbon\Carbon $fecha_inicio
+ * @property \Carbon\Carbon|null $fecha_fin
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon|null $fecha_eliminacion
  */
 class Obra extends Model
@@ -249,7 +255,7 @@ class Obra extends Model
         }
 
         return Carbon::parse($this->fecha_fin)->isPast() &&
-               in_array($this->estatus, [self::ESTATUS_PLANIFICADA, self::ESTATUS_EN_PROGRESO]);
+            in_array($this->estatus, [self::ESTATUS_PLANIFICADA, self::ESTATUS_EN_PROGRESO]);
     }
 
     /**
