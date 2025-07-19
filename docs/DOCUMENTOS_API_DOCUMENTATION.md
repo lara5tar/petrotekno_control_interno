@@ -274,11 +274,24 @@ POST /api/documentos
   "descripcion": "Licencia renovada de Juan Pérez",
   "fecha_vencimiento": "2026-12-31",
   "vehiculo_id": 1,
-  "archivo": "[FILE]"
+  "archivo": "[FILE]",
+  "contenido": {
+    "numero_licencia": "L123456789",
+    "clase": "B1",
+    "restricciones": ["Lentes correctivos"],
+    "puntos_disponibles": 20,
+    "emisor": "ANT",
+    "metadata": {
+      "renovacion": true,
+      "motivo_renovacion": "Vencimiento"
+    }
+  }
 }
 ```
 
-**Nota:** Solo puede asociarse a UNA entidad a la vez (vehiculo_id O personal_id O obra_id O mantenimiento_id).
+**Nota:** 
+- Solo puede asociarse a UNA entidad a la vez (vehiculo_id O personal_id O obra_id O mantenimiento_id).
+- El campo `contenido` es opcional y permite almacenar información estructurada específica del documento en formato JSON.
 
 **Response:**
 ```json
@@ -295,6 +308,17 @@ POST /api/documentos
     "personal_id": null,
     "obra_id": null,
     "mantenimiento_id": null,
+    "contenido": {
+      "numero_licencia": "L123456789",
+      "clase": "B1",
+      "restricciones": ["Lentes correctivos"],
+      "puntos_disponibles": 20,
+      "emisor": "ANT",
+      "metadata": {
+        "renovacion": true,
+        "motivo_renovacion": "Vencimiento"
+      }
+    },
     "created_at": "2025-07-18T11:00:00.000000Z",
     "updated_at": "2025-07-18T11:00:00.000000Z",
     "estado": "vigente",
@@ -520,6 +544,7 @@ interface Documento {
   personal_id?: number;
   obra_id?: number;
   mantenimiento_id?: number;
+  contenido?: object; // NUEVO: Campo JSON para contenido estructurado
   created_at: string;
   updated_at: string;
   deleted_at?: string;

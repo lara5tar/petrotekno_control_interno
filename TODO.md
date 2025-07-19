@@ -10,6 +10,12 @@
 
 ## 🟡 Mejoras de Funcionalidad
 
+### Documentación y Comunicación
+- [ ] **#TODO**: Actualizar README.md con nuevos cambios estructurales
+- [ ] **#TODO**: Crear ejemplos de uso del campo `contenido` para diferentes tipos de documentos
+- [ ] **#TODO**: Documentar estrategias de migración de datos existentes
+- [ ] **#TODO**: Crear guía de buenas prácticas para el uso del campo JSON `contenido`
+
 ### Asignaciones - Características avanzadas
 - [ ] **#TODO**: Implementar sistema de transferencia de asignaciones entre operadores
 - [ ] **#TODO**: Agregar campo para registrar combustible inicial/final en asignaciones
@@ -58,6 +64,16 @@
 - [x] Validaciones de negocio implementadas
 - [x] Tests básicos de funcionalidad
 
+### Actualizaciones de Base de Datos (Julio 2025) ✅
+- [x] **#ESTRUCTURA**: Eliminado campo `nombre_usuario` de tabla `users`
+- [x] **#ESTRUCTURA**: Agregado campo `contenido` (JSON) a tabla `documentos`
+- [x] **#REFACTOR**: Actualizados todos los modelos para usar solo `email` como identificador único
+- [x] **#REFACTOR**: Refactorizados controladores, requests y middleware
+- [x] **#REFACTOR**: Actualizadas factories y seeders para nueva estructura
+- [x] **#TESTS**: Refactorizados todos los tests (451 tests pasando)
+- [x] **#MIGRATIONS**: Creadas migraciones de actualización de estructura
+- [x] **#VALIDATION**: Actualizadas validaciones de usuario y documentos
+
 ---
 
 ## 📝 Notas para desarrolladores futuros
@@ -75,5 +91,6 @@
 
 ---
 
-**Última actualización**: 19 de Julio de 2025
+**Última actualización**: 19 de Julio de 2025 - v1.3.0
 **Responsable**: Backend Development Team
+**Branch activo**: feature/20-backend-actualizar-estructura-tablas
