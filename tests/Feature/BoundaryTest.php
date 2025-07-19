@@ -28,7 +28,7 @@ class BoundaryTest extends TestCase
         $personal = Personal::factory()->create();
 
         // Test límite típico de varchar(255)
-        $maxLengthEmail = str_repeat('b', 243) . '@example.com'; // 255 chars total
+        $maxLengthEmail = str_repeat('b', 243).'@example.com'; // 255 chars total
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson('/api/users', [
@@ -58,7 +58,7 @@ class BoundaryTest extends TestCase
         $personal = Personal::factory()->create();
 
         // Test excediendo límite de varchar(255)
-        $overLengthEmail = str_repeat('y', 250) . '@example.com'; // 261 chars total
+        $overLengthEmail = str_repeat('y', 250).'@example.com'; // 261 chars total
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson('/api/users', [
@@ -88,7 +88,7 @@ class BoundaryTest extends TestCase
         for ($index = 1; $index <= 10; $index++) {
             $response = $this->actingAs($admin, 'sanctum')
                 ->postJson('/api/users', [
-                    'email' => 'testuser' . $index . '@example.com',
+                    'email' => 'testuser'.$index.'@example.com',
                     'password' => 'password123',
                     'password_confirmation' => 'password123',
                     'rol_id' => $role->id,
@@ -256,7 +256,7 @@ class BoundaryTest extends TestCase
 
             $response = $this->actingAs($admin, 'sanctum')
                 ->postJson('/api/users', [
-                    'email' => 'concurrent_user_' . $i . '@test.com',
+                    'email' => 'concurrent_user_'.$i.'@test.com',
                     'password' => 'password123',
                     'password_confirmation' => 'password123',
                     'rol_id' => $role->id,

@@ -48,11 +48,11 @@ class UserControllerTest extends TestCase
                                 'id',
                                 'nombre_completo',
                             ],
-                        ]
+                        ],
                     ],
                     'per_page',
                     'total',
-                ]
+                ],
             ]);
     }
 
