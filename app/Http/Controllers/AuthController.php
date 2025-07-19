@@ -45,7 +45,6 @@ class AuthController extends Controller
             'data' => [
                 'user' => [
                     'id' => $user->id,
-                    'nombre_usuario' => $user->nombre_usuario,
                     'email' => $user->email,
                     'rol' => $user->rol->nombre_rol ?? null,
                     'permisos' => $user->getPermissions()->pluck('nombre_permiso'),
@@ -70,7 +69,8 @@ class AuthController extends Controller
             'detalles' => ['ip' => $request->ip()],
         ]);
 
-        $user->currentAccessToken()->delete();
+        // Revocar todos los tokens del usuario
+        $user->tokens()->delete();
 
         return response()->json([
             'success' => true,
@@ -90,7 +90,6 @@ class AuthController extends Controller
             'success' => true,
             'data' => [
                 'id' => $user->id,
-                'nombre_usuario' => $user->nombre_usuario,
                 'email' => $user->email,
                 'rol' => $user->rol->nombre_rol ?? null,
                 'permisos' => $user->getPermissions()->pluck('nombre_permiso'),

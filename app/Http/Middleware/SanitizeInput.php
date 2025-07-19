@@ -19,7 +19,6 @@ class SanitizeInput
 
         // Campos que necesitan sanitización estricta
         $fieldsToSanitize = [
-            'nombre_usuario',
             'nombre_completo',
             'descripcion',
             'nombre_rol',

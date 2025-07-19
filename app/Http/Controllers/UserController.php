@@ -23,8 +23,7 @@ class UserController extends Controller
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where('nombre_usuario', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
+                $q->where('email', 'like', "%{$search}%")
                     ->orWhereHas('personal', function ($pq) use ($search) {
                         $pq->where('nombre_completo', 'like', "%{$search}%");
                     });
@@ -49,7 +48,6 @@ class UserController extends Controller
     public function store(StoreUserRequest $request): JsonResponse
     {
         $user = User::create([
-            'nombre_usuario' => $request->input('nombre_usuario'),
             'email' => $request->input('email'),
             'password' => Hash::make($request->input('password')),
             'rol_id' => $request->input('rol_id'),
@@ -63,7 +61,7 @@ class UserController extends Controller
             'accion' => 'crear_usuario',
             'tabla_afectada' => 'users',
             'registro_id' => $user->id,
-            'detalles' => ['usuario_creado' => $user->nombre_usuario],
+            'detalles' => ['usuario_creado' => $user->email],
         ]);
 
         $user->load(['rol', 'personal.categoria']);
@@ -98,12 +96,6 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'nombre_usuario' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('users')->ignore($user->id),
-            ],
             'email' => [
                 'required',
                 'email',
@@ -118,7 +110,6 @@ class UserController extends Controller
         $oldData = $user->toArray();
 
         $updateData = [
-            'nombre_usuario' => $request->input('nombre_usuario'),
             'email' => $request->input('email'),
             'rol_id' => $request->input('rol_id'),
             'personal_id' => $request->input('personal_id'),
@@ -138,7 +129,7 @@ class UserController extends Controller
             'tabla_afectada' => 'users',
             'registro_id' => $user->id,
             'detalles' => [
-                'usuario_actualizado' => $user->nombre_usuario,
+                'usuario_actualizado' => $user->email,
                 'cambios' => array_diff_assoc($updateData, $oldData),
             ],
         ]);
@@ -167,7 +158,7 @@ class UserController extends Controller
             ], 400);
         }
 
-        $userName = $user->nombre_usuario;
+        $userName = $user->email;
         $user->delete();
 
         // Registrar acción
@@ -201,7 +192,7 @@ class UserController extends Controller
             'accion' => 'restaurar_usuario',
             'tabla_afectada' => 'users',
             'registro_id' => $user->id,
-            'detalles' => ['usuario_restaurado' => $user->nombre_usuario],
+            'detalles' => ['usuario_restaurado' => $user->email],
         ]);
 
         return response()->json([
