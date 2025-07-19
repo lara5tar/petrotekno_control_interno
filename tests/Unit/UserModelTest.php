@@ -105,7 +105,6 @@ class UserModelTest extends TestCase
         $role = Role::first();
 
         $userData = [
-            'nombre_usuario' => 'test_user',
             'email' => 'test@example.com',
             'password' => bcrypt('password123'),
             'rol_id' => $role->id,
@@ -115,7 +114,6 @@ class UserModelTest extends TestCase
         $user = User::create($userData);
 
         $this->assertInstanceOf(User::class, $user);
-        $this->assertEquals('test_user', $user->nombre_usuario);
         $this->assertEquals('test@example.com', $user->email);
         $this->assertEquals($role->id, $user->rol_id);
     }
@@ -133,7 +131,6 @@ class UserModelTest extends TestCase
 
         // Crear primer usuario
         User::create([
-            'nombre_usuario' => 'user1',
             'email' => 'duplicate@example.com',
             'password' => bcrypt('password123'),
             'rol_id' => $role->id,
@@ -142,7 +139,6 @@ class UserModelTest extends TestCase
 
         // Intentar crear segundo usuario con mismo email
         User::create([
-            'nombre_usuario' => 'user2',
             'email' => 'duplicate@example.com', // Email duplicado
             'password' => bcrypt('password123'),
             'rol_id' => $role->id,
@@ -161,7 +157,6 @@ class UserModelTest extends TestCase
         $plainPassword = 'plaintext_password';
 
         $user = User::create([
-            'nombre_usuario' => 'hash_test',
             'email' => 'hash@example.com',
             'password' => bcrypt($plainPassword),
             'rol_id' => $role->id,

@@ -30,7 +30,6 @@ class AuthTest extends TestCase
                 'data' => [
                     'user' => [
                         'id',
-                        'nombre_usuario',
                         'email',
                         'rol',
                         'permisos',
@@ -62,7 +61,6 @@ class AuthTest extends TestCase
                 'success',
                 'data' => [
                     'id',
-                    'nombre_usuario',
                     'email',
                     'rol',
                     'permisos',
@@ -76,7 +74,7 @@ class AuthTest extends TestCase
         $token = $user->createToken('test')->plainTextToken;
 
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer '.$token,
+            'Authorization' => 'Bearer ' . $token,
         ])->postJson('/api/auth/logout');
 
         $response->assertStatus(200);

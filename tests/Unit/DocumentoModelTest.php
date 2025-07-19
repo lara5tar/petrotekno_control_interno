@@ -293,6 +293,7 @@ class DocumentoModelTest extends TestCase
             'personal_id',
             'obra_id',
             'mantenimiento_id',
+            'contenido',
         ];
 
         $this->assertEquals($expectedFillable, $documento->getFillable());
