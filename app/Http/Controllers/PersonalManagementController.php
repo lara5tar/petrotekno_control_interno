@@ -57,10 +57,9 @@ class PersonalManagementController extends Controller
                     'usuario' => $usuario ? $this->formatUserResponse($usuario) : null,
                 ]
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al crear el personal',
@@ -131,7 +130,7 @@ class PersonalManagementController extends Controller
 
         // TODO: Enviar email con credenciales al usuario
         // Esto podría implementarse con un job en cola para evitar bloqueos
-        
+
         // Agregar la contraseña temporal para retornar al frontend
         $usuario->password_temp = $password;
 
@@ -245,7 +244,6 @@ class PersonalManagementController extends Controller
                     'roles' => $roles,
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
