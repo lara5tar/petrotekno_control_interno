@@ -156,26 +156,26 @@
             <div class="bg-white border border-gray-300 rounded-lg">
                 <div class="bg-gray-50 px-4 py-0 border-b border-gray-300">
                     <div class="flex space-x-0" role="tablist">
-                        <button id="asignacion-tab" 
+                        {{-- <button id="asignacion-tab" 
                                 class="px-4 py-3 text-sm font-medium border-b-2 border-blue-600 text-blue-600 bg-white transition-colors duration-200"
                                 onclick="switchTab('asignacion')" 
                                 role="tab" 
                                 aria-selected="true"
                                 aria-controls="asignacion-content">
                             Asignación
-                        </button>
+                        </button> --}}
                         <button id="documentos-tab" 
-                                class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-800 border-b-2 border-transparent transition-colors duration-200"
+                                class="px-4 py-3 text-sm font-medium border-b-2 border-blue-600 text-blue-600 bg-white transition-colors duration-200"
                                 onclick="switchTab('documentos')" 
                                 role="tab" 
-                                aria-selected="false"
+                                aria-selected="true"
                                 aria-controls="documentos-content">
                             Documentos
                         </button>
                     </div>
                 </div>
                 
-                <!-- Contenido de Asignación -->
+                {{-- <!-- Contenido de Asignación -->
                 <div id="asignacion-content" class="tab-content p-4" role="tabpanel" aria-labelledby="asignacion-tab">
                     <div class="mb-6">
                         <h4 class="font-medium text-gray-700 mb-3">Obra Actual</h4>
@@ -224,12 +224,23 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- Botón Ir a Obra -->
+                            <div class="mt-4 pt-4 border-t border-gray-200">
+                                <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center" 
+                                        title="Ver detalles de la obra">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                    Ir a Obra
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
                 <!-- Contenido de Documentos -->
-                <div id="documentos-content" class="tab-content p-4 hidden" role="tabpanel" aria-labelledby="documentos-tab">
+                <div id="documentos-content" class="tab-content p-4" role="tabpanel" aria-labelledby="documentos-tab">
                     <div class="mb-6">
                         <h4 class="font-medium text-gray-700 mb-3">Documentos del Personal</h4>
                         <div class="space-y-4">
@@ -237,16 +248,9 @@
                             <div class="border border-gray-200 rounded-lg divide-y divide-gray-200">
                                 <div class="p-4 hover:bg-gray-50 transition-colors duration-200">
                                     <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <div class="flex-shrink-0">
-                                                <svg class="h-8 w-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                                </svg>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm font-medium text-gray-900">Curriculum Vitae</p>
-                                                <p class="text-sm text-gray-500">CV_Marco_Delgado_2025.pdf</p>
-                                            </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-900">Curriculum Vitae</p>
+                                            <p class="text-sm text-gray-500">CV_Marco_Delgado_2025.pdf</p>
                                         </div>
                                         <div class="flex items-center space-x-2">
                                             <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver documento">
@@ -261,16 +265,9 @@
 
                                 <div class="p-4 hover:bg-gray-50 transition-colors duration-200">
                                     <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <div class="flex-shrink-0">
-                                                <svg class="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V4a2 2 0 114 0v2m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c0 1.5 1.5 3 3.5 3s3.5-1.5 3.5-3" />
-                                                </svg>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm font-medium text-gray-900">Identificación Oficial</p>
-                                                <p class="text-sm text-gray-500">INE_Marco_Delgado.pdf</p>
-                                            </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-900">Identificación Oficial</p>
+                                            <p class="text-sm text-gray-500">INE_Marco_Delgado.pdf</p>
                                         </div>
                                         <div class="flex items-center space-x-2">
                                             <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver documento">
@@ -285,16 +282,9 @@
 
                                 <div class="p-4 hover:bg-gray-50 transition-colors duration-200">
                                     <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <div class="flex-shrink-0">
-                                                <svg class="h-8 w-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm font-medium text-gray-900">Licencia de Manejo</p>
-                                                <p class="text-sm text-gray-500">Licencia_Marco_Delgado.pdf</p>
-                                            </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-900">Licencia de Manejo</p>
+                                            <p class="text-sm text-gray-500">Licencia_Marco_Delgado.pdf</p>
                                         </div>
                                         <div class="flex items-center space-x-2">
                                             <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver documento">
@@ -306,9 +296,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="mt-4 pt-4 border-t border-gray-200">
+                            </div>                            <div class="mt-4 pt-4 border-t border-gray-200">
                                 <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -324,14 +312,45 @@
     </div>
 </div>
 
+<!-- Botones de Acción Flotantes -->
+<div class="fixed bottom-6 right-6 flex space-x-3 z-50">
+    <!-- Botón Editar -->
+    <a href="{{ route('personal.edit', $personal->id ?? 1) }}" 
+       class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 flex items-center space-x-2 shadow-lg"
+       title="Editar Personal">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+        </svg>
+        <span>Editar</span>
+    </a>
+
+    <!-- Botón Eliminar -->
+    <form action="{{ route('personal.destroy', $personal->id ?? 1) }}" 
+          method="POST" 
+          class="inline" 
+          onsubmit="return confirm('¿Estás seguro de que quieres eliminar este personal? Esta acción no se puede deshacer.')">
+        @csrf
+        @method('DELETE')
+        <button type="submit" 
+                class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 flex items-center space-x-2 shadow-lg"
+                title="Eliminar Personal">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+            </svg>
+            <span>Eliminar</span>
+        </button>
+    </form>
+</div>
+
 @push('scripts')
 <script>
 // Hacer la función global para que sea accesible desde los elementos HTML
 window.switchTab = function(tabName) {
     console.log('Switching to tab:', tabName); // Debug
     
-    // Lista de todas las pestañas disponibles (sin historial)
-    const tabs = ['asignacion', 'documentos'];
+    // Lista de todas las pestañas disponibles (solo documentos por ahora)
+    const tabs = ['documentos']; // 'asignacion' comentado temporalmente
     
     tabs.forEach(tab => {
         // Referencias a los elementos
