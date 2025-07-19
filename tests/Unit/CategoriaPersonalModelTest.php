@@ -35,7 +35,7 @@ class CategoriaPersonalModelTest extends TestCase
     #[Test]
     public function fillable_attributes_estan_configurados()
     {
-        $fillable = (new CategoriaPersonal())->getFillable();
+        $fillable = (new CategoriaPersonal)->getFillable();
 
         $this->assertContains('nombre_categoria', $fillable);
     }
@@ -43,7 +43,7 @@ class CategoriaPersonalModelTest extends TestCase
     #[Test]
     public function tabla_personalizada_esta_configurada()
     {
-        $categoria = new CategoriaPersonal();
+        $categoria = new CategoriaPersonal;
 
         $this->assertEquals('categorias_personal', $categoria->getTable());
     }
@@ -51,7 +51,7 @@ class CategoriaPersonalModelTest extends TestCase
     #[Test]
     public function timestamps_estan_habilitados()
     {
-        $categoria = new CategoriaPersonal();
+        $categoria = new CategoriaPersonal;
 
         $this->assertTrue($categoria->timestamps);
     }

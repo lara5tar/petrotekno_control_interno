@@ -88,7 +88,7 @@ class MantenimientoModelTest extends TestCase
     #[Test]
     public function fecha_casting()
     {
-        $casts = (new Mantenimiento())->getCasts();
+        $casts = (new Mantenimiento)->getCasts();
 
         $this->assertArrayHasKey('fecha_inicio', $casts);
         $this->assertArrayHasKey('fecha_fin', $casts);

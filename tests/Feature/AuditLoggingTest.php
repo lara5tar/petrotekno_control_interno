@@ -50,7 +50,7 @@ class AuditLoggingTest extends TestCase
         $initialLogCount = LogAccion::count();
 
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->postJson('/api/auth/logout');
 
         $response->assertStatus(200);

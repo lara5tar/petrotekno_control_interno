@@ -24,7 +24,7 @@ class CatalogoTipoServicioModelTest extends TestCase
     #[Test]
     public function fillable_attributes_estan_configurados_correctamente()
     {
-        $fillable = (new CatalogoTipoServicio())->getFillable();
+        $fillable = (new CatalogoTipoServicio)->getFillable();
 
         $this->assertContains('nombre_tipo_servicio', $fillable);
     }
@@ -32,7 +32,7 @@ class CatalogoTipoServicioModelTest extends TestCase
     #[Test]
     public function tabla_personalizada_esta_configurada()
     {
-        $tipoServicio = new CatalogoTipoServicio();
+        $tipoServicio = new CatalogoTipoServicio;
 
         $this->assertEquals('catalogo_tipos_servicio', $tipoServicio->getTable());
     }
@@ -40,7 +40,7 @@ class CatalogoTipoServicioModelTest extends TestCase
     #[Test]
     public function timestamps_estan_habilitados()
     {
-        $tipoServicio = new CatalogoTipoServicio();
+        $tipoServicio = new CatalogoTipoServicio;
 
         $this->assertTrue($tipoServicio->timestamps);
     }

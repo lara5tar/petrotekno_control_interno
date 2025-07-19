@@ -68,7 +68,7 @@ class LogAccionModelTest extends TestCase
     #[Test]
     public function fecha_hora_se_castea_como_datetime()
     {
-        $casts = (new LogAccion())->getCasts();
+        $casts = (new LogAccion)->getCasts();
 
         $this->assertArrayHasKey('fecha_hora', $casts);
         $this->assertEquals('datetime', $casts['fecha_hora']);
@@ -77,7 +77,7 @@ class LogAccionModelTest extends TestCase
     #[Test]
     public function fillable_attributes_estan_configurados()
     {
-        $fillable = (new LogAccion())->getFillable();
+        $fillable = (new LogAccion)->getFillable();
 
         $expectedFillable = [
             'usuario_id',
@@ -95,7 +95,7 @@ class LogAccionModelTest extends TestCase
     #[Test]
     public function tabla_personalizada_esta_configurada()
     {
-        $logAccion = new LogAccion();
+        $logAccion = new LogAccion;
 
         $this->assertEquals('log_acciones', $logAccion->getTable());
     }

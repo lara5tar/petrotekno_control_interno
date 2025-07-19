@@ -160,7 +160,7 @@ class Mantenimiento extends Model
             return null;
         }
 
-        return '$' . number_format((float) $this->costo, 2);
+        return '$'.number_format((float) $this->costo, 2);
     }
 
     /**

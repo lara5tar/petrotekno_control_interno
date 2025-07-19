@@ -25,12 +25,12 @@ class CatalogoEstatusModelTest extends TestCase
     public function scope_activos_filtra_correctamente()
     {
         $activo = CatalogoEstatus::factory()->create([
-            'nombre_estatus' => 'test_activo_' . time(),
-            'activo' => true
+            'nombre_estatus' => 'test_activo_'.time(),
+            'activo' => true,
         ]);
         $inactivo = CatalogoEstatus::factory()->create([
-            'nombre_estatus' => 'test_inactivo_' . time(),
-            'activo' => false
+            'nombre_estatus' => 'test_inactivo_'.time(),
+            'activo' => false,
         ]);
 
         $resultado = CatalogoEstatus::activos()->get();
@@ -59,7 +59,7 @@ class CatalogoEstatusModelTest extends TestCase
     #[Test]
     public function fillable_attributes_estan_configurados_correctamente()
     {
-        $fillable = (new CatalogoEstatus())->getFillable();
+        $fillable = (new CatalogoEstatus)->getFillable();
 
         $this->assertContains('nombre_estatus', $fillable);
         $this->assertContains('descripcion', $fillable);
@@ -69,7 +69,7 @@ class CatalogoEstatusModelTest extends TestCase
     #[Test]
     public function tabla_personalizada_esta_configurada()
     {
-        $estatus = new CatalogoEstatus();
+        $estatus = new CatalogoEstatus;
 
         $this->assertEquals('catalogo_estatus', $estatus->getTable());
     }
@@ -77,7 +77,7 @@ class CatalogoEstatusModelTest extends TestCase
     #[Test]
     public function timestamps_estan_habilitados()
     {
-        $estatus = new CatalogoEstatus();
+        $estatus = new CatalogoEstatus;
 
         $this->assertTrue($estatus->timestamps);
     }
@@ -147,10 +147,10 @@ class CatalogoEstatusModelTest extends TestCase
     public function puede_determinar_si_tiene_vehiculos_asociados()
     {
         $estatusSinVehiculos = CatalogoEstatus::factory()->create([
-            'nombre_estatus' => 'sin_vehiculos_' . time()
+            'nombre_estatus' => 'sin_vehiculos_'.time(),
         ]);
         $estatusConVehiculos = CatalogoEstatus::factory()->create([
-            'nombre_estatus' => 'con_vehiculos_' . time()
+            'nombre_estatus' => 'con_vehiculos_'.time(),
         ]);
 
         Vehiculo::factory()->create(['estatus_id' => $estatusConVehiculos->id]);

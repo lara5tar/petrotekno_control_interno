@@ -29,7 +29,7 @@ class BoundaryTest extends TestCase
 
         // Test límite típico de varchar(255)
         $maxLengthName = str_repeat('a', 255);
-        $maxLengthEmail = str_repeat('b', 243) . '@example.com'; // 255 chars total
+        $maxLengthEmail = str_repeat('b', 243).'@example.com'; // 255 chars total
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson('/api/users', [
@@ -61,7 +61,7 @@ class BoundaryTest extends TestCase
 
         // Test excediendo límite de varchar(255)
         $overLengthName = str_repeat('x', 256); // 256 chars - excede límite
-        $overLengthEmail = str_repeat('y', 250) . '@example.com'; // 261 chars total
+        $overLengthEmail = str_repeat('y', 250).'@example.com'; // 261 chars total
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson('/api/users', [
@@ -105,8 +105,8 @@ class BoundaryTest extends TestCase
         foreach ($shortPasswords as $index => $shortPassword) {
             $response = $this->actingAs($admin, 'sanctum')
                 ->postJson('/api/users', [
-                    'nombre_usuario' => 'testuser' . $index,
-                    'email' => 'test' . $index . '@example.com',
+                    'nombre_usuario' => 'testuser'.$index,
+                    'email' => 'test'.$index.'@example.com',
                     'password' => $shortPassword,
                     'rol_id' => $role->id,
                     'personal_id' => $personal->id,
@@ -170,8 +170,8 @@ class BoundaryTest extends TestCase
         foreach ($edgeCases as $testCase => $rolId) {
             $response = $this->actingAs($admin, 'sanctum')
                 ->postJson('/api/users', [
-                    'nombre_usuario' => 'test_' . $testCase,
-                    'email' => $testCase . '@example.com',
+                    'nombre_usuario' => 'test_'.$testCase,
+                    'email' => $testCase.'@example.com',
                     'password' => 'password123',
                     'rol_id' => $rolId,
                     'personal_id' => $personal->id,
@@ -197,8 +197,8 @@ class BoundaryTest extends TestCase
 
         for ($i = 1; $i <= 20; $i++) {
             User::factory()->create([
-                'nombre_usuario' => 'testuser' . $i,
-                'email' => 'test' . $i . '@example.com',
+                'nombre_usuario' => 'testuser'.$i,
+                'email' => 'test'.$i.'@example.com',
                 'rol_id' => $role->id,
                 'personal_id' => $personal->id,
             ]);
@@ -220,7 +220,7 @@ class BoundaryTest extends TestCase
         $invalidPageParams = ['page=-1', 'page=0', 'page=abc', 'page=1.5'];
         foreach ($invalidPageParams as $param) {
             $response = $this->actingAs($admin, 'sanctum')
-                ->getJson('/api/users?' . $param);
+                ->getJson('/api/users?'.$param);
             // Debe manejar graciosamente parámetros inválidos
             $this->assertContains($response->status(), [200, 422, 400]);
         }
@@ -311,7 +311,7 @@ class BoundaryTest extends TestCase
             $response = $this->actingAs($admin, 'sanctum')
                 ->postJson('/api/users', [
                     'nombre_usuario' => $input,
-                    'email' => $testCase . '@example.com',
+                    'email' => $testCase.'@example.com',
                     'password' => 'password123',
                     'rol_id' => $role->id,
                     'personal_id' => $personal->id,
@@ -321,7 +321,7 @@ class BoundaryTest extends TestCase
             $this->assertContains($response->status(), [201, 422]);
 
             if ($response->status() === 201) {
-                $user = User::where('email', $testCase . '@example.com')->first();
+                $user = User::where('email', $testCase.'@example.com')->first();
                 $this->assertNotNull($user);
                 // Verificar que los caracteres especiales se almacenaron correctamente
                 $this->assertIsString($user->nombre_usuario);
@@ -343,8 +343,8 @@ class BoundaryTest extends TestCase
         for ($i = 1; $i <= 5; $i++) {
             $responses[] = $this->actingAs($admin, 'sanctum')
                 ->postJson('/api/users', [
-                    'nombre_usuario' => 'concurrent_user_' . $i,
-                    'email' => 'concurrent' . $i . '@example.com',
+                    'nombre_usuario' => 'concurrent_user_'.$i,
+                    'email' => 'concurrent'.$i.'@example.com',
                     'password' => 'password123',
                     'rol_id' => $role->id,
                     'personal_id' => $personal->id,
@@ -356,7 +356,7 @@ class BoundaryTest extends TestCase
             $this->assertContains($response->status(), [201, 422, 500]);
 
             if ($response->status() === 201) {
-                $email = 'concurrent' . ($index + 1) . '@example.com';
+                $email = 'concurrent'.($index + 1).'@example.com';
                 $this->assertDatabaseHas('users', ['email' => $email]);
             }
         }
@@ -383,10 +383,10 @@ class BoundaryTest extends TestCase
 
         // Verificar que la operación se complete en tiempo razonable (menos de 5 segundos)
         $executionTime = $endTime - $startTime;
-        $this->assertLessThan(5.0, $executionTime, 'API response took too long: ' . $executionTime . ' seconds');
+        $this->assertLessThan(5.0, $executionTime, 'API response took too long: '.$executionTime.' seconds');
 
         // Verificar que el uso de memoria no sea excesivo (menos de 50MB adicionales)
         $memoryUsed = $endMemory - $startMemory;
-        $this->assertLessThan(50 * 1024 * 1024, $memoryUsed, 'Excessive memory usage: ' . ($memoryUsed / 1024 / 1024) . ' MB');
+        $this->assertLessThan(50 * 1024 * 1024, $memoryUsed, 'Excessive memory usage: '.($memoryUsed / 1024 / 1024).' MB');
     }
 }
