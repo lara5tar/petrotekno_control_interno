@@ -61,5 +61,7 @@
             menu.classList.toggle('hidden');
         });
     </script>
+    
+    @stack('scripts')
 </body>
 </html>
