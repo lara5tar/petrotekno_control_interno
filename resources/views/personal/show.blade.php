@@ -5,10 +5,12 @@
 @section('header', 'Control de Personal de Petrotekno')
 
 @section('content')
-<!-- Breadcrumb -->
-<div class="bg-gray-100 px-4 py-2 text-sm text-gray-600 mb-6">
-    Gestionar Personal / {{ $personal->nombre_completo ?? 'Marco Delgado Reyes' }} [{{ str_pad($personal->id ?? 1, 3, '0', STR_PAD_LEFT) }}]
-</div>
+{{-- Breadcrumb --}}
+<x-breadcrumb :items="[
+    ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
+    ['label' => 'Personal', 'url' => route('personal.index')],
+    ['label' => $personal->nombre_completo ?? 'Personal']
+]" />
 
 <!-- Contenido Principal -->
 <div class="p-6">
@@ -55,68 +57,101 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">CURP</label>
-                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                DERJ850315HNLGYR07
+                            <div class="flex items-center space-x-2">
+                                <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                    DERJ850315HNLGYR07
+                                </div>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        title="Ver archivo adjunto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">RFC</label>
-                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                DERJ850315XY4
+                            <div class="flex items-center space-x-2">
+                                <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                    DERJ850315XY4
+                                </div>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        title="Ver archivo adjunto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Foto del Personal -->
-            <div class="bg-white border border-gray-300 rounded-lg">
-                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800">Fotografía</h3>
-                </div>
-                <div class="p-4">
-                    <div class="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
-                        <div class="text-center">
-                            <svg class="w-16 h-16 text-gray-400 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                            </svg>
-                            <p class="text-gray-500 text-sm">Foto del Personal</p>
-                            <p class="text-gray-400 text-xs">{{ $personal->nombre_completo ?? 'Marco Delgado Reyes' }}</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Identificación (INE)</label>
+                            <div class="flex items-center space-x-2">
+                                <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                    1234567890123
+                                </div>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        title="Ver archivo adjunto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">NSS</label>
+                            <div class="flex items-center space-x-2">
+                                <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                    12345678901
+                                </div>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        title="Ver archivo adjunto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="flex justify-between p-4 border-t border-gray-200">
-                    <button class="bg-gray-600 text-white px-4 py-2 rounded text-sm hover:bg-gray-700">
-                        Regresar
-                    </button>
-                    <button class="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700 flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                        </svg>
-                        Guardar
-                    </button>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Licencia de Manejo</label>
+                            <div class="flex items-center space-x-2">
+                                <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                    LIC123456789
+                                </div>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        title="Ver archivo adjunto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">CV Profesional</label>
+                            <div class="flex items-center space-x-2">
+                                <div class="bg-green-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                    Disponible
+                                </div>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        title="Ver archivo adjunto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Panel Derecho - Información Adicional -->
         <div class="space-y-6">
-            <!-- Estado Actual -->
-            <div class="bg-white border border-gray-300 rounded-lg">
-                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800">Estado Actual</h3>
-                </div>
-                <div class="p-4">
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-gray-800 mb-2">08:30</div>
-                        <div class="text-sm text-gray-600">Horario de Entrada</div>
-                        <div class="bg-green-500 text-white px-4 py-2 rounded mt-3 font-medium">
-                            En Servicio
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Tabs de Información -->
             <div class="bg-white border border-gray-300 rounded-lg">
                 <div class="bg-gray-50 px-4 py-0 border-b border-gray-300">
@@ -183,104 +218,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Documentos del Personal -->
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center mb-3">
-                            <h4 class="font-medium text-gray-700">Documentos Vigentes</h4>
-                            <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
-                                Ver Todos
-                            </button>
-                        </div>
-                        
-                        <div class="space-y-2">
-                            <div class="flex items-center justify-between p-2 bg-green-50 rounded">
-                                <span class="text-sm text-gray-700">CURP</span>
-                                <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Vigente</span>
-                            </div>
-                            <div class="flex items-center justify-between p-2 bg-green-50 rounded">
-                                <span class="text-sm text-gray-700">RFC</span>
-                                <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Vigente</span>
-                            </div>
-                            <div class="flex items-center justify-between p-2 bg-green-50 rounded">
-                                <span class="text-sm text-gray-700">NSS</span>
-                                <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Vigente</span>
-                            </div>
-                            <div class="flex items-center justify-between p-2 bg-yellow-50 rounded">
-                                <span class="text-sm text-gray-700">Certificado Médico</span>
-                                <span class="bg-yellow-600 text-white px-2 py-1 rounded text-xs">Por Vencer</span>
-                            </div>
-                            <div class="flex items-center justify-between p-2 bg-green-50 rounded">
-                                <span class="text-sm text-gray-700">Constancia de Estudios</span>
-                                <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Vigente</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Historial de Asistencia -->
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <h4 class="font-medium text-gray-700">Asistencia Reciente</h4>
-                            <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
-                                Ver Historial
-                            </button>
-                        </div>
-
-                        <div class="bg-gray-100 rounded overflow-hidden">
-                            <table class="w-full text-sm">
-                                <thead class="bg-gray-600 text-white">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left">Fecha</th>
-                                        <th class="px-3 py-2 text-left">Entrada</th>
-                                        <th class="px-3 py-2 text-left">Salida</th>
-                                        <th class="px-3 py-2 text-left">Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-gray-700">
-                                    <tr class="border-b border-gray-300">
-                                        <td class="px-3 py-2">19/07/2025</td>
-                                        <td class="px-3 py-2">08:30</td>
-                                        <td class="px-3 py-2">-</td>
-                                        <td class="px-3 py-2">
-                                            <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Presente</span>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b border-gray-300">
-                                        <td class="px-3 py-2">18/07/2025</td>
-                                        <td class="px-3 py-2">08:25</td>
-                                        <td class="px-3 py-2">17:30</td>
-                                        <td class="px-3 py-2">
-                                            <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Completo</span>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b border-gray-300">
-                                        <td class="px-3 py-2">17/07/2025</td>
-                                        <td class="px-3 py-2">08:35</td>
-                                        <td class="px-3 py-2">17:25</td>
-                                        <td class="px-3 py-2">
-                                            <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Completo</span>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b border-gray-300">
-                                        <td class="px-3 py-2">16/07/2025</td>
-                                        <td class="px-3 py-2">-</td>
-                                        <td class="px-3 py-2">-</td>
-                                        <td class="px-3 py-2">
-                                            <span class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Descanso</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-3 py-2">15/07/2025</td>
-                                        <td class="px-3 py-2">08:20</td>
-                                        <td class="px-3 py-2">17:35</td>
-                                        <td class="px-3 py-2">
-                                            <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Completo</span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>

@@ -5,25 +5,11 @@
 @section('header', 'Gestión de Personal')
 
 @section('content')
-    <div class="mb-4">
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="{{ route('home') }}" class="text-gray-700 hover:text-petroyellow">
-                        Dashboard
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="text-gray-500 ml-1 md:ml-2">Personal</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-    </div>
+    {{-- Breadcrumb --}}
+    <x-breadcrumb :items="[
+        ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
+        ['label' => 'Personal']
+    ]" />
 
     <!-- Encabezado con botón de agregar -->
     <div class="flex justify-between items-center mb-6">
@@ -109,8 +95,10 @@
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Lista de Personal</h3>
             <p class="text-sm text-gray-600 mt-1">
-                @if($personal->total() > 0)
+                @if(method_exists($personal, 'total') && $personal->total() > 0)
                     Mostrando {{ $personal->firstItem() }} - {{ $personal->lastItem() }} de {{ $personal->total() }} resultados
+                @elseif($personal->count() > 0)
+                    Mostrando {{ $personal->count() }} resultado(s)
                 @else
                     No hay personal registrado
                 @endif
@@ -240,7 +228,7 @@
             </div>
 
             <!-- Paginación -->
-            @if($personal->hasPages())
+            @if(method_exists($personal, 'hasPages') && $personal->hasPages())
                 <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
                     {{ $personal->appends(request()->query())->links() }}
                 </div>

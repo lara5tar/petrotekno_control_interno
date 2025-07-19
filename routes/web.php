@@ -43,22 +43,25 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
                 'id' => 1,
                 'nombre_completo' => 'Marco Delgado Reyes',
                 'estatus' => 'activo',
-                'categoria' => (object) ['nombre_categoria' => 'Técnico Especializado'],
-                'usuario' => null
+                'categoria' => (object) ['nombre_categoria' => 'Técnico Especializado', 'descripcion' => 'Personal técnico especializado'],
+                'usuario' => null,
+                'created_at' => \Carbon\Carbon::now()->subDays(30)
             ],
             (object) [
                 'id' => 2,
                 'nombre_completo' => 'Ana García López',
                 'estatus' => 'activo',
-                'categoria' => (object) ['nombre_categoria' => 'Supervisor'],
-                'usuario' => (object) ['nombre_usuario' => 'ana.garcia']
+                'categoria' => (object) ['nombre_categoria' => 'Supervisor', 'descripcion' => 'Personal supervisor'],
+                'usuario' => (object) ['nombre_usuario' => 'ana.garcia', 'email' => 'ana.garcia@petrotekno.com'],
+                'created_at' => \Carbon\Carbon::now()->subDays(15)
             ],
             (object) [
                 'id' => 3,
                 'nombre_completo' => 'Carlos Rodríguez Morales',
                 'estatus' => 'inactivo',
-                'categoria' => (object) ['nombre_categoria' => 'Operador'],
-                'usuario' => null
+                'categoria' => (object) ['nombre_categoria' => 'Operador', 'descripcion' => 'Personal operador'],
+                'usuario' => null,
+                'created_at' => \Carbon\Carbon::now()->subDays(7)
             ]
         ]);
         
