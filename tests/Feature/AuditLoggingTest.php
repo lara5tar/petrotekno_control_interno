@@ -15,7 +15,23 @@ class AuditLoggingTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->artisan('db:seed');
+        $this->seed(['PermissionSeeder', 'RoleSeeder', 'CategoriaPersonalSeeder', 'CatalogoEstatusSeeder']);
+
+        // Crear un usuario admin manualmente para el test
+        $adminRole = \App\Models\Role::where('nombre_rol', 'Admin')->first();
+        User::factory()->create([
+            'email' => 'admin@petrotekno.com',
+            'password' => bcrypt('password123'),
+            'rol_id' => $adminRole->id,
+        ]);
+
+        // Crear un usuario supervisor manualmente para el test
+        $supervisorRole = \App\Models\Role::where('nombre_rol', 'Supervisor')->first();
+        User::factory()->create([
+            'email' => 'supervisor@petrotekno.com',
+            'password' => bcrypt('password123'),
+            'rol_id' => $supervisorRole->id,
+        ]);
     }
 
     #[Test]
@@ -76,6 +92,7 @@ class AuditLoggingTest extends TestCase
                 'nombre_usuario' => 'testlog',
                 'email' => 'testlog@petrotekno.com',
                 'password' => 'password123',
+                'password_confirmation' => 'password123',
                 'rol_id' => $role->id,
             ]);
 
@@ -178,6 +195,6 @@ class AuditLoggingTest extends TestCase
         $latestLog = $logs[0];
 
         $this->assertArrayHasKey('usuario', $latestLog);
-        $this->assertEquals($admin->nombre_usuario, $latestLog['usuario']['nombre_usuario']);
+        $this->assertEquals($admin->email, $latestLog['usuario']['email']);
     }
 }

@@ -27,7 +27,6 @@ class AdminUserSeeder extends Seeder
         // Crear usuario administrador
         $adminRole = Role::where('nombre_rol', 'Admin')->first();
         User::create([
-            'nombre_usuario' => 'admin',
             'email' => 'admin@petrotekno.com',
             'password' => Hash::make('password123'),
             'rol_id' => $adminRole->id,
@@ -44,11 +43,26 @@ class AdminUserSeeder extends Seeder
 
         $supervisorRole = Role::where('nombre_rol', 'Supervisor')->first();
         User::create([
-            'nombre_usuario' => 'supervisor',
             'email' => 'supervisor@petrotekno.com',
             'password' => Hash::make('password123'),
             'rol_id' => $supervisorRole->id,
             'personal_id' => $personalSuper->id,
+        ]);
+
+        // Crear usuario operador de ejemplo
+        $categoriaOper = CategoriaPersonal::where('nombre_categoria', 'Operador')->first();
+        $personalOper = Personal::create([
+            'nombre_completo' => 'Carlos García Operador',
+            'estatus' => 'activo',
+            'categoria_id' => $categoriaOper->id,
+        ]);
+
+        $operadorRole = Role::where('nombre_rol', 'Operador')->first();
+        User::create([
+            'email' => 'operador@petrotekno.com',
+            'password' => Hash::make('password123'),
+            'rol_id' => $operadorRole->id,
+            'personal_id' => $personalOper->id,
         ]);
     }
 }

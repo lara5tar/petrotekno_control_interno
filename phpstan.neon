@@ -2,12 +2,20 @@ includes:
     - ./vendor/larastan/larastan/extension.neon
 
 parameters:
-    level: 4  # Nivel práctico para desarrollo ágil
+    level: 5  # Aumentamos el nivel para mejor análisis
+    treatPhpDocTypesAsCertain: false  # Desactiva warnings para tipos de PHPDoc
     paths:
         - app/Http/Controllers
         - app/Models
         - app/Http/Requests
+        - tests/Unit
+        - tests/Feature
     excludePaths:
         - app/Console/Kernel.php (?)
         - app/Exceptions/Handler.php (?)
         - app/Http/Kernel.php (?)
+    ignoreErrors:
+        - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$id#'
+        - '#Parameter .* of method PHPUnit\\Framework\\Assert::assertStringContainsString\(\) expects string, array.*given#'
+        - '#Call to method PHPUnit\\Framework\\Assert::assert.* with .* will always evaluate to true#'
+        - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$.+#'

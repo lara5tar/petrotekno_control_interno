@@ -36,9 +36,9 @@ class UserManagementTest extends TestCase
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson('/api/users', [
-                'nombre_usuario' => 'testusuario',
                 'email' => 'test@petrotekno.com',
                 'password' => 'password123',
+                'password_confirmation' => 'password123',
                 'rol_id' => $role->id,
                 'personal_id' => $personal->id,
             ]);
@@ -49,7 +49,6 @@ class UserManagementTest extends TestCase
                 'message',
                 'data' => [
                     'id',
-                    'nombre_usuario',
                     'email',
                     'rol',
                 ],
@@ -64,7 +63,6 @@ class UserManagementTest extends TestCase
 
         $response = $this->actingAs($supervisor, 'sanctum')
             ->postJson('/api/users', [
-                'nombre_usuario' => 'testusuario',
                 'email' => 'test@petrotekno.com',
                 'password' => 'password123',
                 'rol_id' => $role->id,
@@ -88,7 +86,6 @@ class UserManagementTest extends TestCase
                     'data' => [
                         '*' => [
                             'id',
-                            'nombre_usuario',
                             'email',
                             'rol',
                             'personal',
@@ -120,13 +117,12 @@ class UserManagementTest extends TestCase
 
         $response = $this->actingAs($admin, 'sanctum')
             ->postJson('/api/users', [
-                'nombre_usuario' => '',
                 'email' => 'invalid-email',
                 'password' => '123',
                 'rol_id' => 999,
             ]);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['nombre_usuario', 'email', 'password', 'rol_id']);
+            ->assertJsonValidationErrors(['email', 'password', 'rol_id']);
     }
 }

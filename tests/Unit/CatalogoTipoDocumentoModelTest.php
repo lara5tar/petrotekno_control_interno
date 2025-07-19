@@ -172,7 +172,7 @@ class CatalogoTipoDocumentoModelTest extends TestCase
         $this->assertFalse($tipoDocumento->documentos->contains($documento1));
 
         // Verificar que puede traer todos incluyendo eliminados
-        $this->assertCount(2, $tipoDocumento->documentos()->withTrashed()->get());
+        $this->assertCount(2, Documento::withTrashed()->where('tipo_documento_id', $tipoDocumento->id)->get());
     }
 
     public function test_puede_determinar_si_tiene_documentos_asociados()

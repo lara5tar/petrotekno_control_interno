@@ -35,7 +35,8 @@ class PersonalController extends Controller
             $query->where('estatus', $request->input('estatus'));
         }
 
-        $personal = $query->paginate(15);
+        $perPage = $request->input('per_page', 15);
+        $personal = $query->paginate($perPage);
 
         return response()->json([
             'success' => true,
