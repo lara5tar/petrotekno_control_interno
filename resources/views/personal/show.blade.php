@@ -1,271 +1,291 @@
 @extends('layouts.app')
 
-@section('title', 'Detalles del Personal')
+@section('title', 'Control de Personal')
 
-@section('header', 'Gestión de Personal')
+@section('header', 'Control de Personal de Petrotekno')
 
 @section('content')
-    <!-- Breadcrumb -->
-    <div class="mb-4">
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="{{ route('home') }}" class="text-gray-700 hover:text-petroyellow">
-                        Dashboard
-                    </a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        <a href="{{ route('personal.index') }}" class="text-gray-700 hover:text-petroyellow ml-1 md:ml-2">Personal</a>
-                    </div>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="text-gray-500 ml-1 md:ml-2">{{ $personal->nombre_completo }}</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-    </div>
+<!-- Breadcrumb -->
+<div class="bg-gray-100 px-4 py-2 text-sm text-gray-600 mb-6">
+    Gestionar Personal / {{ $personal->nombre_completo ?? 'Marco Delgado Reyes' }} [{{ str_pad($personal->id ?? 1, 3, '0', STR_PAD_LEFT) }}]
+</div>
 
-    <!-- Encabezado Principal -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <div class="h-16 w-16 rounded-full bg-petroyellow flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-petrodark" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
+<!-- Contenido Principal -->
+<div class="p-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Panel Izquierdo - Datos Generales -->
+        <div class="space-y-6">
+            <!-- Datos Generales -->
+            <div class="bg-white border border-gray-300 rounded-lg">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
+                    <h3 class="font-semibold text-gray-800">Datos Generales</h3>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Nombre</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $personal->nombre_completo ?? 'Marco Delgado Reyes' }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Categoría</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $personal->categoria->nombre_categoria ?? 'Técnico Especializado' }}
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-900">{{ $personal->nombre_completo }}</h1>
-                        <div class="flex items-center space-x-4 mt-1">
-                            <span class="text-sm text-gray-600">{{ $personal->categoria->nombre_categoria ?? 'Sin categoría' }}</span>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                {{ $personal->estatus === 'activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                {{ ucfirst($personal->estatus) }}
-                            </span>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">ID Empleado</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ str_pad($personal->id ?? 1, 4, '0', STR_PAD_LEFT) }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Estatus</label>
+                            <div class="bg-green-600 text-white px-3 py-2 rounded text-sm font-medium flex items-center">
+                                <span class="w-2 h-2 bg-green-300 rounded-full mr-2"></span>
+                                {{ ucfirst($personal->estatus ?? 'Activo') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">CURP</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                DERJ850315HNLGYR07
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">RFC</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                DERJ850315XY4
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3">
-                    <a href="{{ route('personal.edit', $personal) }}" 
-                       class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-sm transition duration-200 flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </div>
+
+            <!-- Foto del Personal -->
+            <div class="bg-white border border-gray-300 rounded-lg">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
+                    <h3 class="font-semibold text-gray-800">Fotografía</h3>
+                </div>
+                <div class="p-4">
+                    <div class="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
+                        <div class="text-center">
+                            <svg class="w-16 h-16 text-gray-400 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                            <p class="text-gray-500 text-sm">Foto del Personal</p>
+                            <p class="text-gray-400 text-xs">{{ $personal->nombre_completo ?? 'Marco Delgado Reyes' }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between p-4 border-t border-gray-200">
+                    <button class="bg-gray-600 text-white px-4 py-2 rounded text-sm hover:bg-gray-700">
+                        Regresar
+                    </button>
+                    <button class="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                         </svg>
-                        <span>Editar</span>
-                    </a>
-                    <a href="{{ route('personal.index') }}" 
-                       class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md text-sm transition duration-200">
-                        Volver
-                    </a>
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Derecho - Información Adicional -->
+        <div class="space-y-6">
+            <!-- Estado Actual -->
+            <div class="bg-white border border-gray-300 rounded-lg">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
+                    <h3 class="font-semibold text-gray-800">Estado Actual</h3>
+                </div>
+                <div class="p-4">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-gray-800 mb-2">08:30</div>
+                        <div class="text-sm text-gray-600">Horario de Entrada</div>
+                        <div class="bg-green-500 text-white px-4 py-2 rounded mt-3 font-medium">
+                            En Servicio
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs de Información -->
+            <div class="bg-white border border-gray-300 rounded-lg">
+                <div class="bg-gray-50 px-4 py-0 border-b border-gray-300">
+                    <div class="flex space-x-0">
+                        <button class="px-4 py-3 text-sm font-medium border-b-2 border-blue-600 text-blue-600 bg-white">
+                            Asignación
+                        </button>
+                        <button class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-800">
+                            Documentos
+                        </button>
+                        <button class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-800">
+                            Historial
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Contenido de Asignación -->
+                <div class="p-4">
+                    <!-- Obra Actual -->
+                    <div class="mb-6">
+                        <h4 class="font-medium text-gray-700 mb-3">Obra Actual</h4>
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs text-gray-600">Nombre de Obra</label>
+                                    <div class="bg-gray-600 text-white px-2 py-1 rounded text-sm">
+                                        Mantenimiento Vial Monterrey
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-600">Ubicación</label>
+                                    <div class="bg-gray-600 text-white px-2 py-1 rounded text-sm">
+                                        Monterrey, N.L.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs text-gray-600">Puesto Asignado</label>
+                                    <div class="bg-gray-600 text-white px-2 py-1 rounded text-sm">
+                                        Técnico Especializado
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-600">Supervisor</label>
+                                    <div class="bg-gray-600 text-white px-2 py-1 rounded text-sm">
+                                        Ing. Carlos López
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs text-gray-600">Fecha Inicio</label>
+                                    <div class="bg-gray-600 text-white px-2 py-1 rounded text-sm">
+                                        15/07/2025
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-600">Fecha Término</label>
+                                    <div class="bg-gray-600 text-white px-2 py-1 rounded text-sm">
+                                        15/12/2025
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Documentos del Personal -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-medium text-gray-700">Documentos Vigentes</h4>
+                            <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                                Ver Todos
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between p-2 bg-green-50 rounded">
+                                <span class="text-sm text-gray-700">CURP</span>
+                                <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Vigente</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-green-50 rounded">
+                                <span class="text-sm text-gray-700">RFC</span>
+                                <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Vigente</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-green-50 rounded">
+                                <span class="text-sm text-gray-700">NSS</span>
+                                <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Vigente</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-yellow-50 rounded">
+                                <span class="text-sm text-gray-700">Certificado Médico</span>
+                                <span class="bg-yellow-600 text-white px-2 py-1 rounded text-xs">Por Vencer</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-green-50 rounded">
+                                <span class="text-sm text-gray-700">Constancia de Estudios</span>
+                                <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Vigente</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Historial de Asistencia -->
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-medium text-gray-700">Asistencia Reciente</h4>
+                            <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                                Ver Historial
+                            </button>
+                        </div>
+
+                        <div class="bg-gray-100 rounded overflow-hidden">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-600 text-white">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left">Fecha</th>
+                                        <th class="px-3 py-2 text-left">Entrada</th>
+                                        <th class="px-3 py-2 text-left">Salida</th>
+                                        <th class="px-3 py-2 text-left">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700">
+                                    <tr class="border-b border-gray-300">
+                                        <td class="px-3 py-2">19/07/2025</td>
+                                        <td class="px-3 py-2">08:30</td>
+                                        <td class="px-3 py-2">-</td>
+                                        <td class="px-3 py-2">
+                                            <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Presente</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-gray-300">
+                                        <td class="px-3 py-2">18/07/2025</td>
+                                        <td class="px-3 py-2">08:25</td>
+                                        <td class="px-3 py-2">17:30</td>
+                                        <td class="px-3 py-2">
+                                            <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Completo</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-gray-300">
+                                        <td class="px-3 py-2">17/07/2025</td>
+                                        <td class="px-3 py-2">08:35</td>
+                                        <td class="px-3 py-2">17:25</td>
+                                        <td class="px-3 py-2">
+                                            <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Completo</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-gray-300">
+                                        <td class="px-3 py-2">16/07/2025</td>
+                                        <td class="px-3 py-2">-</td>
+                                        <td class="px-3 py-2">-</td>
+                                        <td class="px-3 py-2">
+                                            <span class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Descanso</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-3 py-2">15/07/2025</td>
+                                        <td class="px-3 py-2">08:20</td>
+                                        <td class="px-3 py-2">17:35</td>
+                                        <td class="px-3 py-2">
+                                            <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Completo</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <!-- Panel Izquierdo - Información Principal -->
-        <div class="xl:col-span-2 space-y-6">
-            <!-- Datos Principales -->
-            <x-personal-info-card :personal="$personal" />
-
-            <!-- Información de Contacto -->
-            <x-personal-contact-card :personal="$personal" />
-
-            <!-- Documentos -->
-            @if($personal->documentos->count() > 0)
-                <x-personal-documents-card :personal="$personal" />
-            @endif
-        </div>
-
-        <!-- Panel Derecho -->
-        <div class="space-y-6">
-            <!-- Información Adicional -->
-            <x-personal-additional-info :personal="$personal" />
-            @if(!$personal->user)
-                <div id="create-user-section" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Crear Usuario para {{ $personal->nombre_completo }}</h3>
-                    <form id="createUserForm" class="space-y-4">
-                        <div>
-                            <label for="nombre_usuario" class="block text-sm font-medium text-gray-700">Usuario <span class="text-red-500">*</span></label>
-                            <input type="text" id="nombre_usuario" name="nombre_usuario" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-petroyellow" />
-                        </div>
-                        <div>
-                            <label for="email_user" class="block text-sm font-medium text-gray-700">Email <span class="text-red-500">*</span></label>
-                            <input type="email" id="email_user" name="email" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-petroyellow" />
-                        </div>
-                        <div>
-                            <label for="password_user" class="block text-sm font-medium text-gray-700">Contraseña <span class="text-red-500">*</span></label>
-                            <input type="password" id="password_user" name="password" minlength="8" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-petroyellow" />
-                        </div>
-                        <div>
-                            <label for="rol_id" class="block text-sm font-medium text-gray-700">Rol <span class="text-red-500">*</span></label>
-                            <select id="rol_id" name="rol_id" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-petroyellow">
-                                <option value="">Cargando roles...</option>
-                            </select>
-                        </div>
-                        <input type="hidden" name="personal_id" value="{{ $personal->id }}" />
-                        <div class="flex justify-end">
-                            <button type="submit"
-                                class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-6 rounded-md">Crear Usuario</button>
-                        </div>
-                        <p id="createUserMessage" class="mt-2 text-sm"></p>
-                    </form>
-                </div>
-            @endif
-
-            <!-- Usuario Asociado -->
-            @if($personal->user)
-                <x-personal-user-card :user="$personal->user" />
-            @endif
-
-            <!-- Estadísticas Rápidas -->
-            <x-personal-stats-card :personal="$personal" />
-        </div>
-    </div>
-
-    <!-- Modal de Confirmación para Eliminación -->
-    <x-confirm-modal 
-        id="deleteModal" 
-        title="Eliminar Personal" 
-        message="¿Está seguro de que desea eliminar este personal? Esta acción no se puede deshacer."
-        action="{{ route('personal.destroy', $personal) }}"
-        method="DELETE"
-    />
+</div>
 @endsection
-
-@push('scripts')
-<script>
-// Funcionalidad para mostrar/ocultar información
-function toggleSection(sectionId) {
-    const section = document.getElementById(sectionId);
-    if (section) {
-        section.classList.toggle('hidden');
-    }
-}
-
-// Confirmación para eliminar
-function confirmDelete() {
-    document.getElementById('deleteModal').classList.remove('hidden');
-}
-
-// Cerrar modal
-function closeModal(modalId) {
-    document.getElementById(modalId).classList.add('hidden');
-}
-
-// Copiar texto al clipboard
-function copyToClipboard(text, element) {
-    navigator.clipboard.writeText(text).then(function() {
-        // Mostrar feedback visual
-        const originalText = element.textContent;
-        element.textContent = '¡Copiado!';
-        element.classList.add('text-green-600');
-        
-        setTimeout(() => {
-            element.textContent = originalText;
-            element.classList.remove('text-green-600');
-        }, 2000);
-    });
-}
-
-// Funcionalidad para tabs
-function showTab(tabName) {
-    // Ocultar todos los tabs
-    document.querySelectorAll('[data-tab-content]').forEach(tab => {
-        tab.classList.add('hidden');
-    });
-    
-    // Remover clase activa de todos los botones
-    document.querySelectorAll('[data-tab-button]').forEach(button => {
-        button.classList.remove('border-petroyellow', 'text-petroyellow');
-        button.classList.add('border-transparent', 'text-gray-500');
-    });
-    
-    // Mostrar tab seleccionado
-    const targetTab = document.querySelector(`[data-tab-content="${tabName}"]`);
-    if (targetTab) {
-        targetTab.classList.remove('hidden');
-    }
-    
-    // Activar botón seleccionado
-    const targetButton = document.querySelector(`[data-tab-button="${tabName}"]`);
-    if (targetButton) {
-        targetButton.classList.add('border-petroyellow', 'text-petroyellow');
-        targetButton.classList.remove('border-transparent', 'text-gray-500');
-    }
-}
-
-// Inicializar primer tab como activo
-document.addEventListener('DOMContentLoaded', function() {
-    showTab('info');
-});
-
-// AJAX para crear usuario
-document.getElementById('createUserForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    const messageElement = document.getElementById('createUserMessage');
-
-    fetch('{{ route('user.store') }}', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            messageElement.textContent = 'Usuario creado exitosamente.';
-            messageElement.classList.add('text-green-600');
-            setTimeout(() => {
-                location.reload();
-            }, 2000);
-        } else {
-            messageElement.textContent = 'Error al crear usuario.';
-            messageElement.classList.add('text-red-600');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        messageElement.textContent = 'Error al crear usuario.';
-        messageElement.classList.add('text-red-600');
-    });
-});
-
-// Cargar roles al seleccionar el campo de rol
-document.getElementById('rol_id').addEventListener('focus', function() {
-    fetchRoles();
-});
-
-function fetchRoles() {
-    fetch('{{ route('roles.index') }}')
-    .then(response => response.json())
-    .then(data => {
-        const rolSelect = document.getElementById('rol_id');
-        rolSelect.innerHTML = '';
-        data.forEach(role => {
-            const option = document.createElement('option');
-            option.value = role.id;
-            option.textContent = role.name;
-            rolSelect.appendChild(option);
-        });
-    })
-    .catch(error => console.error('Error:', error));
-}
-</script>
-@endpush

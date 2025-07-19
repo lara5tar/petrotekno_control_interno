@@ -27,83 +27,96 @@ Route::get('/vehiculos', function () {
 
 // Rutas para Personal CRUD
 Route::middleware('auth')->prefix('personal')->name('personal.')->group(function () {
-    // Ruta para listar personal
+    // Ruta para listar personal (datos estáticos)
     Route::get('/', function () {
-        // Obtener categorías para el filtro
-        $categorias = \App\Models\CategoriaPersonal::orderBy('nombre_categoria')->get();
+        // Categorías estáticas
+        $categorias = collect([
+            (object) ['id' => 1, 'nombre_categoria' => 'Técnico Especializado'],
+            (object) ['id' => 2, 'nombre_categoria' => 'Operador'],
+            (object) ['id' => 3, 'nombre_categoria' => 'Supervisor'],
+            (object) ['id' => 4, 'nombre_categoria' => 'Administrador']
+        ]);
         
-        // Query base del personal con relaciones
-        $query = \App\Models\Personal::with(['categoria', 'usuario']);
-        
-        // Aplicar filtros
-        if (request('search')) {
-            $search = request('search');
-            $query->where(function($q) use ($search) {
-                $q->where('nombre_completo', 'like', "%{$search}%")
-                  ->orWhereHas('categoria', function($q) use ($search) {
-                      $q->where('nombre_categoria', 'like', "%{$search}%");
-                  });
-            });
-        }
-        
-        if (request('categoria_id')) {
-            $query->where('categoria_personal_id', request('categoria_id'));
-        }
-        
-        if (request('estatus')) {
-            $query->where('estatus', request('estatus'));
-        }
-        
-        // Obtener resultados paginados
-        $personal = $query->orderBy('nombre_completo')->paginate(15);
+        // Personal estático
+        $personal = collect([
+            (object) [
+                'id' => 1,
+                'nombre_completo' => 'Marco Delgado Reyes',
+                'estatus' => 'activo',
+                'categoria' => (object) ['nombre_categoria' => 'Técnico Especializado'],
+                'usuario' => null
+            ],
+            (object) [
+                'id' => 2,
+                'nombre_completo' => 'Ana García López',
+                'estatus' => 'activo',
+                'categoria' => (object) ['nombre_categoria' => 'Supervisor'],
+                'usuario' => (object) ['nombre_usuario' => 'ana.garcia']
+            ],
+            (object) [
+                'id' => 3,
+                'nombre_completo' => 'Carlos Rodríguez Morales',
+                'estatus' => 'inactivo',
+                'categoria' => (object) ['nombre_categoria' => 'Operador'],
+                'usuario' => null
+            ]
+        ]);
         
         return view('personal.index', compact('personal', 'categorias'));
     })->name('index');
 
-    // Ruta para mostrar formulario de crear personal
+    // Ruta para mostrar formulario de crear personal (datos estáticos)
     Route::get('/create', function () {
-        $categorias = \App\Models\CategoriaPersonal::orderBy('nombre_categoria')->get();
-        $usuarios = \App\Models\User::orderBy('nombre_usuario')->get();
+        // Categorías estáticas
+        $categorias = collect([
+            (object) ['id' => 1, 'nombre_categoria' => 'Técnico Especializado'],
+            (object) ['id' => 2, 'nombre_categoria' => 'Operador'],
+            (object) ['id' => 3, 'nombre_categoria' => 'Supervisor'],
+            (object) ['id' => 4, 'nombre_categoria' => 'Administrador']
+        ]);
+        
+        // Usuarios estáticos
+        $usuarios = collect([
+            (object) ['id' => 1, 'nombre_usuario' => 'admin'],
+            (object) ['id' => 2, 'nombre_usuario' => 'supervisor01'],
+            (object) ['id' => 3, 'nombre_usuario' => 'operador01']
+        ]);
         
         return view('personal.create', compact('categorias', 'usuarios'));
     })->name('create');
 
-    // Ruta para guardar nuevo personal
+    // Ruta para guardar nuevo personal (simulada con datos estáticos)
     Route::post('/', function (\Illuminate\Http\Request $request) {
+        // Simular validación básica sin tocar la base de datos
         $request->validate([
             'nombre_completo' => 'required|string|max:255',
-            'curp' => 'required|string|size:18|unique:personal,curp',
-            'categoria_personal_id' => 'required|exists:categorias_personal,id',
-            'estatus' => 'required|in:activo,inactivo',
-            'rfc' => 'nullable|string|max:13|unique:personal,rfc',
-            'nss' => 'nullable|string|max:11',
-            'direccion' => 'nullable|string|max:500',
-            'puesto' => 'nullable|string|max:255',
-            'telefono' => 'nullable|string|max:15',
-            'email' => 'nullable|email|max:255',
-            'fecha_ingreso' => 'nullable|date',
-            'user_id' => 'nullable|exists:users,id',
-            'notas' => 'nullable|string|max:1000'
+            'categoria_id' => 'required',
+            'estatus' => 'required|in:activo,inactivo'
         ]);
 
-        $personal = \App\Models\Personal::create($request->all());
+        // Simular ID del personal creado
+        $personalId = rand(1, 100);
 
-        return redirect()->route('personal.show', $personal->id)
-            ->with('success', 'Personal creado exitosamente.');
+        return redirect()->route('personal.show', $personalId)
+            ->with('success', 'Personal creado exitosamente (simulación).');
     })->name('store');
 
-    // Ruta para mostrar detalles de un personal
+    // Ruta para mostrar detalles de un personal (datos estáticos)
     Route::get('/{id}', function ($id) {
-        $personal = Personal::with([
-            'user', 
-            'categoriaPersonal',
-            'documentos.tipoDocumento'
-        ])->findOrFail($id);
+        // Crear objeto de personal con datos estáticos
+        $personal = (object) [
+            'id' => $id,
+            'nombre_completo' => 'Marco Delgado Reyes',
+            'estatus' => 'activo',
+            'categoria' => (object) [
+                'nombre_categoria' => 'Técnico Especializado'
+            ],
+            'user' => null,
+            'documentos' => collect([])
+        ];
         
-        // Organizar documentos por tipo
-        $documentosPorTipo = $personal->documentos->keyBy(function($doc) {
-            return $doc->tipoDocumento->nombre_tipo_documento ?? 'Sin Tipo';
-        });
+        // Documentos estáticos organizados por tipo
+        $documentosPorTipo = collect([]);
         
         return view('personal.show', compact('personal', 'documentosPorTipo'));
     })->name('show');
@@ -265,3 +278,8 @@ Route::middleware('auth')->group(function () {
         }
     })->name('web-api.personal');
 });
+
+// Ruta para vista de usuario (datos estáticos)
+Route::get('/usuarios/{id}', function ($id) {
+    return view('usuarios.show');
+})->name('usuarios.show');
