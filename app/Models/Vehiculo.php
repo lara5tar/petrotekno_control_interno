@@ -20,6 +20,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $intervalo_km_motor Intervalo de cambio de aceite de motor
  * @property int|null $intervalo_km_transmision Intervalo de cambio de aceite de transmisión
  * @property int|null $intervalo_km_hidraulico Intervalo de cambio de aceite hidráulico
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon|null $deleted_at
+ * @property int|null $intervalo_km_hidraulico Intervalo de cambio de aceite hidráulico
  * @property string|null $observaciones
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

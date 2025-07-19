@@ -16,13 +16,13 @@ class LogAccionModelTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->artisan('db:seed');
+        $this->seed(['PermissionSeeder', 'RoleSeeder', 'CategoriaPersonalSeeder', 'CatalogoEstatusSeeder']);
     }
 
     #[Test]
     public function puede_crear_log_accion()
     {
-        $user = User::first();
+        $user = User::factory()->create();
 
         $logAccion = LogAccion::create([
             'usuario_id' => $user->id,
@@ -40,7 +40,7 @@ class LogAccionModelTest extends TestCase
     #[Test]
     public function log_accion_pertenece_a_usuario()
     {
-        $user = User::first();
+        $user = User::factory()->create();
 
         $logAccion = LogAccion::create([
             'usuario_id' => $user->id,
@@ -54,7 +54,7 @@ class LogAccionModelTest extends TestCase
     #[Test]
     public function fecha_hora_se_registra_automaticamente()
     {
-        $user = User::first();
+        $user = User::factory()->create();
 
         $logAccion = LogAccion::create([
             'usuario_id' => $user->id,
@@ -103,8 +103,8 @@ class LogAccionModelTest extends TestCase
     #[Test]
     public function puede_filtrar_por_usuario()
     {
-        $user1 = User::first();
-        $user2 = User::skip(1)->first();
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
 
         LogAccion::create(['usuario_id' => $user1->id, 'accion' => 'accion1']);
         LogAccion::create(['usuario_id' => $user2->id, 'accion' => 'accion2']);
@@ -126,7 +126,7 @@ class LogAccionModelTest extends TestCase
     #[Test]
     public function accion_es_requerida()
     {
-        $user = User::first();
+        $user = User::factory()->create();
 
         $this->expectException(\Illuminate\Database\QueryException::class);
 
@@ -136,7 +136,7 @@ class LogAccionModelTest extends TestCase
     #[Test]
     public function detalles_pueden_ser_complejos()
     {
-        $user = User::first();
+        $user = User::factory()->create();
 
         $detallesComplejos = json_encode([
             'cambios' => [
@@ -153,6 +153,9 @@ class LogAccionModelTest extends TestCase
         ]);
 
         $this->assertEquals($detallesComplejos, $logAccion->detalles);
-        $this->assertIsArray(json_decode($logAccion->detalles, true));
+        if (is_string($logAccion->detalles)) {
+            $decodedDetalles = json_decode($logAccion->detalles, true);
+            $this->assertIsArray($decodedDetalles);
+        }
     }
 }

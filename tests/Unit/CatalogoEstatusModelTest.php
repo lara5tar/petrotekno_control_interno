@@ -139,7 +139,8 @@ class CatalogoEstatusModelTest extends TestCase
 
         $vehiculo->delete();
 
-        $this->assertEquals(1, $estatus->vehiculos()->withTrashed()->count());
+        // Usar query builder en lugar de relación para acceder a withTrashed
+        $this->assertEquals(1, Vehiculo::withTrashed()->where('estatus_id', $estatus->id)->count());
         $this->assertEquals(0, $estatus->vehiculos()->count());
     }
 

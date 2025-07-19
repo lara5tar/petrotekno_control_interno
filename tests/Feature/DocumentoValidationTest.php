@@ -262,7 +262,7 @@ class DocumentoValidationTest extends TestCase
             $response = $this->actingAs($this->user, 'sanctum')
                 ->postJson('/api/documentos', $data);
 
-            $response->assertStatus(201, "Archivo .{$extension} debería ser aceptado");
+            $response->assertStatus(201);
         }
     }
 
@@ -281,7 +281,7 @@ class DocumentoValidationTest extends TestCase
             $response = $this->actingAs($this->user, 'sanctum')
                 ->postJson('/api/documentos', $data);
 
-            $response->assertStatus(422, "Archivo .{$extension} debería ser rechazado")
+            $response->assertStatus(422)
                 ->assertJsonValidationErrors(['archivo']);
         }
     }
@@ -339,7 +339,7 @@ class DocumentoValidationTest extends TestCase
             $response = $this->actingAs($this->user, 'sanctum')
                 ->postJson('/api/documentos', $data);
 
-            $response->assertStatus(422, "Fecha {$fecha} debería ser inválida")
+            $response->assertStatus(422)
                 ->assertJsonValidationErrors(['fecha_vencimiento']);
         }
     }
@@ -362,7 +362,7 @@ class DocumentoValidationTest extends TestCase
             $response = $this->actingAs($this->user, 'sanctum')
                 ->postJson('/api/documentos', $data);
 
-            $response->assertStatus(201, "Fecha {$fecha} debería ser válida");
+            $response->assertStatus(201);
         }
     }
 
