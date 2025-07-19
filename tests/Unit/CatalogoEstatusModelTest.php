@@ -25,11 +25,11 @@ class CatalogoEstatusModelTest extends TestCase
     public function scope_activos_filtra_correctamente()
     {
         $activo = CatalogoEstatus::factory()->create([
-            'nombre_estatus' => 'test_activo_' . time(),
+            'nombre_estatus' => 'test_activo_'.time(),
             'activo' => true,
         ]);
         $inactivo = CatalogoEstatus::factory()->create([
-            'nombre_estatus' => 'test_inactivo_' . time(),
+            'nombre_estatus' => 'test_inactivo_'.time(),
             'activo' => false,
         ]);
 
@@ -148,10 +148,10 @@ class CatalogoEstatusModelTest extends TestCase
     public function puede_determinar_si_tiene_vehiculos_asociados()
     {
         $estatusSinVehiculos = CatalogoEstatus::factory()->create([
-            'nombre_estatus' => 'sin_vehiculos_' . time(),
+            'nombre_estatus' => 'sin_vehiculos_'.time(),
         ]);
         $estatusConVehiculos = CatalogoEstatus::factory()->create([
-            'nombre_estatus' => 'con_vehiculos_' . time(),
+            'nombre_estatus' => 'con_vehiculos_'.time(),
         ]);
 
         Vehiculo::factory()->create(['estatus_id' => $estatusConVehiculos->id]);

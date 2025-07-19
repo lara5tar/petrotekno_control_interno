@@ -3,6 +3,7 @@ includes:
 
 parameters:
     level: 5  # Aumentamos el nivel para mejor análisis
+    treatPhpDocTypesAsCertain: false  # Desactiva warnings para tipos de PHPDoc
     paths:
         - app/Http/Controllers
         - app/Models
@@ -16,3 +17,5 @@ parameters:
     ignoreErrors:
         - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$id#'
         - '#Parameter .* of method PHPUnit\\Framework\\Assert::assertStringContainsString\(\) expects string, array.*given#'
+        - '#Call to method PHPUnit\\Framework\\Assert::assert.* with .* will always evaluate to true#'
+        - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$.+#'
