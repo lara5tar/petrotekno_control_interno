@@ -76,6 +76,7 @@ class AuditLoggingTest extends TestCase
                 'nombre_usuario' => 'testlog',
                 'email' => 'testlog@petrotekno.com',
                 'password' => 'password123',
+                'password_confirmation' => 'password123',
                 'rol_id' => $role->id,
             ]);
 

@@ -39,6 +39,7 @@ class UserManagementTest extends TestCase
                 'nombre_usuario' => 'testusuario',
                 'email' => 'test@petrotekno.com',
                 'password' => 'password123',
+                'password_confirmation' => 'password123',
                 'rol_id' => $role->id,
                 'personal_id' => $personal->id,
             ]);
