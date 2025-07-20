@@ -26,13 +26,13 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Nombre</label>
-                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ $personal->nombre_completo ?? 'Marco Delgado Reyes' }}
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Categoría</label>
-                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ $personal->categoria->nombre_categoria ?? 'Técnico Especializado' }}
                             </div>
                         </div>
@@ -41,7 +41,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">ID Empleado</label>
-                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ str_pad($personal->id ?? 1, 4, '0', STR_PAD_LEFT) }}
                             </div>
                         </div>
@@ -58,10 +58,10 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">CURP</label>
                             <div class="flex items-center space-x-2">
-                                <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
                                     DERJ850315HNLGYR07
                                 </div>
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -72,10 +72,10 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">RFC</label>
                             <div class="flex items-center space-x-2">
-                                <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
                                     DERJ850315XY4
                                 </div>
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -89,10 +89,10 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Identificación (INE)</label>
                             <div class="flex items-center space-x-2">
-                                <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
                                     1234567890123
                                 </div>
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -103,10 +103,10 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">NSS</label>
                             <div class="flex items-center space-x-2">
-                                <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
                                     12345678901
                                 </div>
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -120,10 +120,10 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Licencia de Manejo</label>
                             <div class="flex items-center space-x-2">
-                                <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
                                     LIC123456789
                                 </div>
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -137,7 +137,7 @@
                                 <div class="bg-green-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
                                     Disponible
                                 </div>
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -165,7 +165,7 @@
                             Asignación
                         </button> --}}
                         <button id="documentos-tab" 
-                                class="px-4 py-3 text-sm font-medium border-b-2 border-blue-600 text-blue-600 bg-white transition-colors duration-200"
+                                class="px-4 py-3 text-sm font-medium border-b-2 border-gray-600 text-gray-600 bg-white transition-colors duration-200"
                                 onclick="switchTab('documentos')" 
                                 role="tab" 
                                 aria-selected="true"
@@ -297,7 +297,7 @@
                                     </div>
                                 </div>
                             </div>                            <div class="mt-4 pt-4 border-t border-gray-200">
-                                <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center">
+                                <button class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>
@@ -364,8 +364,8 @@ window.switchTab = function(tabName) {
         
         if (tab === tabName) {
             // Activar pestaña seleccionada
-            tabButton.classList.add('border-blue-600', 'text-blue-600', 'bg-white');
-            tabButton.classList.remove('text-gray-600', 'border-transparent');
+            tabButton.classList.add('border-gray-600', 'text-gray-600', 'bg-white');
+            tabButton.classList.remove('text-gray-400', 'border-transparent');
             tabButton.setAttribute('aria-selected', 'true');
             
             // Mostrar contenido de la pestaña activa
@@ -373,8 +373,8 @@ window.switchTab = function(tabName) {
             console.log(`Activated tab: ${tab}`); // Debug
         } else {
             // Desactivar pestañas no seleccionadas
-            tabButton.classList.remove('border-blue-600', 'text-blue-600', 'bg-white');
-            tabButton.classList.add('text-gray-600', 'border-transparent');
+            tabButton.classList.remove('border-gray-600', 'text-gray-600', 'bg-white');
+            tabButton.classList.add('text-gray-400', 'border-transparent');
             tabButton.setAttribute('aria-selected', 'false');
             
             // Ocultar contenido de pestañas inactivas
