@@ -25,6 +25,11 @@ Route::get('/vehiculos', function () {
     return view('vehiculos.index');
 })->name('vehiculos.index');
 
+// Ruta para mostrar formulario de crear vehículo (datos estáticos)
+Route::get('/vehiculos/create', function () {
+    return view('vehiculos.create');
+})->name('vehiculos.create');
+
 // Rutas para Personal CRUD
 Route::middleware('auth')->prefix('personal')->name('personal.')->group(function () {
     // Ruta para listar personal (datos estáticos)
