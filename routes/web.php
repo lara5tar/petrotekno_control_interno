@@ -30,6 +30,86 @@ Route::get('/vehiculos/create', function () {
     return view('vehiculos.create');
 })->name('vehiculos.create');
 
+// Ruta para guardar nuevo vehículo (simulada con datos estáticos)
+Route::post('/vehiculos', function (\Illuminate\Http\Request $request) {
+    // Simular validación básica sin tocar la base de datos
+    $request->validate([
+        'marca' => 'required|string|max:255',
+        'modelo' => 'required|string|max:255',
+        'anio' => 'required|integer|min:1990|max:2025',
+        'n_serie' => 'required|string|max:255',
+        'placas' => 'required|string|max:255',
+        'kilometraje_actual' => 'required|integer|min:0',
+        'estatus_id' => 'required'
+    ]);
+
+    // Simular ID del vehículo creado
+    $vehiculoId = rand(1, 100);
+
+    return redirect()->route('vehiculos.index')
+        ->with('success', 'Vehículo creado exitosamente (simulación frontend).');
+})->name('vehiculos.store');
+
+// Ruta para mostrar detalles de un vehículo (datos estáticos)
+Route::get('/vehiculos/{id}', function ($id) {
+    // Crear objeto de vehículo con datos estáticos
+    $vehiculo = (object) [
+        'id' => $id,
+        'marca' => 'Toyota',
+        'modelo' => 'Hilux',
+        'anio' => 2022,
+        'n_serie' => '1FTFW1ET5DFA12345',
+        'placas' => 'ABC-123',
+        'kilometraje_actual' => 45780,
+        'estatus_id' => 1,
+        'intervalo_km_motor' => 5000,
+        'intervalo_km_transmision' => 40000,
+        'intervalo_km_hidraulico' => 10000,
+        'observaciones' => 'Vehículo en excelentes condiciones',
+        'estatus' => (object) ['nombre' => 'Disponible']
+    ];
+    
+    return view('vehiculos.show', compact('vehiculo'));
+})->name('vehiculos.show');
+
+// Ruta para mostrar formulario de editar vehículo (datos estáticos)
+Route::get('/vehiculos/{id}/edit', function ($id) {
+    // Crear objeto de vehículo con datos estáticos
+    $vehiculo = (object) [
+        'id' => $id,
+        'marca' => 'Toyota',
+        'modelo' => 'Hilux',
+        'anio' => 2022,
+        'n_serie' => '1FTFW1ET5DFA12345',
+        'placas' => 'ABC-123',
+        'kilometraje_actual' => 45780,
+        'estatus_id' => 1,
+        'intervalo_km_motor' => 5000,
+        'intervalo_km_transmision' => 40000,
+        'intervalo_km_hidraulico' => 10000,
+        'observaciones' => 'Vehículo en excelentes condiciones. Se le realizó mantenimiento general el mes pasado.'
+    ];
+    
+    return view('vehiculos.edit', compact('vehiculo'));
+})->name('vehiculos.edit');
+
+// Ruta para actualizar vehículo (simulada con datos estáticos)
+Route::put('/vehiculos/{id}', function (\Illuminate\Http\Request $request, $id) {
+    // Simular validación básica sin tocar la base de datos
+    $request->validate([
+        'marca' => 'required|string|max:255',
+        'modelo' => 'required|string|max:255',
+        'anio' => 'required|integer|min:1990|max:2025',
+        'n_serie' => 'required|string|max:255',
+        'placas' => 'required|string|max:255',
+        'kilometraje_actual' => 'required|integer|min:0',
+        'estatus_id' => 'required'
+    ]);
+
+    return redirect()->route('vehiculos.show', $id)
+        ->with('success', 'Vehículo actualizado exitosamente (simulación frontend).');
+})->name('vehiculos.update');
+
 // Rutas para Personal CRUD
 Route::middleware('auth')->prefix('personal')->name('personal.')->group(function () {
     // Ruta para listar personal (datos estáticos)

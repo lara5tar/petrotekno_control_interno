@@ -5,6 +5,28 @@
 @section('header', 'Gestión de Vehículos')
 
 @section('content')
+    {{-- Breadcrumb --}}
+    <x-breadcrumb :items="[
+        ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
+        ['label' => 'Vehículos']
+    ]" />
+
+    {{-- Mensaje de éxito --}}
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6" role="alert">
+            <strong class="font-bold">¡Éxito!</strong>
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
+
+    {{-- Mensaje de error --}}
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
+            <strong class="font-bold">¡Error!</strong>
+            <span class="block sm:inline">{{ session('error') }}</span>
+        </div>
+    @endif
+
     <!-- Encabezado con botón de agregar -->
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-800">Listado de Vehículos</h2>
@@ -83,22 +105,22 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15/05/2023</td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end space-x-2">
-                                <a href="#" class="text-blue-600 hover:text-blue-900">
+                                <a href="{{ route('vehiculos.show', 1) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                         <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
                                     </svg>
                                 </a>
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900">
+                                <a href="{{ route('vehiculos.edit', 1) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar vehículo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                     </svg>
                                 </a>
-                                <a href="#" class="text-red-600 hover:text-red-900">
+                                <button onclick="confirmarEliminacion(1, 'ABC-123')" class="text-red-600 hover:text-red-900" title="Eliminar vehículo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                                     </svg>
-                                </a>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -116,22 +138,22 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">02/06/2023</td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end space-x-2">
-                                <a href="#" class="text-blue-600 hover:text-blue-900">
+                                <a href="{{ route('vehiculos.show', 2) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                         <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
                                     </svg>
                                 </a>
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900">
+                                <a href="{{ route('vehiculos.edit', 2) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar vehículo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                     </svg>
                                 </a>
-                                <a href="#" class="text-red-600 hover:text-red-900">
+                                <button onclick="confirmarEliminacion(2, 'XYZ-789')" class="text-red-600 hover:text-red-900" title="Eliminar vehículo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                                     </svg>
-                                </a>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -149,22 +171,22 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10/06/2023</td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end space-x-2">
-                                <a href="#" class="text-blue-600 hover:text-blue-900">
+                                <a href="{{ route('vehiculos.show', 3) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                         <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
                                     </svg>
                                 </a>
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900">
+                                <a href="{{ route('vehiculos.edit', 3) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar vehículo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                     </svg>
                                 </a>
-                                <a href="#" class="text-red-600 hover:text-red-900">
+                                <button onclick="confirmarEliminacion(3, 'DEF-456')" class="text-red-600 hover:text-red-900" title="Eliminar vehículo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                                     </svg>
-                                </a>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -182,22 +204,22 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">28/05/2023</td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end space-x-2">
-                                <a href="#" class="text-blue-600 hover:text-blue-900">
+                                <a href="{{ route('vehiculos.show', 4) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                         <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
                                     </svg>
                                 </a>
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900">
+                                <a href="{{ route('vehiculos.edit', 4) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar vehículo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                     </svg>
                                 </a>
-                                <a href="#" class="text-red-600 hover:text-red-900">
+                                <button onclick="confirmarEliminacion(4, 'GHI-789')" class="text-red-600 hover:text-red-900" title="Eliminar vehículo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                                     </svg>
-                                </a>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -215,22 +237,22 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15/04/2023</td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end space-x-2">
-                                <a href="#" class="text-blue-600 hover:text-blue-900">
+                                <a href="{{ route('vehiculos.show', 5) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                         <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
                                     </svg>
                                 </a>
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900">
+                                <a href="{{ route('vehiculos.edit', 5) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar vehículo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                     </svg>
                                 </a>
-                                <a href="#" class="text-red-600 hover:text-red-900">
+                                <button onclick="confirmarEliminacion(5, 'JKL-012')" class="text-red-600 hover:text-red-900" title="Eliminar vehículo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                                     </svg>
-                                </a>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -297,3 +319,18 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    function confirmarEliminacion(id, placas) {
+        if (confirm(`¿Estás seguro de que deseas eliminar el vehículo con placas ${placas}?`)) {
+            // Aquí iría la lógica para eliminar el vehículo
+            // Por ahora solo mostramos una alerta de simulación
+            alert(`Vehículo con placas ${placas} eliminado exitosamente (simulación frontend)`);
+            
+            // En una implementación real, aquí harías una petición DELETE
+            // window.location.href = `/vehiculos/${id}/delete`;
+        }
+    }
+</script>
+@endpush

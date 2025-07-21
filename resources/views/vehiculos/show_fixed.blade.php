@@ -67,11 +67,17 @@
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 gap-4 mt-4">
+                    <div class="grid grid-cols-2 gap-4 mt-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Año</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ $vehiculo->año ?? '2023' }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Color</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $vehiculo->color ?? 'Blanco' }}
                             </div>
                         </div>
                     </div>
@@ -90,41 +96,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Derecho Vehicular</label>
-                            <div class="flex items-center space-x-2">
-                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    {{ $vehiculo->derecho_vehicular ?? 'DV-2025-001234' }}
-                                </div>
-                                <button onclick="viewDocument('derecho_vehicular.pdf')" 
-                                        class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-2 rounded text-sm transition duration-200"
-                                        title="Ver documento">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Póliza de Seguro</label>
-                            <div class="flex items-center space-x-2">
-                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    {{ $vehiculo->poliza_seguro ?? 'PS-2025-567890' }}
-                                </div>
-                                <button onclick="viewDocument('poliza_seguro.pdf')" 
-                                        class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-2 rounded text-sm transition duration-200"
-                                        title="Ver documento">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 616 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -135,10 +106,10 @@
                 </div>
                 <div class="p-4">
                     <div class="relative">
-                        <div class="bg-gray-100 rounded overflow-hidden mb-3">
+                        <div class="h-48 bg-gray-100 rounded overflow-hidden mb-3">
                             <img src="{{ $vehiculo->imagen ?? '/images/placeholder-vehicle.jpg' }}" 
                                  alt="Vehículo {{ $vehiculo->marca ?? 'Nissan' }} {{ $vehiculo->modelo ?? 'NP300' }}" 
-                                 class="w-full h-auto object-contain max-h-56"
+                                 class="w-full h-full object-cover"
                                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xNTAgODBWMTIwTTEzMCAxMDBIMTcwIiBzdHJva2U9IiM5QjlDQTQiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSIxNTAiIHk9IjE0MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmaWxsPSIjOUI5Q0E0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TaW4gZm90bzwvdGV4dD4KPC9zdmc+Cg=='">
                             <div class="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-sm">
                                 15/07/2025
@@ -246,32 +217,10 @@
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="block text-xs text-gray-600">Fecha Finalización</label>
-                                            <div class="bg-gray-600 text-white px-2 py-1 rounded text-sm">
-                                                15/07/2025
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block text-xs text-gray-600">Km. Inicial</label>
-                                            <div class="bg-gray-600 text-white px-2 py-1 rounded text-sm">
-                                                124,500
-                                            </div>
-                                        </div>
-                                        <div>
                                             <label class="block text-xs text-gray-600">Km. Final</label>
                                             <div class="bg-gray-600 text-white px-2 py-1 rounded text-sm">
                                                 200
                                             </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-xs text-gray-600">Responsable de Obra</label>
-                                        <div class="bg-gray-600 text-white px-2 py-1 rounded text-sm">
-                                            Delgado Reyes
                                         </div>
                                     </div>
                                 </div>
@@ -309,16 +258,23 @@
                                     
                                     <div class="grid grid-cols-2 gap-3">
                                         <div>
+                                            <label class="block text-xs text-gray-600">Responsable</label>
+                                            <div class="bg-gray-600 text-white px-2 py-1 rounded text-sm">
+                                                Delgado Reyes
+                                            </div>
+                                        </div>
+                                        <div>
                                             <label class="block text-xs text-gray-600">Cert. Electrónica</label>
                                             <div class="bg-gray-600 text-white px-2 py-1 rounded text-sm">
                                                 5588
                                             </div>
                                         </div>
-                                        <div>
-                                            <label class="block text-xs text-gray-600">Licencia de Manejo</label>
-                                            <div class="bg-gray-600 text-white px-2 py-1 rounded text-sm">
-                                                DERM620912384
-                                            </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-xs text-gray-600">Licencia de Manejo</label>
+                                        <div class="bg-gray-600 text-white px-2 py-1 rounded text-sm">
+                                            DERM620912384
                                         </div>
                                     </div>
                                 </div>
