@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             CategoriaPersonalSeeder::class,
             CatalogoEstatusSeeder::class,
             PermissionSeeder::class,
+            KilometrajePermissionSeeder::class, // Agregado aquí para que esté antes del RoleSeeder
             RoleSeeder::class,
             AdminUserSeeder::class,
             CatalogoTipoDocumentoSeeder::class,

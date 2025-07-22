@@ -115,10 +115,13 @@ class Vehiculo extends Model
     /**
      * Preparado para futuras relaciones con kilometrajes
      */
-    // public function kilometrajes(): HasMany
-    // {
-    //     return $this->hasMany(Kilometraje::class);
-    // }
+    /**
+     * Relación con kilometrajes
+     */
+    public function kilometrajes(): HasMany
+    {
+        return $this->hasMany(Kilometraje::class);
+    }
 
     /**
      * Preparado para futuras relaciones con asignaciones
