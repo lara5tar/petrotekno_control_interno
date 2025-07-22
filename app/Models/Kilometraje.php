@@ -85,7 +85,7 @@ class Kilometraje extends Model
         return number_format($this->kilometraje, 0, '.', ',') . ' km';
     }
 
-    public function getFechaCapturaFormateadaAttribute(): string
+    public function getFechaCapturaFormattedAttribute(): string
     {
         return $this->fecha_captura->format('d/m/Y');
     }
