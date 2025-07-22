@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\KilometrajeController;
+use App\Http\Controllers\VehiculoController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -18,10 +19,17 @@ Route::middleware('auth')->group(function () {
     // Ruta del dashboard después de iniciar sesión
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-    // Ruta para listar vehículos (vista estática)
-    Route::get('/vehiculos', function () {
-        return view('vehiculos.index');
-    })->name('vehiculos.index');
+    // Rutas web para vehículos (para Blade views)
+    Route::prefix('vehiculos')->name('vehiculos.')->group(function () {
+        Route::get('/', [VehiculoController::class, 'index'])->name('index');
+        Route::get('/create', [VehiculoController::class, 'create'])->name('create');
+        Route::post('/', [VehiculoController::class, 'store'])->name('store');
+        Route::get('/{id}', [VehiculoController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [VehiculoController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [VehiculoController::class, 'update'])->name('update');
+        Route::delete('/{id}', [VehiculoController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/restore', [VehiculoController::class, 'restore'])->name('restore');
+    });
 
     // Rutas web para kilometrajes (para Blade views)
     Route::prefix('kilometrajes')->name('kilometrajes.')->group(function () {
