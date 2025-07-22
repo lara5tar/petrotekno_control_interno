@@ -15,7 +15,9 @@ parameters:
         - app/Exceptions/Handler.php (?)
         - app/Http/Kernel.php (?)
     ignoreErrors:
+        # Errores de Eloquent Model
         - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$id#'
-        - '#Parameter .* of method PHPUnit\\Framework\\Assert::assertStringContainsString\(\) expects string, array.*given#'
-        - '#Call to method PHPUnit\\Framework\\Assert::assert.* with .* will always evaluate to true#'
         - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$.+#'
+        
+        # Errores de View strings (Laravel Blade)
+        - '#Parameter \#1 \$view of function view expects view-string\|null, string given\.#'
