@@ -70,7 +70,9 @@ class ObraControllerTest extends TestCase
 
         $supervisorRole = Role::firstOrCreate(['nombre_rol' => 'Supervisor']);
         $supervisorPermissions = Permission::whereIn('nombre_permiso', [
-            'ver_obras', 'crear_obras', 'actualizar_obras',
+            'ver_obras',
+            'crear_obras',
+            'actualizar_obras',
         ])->get();
         $supervisorRole->permisos()->sync($supervisorPermissions);
 

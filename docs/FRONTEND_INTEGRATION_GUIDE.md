@@ -1,23 +1,62 @@
-# Guía de Integración Frontend - Sistema de Control Interno
+# Guía de Integración Frontend - Laravel Blade + API Híbrida
 
 ## Resumen del Sistema Implementado
 
-El backend incluye un sistema completo de **usuarios, roles, permisos, personal, vehículos y mantenimientos** con las siguientes características principales:
+El backend incluye un sistema completo con **arquitectura híbrida** que soporta **Laravel Blade (SSR)** y **API REST (JSON)** simultáneamente. Esta implementación incluye:
 
 ### ✅ Funcionalidades Implementadas:
-- **Autenticación con Laravel Sanctum** (tokens API)
+- **Arquitectura Híbrida** (Blade + API en un mismo controller) ⭐ NUEVO
+- **Autenticación Dual:** Laravel Session + Sanctum (tokens API)
 - **Sistema de roles y permisos granular**
 - **Gestión completa de usuarios** (CRUD + soft delete)
 - **Gestión de personal** con categorías
 - **Gestión completa de vehículos** (CRUD + soft delete + restauración)
-- **Gestión completa de mantenimientos** (CRUD + estadísticas + alertas) ⭐ NUEVO
-- **Catálogo de tipos de servicio** para mantenimientos ⭐ NUEVO
-- **Catálogo de estatus para vehículos**
+- **Gestión completa de mantenimientos** (CRUD + estadísticas + alertas)
+- **Gestión completa de obras** con estados y progreso
+- **Catálogos implementados** (estatus, tipos servicio, tipos documento)
 - **Auditoría automática** de todas las acciones
 - **Middleware de autorización** por roles/permisos
 - **Validaciones robustas** en todos los endpoints
+- **Vistas Blade completas** para todos los módulos ⭐ NUEVO
 
-## Arquitectura del Sistema
+## Arquitectura del Sistema Híbrido
+
+### Patrón Híbrido Implementado
+Cada controller detecta automáticamente el tipo de solicitud:
+
+```php
+public function index(Request $request)
+{
+    $data = $this->processData($request);
+    
+    // Si es solicitud API (AJAX con expectsJson)
+    if ($request->expectsJson()) {
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+            'meta' => $pagination
+        ]);
+    }
+    
+    // Si es solicitud web (navegador tradicional)
+    return view('modulo.index', compact('data'));
+}
+```
+
+### Beneficios del Patrón Híbrido
+- **Flexibilidad Total:** Mismo backend para web tradicional y AJAX/SPA
+- **Desarrollo Rápido:** Una implementación, doble funcionalidad
+- **SEO Friendly:** Server-side rendering con Blade
+- **UX Moderna:** Capacidades AJAX cuando se necesite
+- **Migración Gradual:** Fácil evolución a SPA completa
+
+### Stack Tecnológico
+- **Framework:** Laravel 11 (PHP 8.2+)
+- **Views:** Laravel Blade (SSR) + JSON API
+- **Auth:** Laravel Session + Sanctum
+- **DB:** MySQL con migrations y seeders
+- **Validation:** Form Requests personalizados
+- **Middleware:** Permisos granulares
 
 ### Estructura de Base de Datos Implementada:
 

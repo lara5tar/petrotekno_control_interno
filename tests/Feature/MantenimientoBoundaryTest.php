@@ -127,8 +127,11 @@ class MantenimientoBoundaryTest extends TestCase
                 'costo' => 1500.50,
             ]);
 
-            $this->assertEquals(422, $response->status(),
-                "Fecha inválida $fecha should be rejected with 422");
+            $this->assertEquals(
+                422,
+                $response->status(),
+                "Fecha inválida $fecha should be rejected with 422"
+            );
         }
     }
 
@@ -172,8 +175,11 @@ class MantenimientoBoundaryTest extends TestCase
                 'costo' => 1500.50,
             ]);
 
-            $this->assertEquals(422, $response->status(),
-                "Kilometraje $kilometraje should be rejected with 422");
+            $this->assertEquals(
+                422,
+                $response->status(),
+                "Kilometraje $kilometraje should be rejected with 422"
+            );
         }
 
         // Test: Kilometrajes con decimales
@@ -235,8 +241,11 @@ class MantenimientoBoundaryTest extends TestCase
                 'costo' => $costo,
             ]);
 
-            $this->assertEquals(422, $response->status(),
-                "Costo $costo should be rejected with 422");
+            $this->assertEquals(
+                422,
+                $response->status(),
+                "Costo $costo should be rejected with 422"
+            );
         }
 
         // Test: Costos con muchos decimales
@@ -314,8 +323,11 @@ class MantenimientoBoundaryTest extends TestCase
             'costo' => 1500.50,
         ]);
 
-        $this->assertEquals(422, $response->status(),
-            'Proveedor over 255 characters should be rejected');
+        $this->assertEquals(
+            422,
+            $response->status(),
+            'Proveedor over 255 characters should be rejected'
+        );
 
         // Test: Descripción extremadamente larga (100000+ caracteres)
         $descripcionExtrema = str_repeat('D', 100000);
@@ -329,8 +341,11 @@ class MantenimientoBoundaryTest extends TestCase
             'costo' => 1500.50,
         ]);
 
-        $this->assertEquals(422, $response->status(),
-            'Extremely long description should be rejected');
+        $this->assertEquals(
+            422,
+            $response->status(),
+            'Extremely long description should be rejected'
+        );
 
         // Test: Campos vacíos
         $response = $this->postJson('/api/mantenimientos', [
@@ -608,13 +623,16 @@ class MantenimientoBoundaryTest extends TestCase
         $memoryUsed = $finalMemory - $initialMemory;
 
         // Verificar que el uso de memoria no sea excesivo (menos de 50MB)
-        $this->assertLessThan(50 * 1024 * 1024, $memoryUsed,
-            'Memory usage should not exceed 50MB for large queries');
+        $this->assertLessThan(
+            50 * 1024 * 1024,
+            $memoryUsed,
+            'Memory usage should not exceed 50MB for large queries'
+        );
 
         // Verificar que la respuesta tiene la estructura correcta
         $this->assertIsArray($response->json('data'));
-        $this->assertArrayHasKey('current_page', $response->json('data'));
-        $this->assertArrayHasKey('total', $response->json('data'));
+        $this->assertArrayHasKey('current_page', $response->json('meta'));
+        $this->assertArrayHasKey('total', $response->json('meta'));
     }
 
     #[Test]
@@ -648,8 +666,11 @@ class MantenimientoBoundaryTest extends TestCase
 
         // Verificar que la respuesta no exceda límites razonables
         $responseSize = strlen($response->getContent());
-        $this->assertLessThan(2 * 1024 * 1024, $responseSize,
-            'Response size should not exceed 2MB');
+        $this->assertLessThan(
+            2 * 1024 * 1024,
+            $responseSize,
+            'Response size should not exceed 2MB'
+        );
     }
 
     private function createTestUsers()

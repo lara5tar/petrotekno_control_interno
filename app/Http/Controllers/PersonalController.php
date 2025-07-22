@@ -2,23 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CategoriaPersonal;
 use App\Models\LogAccion;
 use App\Models\Personal;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class PersonalController extends Controller
 {
     /**
      * Display a listing of the resource.
+     * Patrón Híbrido: API (JSON) + Blade (View)
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
+        // Verificar permisos
+        if (! $this->hasPermission('ver_personal')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para ver personal'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para acceder a esta sección']);
+        }
+
         $query = Personal::with('categoria');
 
         // Filtros
-        if ($request->has('search')) {
-            $search = $request->input('search');
+        if ($request->filled('search')) {
+            $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nombre_completo', 'like', "%{$search}%")
                     ->orWhereHas('categoria', function ($cq) use ($search) {
@@ -27,146 +39,416 @@ class PersonalController extends Controller
             });
         }
 
-        if ($request->has('categoria_id')) {
-            $query->where('categoria_id', $request->input('categoria_id'));
+        if ($request->filled('categoria_id')) {
+            $query->where('categoria_id', $request->categoria_id);
         }
 
-        if ($request->has('estatus')) {
-            $query->where('estatus', $request->input('estatus'));
+        if ($request->filled('estatus')) {
+            $query->where('estatus', $request->estatus);
         }
 
-        $perPage = $request->input('per_page', 15);
+        // Orden
+        $query->orderBy('nombre_completo');
+
+        // Paginación
+        $perPage = $request->get('per_page', 15);
+        $perPage = max(1, min($perPage, 100)); // Asegurar que esté entre 1 y 100
+
         $personal = $query->paginate($perPage);
 
-        return response()->json([
-            'success' => true,
-            'data' => $personal,
-        ]);
+        // Respuesta híbrida
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Personal obtenido correctamente',
+                'data' => $personal->toArray(),
+            ]);
+        }
+
+        // Obtener opciones para filtros
+        $categoriasOptions = CategoriaPersonal::select('id', 'nombre_categoria')
+            ->orderBy('nombre_categoria')
+            ->get();
+
+        $estatusDisponibles = ['activo', 'inactivo'];
+
+        return view('personal.index', compact(
+            'personal',
+            'categoriasOptions',
+            'estatusDisponibles'
+        ));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     * Patrón Híbrido: API (JSON) + Blade (View)
+     */
+    public function create(Request $request)
+    {
+        // Verificar permisos
+        if (! $this->hasPermission('crear_personal')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para crear personal'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para crear personal']);
+        }
+
+        $categoriasOptions = CategoriaPersonal::select('id', 'nombre_categoria')
+            ->orderBy('nombre_categoria')
+            ->get();
+
+        // Respuesta híbrida
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Formulario de creación de personal',
+                'data' => [
+                    'categorias_options' => $categoriasOptions,
+                    'estatus_options' => ['activo', 'inactivo'],
+                ],
+            ]);
+        }
+
+        return view('personal.create', compact('categoriasOptions'));
     }
 
     /**
      * Store a newly created resource in storage.
+     * Patrón Híbrido: API (JSON) + Blade (Redirect)
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
+        // Verificar permisos
+        if (! $this->hasPermission('crear_personal')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para crear personal'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para crear personal']);
+        }
+
         $request->validate([
             'nombre_completo' => 'required|string|max:255',
-            'estatus' => 'required|in:activo,inactivo',
+            'estatus' => ['required', Rule::in(['activo', 'inactivo'])],
             'categoria_id' => 'required|exists:categorias_personal,id',
         ]);
 
-        $personal = Personal::create($request->only([
-            'nombre_completo',
-            'estatus',
-            'categoria_id',
-        ]));
+        try {
+            $personal = Personal::create($request->only([
+                'nombre_completo',
+                'estatus',
+                'categoria_id',
+            ]));
 
-        // Registrar acción
-        LogAccion::create([
-            'usuario_id' => $request->user()->id,
-            'fecha_hora' => now(),
-            'accion' => 'crear_personal',
-            'tabla_afectada' => 'personal',
-            'registro_id' => $personal->id,
-            'detalles' => ['personal_creado' => $personal->nombre_completo],
-        ]);
+            $personal->load('categoria');
 
-        $personal->load('categoria');
+            // Log de auditoría
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'crear_personal',
+                'tabla_afectada' => 'personal',
+                'registro_id' => $personal->id,
+                'detalles' => "Personal creado: {$personal->nombre_completo} - {$personal->categoria->nombre_categoria}",
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Personal creado exitosamente',
-            'data' => $personal,
-        ], 201);
+            // Respuesta híbrida
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Personal creado correctamente',
+                    'data' => $personal,
+                ], 201);
+            }
+
+            return redirect()
+                ->route('personal.show', $personal)
+                ->with('success', 'Personal creado correctamente');
+        } catch (\Exception $e) {
+            // Respuesta de error híbrida
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al crear el personal',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['error' => 'Error al crear el personal: '.$e->getMessage()]);
+        }
     }
 
     /**
      * Display the specified resource.
+     * Patrón Híbrido: API (JSON) + Blade (View)
      */
-    public function show(string $id): JsonResponse
+    public function show(Request $request, $id)
     {
-        $personal = Personal::with(['categoria', 'usuario'])->findOrFail($id);
+        // Verificar permisos
+        if (! $this->hasPermission('ver_personal')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para ver personal'], 403);
+            }
 
-        return response()->json([
-            'success' => true,
-            'data' => $personal,
-        ]);
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para ver personal']);
+        }
+
+        try {
+            $personal = Personal::with(['categoria', 'usuario'])->findOrFail($id);
+
+            // Respuesta híbrida
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Personal obtenido correctamente',
+                    'data' => $personal,
+                ]);
+            }
+
+            return view('personal.show', compact('personal'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Personal no encontrado',
+                ], 404);
+            }
+
+            return redirect()
+                ->route('personal.index')
+                ->withErrors(['error' => 'Personal no encontrado']);
+        }
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * Patrón Híbrido: API (JSON) + Blade (View)
+     */
+    public function edit(Request $request, $id)
+    {
+        // Verificar permisos
+        if (! $this->hasPermission('editar_personal')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para editar personal'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para editar personal']);
+        }
+
+        try {
+            $personal = Personal::with('categoria')->findOrFail($id);
+
+            $categoriasOptions = CategoriaPersonal::select('id', 'nombre_categoria')
+                ->orderBy('nombre_categoria')
+                ->get();
+
+            // Respuesta híbrida
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Formulario de edición de personal',
+                    'data' => [
+                        'personal' => $personal,
+                        'categorias_options' => $categoriasOptions,
+                        'estatus_options' => ['activo', 'inactivo'],
+                    ],
+                ]);
+            }
+
+            return view('personal.edit', compact('personal', 'categoriasOptions'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Personal no encontrado',
+                ], 404);
+            }
+
+            return redirect()
+                ->route('personal.index')
+                ->withErrors(['error' => 'Personal no encontrado']);
+        }
     }
 
     /**
      * Update the specified resource in storage.
+     * Patrón Híbrido: API (JSON) + Blade (Redirect)
      */
-    public function update(Request $request, string $id): JsonResponse
+    public function update(Request $request, $id)
     {
-        $personal = Personal::findOrFail($id);
+        // Verificar permisos
+        if (! $this->hasPermission('editar_personal')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para editar personal'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para editar personal']);
+        }
 
         $request->validate([
             'nombre_completo' => 'required|string|max:255',
-            'estatus' => 'required|in:activo,inactivo',
+            'estatus' => ['required', Rule::in(['activo', 'inactivo'])],
             'categoria_id' => 'required|exists:categorias_personal,id',
         ]);
 
-        $oldData = $personal->toArray();
+        try {
+            $personal = Personal::findOrFail($id);
+            $oldData = $personal->toArray();
 
-        $personal->update($request->only([
-            'nombre_completo',
-            'estatus',
-            'categoria_id',
-        ]));
+            $personal->update($request->only([
+                'nombre_completo',
+                'estatus',
+                'categoria_id',
+            ]));
 
-        // Registrar acción
-        LogAccion::create([
-            'usuario_id' => $request->user()->id,
-            'fecha_hora' => now(),
-            'accion' => 'actualizar_personal',
-            'tabla_afectada' => 'personal',
-            'registro_id' => $personal->id,
-            'detalles' => [
-                'personal_actualizado' => $personal->nombre_completo,
-                'cambios' => array_diff_assoc($request->only(['nombre_completo', 'estatus', 'categoria_id']), $oldData),
-            ],
-        ]);
+            $personal->load('categoria');
 
-        $personal->load('categoria');
+            // Log de auditoría
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'actualizar_personal',
+                'tabla_afectada' => 'personal',
+                'registro_id' => $personal->id,
+                'detalles' => "Personal actualizado: {$personal->nombre_completo} - {$personal->categoria->nombre_categoria}",
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Personal actualizado exitosamente',
-            'data' => $personal,
-        ]);
+            // Respuesta híbrida
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Personal actualizado correctamente',
+                    'data' => $personal,
+                ]);
+            }
+
+            return redirect()
+                ->route('personal.show', $personal)
+                ->with('success', 'Personal actualizado correctamente');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Personal no encontrado',
+                ], 404);
+            }
+
+            return redirect()
+                ->route('personal.index')
+                ->withErrors(['error' => 'Personal no encontrado']);
+        } catch (\Exception $e) {
+            // Respuesta de error híbrida
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al actualizar el personal',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['error' => 'Error al actualizar el personal: '.$e->getMessage()]);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
+     * Patrón Híbrido: API (JSON) + Blade (Redirect)
      */
-    public function destroy(Request $request, string $id): JsonResponse
+    public function destroy(Request $request, $id)
     {
-        $personal = Personal::findOrFail($id);
+        // Verificar permisos
+        if (! $this->hasPermission('eliminar_personal')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para eliminar personal'], 403);
+            }
 
-        // Verificar si tiene usuario asociado
-        if ($personal->usuario) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No se puede eliminar el personal porque tiene un usuario asociado',
-            ], 400);
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para eliminar personal']);
         }
 
-        $personalName = $personal->nombre_completo;
-        $personal->delete();
+        try {
+            $personal = Personal::findOrFail($id);
 
-        // Registrar acción
-        LogAccion::create([
-            'usuario_id' => $request->user()->id,
-            'fecha_hora' => now(),
-            'accion' => 'eliminar_personal',
-            'tabla_afectada' => 'personal',
-            'registro_id' => $id,
-            'detalles' => ['personal_eliminado' => $personalName],
-        ]);
+            // Verificar si tiene usuario asociado
+            if ($personal->usuario) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No se puede eliminar el personal porque tiene un usuario asociado',
+                    ], 400);
+                }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Personal eliminado exitosamente',
-        ]);
+                return redirect()
+                    ->back()
+                    ->withErrors(['error' => 'No se puede eliminar el personal porque tiene un usuario asociado']);
+            }
+
+            // Guardamos información para el log antes de eliminar
+            $infoPersonal = "{$personal->nombre_completo} - {$personal->categoria->nombre_categoria}";
+
+            $personal->delete();
+
+            // Log de auditoría
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'eliminar_personal',
+                'tabla_afectada' => 'personal',
+                'registro_id' => $id,
+                'detalles' => "Personal eliminado: {$infoPersonal}",
+            ]);
+
+            // Respuesta híbrida
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Personal eliminado correctamente',
+                ]);
+            }
+
+            return redirect()
+                ->route('personal.index')
+                ->with('success', 'Personal eliminado correctamente');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Personal no encontrado',
+                ], 404);
+            }
+
+            return redirect()
+                ->route('personal.index')
+                ->withErrors(['error' => 'Personal no encontrado']);
+        } catch (\Exception $e) {
+            // Respuesta de error híbrida
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al eliminar el personal',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()
+                ->back()
+                ->withErrors(['error' => 'Error al eliminar el personal: '.$e->getMessage()]);
+        }
+    }
+
+    /**
+     * Verificar si el usuario tiene un permiso específico
+     */
+    private function hasPermission(string $permission): bool
+    {
+        $user = Auth::user();
+        if (! $user || ! $user->rol) {
+            return false;
+        }
+
+        return $user->rol->permisos()->where('nombre_permiso', $permission)->exists();
     }
 }
