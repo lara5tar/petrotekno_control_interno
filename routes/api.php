@@ -171,6 +171,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [DocumentoController::class, 'index'])
             ->middleware('permission:ver_documentos');
 
+        Route::get('/create', [DocumentoController::class, 'create'])
+            ->middleware('permission:crear_documentos');
+
         Route::post('/', [DocumentoController::class, 'store'])
             ->middleware('permission:crear_documentos');
 
@@ -182,6 +185,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/{documento}', [DocumentoController::class, 'show'])
             ->middleware('permission:ver_documentos');
+
+        Route::get('/{documento}/edit', [DocumentoController::class, 'edit'])
+            ->middleware('permission:editar_documentos');
 
         Route::put('/{documento}', [DocumentoController::class, 'update'])
             ->middleware('permission:editar_documentos');
@@ -294,6 +300,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [AsignacionController::class, 'index'])
             ->middleware('permission:ver_asignaciones');
 
+        Route::get('/create', [AsignacionController::class, 'create'])
+            ->middleware('permission:crear_asignaciones');
+
         Route::post('/', [AsignacionController::class, 'store'])
             ->middleware('permission:crear_asignaciones');
 
@@ -308,6 +317,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/{id}', [AsignacionController::class, 'show'])
             ->middleware('permission:ver_asignaciones');
+
+        Route::get('/{id}/edit', [AsignacionController::class, 'edit'])
+            ->middleware('permission:editar_asignaciones');
 
         Route::put('/{id}', [AsignacionController::class, 'update'])
             ->middleware('permission:editar_asignaciones');

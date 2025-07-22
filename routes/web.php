@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\KilometrajeController;
 use App\Http\Controllers\MantenimientoController;
 use App\Http\Controllers\PersonalController;
@@ -66,6 +67,29 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', [App\Http\Controllers\ObraController::class, 'update'])->name('update');
         Route::delete('/{id}', [App\Http\Controllers\ObraController::class, 'destroy'])->name('destroy');
         Route::post('/{id}/restore', [App\Http\Controllers\ObraController::class, 'restore'])->name('restore');
+    });
+
+    // Rutas web para asignaciones (para Blade views)
+    Route::prefix('asignaciones')->name('asignaciones.')->group(function () {
+        Route::get('/', [App\Http\Controllers\AsignacionController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\AsignacionController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\AsignacionController::class, 'store'])->name('store');
+        Route::get('/{id}', [App\Http\Controllers\AsignacionController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [App\Http\Controllers\AsignacionController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [App\Http\Controllers\AsignacionController::class, 'update'])->name('update');
+        Route::delete('/{id}', [App\Http\Controllers\AsignacionController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/liberar', [App\Http\Controllers\AsignacionController::class, 'liberar'])->name('liberar');
+    });
+
+    // Rutas web para documentos (para Blade views)
+    Route::prefix('documentos')->name('documentos.')->group(function () {
+        Route::get('/', [DocumentoController::class, 'index'])->name('index');
+        Route::get('/create', [DocumentoController::class, 'create'])->name('create');
+        Route::post('/', [DocumentoController::class, 'store'])->name('store');
+        Route::get('/{id}', [DocumentoController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [DocumentoController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [DocumentoController::class, 'update'])->name('update');
+        Route::delete('/{id}', [DocumentoController::class, 'destroy'])->name('destroy');
     });
 
     // Rutas web para kilometrajes (para Blade views)

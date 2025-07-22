@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreDocumentoRequest;
+use App\Http\Requests\UpdateDocumentoRequest;
 use App\Models\CatalogoTipoDocumento;
 use App\Models\Documento;
 use App\Models\LogAccion;
@@ -14,7 +16,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class DocumentoController extends Controller
@@ -26,10 +27,10 @@ class DocumentoController extends Controller
     {
         $this->middleware('auth:sanctum')->only(['index', 'store', 'show', 'update', 'destroy', 'proximosAVencer', 'vencidos']);
         $this->middleware('auth')->only(['create', 'edit']);
-        $this->middleware('permission:ver_documentos')->only(['index', 'show']);
-        $this->middleware('permission:crear_documentos')->only(['create', 'store']);
-        $this->middleware('permission:editar_documentos')->only(['edit', 'update']);
-        $this->middleware('permission:eliminar_documentos')->only('destroy');
+        $this->middleware('permission_web:ver_documentos')->only(['index', 'show']);
+        $this->middleware('permission_web:crear_documentos')->only(['create', 'store']);
+        $this->middleware('permission_web:editar_documentos')->only(['edit', 'update']);
+        $this->middleware('permission_web:eliminar_documentos')->only('destroy');
     }
 
     /**
@@ -37,19 +38,7 @@ class DocumentoController extends Controller
      */
     private function hasPermission(string $permission): bool
     {
-        $user = Auth::user();
-        if (! $user) {
-            return false;
-        }
-
-        // Cargar la relación de rol y permisos si no está cargada
-        if (! $user->relationLoaded('rol')) {
-            $user->load('rol.permisos');
-        } elseif ($user->rol && ! $user->rol->relationLoaded('permisos')) {
-            $user->rol->load('permisos');
-        }
-
-        return $user->hasPermission($permission);
+        return Auth::user()?->can($permission) ?? false;
     }
 
     /**
@@ -161,6 +150,7 @@ class DocumentoController extends Controller
                 'personal',
                 'obras'
             ));
+
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -198,6 +188,7 @@ class DocumentoController extends Controller
                 'personal',
                 'obras'
             ));
+
         } catch (\Exception $e) {
             return redirect()->route('documentos.index')->withErrors(['error' => 'Error al cargar el formulario: '.$e->getMessage()]);
         }
@@ -222,35 +213,15 @@ class DocumentoController extends Controller
             // Validación manual porque no tenemos StoreDocumentoRequest híbrido
             $validated = $request->validate([
                 'tipo_documento_id' => 'required|exists:catalogo_tipos_documento,id',
-                'descripcion' => 'nullable|string|max:1000',
-                'fecha_vencimiento' => 'nullable|date|after_or_equal:today',
+                'descripcion' => 'nullable|string|max:500',
+                'fecha_vencimiento' => 'nullable|date|after:today',
                 'vehiculo_id' => 'nullable|exists:vehiculos,id',
                 'personal_id' => 'nullable|exists:personal,id',
                 'obra_id' => 'nullable|exists:obras,id',
                 'mantenimiento_id' => 'nullable|exists:mantenimientos,id',
-                'ruta_archivo' => 'nullable|string|max:500',
-                'archivo' => 'nullable|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png,txt,xls,xlsx',
+                'archivo' => 'nullable|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png',
                 'contenido' => 'nullable|json',
             ]);
-
-            // Validación de múltiples asociaciones
-            $associations = collect(['vehiculo_id', 'personal_id', 'obra_id', 'mantenimiento_id'])
-                ->filter(fn ($key) => ! empty($validated[$key]))
-                ->count();
-
-            if ($associations > 1) {
-                throw ValidationException::withMessages([
-                    'multiple_associations' => 'Un documento solo puede asociarse a una entidad (vehículo, personal, obra o mantenimiento).',
-                ]);
-            }
-
-            // Validación adicional: si el tipo de documento requiere vencimiento
-            $tipoDocumento = CatalogoTipoDocumento::find($validated['tipo_documento_id']);
-            if ($tipoDocumento && $tipoDocumento->requiere_vencimiento && empty($validated['fecha_vencimiento'])) {
-                throw ValidationException::withMessages([
-                    'fecha_vencimiento' => 'La fecha de vencimiento es requerida para este tipo de documento.',
-                ]);
-            }
 
             // Manejo de archivo si se proporciona
             if ($request->hasFile('archivo')) {
@@ -296,6 +267,7 @@ class DocumentoController extends Controller
 
             // Si es solicitud web (navegador tradicional)
             return redirect()->route('documentos.show', $documento->id)->with('success', 'Documento creado exitosamente');
+
         } catch (\Illuminate\Validation\ValidationException $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -306,6 +278,7 @@ class DocumentoController extends Controller
             }
 
             return redirect()->back()->withErrors($e->errors())->withInput();
+
         } catch (\Exception $e) {
             // Limpiar archivo si se subió y hubo error
             if (isset($rutaArchivo)) {
@@ -363,6 +336,7 @@ class DocumentoController extends Controller
 
             // Si es solicitud web (navegador tradicional)
             return view('documentos.show', compact('documento'));
+
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -372,6 +346,7 @@ class DocumentoController extends Controller
             }
 
             return redirect()->route('documentos.index')->withErrors(['error' => 'Documento no encontrado']);
+
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -417,6 +392,7 @@ class DocumentoController extends Controller
                 'personal',
                 'obras'
             ));
+
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return redirect()->route('documentos.index')->withErrors(['error' => 'Documento no encontrado']);
         } catch (\Exception $e) {
@@ -426,45 +402,12 @@ class DocumentoController extends Controller
 
     /**
      * Update the specified resource in storage.
-     * Patrón Híbrido: API (JSON) + Blade (Redirect)
      */
-    public function update(Request $request, $id): JsonResponse|RedirectResponse
+    public function update(UpdateDocumentoRequest $request, $id): JsonResponse
     {
-        // Verificar permisos
-        if (! $this->hasPermission('editar_documentos')) {
-            if ($request->expectsJson()) {
-                return response()->json(['message' => 'No tienes permisos para editar documentos'], 403);
-            }
-
-            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para editar documentos']);
-        }
-
         try {
             $documento = Documento::findOrFail($id);
-
-            $validated = $request->validate([
-                'tipo_documento_id' => 'sometimes|exists:catalogo_tipos_documento,id',
-                'descripcion' => 'nullable|string|max:1000',
-                'fecha_vencimiento' => 'nullable|date|after_or_equal:today',
-                'vehiculo_id' => 'nullable|exists:vehiculos,id',
-                'personal_id' => 'nullable|exists:personal,id',
-                'obra_id' => 'nullable|exists:obras,id',
-                'mantenimiento_id' => 'nullable|exists:mantenimientos,id',
-                'ruta_archivo' => 'nullable|string|max:500',
-                'archivo' => 'nullable|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png,txt,xls,xlsx',
-                'contenido' => 'nullable|json',
-            ]);
-
-            // Validación de múltiples asociaciones
-            $associations = collect(['vehiculo_id', 'personal_id', 'obra_id', 'mantenimiento_id'])
-                ->filter(fn ($key) => ! empty($validated[$key]))
-                ->count();
-
-            if ($associations > 1) {
-                throw ValidationException::withMessages([
-                    'multiple_associations' => 'Un documento solo puede asociarse a una entidad (vehículo, personal, obra o mantenimiento).',
-                ]);
-            }
+            $data = $request->validated();
 
             // Manejo de archivo si se proporciona
             if ($request->hasFile('archivo')) {
@@ -476,10 +419,10 @@ class DocumentoController extends Controller
                 $archivo = $request->file('archivo');
                 $nombreArchivo = time().'_'.Str::slug($archivo->getClientOriginalName(), '_');
                 $rutaArchivo = $archivo->storeAs('documentos', $nombreArchivo, 'public');
-                $validated['ruta_archivo'] = $rutaArchivo;
+                $data['ruta_archivo'] = $rutaArchivo;
             }
 
-            $documento->update($validated);
+            $documento->update($data);
             $documento->load([
                 'tipoDocumento:id,nombre_tipo_documento,requiere_vencimiento',
                 'vehiculo:id,marca,modelo,placas',
@@ -487,92 +430,32 @@ class DocumentoController extends Controller
                 'obra:id,nombre_obra',
             ]);
 
-            // Registrar en log de auditoría
-            LogAccion::create([
-                'usuario_id' => Auth::id(),
-                'accion' => 'actualizar_documento',
-                'tabla_afectada' => 'documentos',
-                'registro_id' => $documento->id,
-                'detalles' => json_encode($validated),
+            // Agregar información adicional
+            $documento->estado = $documento->estado;
+            $documento->dias_hasta_vencimiento = $documento->dias_hasta_vencimiento;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Documento actualizado exitosamente',
+                'data' => $documento,
             ]);
 
-            // Si es solicitud API (AJAX/fetch con JSON)
-            if ($request->expectsJson()) {
-                // Crear un array con las propiedades calculadas
-                $docArray = $documento->toArray();
-                $docArray['estado'] = $documento->estado;
-                $docArray['dias_hasta_vencimiento'] = $documento->dias_hasta_vencimiento;
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Documento actualizado exitosamente',
-                    'data' => $docArray,
-                ]);
-            }
-
-            // Si es solicitud web (navegador tradicional)
-            return redirect()->route('documentos.show', $id)->with('success', 'Documento actualizado exitosamente');
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Documento no encontrado',
-                ], 404);
-            }
-
-            return redirect()->route('documentos.index')->withErrors(['error' => 'Documento no encontrado']);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Datos de validación incorrectos',
-                    'errors' => $e->errors(),
-                ], 422);
-            }
-
-            return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error al actualizar el documento',
-                    'error' => $e->getMessage(),
-                ], 500);
-            }
-
-            return redirect()->back()->withErrors(['error' => 'Error al actualizar el documento: '.$e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el documento',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
     /**
      * Remove the specified resource from storage.
-     * Patrón Híbrido: API (JSON) + Blade (Redirect)
      */
-    public function destroy(Request $request, $id): JsonResponse|RedirectResponse
+    public function destroy($id): JsonResponse
     {
-        // Verificar permisos
-        if (! $this->hasPermission('eliminar_documentos')) {
-            if ($request->expectsJson()) {
-                return response()->json(['message' => 'No tienes permisos para eliminar documentos'], 403);
-            }
-
-            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para eliminar documentos']);
-        }
-
         try {
             $documento = Documento::findOrFail($id);
-
-            // Registrar en log antes de eliminar
-            LogAccion::create([
-                'usuario_id' => Auth::id(),
-                'accion' => 'eliminar_documento',
-                'tabla_afectada' => 'documentos',
-                'registro_id' => $documento->id,
-                'detalles' => json_encode([
-                    'tipo_documento' => $documento->tipoDocumento->nombre_tipo_documento ?? 'N/A',
-                    'descripcion' => $documento->descripcion ?? 'N/A',
-                ]),
-            ]);
 
             // Eliminar archivo físico si existe
             if ($documento->ruta_archivo && Storage::disk('public')->exists($documento->ruta_archivo)) {
@@ -581,46 +464,28 @@ class DocumentoController extends Controller
 
             $documento->delete();
 
-            // Si es solicitud API (AJAX/fetch con JSON)
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Documento eliminado exitosamente',
-                ]);
-            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Documento eliminado exitosamente',
+            ]);
 
-            // Si es solicitud web (navegador tradicional)
-            return redirect()->route('documentos.index')->with('success', 'Documento eliminado exitosamente');
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Documento no encontrado',
-                ], 404);
-            }
-
-            return redirect()->route('documentos.index')->withErrors(['error' => 'Documento no encontrado']);
         } catch (\Exception $e) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error al eliminar el documento',
-                    'error' => $e->getMessage(),
-                ], 500);
-            }
-
-            return redirect()->back()->withErrors(['error' => 'Error al eliminar el documento: '.$e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar el documento',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
     /**
-     * Obtener documentos próximos a vencer.
-     * Solo API
+     * Obtener documentos próximos a vencer
      */
     public function proximosAVencer(Request $request): JsonResponse
     {
         try {
             $dias = $request->get('dias', 30);
+
             $documentos = Documento::with([
                 'tipoDocumento:id,nombre_tipo_documento',
                 'vehiculo:id,marca,modelo,placas',
@@ -628,16 +493,14 @@ class DocumentoController extends Controller
                 'obra:id,nombre_obra',
             ])
                 ->proximosAVencer($dias)
+                ->orderBy('fecha_vencimiento', 'asc')
                 ->get();
 
             // Agregar información adicional
             $documentos->transform(function ($documento) {
-                $docArray = $documento->toArray();
-                $docArray['estado'] = $documento->estado;
-                $docArray['dias_hasta_vencimiento'] = $documento->dias_hasta_vencimiento;
-                $docArray['esta_vencido'] = $documento->esta_vencido;
+                $documento->dias_hasta_vencimiento = $documento->dias_hasta_vencimiento;
 
-                return $docArray;
+                return $documento;
             });
 
             return response()->json([
@@ -645,9 +508,10 @@ class DocumentoController extends Controller
                 'data' => $documentos,
                 'meta' => [
                     'total' => $documentos->count(),
-                    'dias_evaluados' => $dias,
+                    'dias_filtro' => $dias,
                 ],
             ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -658,8 +522,7 @@ class DocumentoController extends Controller
     }
 
     /**
-     * Obtener documentos vencidos.
-     * Solo API
+     * Obtener documentos vencidos
      */
     public function vencidos(): JsonResponse
     {
@@ -671,16 +534,14 @@ class DocumentoController extends Controller
                 'obra:id,nombre_obra',
             ])
                 ->vencidos()
+                ->orderBy('fecha_vencimiento', 'asc')
                 ->get();
 
             // Agregar información adicional
             $documentos->transform(function ($documento) {
-                $docArray = $documento->toArray();
-                $docArray['estado'] = $documento->estado;
-                $docArray['dias_hasta_vencimiento'] = $documento->dias_hasta_vencimiento;
-                $docArray['esta_vencido'] = $documento->esta_vencido;
+                $documento->setAttribute('dias_vencido', abs($documento->dias_hasta_vencimiento));
 
-                return $docArray;
+                return $documento;
             });
 
             return response()->json([
@@ -690,6 +551,7 @@ class DocumentoController extends Controller
                     'total' => $documentos->count(),
                 ],
             ]);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
