@@ -6,6 +6,13 @@
 
 @section('content')
 <div class="bg-white min-h-screen">
+    <!-- Breadcrumb -->
+    <x-breadcrumb :items="[
+        ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
+        ['label' => 'Usuarios', 'url' => '#'],
+        ['label' => 'Marco Delgado [admin001]']
+    ]" />
+    
     <!-- Header con navegación -->
     <div class="bg-petrodark text-white p-4 flex justify-between items-center">
         <div class="flex items-center space-x-4">

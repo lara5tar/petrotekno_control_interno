@@ -1,11 +1,11 @@
 <!-- resources/views/components/sidebar.blade.php -->
-<div class="bg-petroyellow w-full md:w-64 md:min-h-screen flex flex-col">
+<div class="w-full h-full flex flex-col">
     <div class="text-center px-5 p-10">
-        <h1 class="text-3xl font-bold text-petrodark">PETROTEKNO</h1>
+        <h1 class="text-3xl font-bold text-petrodark sidebar-title">PETROTEKNO</h1>
     </div>
     
     <div class="">
-        <h2 class="text-xl font-bold text-white text-center mb-4">Menú Principal</h2>
+        <h2 class="text-xl font-bold text-white text-center mb-4 sidebar-subtitle">Menú Principal</h2>
         <nav>
             <x-sidebar-item 
                 route="{{ route('home') }}" 
@@ -45,7 +45,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-6 0a1 1 0 10-2 0v4a1 1 0 102 0V7zm3 1a1 1 0 10-2 0v3a1 1 0 102 0V8z" clip-rule="evenodd" />
                 </svg>
-                Cerrar Sesión
+                <span class="sidebar-label">Cerrar Sesión</span>
             </div>
         </a>
         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
