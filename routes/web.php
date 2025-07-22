@@ -35,5 +35,4 @@ Route::middleware('auth')->group(function () {
         Route::put('/{kilometraje}', [KilometrajeController::class, 'update'])->name('update');
         Route::delete('/{kilometraje}', [KilometrajeController::class, 'destroy'])->name('destroy');
     });
-
 });
