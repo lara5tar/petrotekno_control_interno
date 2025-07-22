@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CatalogoTipoDocumentoController;
 use App\Http\Controllers\CatalogoTipoServicioController;
 use App\Http\Controllers\DocumentoController;
+use App\Http\Controllers\KilometrajeController;
 use App\Http\Controllers\MantenimientoController;
 use App\Http\Controllers\ObraController;
 use App\Http\Controllers\PermissionController;
@@ -232,6 +233,36 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/{id}/restore', [MantenimientoController::class, 'restore'])
             ->middleware('permission:restaurar_mantenimientos');
+    });
+
+    // Rutas de kilometrajes
+    Route::prefix('kilometrajes')->group(function () {
+        Route::get('/', [KilometrajeController::class, 'index'])
+            ->middleware('permission:ver_kilometrajes');
+
+        Route::post('/', [KilometrajeController::class, 'store'])
+            ->middleware('permission:crear_kilometrajes');
+
+        Route::get('/create', [KilometrajeController::class, 'create'])
+            ->middleware('permission:crear_kilometrajes');
+
+        Route::get('/vehiculo/{vehiculoId}/historial', [KilometrajeController::class, 'historialPorVehiculo'])
+            ->middleware('permission:ver_kilometrajes');
+
+        Route::get('/alertas-mantenimiento', [KilometrajeController::class, 'alertasMantenimiento'])
+            ->middleware('permission:ver_kilometrajes');
+
+        Route::get('/{kilometraje}', [KilometrajeController::class, 'show'])
+            ->middleware('permission:ver_kilometrajes');
+
+        Route::get('/{kilometraje}/edit', [KilometrajeController::class, 'edit'])
+            ->middleware('permission:editar_kilometrajes');
+
+        Route::put('/{kilometraje}', [KilometrajeController::class, 'update'])
+            ->middleware('permission:editar_kilometrajes');
+
+        Route::delete('/{kilometraje}', [KilometrajeController::class, 'destroy'])
+            ->middleware('permission:eliminar_kilometrajes');
     });
 
     // Rutas de asignaciones
