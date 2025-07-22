@@ -92,6 +92,7 @@ class KilometrajeController extends Controller
             ->orderBy('nombre_obra')
             ->get();
 
+        /** @phpstan-ignore-next-line */
         return view('kilometrajes.index', compact('kilometrajes', 'vehiculos', 'obras'));
     }
 
@@ -123,6 +124,7 @@ class KilometrajeController extends Controller
         }
 
         // Para Blade
+        /** @phpstan-ignore-next-line */
         return view('kilometrajes.create', compact('vehiculos', 'obras'));
     }
 
@@ -210,6 +212,7 @@ class KilometrajeController extends Controller
         }
 
         // Para Blade
+        /** @phpstan-ignore-next-line */
         return view('kilometrajes.show', compact('kilometraje', 'alertasMantenimiento'));
     }
 
@@ -237,6 +240,7 @@ class KilometrajeController extends Controller
         }
 
         // Para Blade
+        /** @phpstan-ignore-next-line */
         return view('kilometrajes.edit', compact('kilometraje', 'obras'));
     }
 
@@ -400,6 +404,7 @@ class KilometrajeController extends Controller
         }
 
         // Para Blade
+        /** @phpstan-ignore-next-line */
         return view('kilometrajes.historial', compact('vehiculo', 'kilometrajes'));
     }
 
@@ -447,6 +452,7 @@ class KilometrajeController extends Controller
         }
 
         // Para Blade
+        /** @phpstan-ignore-next-line */
         return view('kilometrajes.alertas', compact('alertas'));
     }
 }

@@ -35,7 +35,7 @@ $user = User::factory()->create([
 ]);
 
 // Test the permissions
-echo "Rol ID: " . $user->rol_id . "\n";
-echo "Rol: " . $user->rol->nombre_rol . "\n";
-echo "Permisos del rol: " . $user->rol->permisos->pluck('nombre_permiso')->implode(', ') . "\n";
-echo "¿Tiene permiso 'ver_kilometrajes'? " . ($user->hasPermission('ver_kilometrajes') ? 'SÍ' : 'NO') . "\n";
+echo 'Rol ID: '.$user->rol_id."\n";
+echo 'Rol: '.$user->rol->nombre_rol."\n";
+echo 'Permisos del rol: '.$user->rol->permisos->pluck('nombre_permiso')->implode(', ')."\n";
+echo "¿Tiene permiso 'ver_kilometrajes'? ".($user->hasPermission('ver_kilometrajes') ? 'SÍ' : 'NO')."\n";

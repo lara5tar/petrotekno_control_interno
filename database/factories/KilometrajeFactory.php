@@ -51,7 +51,7 @@ class KilometrajeFactory extends Factory
      */
     public function sinObra(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'obra_id' => null,
         ]);
     }
@@ -61,7 +61,7 @@ class KilometrajeFactory extends Factory
      */
     public function conObservaciones(string $observaciones): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'observaciones' => $observaciones,
         ]);
     }
@@ -71,7 +71,7 @@ class KilometrajeFactory extends Factory
      */
     public function reciente(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'fecha_captura' => $this->faker->dateTimeBetween('-7 days', 'now'),
         ]);
     }
@@ -81,7 +81,7 @@ class KilometrajeFactory extends Factory
      */
     public function conKilometraje(int $kilometraje): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'kilometraje' => $kilometraje,
         ]);
     }
@@ -91,7 +91,7 @@ class KilometrajeFactory extends Factory
      */
     public function enFecha(string $fecha): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'fecha_captura' => $fecha,
         ]);
     }
