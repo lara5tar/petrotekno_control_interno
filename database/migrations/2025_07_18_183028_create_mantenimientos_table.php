@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('mantenimientos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('vehiculo_id')->constrained('vehiculos')->onDelete('cascade');
-            $table->foreignId('tipo_servicio_id')->constrained('catalogo_tipos_servicio')->onDelete('restrict');
+            $table->enum('tipo_servicio', ['CORRECTIVO', 'PREVENTIVO']);
             $table->string('proveedor')->nullable();
             $table->text('descripcion');
             $table->date('fecha_inicio');

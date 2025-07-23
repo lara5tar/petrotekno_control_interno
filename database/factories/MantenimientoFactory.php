@@ -21,7 +21,7 @@ class MantenimientoFactory extends Factory
 
         return [
             'vehiculo_id' => \App\Models\Vehiculo::factory(),
-            'tipo_servicio_id' => \App\Models\CatalogoTipoServicio::factory(),
+            'tipo_servicio' => $this->faker->randomElement(['CORRECTIVO', 'PREVENTIVO']),
             'proveedor' => $this->faker->optional(0.8)->company(),
             'descripcion' => $this->faker->paragraph(2),
             'fecha_inicio' => $fechaInicio,
@@ -65,6 +65,30 @@ class MantenimientoFactory extends Factory
         return $this->state(function (array $attributes) {
             return [
                 'costo' => $this->faker->randomFloat(2, 20000, 100000),
+            ];
+        });
+    }
+
+    /**
+     * Indicate that the mantenimiento is correctivo.
+     */
+    public function correctivo(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'tipo_servicio' => 'CORRECTIVO',
+            ];
+        });
+    }
+
+    /**
+     * Indicate that the mantenimiento is preventivo.
+     */
+    public function preventivo(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'tipo_servicio' => 'PREVENTIVO',
             ];
         });
     }

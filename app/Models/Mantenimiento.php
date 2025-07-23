@@ -19,11 +19,17 @@ class Mantenimiento extends Model
     protected $table = 'mantenimientos';
 
     /**
+     * Tipos de servicio disponibles.
+     */
+    const TIPO_CORRECTIVO = 'CORRECTIVO';
+    const TIPO_PREVENTIVO = 'PREVENTIVO';
+
+    /**
      * The attributes that are mass assignable.
      */
     protected $fillable = [
         'vehiculo_id',
-        'tipo_servicio_id',
+        'tipo_servicio',
         'proveedor',
         'descripcion',
         'fecha_inicio',
@@ -43,19 +49,22 @@ class Mantenimiento extends Model
     ];
 
     /**
+     * Get available tipos de servicio.
+     */
+    public static function getTiposServicio(): array
+    {
+        return [
+            self::TIPO_CORRECTIVO,
+            self::TIPO_PREVENTIVO,
+        ];
+    }
+
+    /**
      * Get the vehiculo that owns the mantenimiento.
      */
     public function vehiculo(): BelongsTo
     {
         return $this->belongsTo(Vehiculo::class);
-    }
-
-    /**
-     * Get the tipo servicio that owns the mantenimiento.
-     */
-    public function tipoServicio(): BelongsTo
-    {
-        return $this->belongsTo(CatalogoTipoServicio::class, 'tipo_servicio_id');
     }
 
     /**
@@ -102,9 +111,25 @@ class Mantenimiento extends Model
     /**
      * Scope a query to only include mantenimientos by tipo servicio.
      */
-    public function scopeByTipoServicio(Builder $query, int $tipoServicioId): Builder
+    public function scopeByTipoServicio(Builder $query, string $tipoServicio): Builder
     {
-        return $query->where('tipo_servicio_id', $tipoServicioId);
+        return $query->where('tipo_servicio', $tipoServicio);
+    }
+
+    /**
+     * Scope a query to only include mantenimientos correctivos.
+     */
+    public function scopeCorrectivos(Builder $query): Builder
+    {
+        return $query->where('tipo_servicio', self::TIPO_CORRECTIVO);
+    }
+
+    /**
+     * Scope a query to only include mantenimientos preventivos.
+     */
+    public function scopePreventivos(Builder $query): Builder
+    {
+        return $query->where('tipo_servicio', self::TIPO_PREVENTIVO);
     }
 
     /**
@@ -169,5 +194,21 @@ class Mantenimiento extends Model
     public function getIsCompletadoAttribute(): bool
     {
         return ! is_null($this->fecha_fin);
+    }
+
+    /**
+     * Check if the mantenimiento is preventivo.
+     */
+    public function getIsPreventivo(): bool
+    {
+        return $this->tipo_servicio === self::TIPO_PREVENTIVO;
+    }
+
+    /**
+     * Check if the mantenimiento is correctivo.
+     */
+    public function getIsCorrectivo(): bool
+    {
+        return $this->tipo_servicio === self::TIPO_CORRECTIVO;
     }
 }

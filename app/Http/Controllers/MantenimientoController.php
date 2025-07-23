@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MantenimientoRequest;
-use App\Models\CatalogoTipoServicio;
 use App\Models\LogAccion;
 use App\Models\Mantenimiento;
 use App\Models\Vehiculo;
@@ -27,7 +26,7 @@ class MantenimientoController extends Controller
             return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para acceder a esta sección']);
         }
 
-        $query = Mantenimiento::with(['vehiculo', 'tipoServicio']);
+        $query = Mantenimiento::with(['vehiculo']);
 
         // Filtros de búsqueda
         if ($request->filled('buscar')) {
@@ -49,8 +48,8 @@ class MantenimientoController extends Controller
         }
 
         // Filtro por tipo de servicio
-        if ($request->filled('tipo_servicio_id')) {
-            $query->where('tipo_servicio_id', $request->tipo_servicio_id);
+        if ($request->filled('tipo_servicio')) {
+            $query->where('tipo_servicio', $request->tipo_servicio);
         }
 
         // Filtro por proveedor
@@ -118,9 +117,10 @@ class MantenimientoController extends Controller
             ->orderBy('marca')
             ->get();
 
-        $tiposServicioOptions = CatalogoTipoServicio::select('id', 'nombre_tipo_servicio')
-            ->orderBy('nombre_tipo_servicio')
-            ->get();
+        $tiposServicioOptions = collect([
+            (object) ['id' => Mantenimiento::TIPO_CORRECTIVO, 'nombre_tipo_servicio' => 'Correctivo'],
+            (object) ['id' => Mantenimiento::TIPO_PREVENTIVO, 'nombre_tipo_servicio' => 'Preventivo'],
+        ]);
 
         $proveedoresDisponibles = Mantenimiento::selectRaw('DISTINCT proveedor')
             ->whereNotNull('proveedor')
@@ -155,9 +155,10 @@ class MantenimientoController extends Controller
             ->orderBy('marca')
             ->get();
 
-        $tiposServicioOptions = CatalogoTipoServicio::select('id', 'nombre_tipo_servicio')
-            ->orderBy('nombre_tipo_servicio')
-            ->get();
+        $tiposServicioOptions = collect([
+            (object) ['id' => Mantenimiento::TIPO_CORRECTIVO, 'nombre_tipo_servicio' => 'Correctivo'],
+            (object) ['id' => Mantenimiento::TIPO_PREVENTIVO, 'nombre_tipo_servicio' => 'Preventivo'],
+        ]);
 
         // Respuesta híbrida
         if ($request->expectsJson()) {
@@ -194,7 +195,7 @@ class MantenimientoController extends Controller
 
         try {
             $mantenimiento = Mantenimiento::create($request->validated());
-            $mantenimiento->load(['vehiculo', 'tipoServicio']);
+            $mantenimiento->load(['vehiculo']);
 
             // Log de auditoría
             LogAccion::create([
@@ -202,7 +203,7 @@ class MantenimientoController extends Controller
                 'accion' => 'crear_mantenimiento',
                 'tabla_afectada' => 'mantenimientos',
                 'registro_id' => $mantenimiento->id,
-                'detalles' => "Mantenimiento creado: {$mantenimiento->vehiculo->marca} {$mantenimiento->vehiculo->modelo} ({$mantenimiento->vehiculo->placas}) - {$mantenimiento->tipoServicio->nombre_tipo_servicio}",
+                'detalles' => "Mantenimiento creado: {$mantenimiento->vehiculo->marca} {$mantenimiento->vehiculo->modelo} ({$mantenimiento->vehiculo->placas}) - {$mantenimiento->tipo_servicio}",
             ]);
 
             // Respuesta híbrida
@@ -250,7 +251,7 @@ class MantenimientoController extends Controller
         }
 
         try {
-            $mantenimiento = Mantenimiento::with(['vehiculo', 'tipoServicio', 'documentos'])->findOrFail($id);
+            $mantenimiento = Mantenimiento::with(['vehiculo', 'documentos'])->findOrFail($id);
 
             // Respuesta híbrida
             if ($request->expectsJson()) {
@@ -292,15 +293,16 @@ class MantenimientoController extends Controller
         }
 
         try {
-            $mantenimiento = Mantenimiento::with(['vehiculo', 'tipoServicio'])->findOrFail($id);
+            $mantenimiento = Mantenimiento::with(['vehiculo'])->findOrFail($id);
 
             $vehiculosOptions = Vehiculo::select('id', 'marca', 'modelo', 'placas')
                 ->orderBy('marca')
                 ->get();
 
-            $tiposServicioOptions = CatalogoTipoServicio::select('id', 'nombre_tipo_servicio')
-                ->orderBy('nombre_tipo_servicio')
-                ->get();
+            $tiposServicioOptions = collect([
+                (object) ['id' => Mantenimiento::TIPO_CORRECTIVO, 'nombre_tipo_servicio' => 'Correctivo'],
+                (object) ['id' => Mantenimiento::TIPO_PREVENTIVO, 'nombre_tipo_servicio' => 'Preventivo'],
+            ]);
 
             // Respuesta híbrida
             if ($request->expectsJson()) {
@@ -352,7 +354,7 @@ class MantenimientoController extends Controller
         try {
             $mantenimiento = Mantenimiento::findOrFail($id);
             $mantenimiento->update($request->validated());
-            $mantenimiento->load(['vehiculo', 'tipoServicio']);
+            $mantenimiento->load(['vehiculo']);
 
             // Log de auditoría
             LogAccion::create([
@@ -360,7 +362,7 @@ class MantenimientoController extends Controller
                 'accion' => 'actualizar_mantenimiento',
                 'tabla_afectada' => 'mantenimientos',
                 'registro_id' => $mantenimiento->id,
-                'detalles' => "Mantenimiento actualizado: {$mantenimiento->vehiculo->marca} {$mantenimiento->vehiculo->modelo} ({$mantenimiento->vehiculo->placas}) - {$mantenimiento->tipoServicio->nombre_tipo_servicio}",
+                'detalles' => "Mantenimiento actualizado: {$mantenimiento->vehiculo->marca} {$mantenimiento->vehiculo->modelo} ({$mantenimiento->vehiculo->placas}) - {$mantenimiento->tipo_servicio}",
             ]);
 
             // Respuesta híbrida
@@ -422,7 +424,7 @@ class MantenimientoController extends Controller
             $mantenimiento = Mantenimiento::findOrFail($id);
 
             // Guardamos información para el log antes de eliminar
-            $infoMantenimiento = "{$mantenimiento->vehiculo->marca} {$mantenimiento->vehiculo->modelo} ({$mantenimiento->vehiculo->placas}) - {$mantenimiento->tipoServicio->nombre_tipo_servicio}";
+            $infoMantenimiento = "{$mantenimiento->vehiculo->marca} {$mantenimiento->vehiculo->modelo} ({$mantenimiento->vehiculo->placas}) - {$mantenimiento->tipo_servicio}";
 
             $mantenimiento->delete();
 
@@ -491,7 +493,7 @@ class MantenimientoController extends Controller
         try {
             $mantenimiento = Mantenimiento::withTrashed()->findOrFail($id);
             $mantenimiento->restore();
-            $mantenimiento->load(['vehiculo', 'tipoServicio']);
+            $mantenimiento->load(['vehiculo']);
 
             // Log de auditoría
             LogAccion::create([
@@ -499,7 +501,7 @@ class MantenimientoController extends Controller
                 'accion' => 'restaurar_mantenimiento',
                 'tabla_afectada' => 'mantenimientos',
                 'registro_id' => $mantenimiento->id,
-                'detalles' => "Mantenimiento restaurado: {$mantenimiento->vehiculo->marca} {$mantenimiento->vehiculo->modelo} ({$mantenimiento->vehiculo->placas}) - {$mantenimiento->tipoServicio->nombre_tipo_servicio}",
+                'detalles' => "Mantenimiento restaurado: {$mantenimiento->vehiculo->marca} {$mantenimiento->vehiculo->modelo} ({$mantenimiento->vehiculo->placas}) - {$mantenimiento->tipo_servicio}",
             ]);
 
             // Respuesta híbrida
@@ -548,7 +550,7 @@ class MantenimientoController extends Controller
     {
         $limite = $request->get('limite_km', 5000); // 5000 km por defecto
 
-        $mantenimientos = Mantenimiento::with(['vehiculo', 'tipoServicio'])
+        $mantenimientos = Mantenimiento::with(['vehiculo'])
             ->select('mantenimientos.*')
             ->join('vehiculos', 'mantenimientos.vehiculo_id', '=', 'vehiculos.id')
             ->whereRaw('(vehiculos.kilometraje_actual - mantenimientos.kilometraje_servicio) >= ?', [$limite])

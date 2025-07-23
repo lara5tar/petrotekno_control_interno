@@ -3,7 +3,6 @@
 use App\Http\Controllers\AsignacionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CatalogoTipoDocumentoController;
-use App\Http\Controllers\CatalogoTipoServicioController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\KilometrajeController;
 use App\Http\Controllers\MantenimientoController;
@@ -211,24 +210,6 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:editar_catalogos');
 
         Route::delete('/{id}', [CatalogoTipoDocumentoController::class, 'destroy'])
-            ->middleware('permission:eliminar_catalogos');
-    });
-
-    // Rutas de catálogo de tipos de servicio
-    Route::prefix('catalogo-tipos-servicio')->group(function () {
-        Route::get('/', [CatalogoTipoServicioController::class, 'index'])
-            ->middleware('permission:ver_catalogos');
-
-        Route::post('/', [CatalogoTipoServicioController::class, 'store'])
-            ->middleware('permission:crear_catalogos');
-
-        Route::get('/{catalogoTipoServicio}', [CatalogoTipoServicioController::class, 'show'])
-            ->middleware('permission:ver_catalogos');
-
-        Route::put('/{catalogoTipoServicio}', [CatalogoTipoServicioController::class, 'update'])
-            ->middleware('permission:editar_catalogos');
-
-        Route::delete('/{catalogoTipoServicio}', [CatalogoTipoServicioController::class, 'destroy'])
             ->middleware('permission:eliminar_catalogos');
     });
 
