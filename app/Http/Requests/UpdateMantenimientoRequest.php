@@ -107,4 +107,26 @@ class UpdateMantenimientoRequest extends FormRequest
             'costo' => 'costo',
         ];
     }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator): void
+    {
+        // Validar que el kilometraje sea consistente con el vehículo
+        $validator->after(function ($validator) {
+            $vehiculoId = $this->filled('vehiculo_id') ? $this->vehiculo_id : $this->route('mantenimiento')->vehiculo_id;
+
+            if ($vehiculoId && $this->filled('kilometraje_servicio')) {
+                $vehiculo = \App\Models\Vehiculo::find($vehiculoId);
+
+                if ($vehiculo && $this->kilometraje_servicio > $vehiculo->kilometraje_actual) {
+                    $validator->errors()->add(
+                        'kilometraje_servicio',
+                        "El kilometraje de servicio ({$this->kilometraje_servicio}) no puede ser mayor al kilometraje actual del vehículo ({$vehiculo->kilometraje_actual})."
+                    );
+                }
+            }
+        });
+    }
 }

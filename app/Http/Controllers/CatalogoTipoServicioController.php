@@ -76,7 +76,7 @@ class CatalogoTipoServicioController extends Controller
     public function update(Request $request, CatalogoTipoServicio $catalogoTipoServicio)
     {
         $request->validate([
-            'nombre_tipo_servicio' => 'required|string|max:255|unique:catalogo_tipos_servicio,nombre_tipo_servicio,'.$catalogoTipoServicio->id,
+            'nombre_tipo_servicio' => 'required|string|max:255|unique:catalogo_tipos_servicio,nombre_tipo_servicio,' . $catalogoTipoServicio->id,
         ], [
             'nombre_tipo_servicio.required' => 'El nombre del tipo de servicio es requerido',
             'nombre_tipo_servicio.max' => 'El nombre no puede exceder 255 caracteres',

@@ -58,24 +58,24 @@ class MantenimientoSecurityTest extends TestCase
 
         foreach ($sqlInjectionAttempts as $maliciousInput) {
             // Test en filtro de búsqueda
-            $response = $this->getJson('/api/mantenimientos?buscar='.urlencode($maliciousInput));
+            $response = $this->getJson('/api/mantenimientos?buscar=' . urlencode($maliciousInput));
             $response->assertStatus(200);
             $this->assertIsArray($response->json('data'));
 
             // Test en filtro de vehículo
-            $response = $this->getJson('/api/mantenimientos?vehiculo_id='.urlencode($maliciousInput));
+            $response = $this->getJson('/api/mantenimientos?vehiculo_id=' . urlencode($maliciousInput));
             $response->assertStatus(200);
 
             // Test en filtro de tipo servicio
-            $response = $this->getJson('/api/mantenimientos?tipo_servicio_id='.urlencode($maliciousInput));
+            $response = $this->getJson('/api/mantenimientos?tipo_servicio_id=' . urlencode($maliciousInput));
             $response->assertStatus(200);
 
             // Test en filtro de proveedor
-            $response = $this->getJson('/api/mantenimientos?proveedor='.urlencode($maliciousInput));
+            $response = $this->getJson('/api/mantenimientos?proveedor=' . urlencode($maliciousInput));
             $response->assertStatus(200);
 
             // Test en fechas
-            $response = $this->getJson('/api/mantenimientos?fecha_inicio_desde='.urlencode($maliciousInput));
+            $response = $this->getJson('/api/mantenimientos?fecha_inicio_desde=' . urlencode($maliciousInput));
             $response->assertStatus(200);
         }
 
@@ -104,8 +104,8 @@ class MantenimientoSecurityTest extends TestCase
             $mantenimientoData = [
                 'vehiculo_id' => $vehiculo->id,
                 'tipo_servicio_id' => $tipoServicio->id,
-                'proveedor' => 'Proveedor Test '.$payload,
-                'descripcion' => 'Descripción Test '.$payload,
+                'proveedor' => 'Proveedor Test ' . $payload,
+                'descripcion' => 'Descripción Test ' . $payload,
                 'fecha_inicio' => now()->format('Y-m-d'),
                 'kilometraje_servicio' => 50000,
                 'costo' => 1500.50,
@@ -116,7 +116,7 @@ class MantenimientoSecurityTest extends TestCase
             // ✅ ASSERTION OBLIGATORIA: Verificar que la respuesta es exitosa O rechazada apropiadamente
             $this->assertTrue(
                 in_array($response->status(), [201, 422]),
-                'XSS payload should be handled properly (accepted and sanitized OR rejected). Got status: '.$response->status()
+                'XSS payload should be handled properly (accepted and sanitized OR rejected). Got status: ' . $response->status()
             );
 
             if ($response->status() === 201) {
@@ -228,7 +228,7 @@ class MantenimientoSecurityTest extends TestCase
 
         foreach ($pathTraversalAttempts as $maliciousPath) {
             // Intentar usar path traversal en filtros
-            $response = $this->getJson('/api/mantenimientos?buscar='.urlencode($maliciousPath));
+            $response = $this->getJson('/api/mantenimientos?buscar=' . urlencode($maliciousPath));
             $response->assertStatus(200);
 
             // La respuesta debe ser segura, no debe exponer archivos del sistema

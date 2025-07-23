@@ -230,7 +230,7 @@ class MantenimientoController extends Controller
             return redirect()
                 ->back()
                 ->withInput()
-                ->withErrors(['error' => 'Error al crear el mantenimiento: '.$e->getMessage()]);
+                ->withErrors(['error' => 'Error al crear el mantenimiento: ' . $e->getMessage()]);
         }
     }
 
@@ -399,7 +399,7 @@ class MantenimientoController extends Controller
             return redirect()
                 ->back()
                 ->withInput()
-                ->withErrors(['error' => 'Error al actualizar el mantenimiento: '.$e->getMessage()]);
+                ->withErrors(['error' => 'Error al actualizar el mantenimiento: ' . $e->getMessage()]);
         }
     }
 
@@ -469,7 +469,7 @@ class MantenimientoController extends Controller
 
             return redirect()
                 ->back()
-                ->withErrors(['error' => 'Error al eliminar el mantenimiento: '.$e->getMessage()]);
+                ->withErrors(['error' => 'Error al eliminar el mantenimiento: ' . $e->getMessage()]);
         }
     }
 
@@ -537,7 +537,7 @@ class MantenimientoController extends Controller
 
             return redirect()
                 ->back()
-                ->withErrors(['error' => 'Error al restaurar el mantenimiento: '.$e->getMessage()]);
+                ->withErrors(['error' => 'Error al restaurar el mantenimiento: ' . $e->getMessage()]);
         }
     }
 

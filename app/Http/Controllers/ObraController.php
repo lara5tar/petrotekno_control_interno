@@ -20,7 +20,7 @@ class ObraController extends Controller
         try {
             if (! $this->hasPermission('ver_obras')) {
                 $message = 'No tienes permisos para ver las obras.';
-                if ($request->wantsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json(['error' => $message], 403);
                 }
 
@@ -63,7 +63,7 @@ class ObraController extends Controller
                 'detalles' => 'Usuario consultó lista de obras',
             ]);
 
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Obras obtenidas exitosamente.',
                     'data' => $obras,
@@ -74,7 +74,7 @@ class ObraController extends Controller
 
             return view('obras.index', compact('obras', 'estatusOptions'));
         } catch (Exception $e) {
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json(['error' => 'Error al obtener las obras.'], 500);
             }
 
@@ -90,7 +90,7 @@ class ObraController extends Controller
         try {
             if (! $this->hasPermission('crear_obras')) {
                 $message = 'No tienes permisos para crear obras.';
-                if ($request->wantsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json(['error' => $message], 403);
                 }
 
@@ -99,7 +99,7 @@ class ObraController extends Controller
 
             $estatusOptions = $this->getEstatusOptions();
 
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Formulario de creación de obra',
                     'data' => [
@@ -110,7 +110,7 @@ class ObraController extends Controller
 
             return view('obras.create', compact('estatusOptions'));
         } catch (Exception $e) {
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json(['error' => 'Error al cargar el formulario.'], 500);
             }
 
@@ -126,7 +126,7 @@ class ObraController extends Controller
         try {
             if (! $this->hasPermission('crear_obras')) {
                 $message = 'No tienes permisos para crear obras.';
-                if ($request->wantsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json(['error' => $message], 403);
                 }
 
@@ -135,7 +135,7 @@ class ObraController extends Controller
 
             $validatedData = $request->validate([
                 'nombre_obra' => 'required|string|min:3|max:255|unique:obras,nombre_obra',
-                'estatus' => 'required|string|in:'.implode(',', array_keys($this->getEstatusOptions())),
+                'estatus' => 'required|string|in:' . implode(',', array_keys($this->getEstatusOptions())),
                 'avance' => 'nullable|integer|min:0|max:100',
                 'fecha_inicio' => 'required|date',
                 'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
@@ -152,7 +152,7 @@ class ObraController extends Controller
                 'detalles' => "Se creó la obra: {$obra->nombre_obra}",
             ]);
 
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Obra creada exitosamente.',
                     'data' => $obra,
@@ -161,7 +161,7 @@ class ObraController extends Controller
 
             return redirect()->route('obras.index')->with('success', 'Obra creada exitosamente.');
         } catch (ValidationException $e) {
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'error' => 'Error de validación.',
                     'errors' => $e->errors(),
@@ -170,7 +170,7 @@ class ObraController extends Controller
 
             return redirect()->back()->with('error', 'Error de validación.')->withErrors($e->errors())->withInput();
         } catch (\InvalidArgumentException $e) {
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'error' => 'Datos inválidos.',
                     'message' => $e->getMessage(),
@@ -179,7 +179,7 @@ class ObraController extends Controller
 
             return redirect()->back()->with('error', $e->getMessage())->withInput();
         } catch (Exception $e) {
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json(['error' => 'Error al crear la obra.'], 500);
             }
 
@@ -195,7 +195,7 @@ class ObraController extends Controller
         try {
             if (! $this->hasPermission('ver_obras')) {
                 $message = 'No tienes permisos para ver esta obra.';
-                if ($request->wantsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json(['error' => $message], 403);
                 }
 
@@ -205,7 +205,7 @@ class ObraController extends Controller
             $obra = Obra::find($id);
 
             if (! $obra) {
-                if ($request->wantsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json(['error' => 'Obra no encontrada.'], 404);
                 }
 
@@ -221,7 +221,7 @@ class ObraController extends Controller
                 'detalles' => "Usuario consultó la obra: {$obra->nombre_obra}",
             ]);
 
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Obra obtenida exitosamente.',
                     'data' => $obra,
@@ -230,7 +230,7 @@ class ObraController extends Controller
 
             return view('obras.show', compact('obra'));
         } catch (Exception $e) {
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json(['error' => 'Error al obtener la obra.'], 500);
             }
 
@@ -246,7 +246,7 @@ class ObraController extends Controller
         try {
             if (! $this->hasPermission('actualizar_obras')) {
                 $message = 'No tienes permisos para editar obras.';
-                if ($request->wantsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json(['error' => $message], 403);
                 }
 
@@ -256,7 +256,7 @@ class ObraController extends Controller
             $obra = Obra::find($id);
 
             if (! $obra) {
-                if ($request->wantsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json(['error' => 'Obra no encontrada.'], 404);
                 }
 
@@ -265,7 +265,7 @@ class ObraController extends Controller
 
             $estatusOptions = $this->getEstatusOptions();
 
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Formulario de edición de obra.',
                     'data' => [
@@ -277,7 +277,7 @@ class ObraController extends Controller
 
             return view('obras.edit', compact('obra', 'estatusOptions'));
         } catch (Exception $e) {
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json(['error' => 'Error al cargar el formulario.'], 500);
             }
 
@@ -293,7 +293,7 @@ class ObraController extends Controller
         try {
             if (! $this->hasPermission('actualizar_obras')) {
                 $message = 'No tienes permisos para editar obras.';
-                if ($request->wantsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json(['error' => $message], 403);
                 }
 
@@ -303,7 +303,7 @@ class ObraController extends Controller
             $obra = Obra::find($id);
 
             if (! $obra) {
-                if ($request->wantsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json(['error' => 'Obra no encontrada.'], 404);
                 }
 
@@ -325,7 +325,7 @@ class ObraController extends Controller
                 ];
 
                 if (! in_array($nuevoEstatus, $transicionesPermitidas[$estatusActual] ?? [])) {
-                    if ($request->wantsJson()) {
+                    if ($request->expectsJson()) {
                         return response()->json([
                             'error' => 'Error de validación.',
                             'errors' => ['estatus' => ["No se puede cambiar de '{$estatusActual}' a '{$nuevoEstatus}'"]],
@@ -337,8 +337,8 @@ class ObraController extends Controller
             }
 
             $validatedData = $request->validate([
-                'nombre_obra' => 'sometimes|required|string|min:3|max:255|unique:obras,nombre_obra,'.$obra->id,
-                'estatus' => 'sometimes|required|string|in:'.implode(',', array_keys($this->getEstatusOptions())),
+                'nombre_obra' => 'sometimes|required|string|min:3|max:255|unique:obras,nombre_obra,' . $obra->id,
+                'estatus' => 'sometimes|required|string|in:' . implode(',', array_keys($this->getEstatusOptions())),
                 'avance' => 'sometimes|nullable|integer|min:0|max:100',
                 'fecha_inicio' => 'sometimes|required|date',
                 'fecha_fin' => 'sometimes|nullable|date|after_or_equal:fecha_inicio',
@@ -356,7 +356,7 @@ class ObraController extends Controller
                 'detalles' => "Se actualizó la obra: {$obra->nombre_obra}",
             ]);
 
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Obra actualizada exitosamente.',
                     'data' => $obra,
@@ -365,7 +365,7 @@ class ObraController extends Controller
 
             return redirect()->route('obras.index')->with('success', 'Obra actualizada exitosamente.');
         } catch (ValidationException $e) {
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'error' => 'Error de validación.',
                     'errors' => $e->errors(),
@@ -374,7 +374,7 @@ class ObraController extends Controller
 
             return redirect()->back()->with('error', 'Error de validación.')->withErrors($e->errors())->withInput();
         } catch (Exception $e) {
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json(['error' => 'Error al actualizar la obra.'], 500);
             }
 
@@ -390,7 +390,7 @@ class ObraController extends Controller
         try {
             if (! $this->hasPermission('eliminar_obras')) {
                 $message = 'No tienes permisos para eliminar obras.';
-                if ($request->wantsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json(['error' => $message], 403);
                 }
 
@@ -400,7 +400,7 @@ class ObraController extends Controller
             $obra = Obra::find($id);
 
             if (! $obra) {
-                if ($request->wantsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json(['error' => 'Obra no encontrada.'], 404);
                 }
 
@@ -422,7 +422,7 @@ class ObraController extends Controller
                 'detalles' => "Se eliminó la obra: {$nombreObra}",
             ]);
 
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Obra eliminada exitosamente.',
                 ]);
@@ -430,7 +430,7 @@ class ObraController extends Controller
 
             return redirect()->route('obras.index')->with('success', 'Obra eliminada exitosamente.');
         } catch (Exception $e) {
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json(['error' => 'Error al eliminar la obra.'], 500);
             }
 
@@ -446,7 +446,7 @@ class ObraController extends Controller
         try {
             if (! $this->hasPermission('restaurar_obras')) {
                 $message = 'No tienes permisos para restaurar obras.';
-                if ($request->wantsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json(['error' => $message], 403);
                 }
 
@@ -456,7 +456,7 @@ class ObraController extends Controller
             $obra = Obra::withTrashed()->find($id);
 
             if (! $obra) {
-                if ($request->wantsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json(['error' => 'Obra no encontrada.'], 404);
                 }
 
@@ -465,7 +465,7 @@ class ObraController extends Controller
 
             if (! $obra->trashed()) {
                 $message = 'La obra no está eliminada, no se puede restaurar.';
-                if ($request->wantsJson()) {
+                if ($request->expectsJson()) {
                     return response()->json(['error' => $message], 400);
                 }
 
@@ -483,7 +483,7 @@ class ObraController extends Controller
                 'detalles' => "Se restauró la obra: {$obra->nombre_obra}",
             ]);
 
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Obra restaurada exitosamente.',
                     'data' => $obra,
@@ -492,7 +492,7 @@ class ObraController extends Controller
 
             return redirect()->route('obras.index')->with('success', 'Obra restaurada exitosamente.');
         } catch (Exception $e) {
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json(['error' => 'Error al restaurar la obra.'], 500);
             }
 

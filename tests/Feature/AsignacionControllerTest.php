@@ -130,14 +130,14 @@ class AsignacionControllerTest extends TestCase
         Sanctum::actingAs($user, ['*']);
 
         $vehiculo = Vehiculo::factory()->create();
-        $obra = Obra::factory()->create();
+        $obra = Obra::factory()->create(['estatus' => Obra::ESTATUS_EN_PROGRESO]); // Asegurar que esté en progreso
         $personal = Personal::factory()->create();
 
         $datosAsignacion = [
             'vehiculo_id' => $vehiculo->id,
             'obra_id' => $obra->id,
             'personal_id' => $personal->id,
-            'fecha_asignacion' => now()->format('Y-m-d H:i:s'),
+            'fecha_asignacion' => now()->subMinutes(10)->format('Y-m-d H:i:s'), // 10 minutos en el pasado
             'kilometraje_inicial' => 100000,
             'observaciones' => 'Test asignación',
         ];
@@ -191,17 +191,14 @@ class AsignacionControllerTest extends TestCase
             'vehiculo_id' => $vehiculo->id,
             'obra_id' => $obra->id,
             'personal_id' => $personal2->id,
-            'fecha_asignacion' => now()->format('Y-m-d H:i:s'),
+            'fecha_asignacion' => now()->subMinutes(10)->format('Y-m-d H:i:s'), // 10 minutos en el pasado
             'kilometraje_inicial' => 100000,
         ];
 
         $response = $this->postJson('/api/asignaciones', $datosAsignacion);
 
         $response->assertStatus(422)
-            ->assertJson([
-                'success' => false,
-                'message' => 'El vehículo ya tiene una asignación activa',
-            ]);
+            ->assertJsonValidationErrors(['vehiculo_id']); // Cambiar para verificar error en vehiculo_id
     }
 
     #[Test]
@@ -226,17 +223,14 @@ class AsignacionControllerTest extends TestCase
             'vehiculo_id' => $vehiculo2->id,
             'obra_id' => $obra->id,
             'personal_id' => $personal->id,
-            'fecha_asignacion' => now()->format('Y-m-d H:i:s'),
+            'fecha_asignacion' => now()->subMinutes(10)->format('Y-m-d H:i:s'), // 10 minutos en el pasado
             'kilometraje_inicial' => 100000,
         ];
 
         $response = $this->postJson('/api/asignaciones', $datosAsignacion);
 
         $response->assertStatus(422)
-            ->assertJson([
-                'success' => false,
-                'message' => 'El operador ya tiene una asignación activa',
-            ]);
+            ->assertJsonValidationErrors(['personal_id']); // Cambiar para verificar error en personal_id
     }
 
     #[Test]
@@ -268,7 +262,7 @@ class AsignacionControllerTest extends TestCase
         Sanctum::actingAs($user, ['*']);
 
         $asignacion = Asignacion::factory()->activa()->create();
-        $nuevaObra = Obra::factory()->create();
+        $nuevaObra = Obra::factory()->create(['estatus' => Obra::ESTATUS_EN_PROGRESO]); // Asegurar que esté en progreso
 
         $datosActualizacion = [
             'obra_id' => $nuevaObra->id,

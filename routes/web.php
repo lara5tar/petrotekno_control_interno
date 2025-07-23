@@ -79,6 +79,12 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', [App\Http\Controllers\AsignacionController::class, 'update'])->name('update');
         Route::delete('/{id}', [App\Http\Controllers\AsignacionController::class, 'destroy'])->name('destroy');
         Route::post('/{id}/liberar', [App\Http\Controllers\AsignacionController::class, 'liberar'])->name('liberar');
+        Route::get('/{id}/transferir', [App\Http\Controllers\AsignacionController::class, 'mostrarTransferencia'])->name('mostrar.transferir');
+        Route::post('/{id}/transferir', [App\Http\Controllers\AsignacionController::class, 'transferir'])->name('transferir');
+
+        // Rutas especiales
+        Route::get('/estadisticas/operador/{id}', [App\Http\Controllers\AsignacionController::class, 'estadisticasOperador'])->name('estadisticas.operador');
+        Route::get('/alertas', [App\Http\Controllers\AsignacionController::class, 'alertasAsignaciones'])->name('alertas');
     });
 
     // Rutas web para documentos (para Blade views)

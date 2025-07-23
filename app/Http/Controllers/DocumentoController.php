@@ -170,7 +170,7 @@ class DocumentoController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al obtener los documentos: '.$e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al obtener los documentos: ' . $e->getMessage()]);
         }
     }
 
@@ -199,7 +199,7 @@ class DocumentoController extends Controller
                 'obras'
             ));
         } catch (\Exception $e) {
-            return redirect()->route('documentos.index')->withErrors(['error' => 'Error al cargar el formulario: '.$e->getMessage()]);
+            return redirect()->route('documentos.index')->withErrors(['error' => 'Error al cargar el formulario: ' . $e->getMessage()]);
         }
     }
 
@@ -255,7 +255,7 @@ class DocumentoController extends Controller
             // Manejo de archivo si se proporciona
             if ($request->hasFile('archivo')) {
                 $archivo = $request->file('archivo');
-                $nombreArchivo = time().'_'.Str::slug($archivo->getClientOriginalName(), '_');
+                $nombreArchivo = time() . '_' . Str::slug($archivo->getClientOriginalName(), '_');
                 $rutaArchivo = $archivo->storeAs('documentos', $nombreArchivo, 'public');
                 $validated['ruta_archivo'] = $rutaArchivo;
             }
@@ -320,7 +320,7 @@ class DocumentoController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al crear el documento: '.$e->getMessage()])->withInput();
+            return redirect()->back()->withErrors(['error' => 'Error al crear el documento: ' . $e->getMessage()])->withInput();
         }
     }
 
@@ -381,7 +381,7 @@ class DocumentoController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al obtener el documento: '.$e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al obtener el documento: ' . $e->getMessage()]);
         }
     }
 
@@ -420,7 +420,7 @@ class DocumentoController extends Controller
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return redirect()->route('documentos.index')->withErrors(['error' => 'Documento no encontrado']);
         } catch (\Exception $e) {
-            return redirect()->route('documentos.index')->withErrors(['error' => 'Error al cargar el formulario: '.$e->getMessage()]);
+            return redirect()->route('documentos.index')->withErrors(['error' => 'Error al cargar el formulario: ' . $e->getMessage()]);
         }
     }
 
@@ -474,7 +474,7 @@ class DocumentoController extends Controller
                 }
 
                 $archivo = $request->file('archivo');
-                $nombreArchivo = time().'_'.Str::slug($archivo->getClientOriginalName(), '_');
+                $nombreArchivo = time() . '_' . Str::slug($archivo->getClientOriginalName(), '_');
                 $rutaArchivo = $archivo->storeAs('documentos', $nombreArchivo, 'public');
                 $validated['ruta_archivo'] = $rutaArchivo;
             }
@@ -540,7 +540,7 @@ class DocumentoController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al actualizar el documento: '.$e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al actualizar el documento: ' . $e->getMessage()]);
         }
     }
 
@@ -609,7 +609,7 @@ class DocumentoController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al eliminar el documento: '.$e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al eliminar el documento: ' . $e->getMessage()]);
         }
     }
 

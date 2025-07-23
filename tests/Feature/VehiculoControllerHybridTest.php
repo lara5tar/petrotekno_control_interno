@@ -236,19 +236,13 @@ class VehiculoControllerHybridTest extends TestCase
     {
         $vehiculo = Vehiculo::factory()->create(['estatus_id' => $this->estatus->id]);
 
-        try {
-            $response = $this->get("/vehiculos/{$vehiculo->id}");
+        $response = $this->get("/vehiculos/{$vehiculo->id}");
 
-            $response->assertStatus(200)
-                ->assertViewIs('vehiculos.show')
-                ->assertViewHas('vehiculo')
-                ->assertSee($vehiculo->marca)
-                ->assertSee($vehiculo->modelo);
-        } catch (\Exception $e) {
-            // Temporalmente permitir fallo por rutas inexistentes en las vistas
-            // Esto se resolverá cuando se implementen todos los controllers
-            $this->markTestIncomplete('Test skipped due to missing routes in blade views');
-        }
+        $response->assertStatus(200)
+            ->assertViewIs('vehiculos.show')
+            ->assertViewHas('vehiculo')
+            ->assertSee($vehiculo->marca)
+            ->assertSee($vehiculo->modelo);
     }
 
     // ================================
@@ -343,6 +337,9 @@ class VehiculoControllerHybridTest extends TestCase
     {
         $vehiculo = Vehiculo::factory()->create(['estatus_id' => $this->estatus->id]);
 
+        // Asegurar que no hay asignaciones activas para este vehículo
+        \App\Models\Asignacion::where('vehiculo_id', $vehiculo->id)->whereNull('fecha_liberacion')->delete();
+
         $response = $this->deleteJson("/api/vehiculos/{$vehiculo->id}");
 
         $response->assertStatus(200)
@@ -355,6 +352,9 @@ class VehiculoControllerHybridTest extends TestCase
     public function test_destroy_redirects_for_web_request()
     {
         $vehiculo = Vehiculo::factory()->create(['estatus_id' => $this->estatus->id]);
+
+        // Asegurar que no hay asignaciones activas para este vehículo
+        \App\Models\Asignacion::where('vehiculo_id', $vehiculo->id)->whereNull('fecha_liberacion')->delete();
 
         $response = $this->delete("/vehiculos/{$vehiculo->id}");
 

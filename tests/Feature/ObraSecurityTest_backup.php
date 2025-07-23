@@ -63,7 +63,7 @@ class ObraSecurityTest extends TestCase
         ];
 
         foreach ($payloadsSQL as $payload) {
-            $response = $this->getJson('/api/obras?buscar='.urlencode($payload));
+            $response = $this->getJson('/api/obras?buscar=' . urlencode($payload));
 
             $this->assertEquals(200, $response->status());
             // Verificar que no hay respuesta sospechosa que indique inyección exitosa
@@ -83,7 +83,7 @@ class ObraSecurityTest extends TestCase
 
         foreach ($xssPayloads as $payload) {
             $obraData = [
-                'nombre_obra' => 'Obra Test '.$payload,
+                'nombre_obra' => 'Obra Test ' . $payload,
                 'estatus' => Obra::ESTATUS_PLANIFICADA,
                 'fecha_inicio' => now()->addDays(1)->format('Y-m-d'),
                 'avance' => 0,
@@ -94,7 +94,7 @@ class ObraSecurityTest extends TestCase
             // ✅ ASSERTION OBLIGATORIA: Verificar que la respuesta es exitosa O rechazada apropiadamente
             $this->assertTrue(
                 in_array($response->status(), [201, 422]),
-                'XSS payload should be handled properly (accepted and sanitized OR rejected). Got status: '.$response->status()
+                'XSS payload should be handled properly (accepted and sanitized OR rejected). Got status: ' . $response->status()
             );
 
             if ($response->status() === 201) {
@@ -172,7 +172,7 @@ class ObraSecurityTest extends TestCase
         ];
 
         foreach ($pathTraversalPayloads as $payload) {
-            $response = $this->getJson('/api/obras?buscar='.urlencode($payload));
+            $response = $this->getJson('/api/obras?buscar=' . urlencode($payload));
 
             $this->assertEquals(200, $response->status());
             // Verificar que no hay información del sistema en la respuesta

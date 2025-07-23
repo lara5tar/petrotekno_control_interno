@@ -59,11 +59,11 @@ class AsignacionSeeder extends Seeder
                     'creado_por_id' => $usuarios->random()->id,
                     'fecha_asignacion' => now()->subDays(rand(1, 30)),
                     'kilometraje_inicial' => rand(50000, 200000),
-                    'observaciones' => 'Asignación activa creada por seeder - '.$this->faker()->sentence(),
+                    'observaciones' => 'Asignación activa creada por seeder - ' . $this->faker()->sentence(),
                 ]);
-                $this->command->info('✅ Asignación activa '.($i + 1).' creada');
+                $this->command->info('✅ Asignación activa ' . ($i + 1) . ' creada');
             } catch (\Exception $e) {
-                $this->command->warn('⚠️  No se pudo crear asignación activa '.($i + 1).': '.$e->getMessage());
+                $this->command->warn('⚠️  No se pudo crear asignación activa ' . ($i + 1) . ': ' . $e->getMessage());
             }
         }
 
@@ -72,7 +72,7 @@ class AsignacionSeeder extends Seeder
 
         $this->command->info("✅ Se crearon {$totalAsignaciones} asignaciones en total");
         $this->command->info("📊 Asignaciones activas: {$asignacionesActivas}");
-        $this->command->info('📊 Asignaciones liberadas: '.($totalAsignaciones - $asignacionesActivas));
+        $this->command->info('📊 Asignaciones liberadas: ' . ($totalAsignaciones - $asignacionesActivas));
     }
 
     private function faker()

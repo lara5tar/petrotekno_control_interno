@@ -48,12 +48,12 @@ class ObraBoundaryTest extends TestCase
             $this->adminUser->refresh();
             $this->adminUser->load(['rol.permisos']);
 
-            dump('Usuario ID: '.$this->adminUser->id);
-            dump('Rol: '.$this->adminUser->rol->nombre_rol);
-            dump('Permisos: '.$this->adminUser->rol->permisos->pluck('nombre_permiso')->implode(', '));
-            dump('hasPermission crear_obras: '.($this->adminUser->hasPermission('crear_obras') ? 'true' : 'false'));
-            dump('Response status: '.$response->status());
-            dump('Response body: '.$response->content());
+            dump('Usuario ID: ' . $this->adminUser->id);
+            dump('Rol: ' . $this->adminUser->rol->nombre_rol);
+            dump('Permisos: ' . $this->adminUser->rol->permisos->pluck('nombre_permiso')->implode(', '));
+            dump('hasPermission crear_obras: ' . ($this->adminUser->hasPermission('crear_obras') ? 'true' : 'false'));
+            dump('Response status: ' . $response->status());
+            dump('Response body: ' . $response->content());
         }
 
         $response->assertStatus(201);
@@ -307,7 +307,7 @@ class ObraBoundaryTest extends TestCase
 
         // Test: Búsqueda con string muy largo
         $busquedaLarga = str_repeat('construcción ', 100);
-        $response = $this->getJson('/api/obras?buscar='.urlencode($busquedaLarga));
+        $response = $this->getJson('/api/obras?buscar=' . urlencode($busquedaLarga));
         $response->assertStatus(200);
 
         // Test: Búsqueda vacía
@@ -315,7 +315,7 @@ class ObraBoundaryTest extends TestCase
         $response->assertStatus(200);
 
         // Test: Búsqueda solo con espacios
-        $response = $this->getJson('/api/obras?buscar='.urlencode('   '));
+        $response = $this->getJson('/api/obras?buscar=' . urlencode('   '));
         $response->assertStatus(200);
 
         // Test: Búsqueda con caracteres especiales
@@ -332,12 +332,12 @@ class ObraBoundaryTest extends TestCase
         ];
 
         foreach ($busquedasEspeciales as $busqueda) {
-            $response = $this->getJson('/api/obras?buscar='.urlencode($busqueda));
+            $response = $this->getJson('/api/obras?buscar=' . urlencode($busqueda));
             $response->assertStatus(200);
         }
 
         // Test: Múltiples filtros simultáneos con valores extremos
-        $response = $this->getJson('/api/obras?'.http_build_query([
+        $response = $this->getJson('/api/obras?' . http_build_query([
             'buscar' => str_repeat('test', 50),
             'estatus' => 'estatus_inexistente',
             'fecha_inicio_desde' => '1900-01-01',

@@ -247,17 +247,12 @@ class MantenimientoControllerHybridTest extends TestCase
             'tipo_servicio_id' => $this->tipoServicio->id,
         ]);
 
-        try {
-            $response = $this->get("/mantenimientos/{$mantenimiento->id}");
+        $response = $this->get("/mantenimientos/{$mantenimiento->id}");
 
-            $response->assertStatus(200)
-                ->assertViewIs('mantenimientos.show')
-                ->assertViewHas('mantenimiento')
-                ->assertSee($mantenimiento->descripcion ?? 'Mantenimiento');
-        } catch (\Exception $e) {
-            // Temporalmente permitir fallo por vista inexistente
-            $this->markTestIncomplete('Test skipped due to missing show view');
-        }
+        $response->assertStatus(200)
+            ->assertViewIs('mantenimientos.show')
+            ->assertViewHas('mantenimiento')
+            ->assertSee($mantenimiento->descripcion ?? 'Mantenimiento');
     }
 
     // ================================
@@ -293,17 +288,12 @@ class MantenimientoControllerHybridTest extends TestCase
             'tipo_servicio_id' => $this->tipoServicio->id,
         ]);
 
-        try {
-            $response = $this->get("/mantenimientos/{$mantenimiento->id}/edit");
+        $response = $this->get("/mantenimientos/{$mantenimiento->id}/edit");
 
-            $response->assertStatus(200)
-                ->assertViewIs('mantenimientos.edit')
-                ->assertViewHasAll(['mantenimiento', 'vehiculosOptions', 'tiposServicioOptions'])
-                ->assertSee('Editar Mantenimiento');
-        } catch (\Exception $e) {
-            // Temporalmente permitir fallo por vista inexistente
-            $this->markTestIncomplete('Test skipped due to missing edit view');
-        }
+        $response->assertStatus(200)
+            ->assertViewIs('mantenimientos.edit')
+            ->assertViewHas('mantenimiento')
+            ->assertSee($mantenimiento->descripcion ?? 'Mantenimiento');
     }
 
     // ================================

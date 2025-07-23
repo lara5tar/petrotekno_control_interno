@@ -440,23 +440,23 @@ class PersonalControllerHybridTest extends TestCase
         // Crear personal con diferentes estados
         Personal::factory()->create([
             'categoria_id' => $this->categoria->id,
-            'estatus' => 'Activo',
+            'estatus' => 'activo',
             'nombre_completo' => 'Personal Activo',
         ]);
 
         Personal::factory()->create([
             'categoria_id' => $this->categoria->id,
-            'estatus' => 'Inactivo',
+            'estatus' => 'inactivo',
             'nombre_completo' => 'Personal Inactivo',
         ]);
 
         // Filtrar por estatus activo
-        $response = $this->getJson('/api/personal?estatus=Activo');
+        $response = $this->getJson('/api/personal?estatus=activo');
         $response->assertStatus(200);
 
         $data = $response->json('data.data');
         $this->assertNotEmpty($data);
-        $this->assertEquals('Activo', $data[0]['estatus']);
+        $this->assertEquals('activo', $data[0]['estatus']);
     }
 
     #[Test]
