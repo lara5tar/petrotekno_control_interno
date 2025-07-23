@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -27,7 +26,7 @@ return new class extends Migration
             }
 
             // Agregar el nuevo campo enum si no existe
-            if (!Schema::hasColumn('mantenimientos', 'tipo_servicio')) {
+            if (! Schema::hasColumn('mantenimientos', 'tipo_servicio')) {
                 $table->enum('tipo_servicio', ['CORRECTIVO', 'PREVENTIVO'])->default('CORRECTIVO')->after('vehiculo_id');
             }
         });

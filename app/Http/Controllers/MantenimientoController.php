@@ -118,8 +118,8 @@ class MantenimientoController extends Controller
             ->get();
 
         $tiposServicioOptions = collect([
-            (object)['id' => Mantenimiento::TIPO_CORRECTIVO, 'nombre_tipo_servicio' => 'Correctivo'],
-            (object)['id' => Mantenimiento::TIPO_PREVENTIVO, 'nombre_tipo_servicio' => 'Preventivo'],
+            (object) ['id' => Mantenimiento::TIPO_CORRECTIVO, 'nombre_tipo_servicio' => 'Correctivo'],
+            (object) ['id' => Mantenimiento::TIPO_PREVENTIVO, 'nombre_tipo_servicio' => 'Preventivo'],
         ]);
 
         $proveedoresDisponibles = Mantenimiento::selectRaw('DISTINCT proveedor')
@@ -156,8 +156,8 @@ class MantenimientoController extends Controller
             ->get();
 
         $tiposServicioOptions = collect([
-            (object)['id' => Mantenimiento::TIPO_CORRECTIVO, 'nombre_tipo_servicio' => 'Correctivo'],
-            (object)['id' => Mantenimiento::TIPO_PREVENTIVO, 'nombre_tipo_servicio' => 'Preventivo'],
+            (object) ['id' => Mantenimiento::TIPO_CORRECTIVO, 'nombre_tipo_servicio' => 'Correctivo'],
+            (object) ['id' => Mantenimiento::TIPO_PREVENTIVO, 'nombre_tipo_servicio' => 'Preventivo'],
         ]);
 
         // Respuesta híbrida
@@ -300,8 +300,8 @@ class MantenimientoController extends Controller
                 ->get();
 
             $tiposServicioOptions = collect([
-                (object)['id' => Mantenimiento::TIPO_CORRECTIVO, 'nombre_tipo_servicio' => 'Correctivo'],
-                (object)['id' => Mantenimiento::TIPO_PREVENTIVO, 'nombre_tipo_servicio' => 'Preventivo'],
+                (object) ['id' => Mantenimiento::TIPO_CORRECTIVO, 'nombre_tipo_servicio' => 'Correctivo'],
+                (object) ['id' => Mantenimiento::TIPO_PREVENTIVO, 'nombre_tipo_servicio' => 'Preventivo'],
             ]);
 
             // Respuesta híbrida

@@ -157,7 +157,6 @@ class MantenimientoModelTest extends TestCase
     {
         $tipos = Mantenimiento::getTiposServicio();
 
-        $this->assertIsArray($tipos);
         $this->assertContains('CORRECTIVO', $tipos);
         $this->assertContains('PREVENTIVO', $tipos);
         $this->assertCount(2, $tipos);

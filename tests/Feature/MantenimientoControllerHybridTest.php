@@ -26,7 +26,6 @@ class MantenimientoControllerHybridTest extends TestCase
 
     protected Vehiculo $vehiculo;
 
-
     protected function setUp(): void
     {
         parent::setUp();
