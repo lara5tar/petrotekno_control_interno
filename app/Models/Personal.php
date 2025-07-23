@@ -65,7 +65,7 @@ class Personal extends Model
     public function setEstatusAttribute($value): void
     {
         if (! in_array($value, self::ESTATUS_VALIDOS)) {
-            throw new \InvalidArgumentException("Estatus inválido: {$value}. Los valores válidos son: ".implode(', ', self::ESTATUS_VALIDOS));
+            throw new \InvalidArgumentException("Estatus inválido: {$value}. Los valores válidos son: " . implode(', ', self::ESTATUS_VALIDOS));
         }
 
         $this->attributes['estatus'] = $value;

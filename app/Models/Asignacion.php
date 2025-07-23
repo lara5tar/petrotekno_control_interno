@@ -170,8 +170,8 @@ class Asignacion extends Model
 
         if ($observaciones) {
             $this->observaciones = $this->observaciones
-                ? $this->observaciones."\n\nLiberación: ".$observaciones
-                : 'Liberación: '.$observaciones;
+                ? $this->observaciones . "\n\nLiberación: " . $observaciones
+                : 'Liberación: ' . $observaciones;
         }
 
         return $this->save();
