@@ -449,7 +449,22 @@ class VehiculoController extends Controller
             $vehiculo = Vehiculo::findOrFail($id);
 
             // Verificar si el vehículo está en uso (tiene asignaciones activas)
-            // TODO: Implementar esta verificación cuando se tenga el modelo Asignacion
+            $asignacionesActivas = $vehiculo->asignaciones()->where('fecha_liberacion', null)->count();
+
+            if ($asignacionesActivas > 0) {
+                DB::rollBack();
+                $message = 'No se puede eliminar el vehículo porque tiene asignaciones activas.';
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $message,
+                    ], 422);
+                }
+
+                return redirect()->route('vehiculos.index')
+                    ->with('error', $message);
+            }
 
             $vehiculo->delete();
 

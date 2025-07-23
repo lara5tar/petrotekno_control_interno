@@ -66,6 +66,26 @@ class StoreMantenimientoRequest extends FormRequest
     }
 
     /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator): void
+    {
+        // Validar que el kilometraje sea consistente con el vehículo
+        $validator->after(function ($validator) {
+            if ($this->filled('vehiculo_id') && $this->filled('kilometraje_servicio')) {
+                $vehiculo = \App\Models\Vehiculo::find($this->vehiculo_id);
+
+                if ($vehiculo && $this->kilometraje_servicio > $vehiculo->kilometraje_actual) {
+                    $validator->errors()->add(
+                        'kilometraje_servicio',
+                        "El kilometraje de servicio ({$this->kilometraje_servicio}) no puede ser mayor al kilometraje actual del vehículo ({$vehiculo->kilometraje_actual})."
+                    );
+                }
+            }
+        });
+    }
+
+    /**
      * Get custom error messages for validator errors.
      */
     public function messages(): array

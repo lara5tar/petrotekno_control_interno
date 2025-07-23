@@ -113,6 +113,14 @@ class Vehiculo extends Model
     }
 
     /**
+     * Relación: Un vehículo tiene muchas asignaciones
+     */
+    public function asignaciones(): HasMany
+    {
+        return $this->hasMany(Asignacion::class, 'vehiculo_id');
+    }
+
+    /**
      * Preparado para futuras relaciones con kilometrajes
      */
     /**

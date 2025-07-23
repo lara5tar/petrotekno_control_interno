@@ -192,8 +192,10 @@ class VehiculoControllerTest extends TestCase
 
     public function test_admin_can_delete_vehiculo()
     {
-
         $vehiculo = Vehiculo::factory()->create(['estatus_id' => $this->estatus->id]);
+
+        // Asegurar que no hay asignaciones activas para este vehículo
+        \App\Models\Asignacion::where('vehiculo_id', $vehiculo->id)->whereNull('fecha_liberacion')->delete();
 
         $response = $this->deleteJson("/api/vehiculos/{$vehiculo->id}");
 
