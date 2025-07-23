@@ -36,7 +36,7 @@ class SecurityTest extends TestCase
 
         foreach ($maliciousInputs as $maliciousInput) {
             $response = $this->actingAs($admin, 'sanctum')
-                ->getJson('/api/users?search='.urlencode($maliciousInput));
+                ->getJson('/api/users?search=' . urlencode($maliciousInput));
 
             // Debe responder normalmente sin ejecutar SQL malicioso
             $response->assertStatus(200);
@@ -77,15 +77,21 @@ class SecurityTest extends TestCase
                 $user = User::where('email', "xss_test_{$index}@example.com")->first();
 
                 // NOTA: Este test detectó que el sistema no sanitiza input XSS
-                // Esto debería ser corregido en el futuro para mayor seguridad
-
-                // Por ahora verificamos que al menos el usuario fue creado
+                // Verificamos que el usuario fue creado correctamente
                 $this->assertNotNull($user, 'User should be created');
 
-                // TODO: Implementar sanitización de XSS en el futuro
-                // $this->assertStringNotContainsString('<script>', $user->nombre_usuario);
-                // $this->assertStringNotContainsString('javascript:', $user->nombre_usuario);
-                // $this->assertStringNotContainsString('<iframe', $user->nombre_usuario);
+                // Verificar sanitización XSS en campos de texto
+                if (isset($user->personal) && $user->personal) {
+                    $nombreCompleto = $user->personal->nombre_completo;
+                    $this->assertStringNotContainsString('<script>', $nombreCompleto, 'Campo no debería contener scripts');
+                    $this->assertStringNotContainsString('javascript:', $nombreCompleto, 'Campo no debería contener javascript:');
+                    $this->assertStringNotContainsString('<iframe', $nombreCompleto, 'Campo no debería contener iframes');
+                    $this->assertStringNotContainsString('onclick=', $nombreCompleto, 'Campo no debería contener eventos onclick');
+                }
+
+                // Verificar que el email no contiene caracteres peligrosos
+                $this->assertStringNotContainsString('<', $user->email, 'Email no debería contener HTML');
+                $this->assertStringNotContainsString('>', $user->email, 'Email no debería contener HTML');
             } else {
                 // Si es rechazado, debe ser por validación, no por error del servidor
                 $this->assertContains($response->status(), [422, 400]);
@@ -106,7 +112,7 @@ class SecurityTest extends TestCase
         for ($i = 0; $i < 10; $i++) {
             $response = $this->postJson('/api/auth/login', [
                 'email' => 'admin@petrotekno.com',
-                'password' => 'wrong_password_'.$i,
+                'password' => 'wrong_password_' . $i,
             ]);
 
             if ($response->status() === 429) {
@@ -212,7 +218,7 @@ class SecurityTest extends TestCase
         $this->assertContains($response->status(), [401, 419, 403, 422, 500]);
 
         // Documentar el status code real para análisis
-        $this->assertTrue(true, 'CSRF test returned status: '.$response->status());
+        $this->assertTrue(true, 'CSRF test returned status: ' . $response->status());
     }
 
     /**

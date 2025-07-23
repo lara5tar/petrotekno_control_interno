@@ -236,18 +236,13 @@ class VehiculoControllerHybridTest extends TestCase
     {
         $vehiculo = Vehiculo::factory()->create(['estatus_id' => $this->estatus->id]);
 
-        try {
-            $response = $this->get("/vehiculos/{$vehiculo->id}");
+        $response = $this->get("/vehiculos/{$vehiculo->id}");
 
-            $response->assertStatus(200)
-                ->assertViewIs('vehiculos.show')
-                ->assertViewHas('vehiculo')
-                ->assertSee($vehiculo->marca)
-                ->assertSee($vehiculo->modelo);
-        } catch (\Exception $e) {
-            // Manejo temporal de errores de vistas
-            $this->markTestIncomplete('Test skipped due to missing routes in blade views');
-        }
+        $response->assertStatus(200)
+            ->assertViewIs('vehiculos.show')
+            ->assertViewHas('vehiculo')
+            ->assertSee($vehiculo->marca)
+            ->assertSee($vehiculo->modelo);
     }
 
     // ================================

@@ -56,7 +56,7 @@ class AsignacionControllerHybridTest extends TestCase
         ]);
 
         $this->vehiculo = Vehiculo::factory()->create();
-        $this->obra = Obra::factory()->create();
+        $this->obra = Obra::factory()->create(['estatus' => Obra::ESTATUS_EN_PROGRESO]); // Asegurar que esté en progreso
         $this->personal = Personal::factory()->create();
     }
 
@@ -92,7 +92,7 @@ class AsignacionControllerHybridTest extends TestCase
             'vehiculo_id' => $this->vehiculo->id,
             'obra_id' => $this->obra->id,
             'personal_id' => $this->personal->id,
-            'fecha_asignacion' => now()->format('Y-m-d'),
+            'fecha_asignacion' => now()->subMinutes(10)->format('Y-m-d H:i:s'), // 10 minutos en el pasado
             'kilometraje_inicial' => 10000,
             'observaciones' => 'Asignación de prueba',
         ];

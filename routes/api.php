@@ -315,6 +315,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/operador/{personalId}', [AsignacionController::class, 'porOperador'])
             ->middleware('permission:ver_asignaciones');
 
+        // Nuevas rutas para estadísticas avanzadas y alertas
+        Route::get('/estadisticas/operador/{id}', [AsignacionController::class, 'estadisticasOperador'])
+            ->middleware('permission:ver_estadisticas_asignaciones');
+
+        Route::get('/alertas', [AsignacionController::class, 'alertasAsignaciones'])
+            ->middleware('permission:ver_asignaciones');
+
         Route::get('/{id}', [AsignacionController::class, 'show'])
             ->middleware('permission:ver_asignaciones');
 
@@ -326,6 +333,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/{id}/liberar', [AsignacionController::class, 'liberar'])
             ->middleware('permission:liberar_asignaciones');
+
+        Route::post('/{id}/transferir', [AsignacionController::class, 'transferir'])
+            ->middleware('permission:gestionar_asignaciones');
 
         Route::delete('/{id}', [AsignacionController::class, 'destroy'])
             ->middleware('permission:eliminar_asignaciones');

@@ -8,6 +8,7 @@ use App\Models\CategoriaPersonal;
 use App\Models\Documento;
 use App\Models\Personal;
 use App\Models\User;
+use App\Notifications\NuevoUsuarioCredenciales;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,10 +19,9 @@ class PersonalManagementController extends Controller
     /**
      * Crear personal con documentos y usuario opcional
      */
-    public function create(Request $request): JsonResponse
+    public function create(CreatePersonalRequest $request): JsonResponse
     {
-        // TODO: Usar CreatePersonalRequest cuando PHPStan lo resuelva
-        $validatedData = $request->all(); // Temporal para PHPStan
+        $validatedData = $request->validated();
 
         DB::beginTransaction();
 
@@ -112,8 +112,17 @@ class PersonalManagementController extends Controller
             'rol_id' => $data['rol_id'],
         ]);
 
-        // TODO: Enviar email con credenciales al usuario
-        // Esto podría implementarse con un job en cola para evitar bloqueos
+        // Enviar email con credenciales al usuario
+        try {
+            $usuario->notify(new NuevoUsuarioCredenciales($password, $data['nombre_completo']));
+        } catch (\Exception $e) {
+            // Log del error pero no fallar la creación
+            \Log::warning('Error al enviar email de credenciales', [
+                'usuario_id' => $usuario->id,
+                'email' => $usuario->email,
+                'error' => $e->getMessage()
+            ]);
+        }
 
         // Agregar la contraseña temporal para retornar al frontend
         // Usamos setAttribute para evitar warnings de PHPStan sobre propiedades dinámicas
