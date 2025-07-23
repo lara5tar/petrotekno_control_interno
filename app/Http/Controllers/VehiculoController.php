@@ -99,7 +99,7 @@ class VehiculoController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al obtener vehículos: '.$e->getMessage(),
+                    'message' => 'Error al obtener vehículos: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -149,7 +149,7 @@ class VehiculoController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al obtener datos del formulario: '.$e->getMessage(),
+                    'message' => 'Error al obtener datos del formulario: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -213,7 +213,7 @@ class VehiculoController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al crear vehículo: '.$e->getMessage(),
+                    'message' => 'Error al crear vehículo: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -272,7 +272,7 @@ class VehiculoController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al obtener vehículo: '.$e->getMessage(),
+                    'message' => 'Error al obtener vehículo: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -333,7 +333,7 @@ class VehiculoController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al obtener datos del formulario: '.$e->getMessage(),
+                    'message' => 'Error al obtener datos del formulario: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -414,7 +414,7 @@ class VehiculoController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al actualizar vehículo: '.$e->getMessage(),
+                    'message' => 'Error al actualizar vehículo: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -512,7 +512,7 @@ class VehiculoController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al eliminar vehículo: '.$e->getMessage(),
+                    'message' => 'Error al eliminar vehículo: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -604,7 +604,7 @@ class VehiculoController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al restaurar vehículo: '.$e->getMessage(),
+                    'message' => 'Error al restaurar vehículo: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -631,7 +631,7 @@ class VehiculoController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al obtener opciones de estatus: '.$e->getMessage(),
+                'message' => 'Error al obtener opciones de estatus: ' . $e->getMessage(),
             ], 500);
         }
     }

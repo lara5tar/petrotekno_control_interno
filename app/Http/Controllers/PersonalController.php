@@ -184,7 +184,7 @@ class PersonalController extends Controller
             return redirect()
                 ->back()
                 ->withInput()
-                ->withErrors(['error' => 'Error al crear el personal: '.$e->getMessage()]);
+                ->withErrors(['error' => 'Error al crear el personal: ' . $e->getMessage()]);
         }
     }
 
@@ -365,7 +365,7 @@ class PersonalController extends Controller
             return redirect()
                 ->back()
                 ->withInput()
-                ->withErrors(['error' => 'Error al actualizar el personal: '.$e->getMessage()]);
+                ->withErrors(['error' => 'Error al actualizar el personal: ' . $e->getMessage()]);
         }
     }
 
@@ -452,7 +452,7 @@ class PersonalController extends Controller
 
             return redirect()
                 ->back()
-                ->withErrors(['error' => 'Error al eliminar el personal: '.$e->getMessage()]);
+                ->withErrors(['error' => 'Error al eliminar el personal: ' . $e->getMessage()]);
         }
     }
 }

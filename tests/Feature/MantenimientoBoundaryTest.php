@@ -56,12 +56,12 @@ class MantenimientoBoundaryTest extends TestCase
             $this->adminUser->refresh();
             $this->adminUser->load(['rol.permisos']);
 
-            dump('Usuario ID: '.$this->adminUser->id);
-            dump('Rol: '.$this->adminUser->rol->nombre_rol);
-            dump('Permisos: '.$this->adminUser->rol->permisos->pluck('nombre_permiso')->implode(', '));
-            dump('hasPermission crear_mantenimientos: '.($this->adminUser->hasPermission('crear_mantenimientos') ? 'true' : 'false'));
-            dump('Response status: '.$response->status());
-            dump('Response body: '.$response->content());
+            dump('Usuario ID: ' . $this->adminUser->id);
+            dump('Rol: ' . $this->adminUser->rol->nombre_rol);
+            dump('Permisos: ' . $this->adminUser->rol->permisos->pluck('nombre_permiso')->implode(', '));
+            dump('hasPermission crear_mantenimientos: ' . ($this->adminUser->hasPermission('crear_mantenimientos') ? 'true' : 'false'));
+            dump('Response status: ' . $response->status());
+            dump('Response body: ' . $response->content());
         }
 
         $response->assertStatus(201);
@@ -501,7 +501,7 @@ class MantenimientoBoundaryTest extends TestCase
 
         // Test: Búsqueda con string muy largo
         $busquedaLarga = str_repeat('mecánica ', 100);
-        $response = $this->getJson('/api/mantenimientos?buscar='.urlencode($busquedaLarga));
+        $response = $this->getJson('/api/mantenimientos?buscar=' . urlencode($busquedaLarga));
         $response->assertStatus(200);
 
         // Test: Búsqueda vacía
@@ -509,7 +509,7 @@ class MantenimientoBoundaryTest extends TestCase
         $response->assertStatus(200);
 
         // Test: Búsqueda solo con espacios
-        $response = $this->getJson('/api/mantenimientos?buscar='.urlencode('   '));
+        $response = $this->getJson('/api/mantenimientos?buscar=' . urlencode('   '));
         $response->assertStatus(200);
 
         // Test: Búsqueda con caracteres especiales
@@ -526,12 +526,12 @@ class MantenimientoBoundaryTest extends TestCase
         ];
 
         foreach ($busquedasEspeciales as $busqueda) {
-            $response = $this->getJson('/api/mantenimientos?buscar='.urlencode($busqueda));
+            $response = $this->getJson('/api/mantenimientos?buscar=' . urlencode($busqueda));
             $response->assertStatus(200);
         }
 
         // Test: Múltiples filtros simultáneos con valores extremos
-        $response = $this->getJson('/api/mantenimientos?'.http_build_query([
+        $response = $this->getJson('/api/mantenimientos?' . http_build_query([
             'buscar' => str_repeat('test', 50),
             'vehiculo_id' => 99999,
             'tipo_servicio_id' => 99999,

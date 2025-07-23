@@ -257,7 +257,7 @@ class ObraBoundarySimpleTest extends TestCase
         $this->assertGreaterThanOrEqual(
             2,
             $resultados->count(),
-            'Should find at least 2 obras. Names created: '.implode(', ', $nombresCreados)
+            'Should find at least 2 obras. Names created: ' . implode(', ', $nombresCreados)
         );
 
         // Búsqueda con caracteres especiales
