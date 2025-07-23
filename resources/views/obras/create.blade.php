@@ -47,10 +47,10 @@
                                         name="estatus" 
                                         required>
                                     <option value="">Selecciona un estatus</option>
-                                    @foreach($estatusOptions as $option)
-                                        <option value="{{ $option['valor'] }}" 
-                                                {{ old('estatus') == $option['valor'] ? 'selected' : '' }}>
-                                            {{ $option['nombre'] }}
+                                    @foreach($estatusOptions as $valor => $nombre)
+                                        <option value="{{ $valor }}" 
+                                                {{ old('estatus') == $valor ? 'selected' : '' }}>
+                                            {{ $nombre }}
                                         </option>
                                     @endforeach
                                 </select>

@@ -18,12 +18,14 @@ class PersonalController extends Controller
     public function index(Request $request)
     {
         // Verificar permisos
-        if (! $this->hasPermission('ver_personal')) {
+        if (!$request->user()->hasPermission('ver_personal')) {
             if ($request->expectsJson()) {
-                return response()->json(['message' => 'No tienes permisos para ver personal'], 403);
+                return response()->json([
+                    'success' => false,
+                    'message' => "No tienes el permiso 'ver_personal' necesario para acceder a este recurso"
+                ], 403);
             }
-
-            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para acceder a esta sección']);
+            return redirect()->back()->with('error', 'No tienes permisos para acceder a esta sección');
         }
 
         $query = Personal::with('categoria');
@@ -86,15 +88,17 @@ class PersonalController extends Controller
     public function create(Request $request)
     {
         // Verificar permisos
-        if (! $this->hasPermission('crear_personal')) {
+        if (!$request->user()->hasPermission('crear_personal')) {
             if ($request->expectsJson()) {
-                return response()->json(['message' => 'No tienes permisos para crear personal'], 403);
+                return response()->json([
+                    'success' => false,
+                    'message' => "No tienes el permiso 'crear_personal' necesario para acceder a este recurso"
+                ], 403);
             }
-
-            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para crear personal']);
+            return redirect()->back()->with('error', 'No tienes permisos para acceder a esta sección');
         }
 
-        $categoriasOptions = CategoriaPersonal::select('id', 'nombre_categoria')
+        $categorias = CategoriaPersonal::select('id', 'nombre_categoria')
             ->orderBy('nombre_categoria')
             ->get();
 
@@ -102,15 +106,13 @@ class PersonalController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Formulario de creación de personal',
                 'data' => [
-                    'categorias_options' => $categoriasOptions,
-                    'estatus_options' => ['activo', 'inactivo'],
-                ],
+                    'categorias' => $categorias
+                ]
             ]);
         }
 
-        return view('personal.create', compact('categoriasOptions'));
+        return view('personal.create', compact('categorias'));
     }
 
     /**
@@ -120,12 +122,14 @@ class PersonalController extends Controller
     public function store(Request $request)
     {
         // Verificar permisos
-        if (! $this->hasPermission('crear_personal')) {
+        if (!$request->user()->hasPermission('crear_personal')) {
             if ($request->expectsJson()) {
-                return response()->json(['message' => 'No tienes permisos para crear personal'], 403);
+                return response()->json([
+                    'success' => false,
+                    'message' => "No tienes el permiso 'crear_personal' necesario para acceder a este recurso"
+                ], 403);
             }
-
-            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para crear personal']);
+            return redirect()->back()->with('error', 'No tienes permisos para acceder a esta sección');
         }
 
         $request->validate([
@@ -156,14 +160,14 @@ class PersonalController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Personal creado correctamente',
+                    'message' => 'Personal creado exitosamente',
                     'data' => $personal,
                 ], 201);
             }
 
             return redirect()
                 ->route('personal.show', $personal)
-                ->with('success', 'Personal creado correctamente');
+                ->with('success', 'Personal creado exitosamente');
         } catch (\Exception $e) {
             // Respuesta de error híbrida
             if ($request->expectsJson()) {
@@ -177,7 +181,7 @@ class PersonalController extends Controller
             return redirect()
                 ->back()
                 ->withInput()
-                ->withErrors(['error' => 'Error al crear el personal: '.$e->getMessage()]);
+                ->withErrors(['error' => 'Error al crear el personal: ' . $e->getMessage()]);
         }
     }
 
@@ -188,12 +192,14 @@ class PersonalController extends Controller
     public function show(Request $request, $id)
     {
         // Verificar permisos
-        if (! $this->hasPermission('ver_personal')) {
+        if (!$request->user()->hasPermission('ver_personal')) {
             if ($request->expectsJson()) {
-                return response()->json(['message' => 'No tienes permisos para ver personal'], 403);
+                return response()->json([
+                    'success' => false,
+                    'message' => "No tienes el permiso 'ver_personal' necesario para acceder a este recurso"
+                ], 403);
             }
-
-            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para ver personal']);
+            return redirect()->back()->with('error', 'No tienes permisos para acceder a esta sección');
         }
 
         try {
@@ -203,8 +209,8 @@ class PersonalController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Personal obtenido correctamente',
-                    'data' => $personal,
+                    'message' => 'Personal obtenido exitosamente',
+                    'data' => $personal
                 ]);
             }
 
@@ -230,18 +236,20 @@ class PersonalController extends Controller
     public function edit(Request $request, $id)
     {
         // Verificar permisos
-        if (! $this->hasPermission('editar_personal')) {
+        if (!$request->user()->hasPermission('editar_personal')) {
             if ($request->expectsJson()) {
-                return response()->json(['message' => 'No tienes permisos para editar personal'], 403);
+                return response()->json([
+                    'success' => false,
+                    'message' => "No tienes el permiso 'editar_personal' necesario para acceder a este recurso"
+                ], 403);
             }
-
-            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para editar personal']);
+            return redirect()->back()->with('error', 'No tienes permisos para acceder a esta sección');
         }
 
         try {
             $personal = Personal::with('categoria')->findOrFail($id);
 
-            $categoriasOptions = CategoriaPersonal::select('id', 'nombre_categoria')
+            $categorias = CategoriaPersonal::select('id', 'nombre_categoria')
                 ->orderBy('nombre_categoria')
                 ->get();
 
@@ -249,16 +257,14 @@ class PersonalController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Formulario de edición de personal',
                     'data' => [
                         'personal' => $personal,
-                        'categorias_options' => $categoriasOptions,
-                        'estatus_options' => ['activo', 'inactivo'],
-                    ],
+                        'categorias' => $categorias
+                    ]
                 ]);
             }
 
-            return view('personal.edit', compact('personal', 'categoriasOptions'));
+            return view('personal.edit', compact('personal', 'categorias'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -280,12 +286,14 @@ class PersonalController extends Controller
     public function update(Request $request, $id)
     {
         // Verificar permisos
-        if (! $this->hasPermission('editar_personal')) {
+        if (!$request->user()->hasPermission('editar_personal')) {
             if ($request->expectsJson()) {
-                return response()->json(['message' => 'No tienes permisos para editar personal'], 403);
+                return response()->json([
+                    'success' => false,
+                    'message' => "No tienes el permiso 'editar_personal' necesario para acceder a este recurso"
+                ], 403);
             }
-
-            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para editar personal']);
+            return redirect()->back()->with('error', 'No tienes permisos para acceder a esta sección');
         }
 
         $request->validate([
@@ -319,14 +327,14 @@ class PersonalController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Personal actualizado correctamente',
+                    'message' => 'Personal actualizado exitosamente',
                     'data' => $personal,
                 ]);
             }
 
             return redirect()
                 ->route('personal.show', $personal)
-                ->with('success', 'Personal actualizado correctamente');
+                ->with('success', 'Personal actualizado exitosamente');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -351,7 +359,7 @@ class PersonalController extends Controller
             return redirect()
                 ->back()
                 ->withInput()
-                ->withErrors(['error' => 'Error al actualizar el personal: '.$e->getMessage()]);
+                ->withErrors(['error' => 'Error al actualizar el personal: ' . $e->getMessage()]);
         }
     }
 
@@ -362,12 +370,14 @@ class PersonalController extends Controller
     public function destroy(Request $request, $id)
     {
         // Verificar permisos
-        if (! $this->hasPermission('eliminar_personal')) {
+        if (!$request->user()->hasPermission('eliminar_personal')) {
             if ($request->expectsJson()) {
-                return response()->json(['message' => 'No tienes permisos para eliminar personal'], 403);
+                return response()->json([
+                    'success' => false,
+                    'message' => "No tienes el permiso 'eliminar_personal' necesario para acceder a este recurso"
+                ], 403);
             }
-
-            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para eliminar personal']);
+            return redirect()->back()->with('error', 'No tienes permisos para acceder a esta sección');
         }
 
         try {
@@ -405,13 +415,13 @@ class PersonalController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Personal eliminado correctamente',
+                    'message' => 'Personal eliminado exitosamente',
                 ]);
             }
 
             return redirect()
                 ->route('personal.index')
-                ->with('success', 'Personal eliminado correctamente');
+                ->with('success', 'Personal eliminado exitosamente');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -435,20 +445,7 @@ class PersonalController extends Controller
 
             return redirect()
                 ->back()
-                ->withErrors(['error' => 'Error al eliminar el personal: '.$e->getMessage()]);
+                ->withErrors(['error' => 'Error al eliminar el personal: ' . $e->getMessage()]);
         }
-    }
-
-    /**
-     * Verificar si el usuario tiene un permiso específico
-     */
-    private function hasPermission(string $permission): bool
-    {
-        $user = Auth::user();
-        if (! $user || ! $user->rol) {
-            return false;
-        }
-
-        return $user->rol->permisos()->where('nombre_permiso', $permission)->exists();
     }
 }

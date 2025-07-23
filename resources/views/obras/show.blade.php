@@ -6,9 +6,9 @@
         <div class="col-md-10">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Detalles de la Obra: {{ $obraModel->nombre_obra }}</h4>
+                    <h4 class="mb-0">Detalles de la Obra: {{ $obra->nombre_obra }}</h4>
                     <div>
-                        <a href="{{ route('obras.edit', $obraModel) }}" class="btn btn-warning">
+                        <a href="{{ route('obras.edit', $obra) }}" class="btn btn-warning">
                             <i class="fas fa-edit"></i> Editar
                         </a>
                         <a href="{{ route('obras.index') }}" class="btn btn-secondary">
@@ -45,17 +45,17 @@
                                 <div class="card-body">
                                     <div class="row mb-2">
                                         <div class="col-sm-4"><strong>ID:</strong></div>
-                                        <div class="col-sm-8">{{ $obraModel->id }}</div>
+                                        <div class="col-sm-8">{{ $obra->id }}</div>
                                     </div>
                                     <div class="row mb-2">
                                         <div class="col-sm-4"><strong>Nombre:</strong></div>
-                                        <div class="col-sm-8">{{ $obraModel->nombre_obra }}</div>
+                                        <div class="col-sm-8">{{ $obra->nombre_obra }}</div>
                                     </div>
                                     <div class="row mb-2">
                                         <div class="col-sm-4"><strong>Estatus:</strong></div>
                                         <div class="col-sm-8">
                                             <span class="badge 
-                                                @switch($obraModel->estatus)
+                                                @switch($obra->estatus)
                                                     @case('completada') bg-success @break
                                                     @case('en_progreso') bg-primary @break
                                                     @case('pausada') bg-warning @break
@@ -63,7 +63,7 @@
                                                     @default bg-secondary
                                                 @endswitch
                                             ">
-                                                {{ ucfirst(str_replace('_', ' ', $obraModel->estatus)) }}
+                                                {{ ucfirst(str_replace('_', ' ', $obra->estatus)) }}
                                             </span>
                                         </div>
                                     </div>
@@ -72,15 +72,15 @@
                                         <div class="col-sm-8">
                                             <div class="progress" style="height: 25px;">
                                                 <div class="progress-bar 
-                                                    @if($obraModel->avance >= 100) bg-success
-                                                    @elseif($obraModel->avance >= 75) bg-info
-                                                    @elseif($obraModel->avance >= 50) bg-warning
+                                                    @if($obra->avance >= 100) bg-success
+                                                    @elseif($obra->avance >= 75) bg-info
+                                                    @elseif($obra->avance >= 50) bg-warning
                                                     @else bg-danger
                                                     @endif
                                                 " 
                                                 role="progressbar" 
-                                                style="width: {{ $obraModel->avance ?? 0 }}%">
-                                                    {{ $obraModel->avance ?? 0 }}%
+                                                style="width: {{ $obra->avance ?? 0 }}%">
+                                                    {{ $obra->avance ?? 0 }}%
                                                 </div>
                                             </div>
                                         </div>
@@ -99,34 +99,34 @@
                                     <div class="row mb-2">
                                         <div class="col-sm-4"><strong>Fecha Inicio:</strong></div>
                                         <div class="col-sm-8">
-                                            {{ $obraModel->fecha_inicio ? $obraModel->fecha_inicio->format('d/m/Y') : 'No definida' }}
+                                            {{ $obra->fecha_inicio ? $obra->fecha_inicio->format('d/m/Y') : 'No definida' }}
                                         </div>
                                     </div>
                                     <div class="row mb-2">
                                         <div class="col-sm-4"><strong>Fecha Fin:</strong></div>
                                         <div class="col-sm-8">
-                                            {{ $obraModel->fecha_fin ? $obraModel->fecha_fin->format('d/m/Y') : 'No definida' }}
+                                            {{ $obra->fecha_fin ? $obra->fecha_fin->format('d/m/Y') : 'No definida' }}
                                         </div>
                                     </div>
-                                    @if($obraModel->fecha_inicio && $obraModel->fecha_fin)
+                                    @if($obra->fecha_inicio && $obra->fecha_fin)
                                     <div class="row mb-2">
                                         <div class="col-sm-4"><strong>Duración:</strong></div>
                                         <div class="col-sm-8">
-                                            {{ $obraModel->fecha_inicio->diffInDays($obraModel->fecha_fin) }} días
+                                            {{ $obra->fecha_inicio->diffInDays($obra->fecha_fin) }} días
                                         </div>
                                     </div>
                                     @endif
                                     <div class="row mb-2">
                                         <div class="col-sm-4"><strong>Creada:</strong></div>
                                         <div class="col-sm-8">
-                                            {{ $obraModel->fecha_creacion ? $obraModel->fecha_creacion->format('d/m/Y H:i') : 'No disponible' }}
+                                            {{ $obra->fecha_creacion ? $obra->fecha_creacion->format('d/m/Y H:i') : 'No disponible' }}
                                         </div>
                                     </div>
-                                    @if($obraModel->fecha_actualizacion)
+                                    @if($obra->fecha_actualizacion)
                                     <div class="row mb-2">
                                         <div class="col-sm-4"><strong>Actualizada:</strong></div>
                                         <div class="col-sm-8">
-                                            {{ $obraModel->fecha_actualizacion->format('d/m/Y H:i') }}
+                                            {{ $obra->fecha_actualizacion->format('d/m/Y H:i') }}
                                         </div>
                                     </div>
                                     @endif
@@ -144,12 +144,12 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="btn-group" role="group">
-                                        <a href="{{ route('obras.edit', $obraModel) }}" class="btn btn-warning">
+                                        <a href="{{ route('obras.edit', $obra) }}" class="btn btn-warning">
                                             <i class="fas fa-edit"></i> Editar Obra
                                         </a>
                                         
-                                        @if($obraModel->trashed())
-                                            <form action="{{ route('obras.restore', $obraModel->id) }}" 
+                                        @if($obra->trashed())
+                                            <form action="{{ route('obras.restore', $obra->id) }}" 
                                                   method="POST" style="display: inline;">
                                                 @csrf
                                                 <button type="submit" class="btn btn-success"
@@ -158,7 +158,7 @@
                                                 </button>
                                             </form>
                                         @else
-                                            <form action="{{ route('obras.destroy', $obraModel) }}" 
+                                            <form action="{{ route('obras.destroy', $obra) }}" 
                                                   method="POST" style="display: inline;">
                                                 @csrf
                                                 @method('DELETE')

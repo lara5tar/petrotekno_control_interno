@@ -24,10 +24,10 @@
                             <div class="col-md-3">
                                 <select name="estatus" class="form-control">
                                     <option value="">Todos los estatus</option>
-                                    @foreach($estatusOptions as $option)
-                                        <option value="{{ $option['valor'] }}" 
-                                                {{ request('estatus') == $option['valor'] ? 'selected' : '' }}>
-                                            {{ $option['nombre'] }}
+                                    @foreach($estatusOptions as $valor => $nombre)
+                                        <option value="{{ $valor }}" 
+                                                {{ request('estatus') == $valor ? 'selected' : '' }}>
+                                            {{ $nombre }}
                                         </option>
                                     @endforeach
                                 </select>

@@ -70,7 +70,8 @@ class ObraController extends Controller
                 ]);
             }
 
-            return view('obras.index', compact('obras'));
+            $estatusOptions = $this->getEstatusOptions();
+            return view('obras.index', compact('obras', 'estatusOptions'));
         } catch (Exception $e) {
             if ($request->wantsJson()) {
                 return response()->json(['error' => 'Error al obtener las obras.'], 500);
@@ -99,7 +100,7 @@ class ObraController extends Controller
 
             if ($request->wantsJson()) {
                 return response()->json([
-                    'message' => 'Formulario de creación de obra.',
+                    'message' => 'Formulario de creación de obra',
                     'data' => [
                         'estatus_options' => $estatusOptions,
                     ],
@@ -133,7 +134,7 @@ class ObraController extends Controller
 
             $validatedData = $request->validate([
                 'nombre_obra' => 'required|string|min:3|max:255|unique:obras,nombre_obra',
-                'estatus' => 'required|string|in:'.implode(',', array_keys($this->getEstatusOptions())),
+                'estatus' => 'required|string|in:' . implode(',', array_keys($this->getEstatusOptions())),
                 'avance' => 'nullable|integer|min:0|max:100',
                 'fecha_inicio' => 'required|date',
                 'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
@@ -335,8 +336,8 @@ class ObraController extends Controller
             }
 
             $validatedData = $request->validate([
-                'nombre_obra' => 'sometimes|required|string|min:3|max:255|unique:obras,nombre_obra,'.$obra->id,
-                'estatus' => 'sometimes|required|string|in:'.implode(',', array_keys($this->getEstatusOptions())),
+                'nombre_obra' => 'sometimes|required|string|min:3|max:255|unique:obras,nombre_obra,' . $obra->id,
+                'estatus' => 'sometimes|required|string|in:' . implode(',', array_keys($this->getEstatusOptions())),
                 'avance' => 'sometimes|nullable|integer|min:0|max:100',
                 'fecha_inicio' => 'sometimes|required|date',
                 'fecha_fin' => 'sometimes|nullable|date|after_or_equal:fecha_inicio',

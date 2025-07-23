@@ -147,7 +147,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [ObraController::class, 'store'])
             ->middleware('permission:crear_obras');
 
-        Route::get('/estatus', [ObraController::class, 'status'])
+        Route::get('/estatus-options', [ObraController::class, 'status'])
             ->middleware('permission:ver_obras');
 
         Route::get('/{id}', [ObraController::class, 'show'])
