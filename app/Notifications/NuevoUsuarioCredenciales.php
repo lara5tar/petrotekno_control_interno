@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -34,11 +33,11 @@ class NuevoUsuarioCredenciales extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Bienvenido al Sistema Petrotekno - Credenciales de Acceso')
-            ->greeting('¡Hola ' . $this->nombreCompleto . '!')
+            ->greeting('¡Hola '.$this->nombreCompleto.'!')
             ->line('Has sido registrado en el Sistema de Control Interno de Petrotekno.')
             ->line('Tus credenciales de acceso son:')
-            ->line('**Email:** ' . $notifiable->email)
-            ->line('**Contraseña temporal:** ' . $this->passwordTemporal)
+            ->line('**Email:** '.$notifiable->email)
+            ->line('**Contraseña temporal:** '.$this->passwordTemporal)
             ->line('Por seguridad, debes cambiar tu contraseña en tu primer inicio de sesión.')
             ->action('Acceder al Sistema', url('/login'))
             ->line('Si tienes alguna duda, contacta al administrador del sistema.')

@@ -131,7 +131,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al obtener las asignaciones: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al obtener las asignaciones: '.$e->getMessage()]);
         }
     }
 
@@ -196,7 +196,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al cargar el formulario: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al cargar el formulario: '.$e->getMessage()]);
         }
     }
 
@@ -249,7 +249,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al crear la asignación: ' . $e->getMessage()])->withInput();
+            return redirect()->back()->withErrors(['error' => 'Error al crear la asignación: '.$e->getMessage()])->withInput();
         }
     }
 
@@ -300,7 +300,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al obtener la asignación: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al obtener la asignación: '.$e->getMessage()]);
         }
     }
 
@@ -382,7 +382,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al cargar el formulario: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al cargar el formulario: '.$e->getMessage()]);
         }
     }
 
@@ -449,7 +449,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al actualizar la asignación: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al actualizar la asignación: '.$e->getMessage()]);
         }
     }
 
@@ -481,7 +481,7 @@ class AsignacionController extends Controller
             }
 
             $validated = $request->validate([
-                'kilometraje_final' => 'required|integer|min:' . $asignacion->kilometraje_inicial,
+                'kilometraje_final' => 'required|integer|min:'.$asignacion->kilometraje_inicial,
                 'observaciones_liberacion' => 'nullable|string|max:500',
             ]);
 
@@ -543,7 +543,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al liberar la asignación: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al liberar la asignación: '.$e->getMessage()]);
         }
     }
 
@@ -618,7 +618,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al eliminar la asignación: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al eliminar la asignación: '.$e->getMessage()]);
         }
     }
 
@@ -832,7 +832,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al obtener estadísticas: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al obtener estadísticas: '.$e->getMessage()]);
         }
     }
 
@@ -906,7 +906,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al obtener alertas: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al obtener alertas: '.$e->getMessage()]);
         }
     }
 
@@ -916,7 +916,7 @@ class AsignacionController extends Controller
     public function mostrarTransferencia(string $id)
     {
         // Verificar permisos
-        if (!Auth::user()->hasPermission('gestionar_asignaciones')) {
+        if (! Auth::user()->hasPermission('gestionar_asignaciones')) {
             return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para transferir asignaciones']);
         }
 
@@ -933,7 +933,7 @@ class AsignacionController extends Controller
             $operadoresDisponibles = Personal::where('estatus', 'activo')
                 ->where('id', '!=', $asignacion->personal_id)
                 ->whereDoesntHave('asignaciones', function ($query) {
-                    $query->activas();
+                    $query->whereNull('fecha_liberacion');
                 })
                 ->with('categoria')
                 ->orderBy('nombre_completo')
@@ -942,7 +942,7 @@ class AsignacionController extends Controller
             return view('asignaciones.transferir', compact('asignacion', 'operadoresDisponibles'));
         } catch (\Exception $e) {
             return redirect()->route('asignaciones.index')
-                ->withErrors(['error' => 'Error al cargar formulario de transferencia: ' . $e->getMessage()]);
+                ->withErrors(['error' => 'Error al cargar formulario de transferencia: '.$e->getMessage()]);
         }
     }
 
@@ -958,6 +958,7 @@ class AsignacionController extends Controller
             // Verificar que la asignación esté activa
             if ($asignacion->fecha_liberacion) {
                 $error = 'No se puede transferir una asignación que ya ha sido liberada';
+
                 return $this->handleResponse($request, null, $error, 400);
             }
 
@@ -988,13 +989,13 @@ class AsignacionController extends Controller
 
             // Actualizar la asignación
             $observacionesActuales = $asignacion->observaciones ?? '';
-            $nuevasObservaciones = $observacionesActuales .
-                "\n[TRANSFERENCIA " . now()->format('d/m/Y H:i') . "] " .
-                "De: {$operadorAnterior->nombre_completo} a: {$nuevoOperador->nombre_completo}. " .
-                "Motivo: {$validatedData['motivo_transferencia']}. " .
+            $nuevasObservaciones = $observacionesActuales.
+                "\n[TRANSFERENCIA ".now()->format('d/m/Y H:i').'] '.
+                "De: {$operadorAnterior->nombre_completo} a: {$nuevoOperador->nombre_completo}. ".
+                "Motivo: {$validatedData['motivo_transferencia']}. ".
                 "Km transferencia: {$validatedData['kilometraje_transferencia']}.";
 
-            if (!empty($validatedData['observaciones_transferencia'])) {
+            if (! empty($validatedData['observaciones_transferencia'])) {
                 $nuevasObservaciones .= " Observaciones: {$validatedData['observaciones_transferencia']}.";
             }
 
@@ -1008,7 +1009,7 @@ class AsignacionController extends Controller
             $vehiculo = $asignacion->vehiculo;
             if ($validatedData['kilometraje_transferencia'] > $vehiculo->kilometraje_actual) {
                 $vehiculo->update([
-                    'kilometraje_actual' => $validatedData['kilometraje_transferencia']
+                    'kilometraje_actual' => $validatedData['kilometraje_transferencia'],
                 ]);
             }
 
@@ -1023,12 +1024,39 @@ class AsignacionController extends Controller
                     'nuevo_operador' => $nuevoOperador->nombre_completo,
                     'motivo' => $validatedData['motivo_transferencia'],
                     'kilometraje' => $validatedData['kilometraje_transferencia'],
-                ]
+                ],
             ], $mensaje);
         } catch (\Exception $e) {
             DB::rollBack();
-            $error = 'Error al transferir la asignación: ' . $e->getMessage();
+            $error = 'Error al transferir la asignación: '.$e->getMessage();
+
             return $this->handleResponse($request, null, $error, 500);
         }
+    }
+
+    /**
+     * Manejar respuesta híbrida (JSON para API, redirect para web)
+     */
+    private function handleResponse($request, $data = null, string $message = '', int $status = 200)
+    {
+        if ($request->expectsJson()) {
+            $response = [
+                'success' => $status < 400,
+                'message' => $message,
+            ];
+
+            if ($data !== null) {
+                $response['data'] = $data;
+            }
+
+            return response()->json($response, $status);
+        }
+
+        // Respuesta para web (Blade)
+        if ($status >= 400) {
+            return redirect()->back()->withErrors(['error' => $message]);
+        }
+
+        return redirect()->route('asignaciones.index')->with('success', $message);
     }
 }

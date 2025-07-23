@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -93,5 +94,13 @@ class Personal extends Model
     public function usuario(): HasOne
     {
         return $this->hasOne(User::class, 'personal_id');
+    }
+
+    /**
+     * Relación con Asignaciones
+     */
+    public function asignaciones(): HasMany
+    {
+        return $this->hasMany(Asignacion::class, 'personal_id');
     }
 }

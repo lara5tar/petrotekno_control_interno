@@ -30,12 +30,12 @@ class TransferirAsignacionRequest extends FormRequest
                 function ($attribute, $value, $fail) {
                     // Validar que el nuevo operador esté activo
                     $personal = Personal::find($value);
-                    if (!$personal || $personal->estatus !== 'activo') {
+                    if (! $personal || $personal->estatus !== 'activo') {
                         $fail('El operador seleccionado no está activo.');
                     }
 
                     // Validar que el nuevo operador no tenga asignaciones activas
-                    if ($personal && $personal->asignaciones()->activas()->exists()) {
+                    if ($personal && $personal->asignaciones()->whereNull('fecha_liberacion')->exists()) {
                         $fail('El operador seleccionado ya tiene una asignación activa.');
                     }
 

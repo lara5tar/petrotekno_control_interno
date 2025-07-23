@@ -84,7 +84,7 @@ class NotificarAsignacionesVencidas extends Command
             // Marcar como urgente en observaciones si se solicita
             if ($marcarUrgentes && ! str_contains($asignacion->observaciones ?? '', '[URGENTE]')) {
                 $observacionesActuales = $asignacion->observaciones ?? '';
-                $nuevasObservaciones = "[URGENTE: {$diasTranscurridos} días activa] " . $observacionesActuales;
+                $nuevasObservaciones = "[URGENTE: {$diasTranscurridos} días activa] ".$observacionesActuales;
 
                 $asignacion->update(['observaciones' => $nuevasObservaciones]);
 

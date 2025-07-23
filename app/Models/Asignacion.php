@@ -170,8 +170,8 @@ class Asignacion extends Model
 
         if ($observaciones) {
             $this->observaciones = $this->observaciones
-                ? $this->observaciones . "\n\nLiberación: " . $observaciones
-                : 'Liberación: ' . $observaciones;
+                ? $this->observaciones."\n\nLiberación: ".$observaciones
+                : 'Liberación: '.$observaciones;
         }
 
         return $this->save();
@@ -184,13 +184,11 @@ class Asignacion extends Model
     {
         if ($this->combustible_inicial && $this->combustible_final) {
             // Combustible consumido = inicial - final + suministrado
-            return ($this->combustible_inicial - $this->combustible_final) + ($this->combustible_suministrado ?? 0);
+            return (float) (($this->combustible_inicial - $this->combustible_final) + ($this->combustible_suministrado ?? 0));
         }
 
-        return $this->combustible_suministrado ?? null;
-    }
-
-    /**
+        return $this->combustible_suministrado ? (float) $this->combustible_suministrado : null;
+    }    /**
      * Calcular eficiencia de combustible (km por litro)
      */
     public function getEficienciaCombustibleAttribute(): ?float

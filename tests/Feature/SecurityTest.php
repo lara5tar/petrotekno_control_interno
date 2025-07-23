@@ -36,7 +36,7 @@ class SecurityTest extends TestCase
 
         foreach ($maliciousInputs as $maliciousInput) {
             $response = $this->actingAs($admin, 'sanctum')
-                ->getJson('/api/users?search=' . urlencode($maliciousInput));
+                ->getJson('/api/users?search='.urlencode($maliciousInput));
 
             // Debe responder normalmente sin ejecutar SQL malicioso
             $response->assertStatus(200);
@@ -112,7 +112,7 @@ class SecurityTest extends TestCase
         for ($i = 0; $i < 10; $i++) {
             $response = $this->postJson('/api/auth/login', [
                 'email' => 'admin@petrotekno.com',
-                'password' => 'wrong_password_' . $i,
+                'password' => 'wrong_password_'.$i,
             ]);
 
             if ($response->status() === 429) {
@@ -218,7 +218,7 @@ class SecurityTest extends TestCase
         $this->assertContains($response->status(), [401, 419, 403, 422, 500]);
 
         // Documentar el status code real para análisis
-        $this->assertTrue(true, 'CSRF test returned status: ' . $response->status());
+        $this->assertTrue(true, 'CSRF test returned status: '.$response->status());
     }
 
     /**

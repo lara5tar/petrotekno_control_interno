@@ -49,7 +49,7 @@ return new class extends Migration
                 'combustible_final',
                 'combustible_suministrado',
                 'costo_combustible',
-                'historial_combustible'
+                'historial_combustible',
             ]);
         });
     }

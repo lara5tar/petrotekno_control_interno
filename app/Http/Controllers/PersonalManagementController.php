@@ -120,7 +120,7 @@ class PersonalManagementController extends Controller
             \Log::warning('Error al enviar email de credenciales', [
                 'usuario_id' => $usuario->id,
                 'email' => $usuario->email,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
