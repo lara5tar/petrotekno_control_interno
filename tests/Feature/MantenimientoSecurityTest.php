@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\CatalogoTipoServicio;
 use App\Models\Mantenimiento;
 use App\Models\Permission;
 use App\Models\Personal;
@@ -39,10 +38,10 @@ class MantenimientoSecurityTest extends TestCase
 
         // Crear datos de prueba
         $vehiculo = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
         Mantenimiento::factory()->count(3)->create([
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         // Intentos de inyección SQL en diferentes filtros
@@ -67,7 +66,7 @@ class MantenimientoSecurityTest extends TestCase
             $response->assertStatus(200);
 
             // Test en filtro de tipo servicio
-            $response = $this->getJson('/api/mantenimientos?tipo_servicio_id=' . urlencode($maliciousInput));
+            $response = $this->getJson('/api/mantenimientos?tipo_servicio=' . urlencode($maliciousInput));
             $response->assertStatus(200);
 
             // Test en filtro de proveedor
@@ -89,7 +88,7 @@ class MantenimientoSecurityTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $vehiculo = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
 
         $xssPayloads = [
             '<script>alert("XSS")</script>',
@@ -103,7 +102,7 @@ class MantenimientoSecurityTest extends TestCase
         foreach ($xssPayloads as $payload) {
             $mantenimientoData = [
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
                 'proveedor' => 'Proveedor Test ' . $payload,
                 'descripcion' => 'Descripción Test ' . $payload,
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -146,12 +145,12 @@ class MantenimientoSecurityTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $vehiculo = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
 
         // Intentar asignar campos que no deberían ser asignables masivamente
         $maliciousData = [
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'proveedor' => 'Proveedor Test',
             'descripcion' => 'Descripción Test',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -167,8 +166,11 @@ class MantenimientoSecurityTest extends TestCase
         $response = $this->postJson('/api/mantenimientos', $maliciousData);
 
         // ✅ ASSERTION OBLIGATORIA: Verificar que el mantenimiento se crea exitosamente
-        $this->assertEquals(201, $response->status(),
-            'Mantenimiento should be created despite malicious fields');
+        $this->assertEquals(
+            201,
+            $response->status(),
+            'Mantenimiento should be created despite malicious fields'
+        );
 
         $mantenimiento = $response->json('data');
 
@@ -184,10 +186,10 @@ class MantenimientoSecurityTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $vehiculo = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         // Verificar endpoint index
@@ -247,14 +249,20 @@ class MantenimientoSecurityTest extends TestCase
         $response = $this->getJson('/api/mantenimientos');
 
         // Verificar headers de seguridad básicos
-        $this->assertTrue($response->headers->has('Content-Type'),
-            'Content-Type header should be present');
+        $this->assertTrue(
+            $response->headers->has('Content-Type'),
+            'Content-Type header should be present'
+        );
 
         // Verificar que no se exponen headers sensibles
-        $this->assertFalse($response->headers->has('Server'),
-            'Server header should not be exposed for security');
-        $this->assertFalse($response->headers->has('X-Powered-By'),
-            'X-Powered-By header should not be exposed for security');
+        $this->assertFalse(
+            $response->headers->has('Server'),
+            'Server header should not be exposed for security'
+        );
+        $this->assertFalse(
+            $response->headers->has('X-Powered-By'),
+            'X-Powered-By header should not be exposed for security'
+        );
     }
 
     #[Test]
@@ -286,12 +294,12 @@ class MantenimientoSecurityTest extends TestCase
         ];
 
         $vehiculo = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
 
         foreach ($endpoints as [$method, $endpoint]) {
             $response = $this->json($method, $endpoint, [
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
                 'proveedor' => 'Test Proveedor',
                 'descripcion' => 'Test Descripción',
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -300,8 +308,11 @@ class MantenimientoSecurityTest extends TestCase
             ]);
 
             // Debe requerir autenticación
-            $this->assertEquals(401, $response->status(),
-                "Endpoint $method $endpoint should require authentication");
+            $this->assertEquals(
+                401,
+                $response->status(),
+                "Endpoint $method $endpoint should require authentication"
+            );
         }
     }
 
@@ -311,16 +322,16 @@ class MantenimientoSecurityTest extends TestCase
         Sanctum::actingAs($this->operadorUser);
 
         $vehiculo = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         // Operador solo puede ver, no modificar
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'proveedor' => 'Proveedor Malicioso',
             'descripcion' => 'Descripción Maliciosa',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -347,7 +358,7 @@ class MantenimientoSecurityTest extends TestCase
         // Test: Crear mantenimiento con vehículo inexistente
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => 99999, // ID inexistente
-            'tipo_servicio_id' => CatalogoTipoServicio::factory()->create()->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'proveedor' => 'Proveedor Test',
             'descripcion' => 'Descripción Test',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -360,7 +371,7 @@ class MantenimientoSecurityTest extends TestCase
         // Test: Crear mantenimiento con tipo servicio inexistente
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => Vehiculo::factory()->create()->id,
-            'tipo_servicio_id' => 99999, // ID inexistente
+            'tipo_servicio' => 99999, // ID inexistente
             'proveedor' => 'Proveedor Test',
             'descripcion' => 'Descripción Test',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -378,17 +389,17 @@ class MantenimientoSecurityTest extends TestCase
 
         $vehiculo1 = Vehiculo::factory()->create();
         $vehiculo2 = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
 
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $vehiculo1->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         // Intentar actualizar con IDs negativos
         $response = $this->putJson("/api/mantenimientos/{$mantenimiento->id}", [
             'vehiculo_id' => -1,
-            'tipo_servicio_id' => -1,
+            'tipo_servicio' => -1,
             'proveedor' => 'Proveedor Test',
             'descripcion' => 'Descripción Test',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -401,7 +412,7 @@ class MantenimientoSecurityTest extends TestCase
         // Intentar actualizar con IDs extremadamente grandes
         $response = $this->putJson("/api/mantenimientos/{$mantenimiento->id}", [
             'vehiculo_id' => PHP_INT_MAX,
-            'tipo_servicio_id' => PHP_INT_MAX,
+            'tipo_servicio' => PHP_INT_MAX,
             'proveedor' => 'Proveedor Test',
             'descripcion' => 'Descripción Test',
             'fecha_inicio' => now()->format('Y-m-d'),

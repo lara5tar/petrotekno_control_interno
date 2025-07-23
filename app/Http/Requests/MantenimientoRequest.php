@@ -23,7 +23,7 @@ class MantenimientoRequest extends FormRequest
     {
         $rules = [
             'vehiculo_id' => 'required|integer|exists:vehiculos,id',
-            'tipo_servicio_id' => 'required|integer|exists:catalogo_tipos_servicio,id',
+            'tipo_servicio' => 'required|string|in:CORRECTIVO,PREVENTIVO',
             'proveedor' => 'nullable|string|max:255',
             'descripcion' => 'nullable|string|max:65535',
             'fecha_inicio' => 'required|date',
@@ -43,8 +43,8 @@ class MantenimientoRequest extends FormRequest
         return [
             'vehiculo_id.required' => 'El vehículo es requerido',
             'vehiculo_id.exists' => 'El vehículo seleccionado no existe',
-            'tipo_servicio_id.required' => 'El tipo de servicio es requerido',
-            'tipo_servicio_id.exists' => 'El tipo de servicio seleccionado no existe',
+            'tipo_servicio.required' => 'El tipo de servicio es requerido',
+            'tipo_servicio.in' => 'El tipo de servicio debe ser CORRECTIVO o PREVENTIVO',
             'proveedor.max' => 'El proveedor no puede exceder 255 caracteres',
             'descripcion.max' => 'La descripción no puede exceder 65535 caracteres',
             'fecha_inicio.required' => 'La fecha de inicio es requerida',

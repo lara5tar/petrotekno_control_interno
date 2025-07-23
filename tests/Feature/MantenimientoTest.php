@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\CatalogoTipoServicio;
 use App\Models\Mantenimiento;
 use App\Models\User;
 use App\Models\Vehiculo;
@@ -18,8 +17,6 @@ class MantenimientoTest extends TestCase
 
     private Vehiculo $vehiculo;
 
-    private CatalogoTipoServicio $tipoServicio;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -27,7 +24,6 @@ class MantenimientoTest extends TestCase
         // Crear datos base para las pruebas
         $this->user = User::factory()->create();
         $this->vehiculo = Vehiculo::factory()->create();
-        $this->tipoServicio = CatalogoTipoServicio::factory()->create();
 
         $this->actingAs($this->user, 'sanctum');
     }
@@ -39,7 +35,7 @@ class MantenimientoTest extends TestCase
     {
         $mantenimientoData = [
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'proveedor' => 'Taller Mecánico ABC',
             'descripcion' => 'Cambio de aceite y filtros completo',
             'fecha_inicio' => '2025-07-15',
@@ -52,7 +48,7 @@ class MantenimientoTest extends TestCase
 
         $this->assertInstanceOf(Mantenimiento::class, $mantenimiento);
         $this->assertEquals($this->vehiculo->id, $mantenimiento->vehiculo_id);
-        $this->assertEquals($this->tipoServicio->id, $mantenimiento->tipo_servicio_id);
+        $this->assertEquals('CORRECTIVO', $mantenimiento->tipo_servicio);
 
         $this->assertDatabaseHas('mantenimientos', [
             'vehiculo_id' => $this->vehiculo->id,
@@ -68,7 +64,7 @@ class MantenimientoTest extends TestCase
     {
         $mantenimientoData = [
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'descripcion' => 'Inspección rutinaria',
             'fecha_inicio' => '2025-07-15',
             'kilometraje_servicio' => 100000,
@@ -83,7 +79,7 @@ class MantenimientoTest extends TestCase
 
         $this->assertDatabaseHas('mantenimientos', [
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'descripcion' => 'Inspección rutinaria',
             'kilometraje_servicio' => 100000,
         ]);
@@ -100,7 +96,7 @@ class MantenimientoTest extends TestCase
 
         $primerMantenimiento = Mantenimiento::first();
         $this->assertNotNull($primerMantenimiento->vehiculo_id);
-        $this->assertNotNull($primerMantenimiento->tipo_servicio_id);
+        $this->assertNotNull($primerMantenimiento->tipo_servicio);
         $this->assertNotNull($primerMantenimiento->descripcion);
     }
 
@@ -155,16 +151,15 @@ class MantenimientoTest extends TestCase
     {
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         // Test relación con Vehiculo
         $this->assertInstanceOf(Vehiculo::class, $mantenimiento->vehiculo);
         $this->assertEquals($this->vehiculo->id, $mantenimiento->vehiculo->id);
 
-        // Test relación con TipoServicio
-        $this->assertInstanceOf(CatalogoTipoServicio::class, $mantenimiento->tipoServicio);
-        $this->assertEquals($this->tipoServicio->id, $mantenimiento->tipoServicio->id);
+        // Test campo tipo_servicio
+        $this->assertEquals('CORRECTIVO', $mantenimiento->tipo_servicio);
 
         // Test relación inversa desde Vehiculo
         $this->assertTrue($this->vehiculo->mantenimientos->contains($mantenimiento));
@@ -176,19 +171,19 @@ class MantenimientoTest extends TestCase
     public function test_mantenimiento_scopes(): void
     {
         $vehiculo2 = Vehiculo::factory()->create();
-        $tipoServicio2 = CatalogoTipoServicio::factory()->create();
+        $tipoServicio2 = 'CORRECTIVO';
 
         // Crear mantenimientos de prueba
         $mantenimiento1 = Mantenimiento::factory()->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'fecha_inicio' => '2025-07-01',
             'fecha_fin' => '2025-07-01',
         ]);
 
         $mantenimiento2 = Mantenimiento::factory()->create([
             'vehiculo_id' => $vehiculo2->id,
-            'tipo_servicio_id' => $tipoServicio2->id,
+            'tipo_servicio' => 'PREVENTIVO',
             'fecha_inicio' => '2025-07-10',
             'fecha_fin' => null,
         ]);
@@ -198,7 +193,7 @@ class MantenimientoTest extends TestCase
         $this->assertCount(1, $mantenimientosVehiculo1);
 
         // Test filtro por tipo de servicio
-        $mantenimientosTipo1 = Mantenimiento::byTipoServicio($this->tipoServicio->id)->get();
+        $mantenimientosTipo1 = Mantenimiento::byTipoServicio('CORRECTIVO')->get();
         $this->assertCount(1, $mantenimientosTipo1);
 
         // Test filtro completados

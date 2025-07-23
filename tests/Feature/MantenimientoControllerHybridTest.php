@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\CatalogoTipoServicio;
 use App\Models\LogAccion;
 use App\Models\Mantenimiento;
 use App\Models\Permission;
@@ -27,7 +26,6 @@ class MantenimientoControllerHybridTest extends TestCase
 
     protected Vehiculo $vehiculo;
 
-    protected CatalogoTipoServicio $tipoServicio;
 
     protected function setUp(): void
     {
@@ -35,11 +33,6 @@ class MantenimientoControllerHybridTest extends TestCase
 
         // Crear vehículo de prueba
         $this->vehiculo = Vehiculo::factory()->create();
-
-        // Crear tipo de servicio de prueba
-        $this->tipoServicio = CatalogoTipoServicio::factory()->create([
-            'nombre_tipo_servicio' => 'Cambio de Aceite',
-        ]);
 
         // Crear permisos necesarios para mantenimientos
         $permissions = [
@@ -74,7 +67,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         Mantenimiento::factory()->count(2)->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         $response = $this->getJson('/api/mantenimientos');
@@ -93,7 +86,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         Mantenimiento::factory()->count(2)->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         $response = $this->get('/mantenimientos');
@@ -109,7 +102,7 @@ class MantenimientoControllerHybridTest extends TestCase
         // Crear mantenimiento con proveedor específico
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'proveedor' => 'Taller Prueba',
         ]);
 
@@ -159,7 +152,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $mantenimientoData = [
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'proveedor' => 'Taller API',
             'descripcion' => 'Mantenimiento de prueba API',
             'fecha_inicio' => '2024-01-15',
@@ -173,7 +166,7 @@ class MantenimientoControllerHybridTest extends TestCase
             ->assertJsonStructure([
                 'success',
                 'message',
-                'data' => ['id', 'vehiculo_id', 'tipo_servicio_id', 'proveedor'],
+                'data' => ['id', 'vehiculo_id', 'tipo_servicio', 'proveedor'],
             ])
             ->assertHeader('content-type', 'application/json');
 
@@ -184,7 +177,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $mantenimientoData = [
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'proveedor' => 'Taller Web',
             'descripcion' => 'Mantenimiento de prueba Web',
             'fecha_inicio' => '2024-01-15',
@@ -206,7 +199,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $invalidData = [
             'vehiculo_id' => '',
-            'tipo_servicio_id' => '',
+            'tipo_servicio' => '',
             'fecha_inicio' => '',
             'kilometraje_servicio' => '',
             // descripcion es nullable, no lo incluimos en la validación que debe fallar
@@ -215,7 +208,7 @@ class MantenimientoControllerHybridTest extends TestCase
         $response = $this->from('/mantenimientos/create')->post('/mantenimientos', $invalidData);
 
         $response->assertRedirect('/mantenimientos/create')
-            ->assertSessionHasErrors(['vehiculo_id', 'tipo_servicio_id', 'fecha_inicio', 'kilometraje_servicio']);
+            ->assertSessionHasErrors(['vehiculo_id', 'tipo_servicio', 'fecha_inicio', 'kilometraje_servicio']);
     }
 
     // ================================
@@ -226,7 +219,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         $response = $this->getJson("/api/mantenimientos/{$mantenimiento->id}");
@@ -235,7 +228,7 @@ class MantenimientoControllerHybridTest extends TestCase
             ->assertJsonStructure([
                 'success',
                 'message',
-                'data' => ['id', 'vehiculo_id', 'tipo_servicio_id', 'vehiculo', 'tipo_servicio'],
+                'data' => ['id', 'vehiculo_id', 'tipo_servicio', 'vehiculo', 'tipo_servicio'],
             ])
             ->assertHeader('content-type', 'application/json');
     }
@@ -244,7 +237,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         $response = $this->get("/mantenimientos/{$mantenimiento->id}");
@@ -263,7 +256,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         $response = $this->getJson("/api/mantenimientos/{$mantenimiento->id}/edit");
@@ -273,7 +266,7 @@ class MantenimientoControllerHybridTest extends TestCase
                 'success',
                 'message',
                 'data' => [
-                    'mantenimiento' => ['id', 'vehiculo_id', 'tipo_servicio_id'],
+                    'mantenimiento' => ['id', 'vehiculo_id', 'tipo_servicio'],
                     'vehiculos_options',
                     'tipos_servicio_options',
                 ],
@@ -285,7 +278,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         $response = $this->get("/mantenimientos/{$mantenimiento->id}/edit");
@@ -304,12 +297,12 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         $updateData = [
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'proveedor' => 'Taller Updated API',
             'descripcion' => 'Descripción actualizada API',
             'fecha_inicio' => '2024-02-15',
@@ -333,12 +326,12 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         $updateData = [
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'proveedor' => 'Taller Updated Web',
             'descripcion' => 'Descripción actualizada Web',
             'fecha_inicio' => '2024-02-15',
@@ -365,7 +358,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         $response = $this->deleteJson("/api/mantenimientos/{$mantenimiento->id}");
@@ -381,7 +374,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         $response = $this->delete("/mantenimientos/{$mantenimiento->id}");
@@ -400,7 +393,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
         $mantenimiento->delete(); // Soft delete
 
@@ -418,7 +411,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
         $mantenimiento->delete(); // Soft delete
 
@@ -493,7 +486,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         // Obtener datos via API
@@ -503,7 +496,7 @@ class MantenimientoControllerHybridTest extends TestCase
         // Verificar estructura de datos API
         $this->assertArrayHasKey('id', $apiData);
         $this->assertArrayHasKey('vehiculo_id', $apiData);
-        $this->assertArrayHasKey('tipo_servicio_id', $apiData);
+        $this->assertArrayHasKey('tipo_servicio', $apiData);
         $this->assertArrayHasKey('vehiculo', $apiData);
         $this->assertArrayHasKey('tipo_servicio', $apiData);
 
@@ -515,7 +508,7 @@ class MantenimientoControllerHybridTest extends TestCase
             // Verificar que los datos principales son consistentes
             $this->assertEquals($apiData['id'], $viewMantenimiento->id);
             $this->assertEquals($apiData['vehiculo_id'], $viewMantenimiento->vehiculo_id);
-            $this->assertEquals($apiData['tipo_servicio_id'], $viewMantenimiento->tipo_servicio_id);
+            $this->assertEquals($apiData['tipo_servicio'], $viewMantenimiento->tipo_servicio);
         } catch (\Exception $e) {
             // Si la vista falla por vista faltante, al menos verificamos que la API funciona
             $this->assertTrue(true); // API test passed
@@ -530,7 +523,7 @@ class MantenimientoControllerHybridTest extends TestCase
     {
         $mantenimientoDataApi = [
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'proveedor' => 'Taller API Audit',
             'descripcion' => 'Mantenimiento API audit',
             'fecha_inicio' => '2024-01-15',
@@ -540,7 +533,7 @@ class MantenimientoControllerHybridTest extends TestCase
 
         $mantenimientoDataWeb = [
             'vehiculo_id' => $this->vehiculo->id,
-            'tipo_servicio_id' => $this->tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'proveedor' => 'Taller Web Audit',
             'descripcion' => 'Mantenimiento Web audit',
             'fecha_inicio' => '2024-01-15',
