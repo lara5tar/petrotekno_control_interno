@@ -16,6 +16,7 @@
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-800">Editar Vehículo - Placas: {{ $vehiculo->placas ?? 'ABC-123' }}</h2>
         <div class="flex space-x-3">
+            @hasPermission('ver_vehiculos')
             <a href="{{ route('vehiculos.show', $vehiculo->id ?? 1) }}" 
                class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -24,6 +25,7 @@
                 </svg>
                 Ver Detalles
             </a>
+            @endhasPermission
             <a href="{{ route('vehiculos.index') }}" 
                class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">

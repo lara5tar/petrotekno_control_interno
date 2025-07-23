@@ -18,62 +18,65 @@ Route::get('/', function () {
 Auth::routes(['register' => false]);
 
 // Ruta del dashboard después de iniciar sesión
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('auth');
 
-// Ruta para listar vehículos (vista estática)
-Route::get('/vehiculos', function () {
-    return view('vehiculos.index');
-})->name('vehiculos.index');
+// Grupo de rutas para vehículos con autenticación
+Route::middleware(['auth'])->group(function () {
+    // Ruta para listar vehículos (vista estática)
+    Route::get('/vehiculos', function () {
+        return view('vehiculos.index');
+    })->name('vehiculos.index')->middleware('permission:ver_vehiculos');
 
-// Ruta para mostrar formulario de crear vehículo (datos estáticos)
-Route::get('/vehiculos/create', function () {
-    return view('vehiculos.create');
-})->name('vehiculos.create');
+    // Ruta para mostrar formulario de crear vehículo (datos estáticos)
+    Route::get('/vehiculos/create', function () {
+        return view('vehiculos.create');
+    })->name('vehiculos.create')->middleware('permission:crear_vehiculos');
 
-// Ruta para guardar nuevo vehículo (simulada con datos estáticos)
-Route::post('/vehiculos', function (\Illuminate\Http\Request $request) {
-    // Simular validación básica sin tocar la base de datos
-    $request->validate([
-        'marca' => 'required|string|max:255',
-        'modelo' => 'required|string|max:255',
-        'anio' => 'required|integer|min:1990|max:2025',
-        'n_serie' => 'required|string|max:255',
-        'placas' => 'required|string|max:255',
-        'kilometraje_actual' => 'required|integer|min:0',
-        'estatus_id' => 'required'
-    ]);
+    // Ruta para guardar nuevo vehículo (simulada con datos estáticos)
+    Route::post('/vehiculos', function (\Illuminate\Http\Request $request) {
+        // Simular validación básica sin tocar la base de datos
+        $request->validate([
+            'marca' => 'required|string|max:255',
+            'modelo' => 'required|string|max:255',
+            'anio' => 'required|integer|min:1990|max:2025',
+            'n_serie' => 'required|string|max:255',
+            'placas' => 'required|string|max:255',
+            'kilometraje_actual' => 'required|integer|min:0',
+            'estatus_id' => 'required'
+        ]);
 
-    // Simular ID del vehículo creado
-    $vehiculoId = rand(1, 100);
+        // Simular ID del vehículo creado
+        $vehiculoId = rand(1, 100);
 
-    return redirect()->route('vehiculos.index')
-        ->with('success', 'Vehículo creado exitosamente (simulación frontend).');
-})->name('vehiculos.store');
+        return redirect()->route('vehiculos.index')
+            ->with('success', 'Vehículo creado exitosamente (simulación frontend).');
+    })->name('vehiculos.store')->middleware('permission:crear_vehiculos');
 
-// Ruta para mostrar detalles de un vehículo (datos estáticos)
-Route::get('/vehiculos/{id}', function ($id) {
-    // Crear objeto de vehículo con datos estáticos
-    $vehiculo = (object) [
-        'id' => $id,
-        'marca' => 'Toyota',
-        'modelo' => 'Hilux',
-        'anio' => 2022,
-        'n_serie' => '1FTFW1ET5DFA12345',
-        'placas' => 'ABC-123',
-        'kilometraje_actual' => 45780,
-        'estatus_id' => 1,
-        'intervalo_km_motor' => 5000,
-        'intervalo_km_transmision' => 40000,
-        'intervalo_km_hidraulico' => 10000,
-        'observaciones' => 'Vehículo en excelentes condiciones',
-        'estatus' => (object) ['nombre' => 'Disponible']
-    ];
-    
-    return view('vehiculos.show', compact('vehiculo'));
-})->name('vehiculos.show');
+    // Ruta para mostrar detalles de un vehículo (datos estáticos)
+    Route::get('/vehiculos/{id}', function ($id) {
+        // Crear objeto de vehículo con datos estáticos
+        $vehiculo = (object) [
+            'id' => $id,
+            'marca' => 'Toyota',
+            'modelo' => 'Hilux',
+            'anio' => 2022,
+            'n_serie' => '1FTFW1ET5DFA12345',
+            'placas' => 'ABC-123',
+            'kilometraje_actual' => 45780,
+            'estatus_id' => 1,
+            'intervalo_km_motor' => 5000,
+            'intervalo_km_transmision' => 40000,
+            'intervalo_km_hidraulico' => 10000,
+            'observaciones' => 'Vehículo en excelentes condiciones',
+            'estatus' => (object) ['nombre' => 'Disponible']
+        ];
+        
+        return view('vehiculos.show', compact('vehiculo'));
+    })->name('vehiculos.show')->middleware('permission:ver_vehiculos');
+});
 
 // Ruta para mostrar formulario de editar vehículo (datos estáticos)
-Route::get('/vehiculos/{id}/edit', function ($id) {
+Route::middleware(['auth', 'permission:editar_vehiculos'])->get('/vehiculos/{id}/edit', function ($id) {
     // Crear objeto de vehículo con datos estáticos
     $vehiculo = (object) [
         'id' => $id,
@@ -87,14 +90,14 @@ Route::get('/vehiculos/{id}/edit', function ($id) {
         'intervalo_km_motor' => 5000,
         'intervalo_km_transmision' => 40000,
         'intervalo_km_hidraulico' => 10000,
-        'observaciones' => 'Vehículo en excelentes condiciones. Se le realizó mantenimiento general el mes pasado.'
+        'observaciones' => 'Vehículo en excelentes condiciones'
     ];
     
     return view('vehiculos.edit', compact('vehiculo'));
 })->name('vehiculos.edit');
 
 // Ruta para actualizar vehículo (simulada con datos estáticos)
-Route::put('/vehiculos/{id}', function (\Illuminate\Http\Request $request, $id) {
+Route::middleware(['auth', 'permission:editar_vehiculos'])->put('/vehiculos/{id}', function (\Illuminate\Http\Request $request, $id) {
     // Simular validación básica sin tocar la base de datos
     $request->validate([
         'marca' => 'required|string|max:255',
@@ -151,7 +154,7 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         ]);
         
         return view('personal.index', compact('personal', 'categorias'));
-    })->name('index');
+    })->name('index')->middleware('permission:ver_personal');
 
     // Ruta para mostrar formulario de crear personal (datos estáticos)
     Route::get('/create', function () {
@@ -171,7 +174,7 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         ]);
         
         return view('personal.create', compact('categorias', 'usuarios'));
-    })->name('create');
+    })->name('create')->middleware('permission:crear_personal');
 
     // Ruta para guardar nuevo personal (simulada con datos estáticos)
     Route::post('/', function (\Illuminate\Http\Request $request) {
@@ -187,9 +190,9 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
 
         return redirect()->route('personal.show', $personalId)
             ->with('success', 'Personal creado exitosamente (simulación).');
-    })->name('store');
+    })->name('store')->middleware('permission:crear_personal');
 
-    // Ruta para mostrar detalles de un personal (datos estáticos)
+    // Ruta para mostrar detalles de un personal (datos estáticos) - CORREGIDO: Agregado middleware de permisos
     Route::get('/{id}', function ($id) {
         // Crear objeto de personal con datos estáticos
         $personal = (object) [
@@ -207,9 +210,9 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         $documentosPorTipo = collect([]);
         
         return view('personal.show', compact('personal', 'documentosPorTipo'));
-    })->name('show');
+    })->name('show')->middleware('permission:ver_personal');
 
-    // Ruta para subir documentos del personal
+    // Ruta para subir documentos del personal - CORREGIDO: Agregado middleware de permisos
     Route::post('/{id}/documents/upload', function (Request $request, $id) {
         $personal = Personal::findOrFail($id);
         
@@ -263,18 +266,18 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         } catch (\Exception $e) {
             return back()->with('error', 'Error al subir el documento: ' . $e->getMessage());
         }
-    })->name('documents.upload');
+    })->name('documents.upload')->middleware('permission:editar_personal');
 
-    // Ruta para mostrar formulario de editar personal
+    // Ruta para mostrar formulario de editar personal - CORREGIDO: Agregado middleware de permisos
     Route::get('/{id}/edit', function ($id) {
         $personal = \App\Models\Personal::findOrFail($id);
         $categorias = \App\Models\CategoriaPersonal::orderBy('nombre_categoria')->get();
         $usuarios = \App\Models\User::orderBy('nombre_usuario')->get();
         
         return view('personal.edit', compact('personal', 'categorias', 'usuarios'));
-    })->name('edit');
+    })->name('edit')->middleware('permission:editar_personal');
 
-    // Ruta para actualizar personal
+    // Ruta para actualizar personal - CORREGIDO: Agregado middleware de permisos
     Route::put('/{id}', function (\Illuminate\Http\Request $request, $id) {
         $personal = \App\Models\Personal::findOrFail($id);
         
@@ -298,9 +301,9 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
 
         return redirect()->route('personal.show', $personal->id)
             ->with('success', 'Personal actualizado exitosamente.');
-    })->name('update');
+    })->name('update')->middleware('permission:editar_personal');
 
-    // Ruta para eliminar personal
+    // Ruta para eliminar personal - CORREGIDO: Agregado middleware de permisos
     Route::delete('/{id}', function ($id) {
         $personal = \App\Models\Personal::findOrFail($id);
         $nombre = $personal->nombre_completo;
@@ -309,10 +312,10 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
 
         return redirect()->route('personal.index')
             ->with('success', "Personal '{$nombre}' eliminado exitosamente.");
-    })->name('destroy');
+    })->name('destroy')->middleware('permission:eliminar_personal');
 });
 
-// Rutas web para obtener datos (proxy a los modelos)
+// Rutas web para obtener datos (proxy a los modelos) - CORREGIDO: Agregado middleware de permisos
 Route::middleware('auth')->group(function () {
     Route::get('/web-api/categorias-personal', function () {
         try {
@@ -327,7 +330,7 @@ Route::middleware('auth')->group(function () {
                 'message' => 'Error al cargar categorías'
             ], 500);
         }
-    })->name('web-api.categorias-personal');
+    })->name('web-api.categorias-personal')->middleware('permission:ver_personal');
 
     Route::get('/web-api/personal', function (\Illuminate\Http\Request $request) {
         try {
@@ -364,7 +367,7 @@ Route::middleware('auth')->group(function () {
                 'message' => 'Error al cargar personal'
             ], 500);
         }
-    })->name('web-api.personal');
+    })->name('web-api.personal')->middleware('permission:ver_personal');
 });
 
 // Ruta para vista de usuario (datos estáticos)

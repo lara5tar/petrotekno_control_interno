@@ -297,12 +297,14 @@
                                     </div>
                                 </div>
                             </div>                            <div class="mt-4 pt-4 border-t border-gray-200">
+                                @hasPermission('editar_personal')
                                 <button class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>
                                     Agregar Documento
                                 </button>
+                                @endhasPermission
                             </div>
                         </div>
                     </div>
@@ -314,6 +316,7 @@
 
 <!-- Botones de Acción Flotantes -->
 <div class="fixed bottom-6 right-6 flex space-x-3 z-50">
+    @hasPermission('editar_personal')
     <!-- Botón Editar -->
     <a href="{{ route('personal.edit', $personal->id ?? 1) }}" 
        class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 flex items-center space-x-2 shadow-lg"
@@ -323,7 +326,9 @@
         </svg>
         <span>Editar</span>
     </a>
+    @endhasPermission
 
+    @hasPermission('eliminar_personal')
     <!-- Botón Eliminar -->
     <form action="{{ route('personal.destroy', $personal->id ?? 1) }}" 
           method="POST" 
@@ -341,6 +346,7 @@
             <span>Eliminar</span>
         </button>
     </form>
+    @endhasPermission
 </div>
 
 @push('scripts')

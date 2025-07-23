@@ -14,6 +14,7 @@
     <!-- Encabezado con botón de agregar -->
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-800">Listado de Personal</h2>
+        @hasPermission('crear_personal')
         <a href="{{ route('personal.create') }}" 
            class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded flex items-center transition duration-200">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -21,6 +22,7 @@
             </svg>
             Agregar Personal
         </a>
+        @endhasPermission
     </div>
 
     <!-- Alertas de sesión -->
@@ -114,17 +116,22 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $persona->created_at->format('d/m/Y') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end space-x-2">
+                                        @hasPermission('ver_personal')
                                         <a href="{{ route('personal.show', $persona->id) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                 <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                                 <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
                                             </svg>
                                         </a>
+                                        @endhasPermission
+                                        @hasPermission('editar_personal')
                                         <a href="{{ route('personal.edit', $persona->id) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                             </svg>
                                         </a>
+                                        @endhasPermission
+                                        @hasPermission('eliminar_personal')
                                         <form action="{{ route('personal.destroy', $persona->id) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de que quieres eliminar a {{ $persona->nombre_completo }}? Esta acción no se puede deshacer.')">
                                             @csrf
                                             @method('DELETE')
@@ -134,6 +141,7 @@
                                                 </svg>
                                             </button>
                                         </form>
+                                        @endhasPermission
                                     </div>
                                 </td>
                             </tr>

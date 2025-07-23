@@ -22,6 +22,7 @@
             </div>
             
             <div class="flex space-x-2">
+                @hasPermission('imprimir_vehiculos')
                 <button onclick="imprimirDetalles()" 
                         class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm transition duration-200 flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,7 +30,9 @@
                     </svg>
                     Imprimir
                 </button>
+                @endhasPermission
                 
+                @hasPermission('editar_vehiculos')
                 <a href="{{ route('vehiculos.edit', $vehiculo->id ?? 1) }}" 
                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm transition duration-200 flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,6 +40,7 @@
                     </svg>
                     Editar
                 </a>
+                @endhasPermission
                 
                 <a href="{{ route('vehiculos.index') }}" 
                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm transition duration-200 flex items-center">
@@ -216,21 +220,24 @@
                 <!-- Contenido de pestañas con scroll interno -->
                 <div class="flex-1 overflow-hidden">
                     <!-- Contenido de Operación -->
-                    <div x-show="activeTab === 'operacion'" class="p-3">
-                        <div class="space-y-3">
+                    <div x-show="activeTab === 'operacion'" class="p-6 bg-gray-50">
+                        <div class="space-y-6">
                             <!-- Sección: Obra Actual -->
-                            <div class="bg-gray-100 border border-gray-200 rounded p-3">
-                                <h5 class="text-sm font-semibold text-gray-700 mb-2 flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                         </svg>
                                         Obra Actual
-                                    </div>
-                                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm">
+                                    </h5>
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
                                         Cambiar Obra
                                     </button>
-                                </h5>
+                                </div>
                                 
                                 <div class="space-y-2">
                                     <div class="grid grid-cols-2 gap-3">
@@ -288,18 +295,21 @@
                             </div>
                             
                             <!-- Sección: Personal Asignado -->
-                            <div class="bg-gray-100 border border-gray-200 rounded p-3">
-                                <h5 class="text-sm font-semibold text-gray-700 mb-2 flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                                         </svg>
                                         Personal Asignado
-                                    </div>
-                                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm">
+                                    </h5>
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
                                         Cambiar Personal
                                     </button>
-                                </h5>
+                                </div>
                                 
                                 <div class="space-y-2">
                                     <div class="grid grid-cols-2 gap-3">
@@ -576,98 +586,110 @@
                     </div>
 
                     <!-- Contenido de Mantenimientos -->
-                    <div x-show="activeTab === 'mantenimientos'" class="p-2">
-                        <div class="space-y-2">
-                            <h4 class="text-xs font-medium text-gray-700">Mantenimientos Recientes</h4>
-                            
-                            <div class="border border-gray-200 rounded-lg overflow-hidden">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                                            <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                                            <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
-                                            <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taller</th>
-                                            <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                            <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-900">15/03/2024</td>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-900">Preventivo</td>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-900">125,000 km</td>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-900">Taller Mecánico Central</td>
-                                            <td class="px-2 py-1 whitespace-nowrap">
-                                                <span class="inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                    Completado
-                                                </span>
-                                            </td>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-500">
-                                                <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
-                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                    </svg>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-900">10/01/2024</td>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-900">Correctivo</td>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-900">120,500 km</td>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-900">Servicio Oficial Toyota</td>
-                                            <td class="px-2 py-1 whitespace-nowrap">
-                                                <span class="inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                    Completado
-                                                </span>
-                                            </td>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-500">
-                                                <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
-                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                    </svg>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-900">05/12/2023</td>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-900">Preventivo</td>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-900">115,000 km</td>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-900">Taller Mecánico Central</td>
-                                            <td class="px-2 py-1 whitespace-nowrap">
-                                                <span class="inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                    Completado
-                                                </span>
-                                            </td>
-                                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-500">
-                                                <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
-                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                    </svg>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            
-                            <div class="flex justify-between items-center pt-1 border-t border-gray-200">
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
-                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    Registrar Mantenimiento
-                                </button>
+                    <div x-show="activeTab === 'mantenimientos'" class="p-6 bg-gray-50">
+                        <div class="space-y-6">
+                            <!-- Mantenimientos del Vehículo -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        Mantenimientos Recientes
+                                    </h5>
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Registrar Mantenimiento
+                                    </button>
+                                </div>
                                 
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
-                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                                    </svg>
-                                    Ver Historial Completo
-                                </button>
+                                <!-- Tabla de Mantenimientos -->
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Taller</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <tr>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">15/03/2024</td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Preventivo</td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">125,000 km</td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Taller Mecánico Central</td>
+                                                <td class="px-3 py-2 whitespace-nowrap">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        Completado
+                                                    </span>
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
+                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                        </svg>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">10/01/2024</td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Correctivo</td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">120,500 km</td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Servicio Oficial Toyota</td>
+                                                <td class="px-3 py-2 whitespace-nowrap">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        Completado
+                                                    </span>
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
+                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                        </svg>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">05/12/2023</td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Preventivo</td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">115,000 km</td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Taller Mecánico Central</td>
+                                                <td class="px-3 py-2 whitespace-nowrap">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        Completado
+                                                    </span>
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
+                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                        </svg>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <!-- Botones de acción -->
+                                <div class="flex justify-end items-center pt-4 border-t border-gray-200 mt-4">
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                                        </svg>
+                                        Ver Historial Completo
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
