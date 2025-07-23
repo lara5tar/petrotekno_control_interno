@@ -188,7 +188,9 @@ class Asignacion extends Model
         }
 
         return $this->combustible_suministrado ? (float) $this->combustible_suministrado : null;
-    }    /**
+    }
+
+    /**
      * Calcular eficiencia de combustible (km por litro)
      */
     public function getEficienciaCombustibleAttribute(): ?float
