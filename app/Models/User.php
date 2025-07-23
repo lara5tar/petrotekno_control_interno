@@ -117,7 +117,7 @@ class User extends Authenticatable
      */
     public function logAcciones(): HasMany
     {
-        return $this->hasMany(LogAccion::class, 'usuario_id');
+        return $this->hasMany(\App\Models\LogAccion::class, 'usuario_id');
     }
 
     /**

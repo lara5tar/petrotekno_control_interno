@@ -273,7 +273,7 @@ class Asignacion extends Model
 
         // Log de creación
         static::created(function ($asignacion) {
-            LogAccion::create([
+            \App\Models\LogAccion::create([
                 'usuario_id' => $asignacion->creado_por_id,
                 'accion' => 'crear_asignacion',
                 'tabla_afectada' => 'asignaciones',
