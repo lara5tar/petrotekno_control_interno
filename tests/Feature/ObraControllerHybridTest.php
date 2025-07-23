@@ -3,10 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\Obra;
-use App\Models\User;
+use App\Models\Permission;
 use App\Models\Personal;
 use App\Models\Role;
-use App\Models\Permission;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
@@ -17,7 +17,9 @@ class ObraControllerHybridTest extends TestCase
     use RefreshDatabase;
 
     protected User $adminUser;
+
     protected User $supervisorUser;
+
     protected User $operadorUser;
 
     protected function setUp(): void
@@ -35,7 +37,7 @@ class ObraControllerHybridTest extends TestCase
             'crear_obras',
             'actualizar_obras',
             'eliminar_obras',
-            'restaurar_obras'
+            'restaurar_obras',
         ];
 
         foreach ($permisos as $permiso) {
@@ -112,7 +114,7 @@ class ObraControllerHybridTest extends TestCase
                     'prev_page_url',
                     'to',
                     'total',
-                ]
+                ],
             ]);
     }
 
@@ -148,7 +150,7 @@ class ObraControllerHybridTest extends TestCase
             'estatus' => 'planificada',
             'avance' => 0,
             'fecha_inicio' => now()->addDays(7)->format('Y-m-d'),
-            'fecha_fin' => now()->addMonths(6)->format('Y-m-d')
+            'fecha_fin' => now()->addMonths(6)->format('Y-m-d'),
         ];
 
         $response = $this->postJson('/api/obras', $data);
@@ -159,13 +161,13 @@ class ObraControllerHybridTest extends TestCase
                 'data' => [
                     'nombre_obra' => 'Construcción De Carretera Principal', // Formato título aplicado
                     'estatus' => 'planificada',
-                    'avance' => 0
-                ]
+                    'avance' => 0,
+                ],
             ]);
 
         $this->assertDatabaseHas('obras', [
             'nombre_obra' => 'Construcción De Carretera Principal',
-            'estatus' => 'planificada'
+            'estatus' => 'planificada',
         ]);
     }
 
@@ -179,7 +181,7 @@ class ObraControllerHybridTest extends TestCase
             'estatus' => 'planificada',
             'avance' => 0,
             'fecha_inicio' => now()->addDays(7)->format('Y-m-d'),
-            'fecha_fin' => now()->addMonths(3)->format('Y-m-d')
+            'fecha_fin' => now()->addMonths(3)->format('Y-m-d'),
         ];
 
         $response = $this->post('/obras', $data);
@@ -189,7 +191,7 @@ class ObraControllerHybridTest extends TestCase
 
         $this->assertDatabaseHas('obras', [
             'nombre_obra' => 'Proyecto De Infraestructura',
-            'estatus' => 'planificada'
+            'estatus' => 'planificada',
         ]);
     }
 
@@ -222,8 +224,8 @@ class ObraControllerHybridTest extends TestCase
                 'data' => [
                     'id' => $obra->id,
                     'nombre_obra' => $obra->nombre_obra,
-                    'estatus' => $obra->estatus
-                ]
+                    'estatus' => $obra->estatus,
+                ],
             ]);
     }
 
@@ -256,16 +258,16 @@ class ObraControllerHybridTest extends TestCase
                 'data' => [
                     'obra' => [
                         'id' => $obra->id,
-                        'nombre_obra' => $obra->nombre_obra
+                        'nombre_obra' => $obra->nombre_obra,
                     ],
                     'estatus_options' => [
                         'planificada' => 'Planificada',
                         'en_progreso' => 'En Progreso',
                         'suspendida' => 'Suspendida',
                         'completada' => 'Completada',
-                        'cancelada' => 'Cancelada'
-                    ]
-                ]
+                        'cancelada' => 'Cancelada',
+                    ],
+                ],
             ]);
     }
 
@@ -276,7 +278,7 @@ class ObraControllerHybridTest extends TestCase
 
         $obra = Obra::factory()->create([
             'estatus' => 'planificada',
-            'avance' => 0
+            'avance' => 0,
         ]);
 
         $data = [
@@ -284,7 +286,7 @@ class ObraControllerHybridTest extends TestCase
             'estatus' => 'en_progreso',
             'avance' => 25,
             'fecha_inicio' => $obra->fecha_inicio,
-            'fecha_fin' => $obra->fecha_fin
+            'fecha_fin' => $obra->fecha_fin,
         ];
 
         $response = $this->putJson("/api/obras/{$obra->id}", $data);
@@ -296,15 +298,15 @@ class ObraControllerHybridTest extends TestCase
                     'id' => $obra->id,
                     'nombre_obra' => 'Obra Actualizada',
                     'estatus' => 'en_progreso',
-                    'avance' => 25
-                ]
+                    'avance' => 25,
+                ],
             ]);
 
         $this->assertDatabaseHas('obras', [
             'id' => $obra->id,
             'nombre_obra' => 'Obra Actualizada',
             'estatus' => 'en_progreso',
-            'avance' => 25
+            'avance' => 25,
         ]);
     }
 
@@ -314,7 +316,7 @@ class ObraControllerHybridTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $obra = Obra::factory()->create([
-            'estatus' => 'planificada'
+            'estatus' => 'planificada',
         ]);
 
         $data = [
@@ -322,7 +324,7 @@ class ObraControllerHybridTest extends TestCase
             'estatus' => 'en_progreso',
             'avance' => 50,
             'fecha_inicio' => $obra->fecha_inicio,
-            'fecha_fin' => $obra->fecha_fin
+            'fecha_fin' => $obra->fecha_fin,
         ];
 
         $response = $this->put("/obras/{$obra->id}", $data);
@@ -334,7 +336,7 @@ class ObraControllerHybridTest extends TestCase
             'id' => $obra->id,
             'nombre_obra' => 'Obra Modificada Blade',
             'estatus' => 'en_progreso',
-            'avance' => 50
+            'avance' => 50,
         ]);
     }
 
@@ -349,11 +351,11 @@ class ObraControllerHybridTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'message' => 'Obra eliminada exitosamente.'
+                'message' => 'Obra eliminada exitosamente.',
             ]);
 
         $this->assertSoftDeleted('obras', [
-            'id' => $obra->id
+            'id' => $obra->id,
         ]);
     }
 
@@ -370,7 +372,7 @@ class ObraControllerHybridTest extends TestCase
             ->assertSessionHas('success', 'Obra eliminada exitosamente.');
 
         $this->assertSoftDeleted('obras', [
-            'id' => $obra->id
+            'id' => $obra->id,
         ]);
     }
 
@@ -386,12 +388,12 @@ class ObraControllerHybridTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'message' => 'Obra restaurada exitosamente.'
+                'message' => 'Obra restaurada exitosamente.',
             ]);
 
         $this->assertDatabaseHas('obras', [
             'id' => $obra->id,
-            'fecha_eliminacion' => null
+            'fecha_eliminacion' => null,
         ]);
     }
 
@@ -406,7 +408,7 @@ class ObraControllerHybridTest extends TestCase
             'estatus' => 'planificada',
             'avance' => 0,
             'fecha_inicio' => now()->addDays(7)->format('Y-m-d'),
-            'fecha_fin' => now()->addMonths(3)->format('Y-m-d')
+            'fecha_fin' => now()->addMonths(3)->format('Y-m-d'),
         ];
 
         $response = $this->postJson('/api/obras', $data);
@@ -432,7 +434,7 @@ class ObraControllerHybridTest extends TestCase
             'nombre_obra' => 'Test Obra',
             'estatus' => 'planificada',
             'avance' => 0,
-            'fecha_inicio' => now()->addDays(7)->format('Y-m-d')
+            'fecha_inicio' => now()->addDays(7)->format('Y-m-d'),
         ]);
         $response->assertStatus(403);
     }
@@ -443,7 +445,7 @@ class ObraControllerHybridTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $obra = Obra::factory()->create([
-            'estatus' => 'completada'
+            'estatus' => 'completada',
         ]);
 
         // No se puede cambiar de completada a en_progreso (transición inválida)
@@ -452,7 +454,7 @@ class ObraControllerHybridTest extends TestCase
             'estatus' => 'en_progreso',
             'avance' => $obra->avance,
             'fecha_inicio' => $obra->fecha_inicio,
-            'fecha_fin' => $obra->fecha_fin
+            'fecha_fin' => $obra->fecha_fin,
         ]);
 
         $response->assertStatus(422)
@@ -469,7 +471,7 @@ class ObraControllerHybridTest extends TestCase
             'estatus' => 'planificada',
             'avance' => 0,
             'fecha_inicio' => now()->addDays(7)->format('Y-m-d'),
-            'fecha_fin' => now()->addMonths(3)->format('Y-m-d')
+            'fecha_fin' => now()->addMonths(3)->format('Y-m-d'),
         ];
 
         $response = $this->postJson('/api/obras', $data);
@@ -501,25 +503,25 @@ class ObraControllerHybridTest extends TestCase
                 'data' => [
                     [
                         'valor' => 'planificada',
-                        'nombre' => 'Planificada'
+                        'nombre' => 'Planificada',
                     ],
                     [
                         'valor' => 'en_progreso',
-                        'nombre' => 'En Progreso'
+                        'nombre' => 'En Progreso',
                     ],
                     [
                         'valor' => 'suspendida',
-                        'nombre' => 'Suspendida'
+                        'nombre' => 'Suspendida',
                     ],
                     [
                         'valor' => 'completada',
-                        'nombre' => 'Completada'
+                        'nombre' => 'Completada',
                     ],
                     [
                         'valor' => 'cancelada',
-                        'nombre' => 'Cancelada'
-                    ]
-                ]
+                        'nombre' => 'Cancelada',
+                    ],
+                ],
             ]);
     }
 
@@ -531,12 +533,12 @@ class ObraControllerHybridTest extends TestCase
         // Crear obras con diferentes estados
         Obra::factory()->create([
             'estatus' => 'en_progreso',
-            'nombre_obra' => 'Obra en Progreso'
+            'nombre_obra' => 'Obra en Progreso',
         ]);
 
         Obra::factory()->create([
             'estatus' => 'completada',
-            'nombre_obra' => 'Obra Completada'
+            'nombre_obra' => 'Obra Completada',
         ]);
 
         // Filtrar por estatus
@@ -573,7 +575,7 @@ class ObraControllerHybridTest extends TestCase
         // Usuario sin permisos
         $sinPermisos = User::factory()->create([
             'personal_id' => Personal::factory()->create()->id,
-            'rol_id' => Role::factory()->create(['nombre_rol' => 'Sin Permisos'])->id
+            'rol_id' => Role::factory()->create(['nombre_rol' => 'Sin Permisos'])->id,
         ]);
 
         Sanctum::actingAs($sinPermisos);
@@ -590,7 +592,7 @@ class ObraControllerHybridTest extends TestCase
         // Usuario sin permisos
         $sinPermisos = User::factory()->create([
             'personal_id' => Personal::factory()->create()->id,
-            'rol_id' => Role::factory()->create(['nombre_rol' => 'Sin Permisos'])->id
+            'rol_id' => Role::factory()->create(['nombre_rol' => 'Sin Permisos'])->id,
         ]);
 
         Sanctum::actingAs($sinPermisos);
@@ -599,7 +601,7 @@ class ObraControllerHybridTest extends TestCase
 
         $response->assertStatus(403)
             ->assertJson([
-                'message' => 'No tienes el permiso \'ver_obras\' necesario para acceder a este recurso'
+                'message' => 'No tienes el permiso \'ver_obras\' necesario para acceder a este recurso',
             ]);
     }
 
@@ -635,7 +637,7 @@ class ObraControllerHybridTest extends TestCase
             'estatus' => 'planificada',
             'avance' => 0,
             'fecha_inicio' => now()->addDays(7)->format('Y-m-d'),
-            'fecha_fin' => now()->addMonths(3)->format('Y-m-d')
+            'fecha_fin' => now()->addMonths(3)->format('Y-m-d'),
         ];
 
         // Crear vía API
@@ -647,7 +649,7 @@ class ObraControllerHybridTest extends TestCase
         // Verificar que se crearon logs de auditoría
         $this->assertDatabaseHas('log_acciones', [
             'usuario_id' => $this->adminUser->id,
-            'accion' => 'crear_obra'
+            'accion' => 'crear_obra',
         ]);
     }
 }

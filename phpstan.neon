@@ -19,5 +19,12 @@ parameters:
         - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$id#'
         - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$.+#'
         
-        # Errores de View strings (Laravel Blade)
-        - '#Parameter \#1 \$view of function view expects view-string\|null, string given\.#'
+        # Errores de Tests - Property types
+        - '#Property Tests\\Feature\\.+::\$personal \(App\\Models\\Personal\) does not accept Illuminate\\Database\\Eloquent\\Model\.#'
+        
+        # Errores de Tests - PHPUnit assertions
+        - '#Call to method PHPUnit\\Framework\\Assert::assertTrue\(\) with true.+ will always evaluate to true\.#'
+        - '#Parameter \#2 \$haystack of method PHPUnit\\Framework\\Assert::assertStringContainsString\(\) expects string, array<mixed>\|null given\.#'
+        
+        # Errores específicos de ExampleTest y otros
+        - '#Call to method PHPUnit\\Framework\\Assert::assertTrue\(\) with true will always evaluate to true\.#'

@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\Personal;
 use App\Models\CategoriaPersonal;
-use App\Models\User;
-use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Personal;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
@@ -17,8 +17,11 @@ class PersonalControllerHybridTest extends TestCase
     use RefreshDatabase;
 
     protected User $adminUser;
+
     protected User $supervisorUser;
+
     protected User $operadorUser;
+
     protected CategoriaPersonal $categoria;
 
     protected function setUp(): void
@@ -35,7 +38,7 @@ class PersonalControllerHybridTest extends TestCase
             'ver_personal',
             'crear_personal',
             'editar_personal',
-            'eliminar_personal'
+            'eliminar_personal',
         ];
 
         foreach ($permisos as $permiso) {
@@ -109,7 +112,7 @@ class PersonalControllerHybridTest extends TestCase
                     'prev_page_url',
                     'to',
                     'total',
-                ]
+                ],
             ]);
     }
 
@@ -137,8 +140,8 @@ class PersonalControllerHybridTest extends TestCase
             ->assertJsonStructure([
                 'success',
                 'data' => [
-                    'categorias'
-                ]
+                    'categorias',
+                ],
             ]);
     }
 
@@ -150,7 +153,7 @@ class PersonalControllerHybridTest extends TestCase
         $data = [
             'nombre_completo' => 'Juan Pérez García',
             'categoria_id' => $this->categoria->id,
-            'estatus' => 'activo'
+            'estatus' => 'activo',
         ];
 
         $response = $this->postJson('/api/personal', $data);
@@ -158,13 +161,13 @@ class PersonalControllerHybridTest extends TestCase
         $response->assertStatus(201)
             ->assertJson([
                 'success' => true,
-                'message' => 'Personal creado exitosamente'
+                'message' => 'Personal creado exitosamente',
             ]);
 
         $this->assertDatabaseHas('personal', [
             'nombre_completo' => 'Juan Pérez García',
             'categoria_id' => $this->categoria->id,
-            'estatus' => 'activo'
+            'estatus' => 'activo',
         ]);
     }
 
@@ -176,7 +179,7 @@ class PersonalControllerHybridTest extends TestCase
         $data = [
             'nombre_completo' => 'María López Rodríguez',
             'categoria_id' => $this->categoria->id,
-            'estatus' => 'activo'
+            'estatus' => 'activo',
         ];
 
         $response = $this->post('/personal', $data);
@@ -187,7 +190,7 @@ class PersonalControllerHybridTest extends TestCase
         $this->assertDatabaseHas('personal', [
             'nombre_completo' => 'María López Rodríguez',
             'categoria_id' => $this->categoria->id,
-            'estatus' => 'activo'
+            'estatus' => 'activo',
         ]);
     }
 
@@ -197,7 +200,7 @@ class PersonalControllerHybridTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $personal = Personal::factory()->create([
-            'categoria_id' => $this->categoria->id
+            'categoria_id' => $this->categoria->id,
         ]);
 
         $response = $this->get("/personal/{$personal->id}");
@@ -213,7 +216,7 @@ class PersonalControllerHybridTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $personal = Personal::factory()->create([
-            'categoria_id' => $this->categoria->id
+            'categoria_id' => $this->categoria->id,
         ]);
 
         $response = $this->getJson("/api/personal/{$personal->id}");
@@ -225,8 +228,8 @@ class PersonalControllerHybridTest extends TestCase
                 'data' => [
                     'id' => $personal->id,
                     'nombre_completo' => $personal->nombre_completo,
-                    'categoria_id' => $this->categoria->id
-                ]
+                    'categoria_id' => $this->categoria->id,
+                ],
             ]);
     }
 
@@ -236,7 +239,7 @@ class PersonalControllerHybridTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $personal = Personal::factory()->create([
-            'categoria_id' => $this->categoria->id
+            'categoria_id' => $this->categoria->id,
         ]);
 
         $response = $this->get("/personal/{$personal->id}/edit");
@@ -253,7 +256,7 @@ class PersonalControllerHybridTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $personal = Personal::factory()->create([
-            'categoria_id' => $this->categoria->id
+            'categoria_id' => $this->categoria->id,
         ]);
 
         $response = $this->getJson("/api/personal/{$personal->id}/edit");
@@ -264,8 +267,8 @@ class PersonalControllerHybridTest extends TestCase
                 'success',
                 'data' => [
                     'personal',
-                    'categorias'
-                ]
+                    'categorias',
+                ],
             ]);
     }
 
@@ -275,13 +278,13 @@ class PersonalControllerHybridTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $personal = Personal::factory()->create([
-            'categoria_id' => $this->categoria->id
+            'categoria_id' => $this->categoria->id,
         ]);
 
         $data = [
             'nombre_completo' => 'Nombre Actualizado API',
             'categoria_id' => $this->categoria->id,
-            'estatus' => 'inactivo'
+            'estatus' => 'inactivo',
         ];
 
         $response = $this->putJson("/api/personal/{$personal->id}", $data);
@@ -293,14 +296,14 @@ class PersonalControllerHybridTest extends TestCase
                 'data' => [
                     'id' => $personal->id,
                     'nombre_completo' => 'Nombre Actualizado API',
-                    'estatus' => 'inactivo'
-                ]
+                    'estatus' => 'inactivo',
+                ],
             ]);
 
         $this->assertDatabaseHas('personal', [
             'id' => $personal->id,
             'nombre_completo' => 'Nombre Actualizado API',
-            'estatus' => 'inactivo'
+            'estatus' => 'inactivo',
         ]);
     }
 
@@ -310,13 +313,13 @@ class PersonalControllerHybridTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $personal = Personal::factory()->create([
-            'categoria_id' => $this->categoria->id
+            'categoria_id' => $this->categoria->id,
         ]);
 
         $data = [
             'nombre_completo' => 'Nombre Actualizado Blade',
             'categoria_id' => $this->categoria->id,
-            'estatus' => 'inactivo'
+            'estatus' => 'inactivo',
         ];
 
         $response = $this->put("/personal/{$personal->id}", $data);
@@ -327,7 +330,7 @@ class PersonalControllerHybridTest extends TestCase
         $this->assertDatabaseHas('personal', [
             'id' => $personal->id,
             'nombre_completo' => 'Nombre Actualizado Blade',
-            'estatus' => 'inactivo'
+            'estatus' => 'inactivo',
         ]);
     }
 
@@ -337,7 +340,7 @@ class PersonalControllerHybridTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $personal = Personal::factory()->create([
-            'categoria_id' => $this->categoria->id
+            'categoria_id' => $this->categoria->id,
         ]);
 
         $response = $this->deleteJson("/api/personal/{$personal->id}");
@@ -345,11 +348,11 @@ class PersonalControllerHybridTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'message' => 'Personal eliminado exitosamente'
+                'message' => 'Personal eliminado exitosamente',
             ]);
 
         $this->assertSoftDeleted('personal', [
-            'id' => $personal->id
+            'id' => $personal->id,
         ]);
     }
 
@@ -359,7 +362,7 @@ class PersonalControllerHybridTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $personal = Personal::factory()->create([
-            'categoria_id' => $this->categoria->id
+            'categoria_id' => $this->categoria->id,
         ]);
 
         $response = $this->delete("/personal/{$personal->id}");
@@ -368,7 +371,7 @@ class PersonalControllerHybridTest extends TestCase
             ->assertSessionHas('success', 'Personal eliminado exitosamente');
 
         $this->assertSoftDeleted('personal', [
-            'id' => $personal->id
+            'id' => $personal->id,
         ]);
     }
 
@@ -385,7 +388,7 @@ class PersonalControllerHybridTest extends TestCase
         $response = $this->postJson('/api/personal', [
             'nombre_completo' => 'Test Personal',
             'categoria_id' => $this->categoria->id,
-            'estatus' => 'Activo'
+            'estatus' => 'Activo',
         ]);
         $response->assertStatus(403);
     }
@@ -407,7 +410,7 @@ class PersonalControllerHybridTest extends TestCase
         $response = $this->postJson('/api/personal', [
             'nombre_completo' => '', // Campo requerido vacío
             'categoria_id' => 999, // ID inexistente
-            'estatus' => 'InvalidStatus' // Valor inválido
+            'estatus' => 'InvalidStatus', // Valor inválido
         ]);
 
         $response->assertStatus(422)
@@ -422,7 +425,7 @@ class PersonalControllerHybridTest extends TestCase
         $response = $this->post('/personal', [
             'nombre_completo' => '',
             'categoria_id' => 999,
-            'estatus' => 'InvalidStatus'
+            'estatus' => 'InvalidStatus',
         ]);
 
         $response->assertRedirect()
@@ -438,13 +441,13 @@ class PersonalControllerHybridTest extends TestCase
         Personal::factory()->create([
             'categoria_id' => $this->categoria->id,
             'estatus' => 'Activo',
-            'nombre_completo' => 'Personal Activo'
+            'nombre_completo' => 'Personal Activo',
         ]);
 
         Personal::factory()->create([
             'categoria_id' => $this->categoria->id,
             'estatus' => 'Inactivo',
-            'nombre_completo' => 'Personal Inactivo'
+            'nombre_completo' => 'Personal Inactivo',
         ]);
 
         // Filtrar por estatus activo
@@ -463,12 +466,12 @@ class PersonalControllerHybridTest extends TestCase
 
         Personal::factory()->create([
             'categoria_id' => $this->categoria->id,
-            'nombre_completo' => 'Juan Carlos Pérez'
+            'nombre_completo' => 'Juan Carlos Pérez',
         ]);
 
         Personal::factory()->create([
             'categoria_id' => $this->categoria->id,
-            'nombre_completo' => 'María García López'
+            'nombre_completo' => 'María García López',
         ]);
 
         $response = $this->getJson('/api/personal?search=Juan');
@@ -500,7 +503,7 @@ class PersonalControllerHybridTest extends TestCase
         $response->assertStatus(403)
             ->assertJson([
                 'success' => false,
-                'message' => "No tienes el permiso 'ver_personal' necesario para acceder a este recurso"
+                'message' => "No tienes el permiso 'ver_personal' necesario para acceder a este recurso",
             ]);
     }
 
@@ -510,7 +513,7 @@ class PersonalControllerHybridTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $personal = Personal::factory()->create([
-            'categoria_id' => $this->categoria->id
+            'categoria_id' => $this->categoria->id,
         ]);
 
         // Obtener datos vía API

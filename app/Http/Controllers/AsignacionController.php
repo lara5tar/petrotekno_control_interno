@@ -127,7 +127,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al obtener las asignaciones: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al obtener las asignaciones: '.$e->getMessage()]);
         }
     }
 
@@ -192,7 +192,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al cargar el formulario: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al cargar el formulario: '.$e->getMessage()]);
         }
     }
 
@@ -290,7 +290,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al crear la asignación: ' . $e->getMessage()])->withInput();
+            return redirect()->back()->withErrors(['error' => 'Error al crear la asignación: '.$e->getMessage()])->withInput();
         }
     }
 
@@ -341,7 +341,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al obtener la asignación: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al obtener la asignación: '.$e->getMessage()]);
         }
     }
 
@@ -423,7 +423,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al cargar el formulario: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al cargar el formulario: '.$e->getMessage()]);
         }
     }
 
@@ -521,7 +521,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al actualizar la asignación: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al actualizar la asignación: '.$e->getMessage()]);
         }
     }
 
@@ -553,7 +553,7 @@ class AsignacionController extends Controller
             }
 
             $validated = $request->validate([
-                'kilometraje_final' => 'required|integer|min:' . $asignacion->kilometraje_inicial,
+                'kilometraje_final' => 'required|integer|min:'.$asignacion->kilometraje_inicial,
                 'observaciones_liberacion' => 'nullable|string|max:500',
             ]);
 
@@ -615,7 +615,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al liberar la asignación: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al liberar la asignación: '.$e->getMessage()]);
         }
     }
 
@@ -690,7 +690,7 @@ class AsignacionController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()->withErrors(['error' => 'Error al eliminar la asignación: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al eliminar la asignación: '.$e->getMessage()]);
         }
     }
 

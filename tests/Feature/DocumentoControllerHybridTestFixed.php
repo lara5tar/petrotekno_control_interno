@@ -2,13 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Models\Documento;
 use App\Models\CatalogoTipoDocumento;
+use App\Models\Permission;
 use App\Models\Personal;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\Vehiculo;
-use App\Models\Role;
-use App\Models\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
@@ -19,8 +18,11 @@ class DocumentoControllerHybridTestFixed extends TestCase
     use RefreshDatabase;
 
     protected User $adminUser;
+
     protected Vehiculo $vehiculo;
+
     protected Personal $personal;
+
     protected CatalogoTipoDocumento $tipoDocumento;
 
     protected function setUp(): void
@@ -35,7 +37,7 @@ class DocumentoControllerHybridTestFixed extends TestCase
             'ver_documentos',
             'crear_documentos',
             'editar_documentos',
-            'eliminar_documentos'
+            'eliminar_documentos',
         ];
 
         foreach ($permisos as $permiso) {
@@ -95,12 +97,12 @@ class DocumentoControllerHybridTestFixed extends TestCase
 
         $response->assertStatus(201)
             ->assertJson([
-                'success' => true
+                'success' => true,
             ]);
 
         $this->assertDatabaseHas('documentos', [
             'tipo_documento_id' => $this->tipoDocumento->id,
-            'descripcion' => 'Documento de prueba'
+            'descripcion' => 'Documento de prueba',
         ]);
     }
 
@@ -110,7 +112,7 @@ class DocumentoControllerHybridTestFixed extends TestCase
         $operadorRole = Role::factory()->create(['nombre_rol' => 'Operador']);
         $user = User::factory()->create([
             'personal_id' => Personal::factory()->create()->id,
-            'rol_id' => $operadorRole->id
+            'rol_id' => $operadorRole->id,
         ]);
 
         Sanctum::actingAs($user);
@@ -118,7 +120,7 @@ class DocumentoControllerHybridTestFixed extends TestCase
         $response = $this->postJson('/api/documentos', [
             'tipo_documento_id' => $this->tipoDocumento->id,
             'descripcion' => 'Documento de prueba',
-            'vehiculo_id' => $this->vehiculo->id
+            'vehiculo_id' => $this->vehiculo->id,
         ]);
 
         $response->assertStatus(403);

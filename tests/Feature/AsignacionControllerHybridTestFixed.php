@@ -2,13 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Models\Asignacion;
 use App\Models\Obra;
+use App\Models\Permission;
 use App\Models\Personal;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\Vehiculo;
-use App\Models\Role;
-use App\Models\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
@@ -19,8 +18,11 @@ class AsignacionControllerHybridTestFixed extends TestCase
     use RefreshDatabase;
 
     protected User $adminUser;
+
     protected Vehiculo $vehiculo;
+
     protected Obra $obra;
+
     protected Personal $personal;
 
     protected function setUp(): void
@@ -36,7 +38,7 @@ class AsignacionControllerHybridTestFixed extends TestCase
             'crear_asignaciones',
             'editar_asignaciones',
             'eliminar_asignaciones',
-            'liberar_asignaciones'
+            'liberar_asignaciones',
         ];
 
         foreach ($permisos as $permiso) {
@@ -92,20 +94,20 @@ class AsignacionControllerHybridTestFixed extends TestCase
             'personal_id' => $this->personal->id,
             'fecha_asignacion' => now()->format('Y-m-d'),
             'kilometraje_inicial' => 10000,
-            'observaciones' => 'Asignación de prueba'
+            'observaciones' => 'Asignación de prueba',
         ];
 
         $response = $this->postJson('/api/asignaciones', $data);
 
         $response->assertStatus(201)
             ->assertJson([
-                'message' => 'Asignación creada exitosamente'
+                'message' => 'Asignación creada exitosamente',
             ]);
 
         $this->assertDatabaseHas('asignaciones', [
             'vehiculo_id' => $this->vehiculo->id,
             'obra_id' => $this->obra->id,
-            'personal_id' => $this->personal->id
+            'personal_id' => $this->personal->id,
         ]);
     }
 
@@ -115,7 +117,7 @@ class AsignacionControllerHybridTestFixed extends TestCase
         $operadorRole = Role::factory()->create(['nombre_rol' => 'Operador']);
         $user = User::factory()->create([
             'personal_id' => Personal::factory()->create()->id,
-            'rol_id' => $operadorRole->id
+            'rol_id' => $operadorRole->id,
         ]);
 
         Sanctum::actingAs($user);
@@ -125,7 +127,7 @@ class AsignacionControllerHybridTestFixed extends TestCase
             'obra_id' => $this->obra->id,
             'personal_id' => $this->personal->id,
             'fecha_asignacion' => now()->format('Y-m-d'),
-            'kilometraje_inicial' => 10000
+            'kilometraje_inicial' => 10000,
         ]);
 
         $response->assertStatus(403);
