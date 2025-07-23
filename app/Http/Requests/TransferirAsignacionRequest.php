@@ -42,7 +42,7 @@ class TransferirAsignacionRequest extends FormRequest
                     // Validar que no sea el mismo operador actual
                     $asignacion = Asignacion::find($this->route('id'));
                     if ($asignacion && $asignacion->personal_id == $value) {
-                        $fail('No se puede transferir a the mismo operador actual.');
+                        $fail('No se puede transferir al mismo operador actual.');
                     }
                 },
             ],
