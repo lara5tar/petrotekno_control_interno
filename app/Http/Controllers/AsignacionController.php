@@ -3,20 +3,43 @@
 namespace App\Http\Controllers;
 
 use App\Models\Asignacion;
+use App\Models\LogAccion;
+use App\Models\Obra;
 use App\Models\Personal;
 use App\Models\Vehiculo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class AsignacionController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Verificar permisos del usuario autenticado
      */
-    public function index(Request $request): JsonResponse
+    private function hasPermission(string $permission): bool
     {
+        $user = Auth::user();
+
+        return $user ? $user->hasPermission($permission) : false;
+    }
+
+    /**
+     * Display a listing of the resource.
+     * Patrón Híbrido: API (JSON) + Blade (View)
+     */
+    public function index(Request $request)
+    {
+        // Verificar permisos
+        if (! $this->hasPermission('ver_asignaciones')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para ver asignaciones'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para ver asignaciones']);
+        }
+
         try {
             $query = Asignacion::with(['vehiculo', 'obra', 'personal', 'creadoPor']);
 
@@ -45,6 +68,25 @@ class AsignacionController extends Controller
                 $query->porFecha($request->fecha_inicio, $request->fecha_fin);
             }
 
+            // Búsqueda por texto
+            if ($request->filled('buscar')) {
+                $search = $request->buscar;
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('vehiculo', function ($vq) use ($search) {
+                        $vq->where('marca', 'like', "%{$search}%")
+                            ->orWhere('modelo', 'like', "%{$search}%")
+                            ->orWhere('placas', 'like', "%{$search}%");
+                    })
+                        ->orWhereHas('personal', function ($pq) use ($search) {
+                            $pq->where('nombre_completo', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('obra', function ($oq) use ($search) {
+                            $oq->where('nombre_obra', 'like', "%{$search}%");
+                        })
+                        ->orWhere('observaciones', 'like', "%{$search}%");
+                });
+            }
+
             // Ordenamiento
             $sortBy = $request->get('sort_by', 'fecha_asignacion');
             $sortOrder = $request->get('sort_order', 'desc');
@@ -54,29 +96,121 @@ class AsignacionController extends Controller
             $perPage = $request->get('per_page', 15);
             $asignaciones = $query->paginate($perPage);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Asignaciones obtenidas exitosamente',
-                'data' => $asignaciones,
-                'meta' => [
-                    'total_activas' => Asignacion::activas()->count(),
-                    'total_liberadas' => Asignacion::liberadas()->count(),
-                ],
-            ]);
+            $meta = [
+                'total_activas' => Asignacion::activas()->count(),
+                'total_liberadas' => Asignacion::liberadas()->count(),
+            ];
+
+            // Si es solicitud API (AJAX/fetch con JSON)
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Asignaciones obtenidas exitosamente',
+                    'data' => $asignaciones,
+                    'meta' => $meta,
+                ]);
+            }
+
+            // Si es solicitud web (navegador tradicional)
+            // Obtener opciones para filtros
+            $vehiculosOptions = Vehiculo::select('id', 'marca', 'modelo', 'placas')->orderBy('marca')->get();
+            $obrasOptions = Obra::select('id', 'nombre_obra')->where('estatus', '!=', 'cancelada')->orderBy('nombre_obra')->get();
+            $personalOptions = Personal::select('id', 'nombre_completo')->where('estatus', 'activo')->orderBy('nombre_completo')->get();
+
+            return view('asignaciones.index', compact('asignaciones', 'vehiculosOptions', 'obrasOptions', 'personalOptions', 'meta'));
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al obtener las asignaciones',
-                'error' => $e->getMessage(),
-            ], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al obtener las asignaciones',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->withErrors(['error' => 'Error al obtener las asignaciones: '.$e->getMessage()]);
+        }
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     * Patrón Híbrido: API (JSON) + Blade (View)
+     */
+    public function create(Request $request)
+    {
+        // Verificar permisos
+        if (! $this->hasPermission('crear_asignaciones')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para crear asignaciones'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para crear asignaciones']);
+        }
+
+        try {
+            // Obtener opciones para formulario
+            $vehiculosDisponibles = Vehiculo::select('id', 'marca', 'modelo', 'placas', 'kilometraje_actual')
+                ->whereNotIn('id', function ($query) {
+                    $query->select('vehiculo_id')->from('asignaciones')->whereNull('fecha_liberacion');
+                })
+                ->orderBy('marca')
+                ->get();
+
+            $obrasActivas = Obra::select('id', 'nombre_obra', 'estatus')
+                ->whereIn('estatus', ['planificada', 'en_progreso'])
+                ->orderBy('nombre_obra')
+                ->get();
+
+            $operadoresDisponibles = Personal::select('id', 'nombre_completo', 'categoria_id')
+                ->where('estatus', 'activo')
+                ->whereNotIn('id', function ($query) {
+                    $query->select('personal_id')->from('asignaciones')->whereNull('fecha_liberacion');
+                })
+                ->with('categoria:id,nombre_categoria')
+                ->orderBy('nombre_completo')
+                ->get();
+
+            // Si es solicitud API (AJAX/fetch con JSON)
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'vehiculos_disponibles' => $vehiculosDisponibles,
+                        'obras_activas' => $obrasActivas,
+                        'operadores_disponibles' => $operadoresDisponibles,
+                    ],
+                ]);
+            }
+
+            // Si es solicitud web (navegador tradicional)
+            return view('asignaciones.create', compact('vehiculosDisponibles', 'obrasActivas', 'operadoresDisponibles'));
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al obtener los datos para crear asignación',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->withErrors(['error' => 'Error al cargar el formulario: '.$e->getMessage()]);
         }
     }
 
     /**
      * Store a newly created resource in storage.
+     * Patrón Híbrido: API (JSON) + Blade (Redirect)
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
+        // Verificar permisos
+        if (! $this->hasPermission('crear_asignaciones')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para crear asignaciones'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para crear asignaciones']);
+        }
+
         try {
             $validated = $request->validate([
                 'vehiculo_id' => 'required|exists:vehiculos,id',
@@ -89,18 +223,22 @@ class AsignacionController extends Controller
 
             // Validar que el vehículo no tenga asignación activa
             if (Asignacion::vehiculoTieneAsignacionActiva($validated['vehiculo_id'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'El vehículo ya tiene una asignación activa',
-                ], 422);
+                $message = 'El vehículo ya tiene una asignación activa';
+                if ($request->expectsJson()) {
+                    return response()->json(['success' => false, 'message' => $message], 422);
+                }
+
+                return redirect()->back()->withErrors(['vehiculo_id' => $message])->withInput();
             }
 
             // Validar que el operador no tenga asignación activa
             if (Asignacion::operadorTieneAsignacionActiva($validated['personal_id'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'El operador ya tiene una asignación activa',
-                ], 422);
+                $message = 'El operador ya tiene una asignación activa';
+                if ($request->expectsJson()) {
+                    return response()->json(['success' => false, 'message' => $message], 422);
+                }
+
+                return redirect()->back()->withErrors(['personal_id' => $message])->withInput();
             }
 
             // Agregar usuario que crea la asignación
@@ -109,67 +247,212 @@ class AsignacionController extends Controller
             $asignacion = Asignacion::create($validated);
             $asignacion->load(['vehiculo', 'obra', 'personal', 'creadoPor']);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Asignación creada exitosamente',
-                'data' => $asignacion,
-            ], 201);
+            // Registrar en log de auditoría
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'crear_asignacion',
+                'tabla_afectada' => 'asignaciones',
+                'registro_id' => $asignacion->id,
+                'detalles' => json_encode([
+                    'vehiculo' => $asignacion->vehiculo->nombre_completo ?? 'N/A',
+                    'operador' => $asignacion->personal->nombre_completo ?? 'N/A',
+                    'obra' => $asignacion->obra->nombre_obra ?? 'N/A',
+                ]),
+            ]);
+
+            // Si es solicitud API (AJAX/fetch con JSON)
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Asignación creada exitosamente',
+                    'data' => $asignacion,
+                ], 201);
+            }
+
+            // Si es solicitud web (navegador tradicional)
+            return redirect()->route('asignaciones.index')->with('success', 'Asignación creada exitosamente');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Datos de validación incorrectos',
-                'errors' => $e->errors(),
-            ], 422);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Datos de validación incorrectos',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al crear la asignación',
-                'error' => $e->getMessage(),
-            ], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al crear la asignación',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->withErrors(['error' => 'Error al crear la asignación: '.$e->getMessage()])->withInput();
         }
     }
 
     /**
      * Display the specified resource.
+     * Patrón Híbrido: API (JSON) + Blade (View)
      */
-    public function show(string $id): JsonResponse
+    public function show(Request $request, string $id)
     {
+        // Verificar permisos
+        if (! $this->hasPermission('ver_asignaciones')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para ver asignaciones'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para ver asignaciones']);
+        }
+
         try {
             $asignacion = Asignacion::with(['vehiculo', 'obra', 'personal', 'creadoPor'])->findOrFail($id);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Asignación obtenida exitosamente',
-                'data' => $asignacion,
-            ]);
+            // Si es solicitud API (AJAX/fetch con JSON)
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Asignación obtenida exitosamente',
+                    'data' => $asignacion,
+                ]);
+            }
+
+            // Si es solicitud web (navegador tradicional)
+            return view('asignaciones.show', compact('asignacion'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Asignación no encontrada',
-            ], 404);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Asignación no encontrada',
+                ], 404);
+            }
+
+            return redirect()->route('asignaciones.index')->withErrors(['error' => 'Asignación no encontrada']);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al obtener la asignación',
-                'error' => $e->getMessage(),
-            ], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al obtener la asignación',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->withErrors(['error' => 'Error al obtener la asignación: '.$e->getMessage()]);
+        }
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * Patrón Híbrido: API (JSON) + Blade (View)
+     */
+    public function edit(Request $request, string $id)
+    {
+        // Verificar permisos
+        if (! $this->hasPermission('editar_asignaciones')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para editar asignaciones'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para editar asignaciones']);
+        }
+
+        try {
+            $asignacion = Asignacion::with(['vehiculo', 'obra', 'personal', 'creadoPor'])->findOrFail($id);
+
+            // Solo permitir editar si está activa
+            if (! $asignacion->esta_activa) {
+                $message = 'No se puede modificar una asignación liberada';
+                if ($request->expectsJson()) {
+                    return response()->json(['success' => false, 'message' => $message], 422);
+                }
+
+                return redirect()->route('asignaciones.show', $id)->withErrors(['error' => $message]);
+            }
+
+            // Obtener opciones para formulario
+            $obrasActivas = Obra::select('id', 'nombre_obra', 'estatus')
+                ->whereIn('estatus', ['planificada', 'en_progreso'])
+                ->orderBy('nombre_obra')
+                ->get();
+
+            $operadoresDisponibles = Personal::select('id', 'nombre_completo', 'categoria_id')
+                ->where('estatus', 'activo')
+                ->where(function ($query) use ($asignacion) {
+                    $query->whereNotIn('id', function ($subQuery) {
+                        $subQuery->select('personal_id')->from('asignaciones')->whereNull('fecha_liberacion');
+                    })
+                        ->orWhere('id', $asignacion->personal_id);
+                })
+                ->with('categoria:id,nombre_categoria')
+                ->orderBy('nombre_completo')
+                ->get();
+
+            // Si es solicitud API (AJAX/fetch con JSON)
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'asignacion' => $asignacion,
+                        'obras_activas' => $obrasActivas,
+                        'operadores_disponibles' => $operadoresDisponibles,
+                    ],
+                ]);
+            }
+
+            // Si es solicitud web (navegador tradicional)
+            return view('asignaciones.edit', compact('asignacion', 'obrasActivas', 'operadoresDisponibles'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Asignación no encontrada',
+                ], 404);
+            }
+
+            return redirect()->route('asignaciones.index')->withErrors(['error' => 'Asignación no encontrada']);
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al obtener la asignación',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->withErrors(['error' => 'Error al cargar el formulario: '.$e->getMessage()]);
         }
     }
 
     /**
      * Update the specified resource in storage.
+     * Patrón Híbrido: API (JSON) + Blade (Redirect)
      */
-    public function update(Request $request, string $id): JsonResponse
+    public function update(Request $request, string $id)
     {
+        // Verificar permisos
+        if (! $this->hasPermission('editar_asignaciones')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para editar asignaciones'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para editar asignaciones']);
+        }
+
         try {
             $asignacion = Asignacion::findOrFail($id);
 
             // Solo permitir actualizar si está activa
             if (! $asignacion->esta_activa) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No se puede modificar una asignación liberada',
-                ], 422);
+                $message = 'No se puede modificar una asignación liberada';
+                if ($request->expectsJson()) {
+                    return response()->json(['success' => false, 'message' => $message], 422);
+                }
+
+                return redirect()->back()->withErrors(['error' => $message]);
             }
 
             $validated = $request->validate([
@@ -190,44 +473,83 @@ class AsignacionController extends Controller
             $asignacion->update($validated);
             $asignacion->load(['vehiculo', 'obra', 'personal', 'creadoPor']);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Asignación actualizada exitosamente',
-                'data' => $asignacion,
+            // Registrar en log de auditoría
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'actualizar_asignacion',
+                'tabla_afectada' => 'asignaciones',
+                'registro_id' => $asignacion->id,
+                'detalles' => json_encode($validated),
             ]);
+
+            // Si es solicitud API (AJAX/fetch con JSON)
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Asignación actualizada exitosamente',
+                    'data' => $asignacion,
+                ]);
+            }
+
+            // Si es solicitud web (navegador tradicional)
+            return redirect()->route('asignaciones.show', $id)->with('success', 'Asignación actualizada exitosamente');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Asignación no encontrada',
-            ], 404);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Asignación no encontrada',
+                ], 404);
+            }
+
+            return redirect()->route('asignaciones.index')->withErrors(['error' => 'Asignación no encontrada']);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Datos de validación incorrectos',
-                'errors' => $e->errors(),
-            ], 422);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Datos de validación incorrectos',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al actualizar la asignación',
-                'error' => $e->getMessage(),
-            ], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al actualizar la asignación',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->withErrors(['error' => 'Error al actualizar la asignación: '.$e->getMessage()]);
         }
     }
 
     /**
      * Liberar una asignación
+     * Patrón Híbrido: API (JSON) + Blade (Redirect)
      */
-    public function liberar(Request $request, string $id): JsonResponse
+    public function liberar(Request $request, string $id)
     {
+        // Verificar permisos
+        if (! $this->hasPermission('liberar_asignaciones')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para liberar asignaciones'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para liberar asignaciones']);
+        }
+
         try {
             $asignacion = Asignacion::findOrFail($id);
 
             if (! $asignacion->esta_activa) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'La asignación ya está liberada',
-                ], 422);
+                $message = 'La asignación ya está liberada';
+                if ($request->expectsJson()) {
+                    return response()->json(['success' => false, 'message' => $message], 422);
+                }
+
+                return redirect()->back()->withErrors(['error' => $message]);
             }
 
             $validated = $request->validate([
@@ -242,64 +564,133 @@ class AsignacionController extends Controller
 
             $asignacion->load(['vehiculo', 'obra', 'personal', 'creadoPor']);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Asignación liberada exitosamente',
-                'data' => $asignacion,
+            // Registrar en log de auditoría
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'liberar_asignacion',
+                'tabla_afectada' => 'asignaciones',
+                'registro_id' => $asignacion->id,
+                'detalles' => json_encode([
+                    'kilometraje_final' => $validated['kilometraje_final'],
+                    'kilometraje_recorrido' => $asignacion->kilometraje_recorrido,
+                ]),
             ]);
+
+            // Si es solicitud API (AJAX/fetch con JSON)
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Asignación liberada exitosamente',
+                    'data' => $asignacion,
+                ]);
+            }
+
+            // Si es solicitud web (navegador tradicional)
+            return redirect()->route('asignaciones.show', $id)->with('success', 'Asignación liberada exitosamente');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Asignación no encontrada',
-            ], 404);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Asignación no encontrada',
+                ], 404);
+            }
+
+            return redirect()->route('asignaciones.index')->withErrors(['error' => 'Asignación no encontrada']);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Datos de validación incorrectos',
-                'errors' => $e->errors(),
-            ], 422);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Datos de validación incorrectos',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al liberar la asignación',
-                'error' => $e->getMessage(),
-            ], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al liberar la asignación',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->withErrors(['error' => 'Error al liberar la asignación: '.$e->getMessage()]);
         }
     }
 
     /**
      * Remove the specified resource from storage.
+     * Patrón Híbrido: API (JSON) + Blade (Redirect)
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(Request $request, string $id)
     {
+        // Verificar permisos
+        if (! $this->hasPermission('eliminar_asignaciones')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para eliminar asignaciones'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para eliminar asignaciones']);
+        }
+
         try {
             $asignacion = Asignacion::findOrFail($id);
 
             // Solo permitir eliminar si está activa y no tiene mucho tiempo
             if (! $asignacion->esta_activa) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No se puede eliminar una asignación liberada',
-                ], 422);
+                $message = 'No se puede eliminar una asignación liberada';
+                if ($request->expectsJson()) {
+                    return response()->json(['success' => false, 'message' => $message], 422);
+                }
+
+                return redirect()->back()->withErrors(['error' => $message]);
             }
+
+            // Registrar en log antes de eliminar
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'eliminar_asignacion',
+                'tabla_afectada' => 'asignaciones',
+                'registro_id' => $asignacion->id,
+                'detalles' => json_encode([
+                    'vehiculo' => $asignacion->vehiculo->nombre_completo ?? 'N/A',
+                    'operador' => $asignacion->personal->nombre_completo ?? 'N/A',
+                    'obra' => $asignacion->obra->nombre_obra ?? 'N/A',
+                ]),
+            ]);
 
             $asignacion->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Asignación eliminada exitosamente',
-            ]);
+            // Si es solicitud API (AJAX/fetch con JSON)
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Asignación eliminada exitosamente',
+                ]);
+            }
+
+            // Si es solicitud web (navegador tradicional)
+            return redirect()->route('asignaciones.index')->with('success', 'Asignación eliminada exitosamente');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Asignación no encontrada',
-            ], 404);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Asignación no encontrada',
+                ], 404);
+            }
+
+            return redirect()->route('asignaciones.index')->withErrors(['error' => 'Asignación no encontrada']);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al eliminar la asignación',
-                'error' => $e->getMessage(),
-            ], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al eliminar la asignación',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->withErrors(['error' => 'Error al eliminar la asignación: '.$e->getMessage()]);
         }
     }
 

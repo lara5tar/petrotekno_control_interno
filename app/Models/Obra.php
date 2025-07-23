@@ -171,10 +171,14 @@ class Obra extends Model
     }
 
     /**
-     * Mutator para el nombre de obra (formato título)
+     * Mutator para el nombre de obra (formato título y sanitización XSS)
      */
     public function setNombreObraAttribute($value)
     {
+        // Sanitizar contenido peligroso (XSS)
+        $value = strip_tags($value); // Remover todas las etiquetas HTML
+        $value = str_replace(['javascript:', 'vbscript:', 'onload=', 'onerror='], '', $value);
+
         $this->attributes['nombre_obra'] = trim(ucwords(strtolower($value)));
     }
 

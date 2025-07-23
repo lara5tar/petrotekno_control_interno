@@ -88,11 +88,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [PersonalController::class, 'index'])
             ->middleware('permission:ver_personal');
 
+        Route::get('/create', [PersonalController::class, 'create'])
+            ->middleware('permission:crear_personal');
+
         Route::post('/', [PersonalController::class, 'store'])
             ->middleware('permission:crear_personal');
 
         Route::get('/{id}', [PersonalController::class, 'show'])
             ->middleware('permission:ver_personal');
+
+        Route::get('/{id}/edit', [PersonalController::class, 'edit'])
+            ->middleware('permission:editar_personal');
 
         Route::put('/{id}', [PersonalController::class, 'update'])
             ->middleware('permission:editar_personal');
@@ -106,6 +112,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [VehiculoController::class, 'index'])
             ->middleware('permission:ver_vehiculos');
 
+        Route::get('/create', [VehiculoController::class, 'create'])
+            ->middleware('permission:crear_vehiculos');
+
         Route::post('/', [VehiculoController::class, 'store'])
             ->middleware('permission:crear_vehiculos');
 
@@ -113,6 +122,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/{id}', [VehiculoController::class, 'show'])
             ->middleware('permission:ver_vehiculos');
+
+        Route::get('/{id}/edit', [VehiculoController::class, 'edit'])
+            ->middleware('permission:editar_vehiculos');
 
         Route::put('/{id}', [VehiculoController::class, 'update'])
             ->middleware('permission:editar_vehiculos');
@@ -129,19 +141,25 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [ObraController::class, 'index'])
             ->middleware('permission:ver_obras');
 
+        Route::get('/create', [ObraController::class, 'create'])
+            ->middleware('permission:crear_obras');
+
         Route::post('/', [ObraController::class, 'store'])
             ->middleware('permission:crear_obras');
 
-        Route::get('/estatus', [ObraController::class, 'getEstatus'])
+        Route::get('/estatus-options', [ObraController::class, 'status'])
             ->middleware('permission:ver_obras');
 
-        Route::get('/{obra}', [ObraController::class, 'show'])
+        Route::get('/{id}', [ObraController::class, 'show'])
             ->middleware('permission:ver_obras');
 
-        Route::put('/{obra}', [ObraController::class, 'update'])
+        Route::get('/{id}/edit', [ObraController::class, 'edit'])
             ->middleware('permission:actualizar_obras');
 
-        Route::delete('/{obra}', [ObraController::class, 'destroy'])
+        Route::put('/{id}', [ObraController::class, 'update'])
+            ->middleware('permission:actualizar_obras');
+
+        Route::delete('/{id}', [ObraController::class, 'destroy'])
             ->middleware('permission:eliminar_obras');
 
         Route::post('/{id}/restore', [ObraController::class, 'restore'])
@@ -152,6 +170,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('documentos')->group(function () {
         Route::get('/', [DocumentoController::class, 'index'])
             ->middleware('permission:ver_documentos');
+
+        Route::get('/create', [DocumentoController::class, 'create'])
+            ->middleware('permission:crear_documentos');
 
         Route::post('/', [DocumentoController::class, 'store'])
             ->middleware('permission:crear_documentos');
@@ -164,6 +185,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/{documento}', [DocumentoController::class, 'show'])
             ->middleware('permission:ver_documentos');
+
+        Route::get('/{documento}/edit', [DocumentoController::class, 'edit'])
+            ->middleware('permission:editar_documentos');
 
         Route::put('/{documento}', [DocumentoController::class, 'update'])
             ->middleware('permission:editar_documentos');
@@ -213,6 +237,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [MantenimientoController::class, 'index'])
             ->middleware('permission:ver_mantenimientos');
 
+        Route::get('/create', [MantenimientoController::class, 'create'])
+            ->middleware('permission:crear_mantenimientos');
+
         Route::post('/', [MantenimientoController::class, 'store'])
             ->middleware('permission:crear_mantenimientos');
 
@@ -222,13 +249,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/estadisticas', [MantenimientoController::class, 'estadisticas'])
             ->middleware('permission:ver_mantenimientos');
 
-        Route::get('/{mantenimiento}', [MantenimientoController::class, 'show'])
+        Route::get('/{id}', [MantenimientoController::class, 'show'])
             ->middleware('permission:ver_mantenimientos');
 
-        Route::put('/{mantenimiento}', [MantenimientoController::class, 'update'])
+        Route::get('/{id}/edit', [MantenimientoController::class, 'edit'])
             ->middleware('permission:actualizar_mantenimientos');
 
-        Route::delete('/{mantenimiento}', [MantenimientoController::class, 'destroy'])
+        Route::put('/{id}', [MantenimientoController::class, 'update'])
+            ->middleware('permission:actualizar_mantenimientos');
+
+        Route::delete('/{id}', [MantenimientoController::class, 'destroy'])
             ->middleware('permission:eliminar_mantenimientos');
 
         Route::post('/{id}/restore', [MantenimientoController::class, 'restore'])
@@ -270,6 +300,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [AsignacionController::class, 'index'])
             ->middleware('permission:ver_asignaciones');
 
+        Route::get('/create', [AsignacionController::class, 'create'])
+            ->middleware('permission:crear_asignaciones');
+
         Route::post('/', [AsignacionController::class, 'store'])
             ->middleware('permission:crear_asignaciones');
 
@@ -284,6 +317,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/{id}', [AsignacionController::class, 'show'])
             ->middleware('permission:ver_asignaciones');
+
+        Route::get('/{id}/edit', [AsignacionController::class, 'edit'])
+            ->middleware('permission:editar_asignaciones');
 
         Route::put('/{id}', [AsignacionController::class, 'update'])
             ->middleware('permission:editar_asignaciones');

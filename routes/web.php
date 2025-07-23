@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\KilometrajeController;
+use App\Http\Controllers\MantenimientoController;
+use App\Http\Controllers\PersonalController;
+use App\Http\Controllers\VehiculoController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -18,10 +22,75 @@ Route::middleware('auth')->group(function () {
     // Ruta del dashboard después de iniciar sesión
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-    // Ruta para listar vehículos (vista estática)
-    Route::get('/vehiculos', function () {
-        return view('vehiculos.index');
-    })->name('vehiculos.index');
+    // Rutas web para vehículos (para Blade views)
+    Route::prefix('vehiculos')->name('vehiculos.')->group(function () {
+        Route::get('/', [VehiculoController::class, 'index'])->name('index');
+        Route::get('/create', [VehiculoController::class, 'create'])->name('create');
+        Route::post('/', [VehiculoController::class, 'store'])->name('store');
+        Route::get('/{id}', [VehiculoController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [VehiculoController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [VehiculoController::class, 'update'])->name('update');
+        Route::delete('/{id}', [VehiculoController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/restore', [VehiculoController::class, 'restore'])->name('restore');
+    });
+
+    // Rutas web para mantenimientos (para Blade views)
+    Route::prefix('mantenimientos')->name('mantenimientos.')->group(function () {
+        Route::get('/', [MantenimientoController::class, 'index'])->name('index');
+        Route::get('/create', [MantenimientoController::class, 'create'])->name('create');
+        Route::post('/', [MantenimientoController::class, 'store'])->name('store');
+        Route::get('/{id}', [MantenimientoController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [MantenimientoController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [MantenimientoController::class, 'update'])->name('update');
+        Route::delete('/{id}', [MantenimientoController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/restore', [MantenimientoController::class, 'restore'])->name('restore');
+    });
+
+    // Rutas web para personal (para Blade views)
+    Route::prefix('personal')->name('personal.')->group(function () {
+        Route::get('/', [PersonalController::class, 'index'])->name('index');
+        Route::get('/create', [PersonalController::class, 'create'])->name('create');
+        Route::post('/', [PersonalController::class, 'store'])->name('store');
+        Route::get('/{id}', [PersonalController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [PersonalController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [PersonalController::class, 'update'])->name('update');
+        Route::delete('/{id}', [PersonalController::class, 'destroy'])->name('destroy');
+    });
+
+    // Rutas web para obras (para Blade views)
+    Route::prefix('obras')->name('obras.')->group(function () {
+        Route::get('/', [App\Http\Controllers\ObraController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\ObraController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\ObraController::class, 'store'])->name('store');
+        Route::get('/{id}', [App\Http\Controllers\ObraController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [App\Http\Controllers\ObraController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [App\Http\Controllers\ObraController::class, 'update'])->name('update');
+        Route::delete('/{id}', [App\Http\Controllers\ObraController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/restore', [App\Http\Controllers\ObraController::class, 'restore'])->name('restore');
+    });
+
+    // Rutas web para asignaciones (para Blade views)
+    Route::prefix('asignaciones')->name('asignaciones.')->group(function () {
+        Route::get('/', [App\Http\Controllers\AsignacionController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\AsignacionController::class, 'create'])->name('create');
+        Route::post('/', [App\Http\Controllers\AsignacionController::class, 'store'])->name('store');
+        Route::get('/{id}', [App\Http\Controllers\AsignacionController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [App\Http\Controllers\AsignacionController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [App\Http\Controllers\AsignacionController::class, 'update'])->name('update');
+        Route::delete('/{id}', [App\Http\Controllers\AsignacionController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/liberar', [App\Http\Controllers\AsignacionController::class, 'liberar'])->name('liberar');
+    });
+
+    // Rutas web para documentos (para Blade views)
+    Route::prefix('documentos')->name('documentos.')->group(function () {
+        Route::get('/', [DocumentoController::class, 'index'])->name('index');
+        Route::get('/create', [DocumentoController::class, 'create'])->name('create');
+        Route::post('/', [DocumentoController::class, 'store'])->name('store');
+        Route::get('/{id}', [DocumentoController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [DocumentoController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [DocumentoController::class, 'update'])->name('update');
+        Route::delete('/{id}', [DocumentoController::class, 'destroy'])->name('destroy');
+    });
 
     // Rutas web para kilometrajes (para Blade views)
     Route::prefix('kilometrajes')->name('kilometrajes.')->group(function () {

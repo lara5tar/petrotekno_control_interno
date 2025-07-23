@@ -15,7 +15,16 @@ parameters:
         - app/Exceptions/Handler.php (?)
         - app/Http/Kernel.php (?)
     ignoreErrors:
+        # Errores de Eloquent Model
         - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$id#'
-        - '#Parameter .* of method PHPUnit\\Framework\\Assert::assertStringContainsString\(\) expects string, array.*given#'
-        - '#Call to method PHPUnit\\Framework\\Assert::assert.* with .* will always evaluate to true#'
         - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$.+#'
+        
+        # Errores de Tests - Property types
+        - '#Property Tests\\Feature\\.+::\$personal \(App\\Models\\Personal\) does not accept Illuminate\\Database\\Eloquent\\Model\.#'
+        
+        # Errores de Tests - PHPUnit assertions
+        - '#Call to method PHPUnit\\Framework\\Assert::assertTrue\(\) with true.+ will always evaluate to true\.#'
+        - '#Parameter \#2 \$haystack of method PHPUnit\\Framework\\Assert::assertStringContainsString\(\) expects string, array<mixed>\|null given\.#'
+        
+        # Errores específicos de ExampleTest y otros
+        - '#Call to method PHPUnit\\Framework\\Assert::assertTrue\(\) with true will always evaluate to true\.#'
