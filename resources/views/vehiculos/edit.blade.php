@@ -76,11 +76,12 @@
                                     required
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('estatus_id') border-red-500 @enderror">
                                 <option value="">Seleccione el estatus</option>
-                                <option value="1" {{ old('estatus_id', $vehiculo->estatus_id ?? '1') == '1' ? 'selected' : '' }}>Disponible</option>
-                                <option value="2" {{ old('estatus_id', $vehiculo->estatus_id ?? '1') == '2' ? 'selected' : '' }}>En Uso</option>
-                                <option value="3" {{ old('estatus_id', $vehiculo->estatus_id ?? '1') == '3' ? 'selected' : '' }}>Mantenimiento</option>
-                                <option value="4" {{ old('estatus_id', $vehiculo->estatus_id ?? '1') == '4' ? 'selected' : '' }}>Fuera de Servicio</option>
-                                <option value="5" {{ old('estatus_id', $vehiculo->estatus_id ?? '1') == '5' ? 'selected' : '' }}>Baja</option>
+                                @foreach($estatusDisponibles as $estatus)
+                                    <option value="{{ $estatus->id }}" 
+                                            {{ old('estatus_id', $vehiculo->estatus_id ?? '') == $estatus->id ? 'selected' : '' }}>
+                                        {{ $estatus->nombre_estatus }}
+                                    </option>
+                                @endforeach
                             </select>
                             @error('estatus_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>

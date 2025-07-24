@@ -27,13 +27,13 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Nombre</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $personal->nombre_completo ?? 'Marco Delgado Reyes' }}
+                                {{ $personal->nombre_completo }}
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Categoría</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $personal->categoria->nombre_categoria ?? 'Técnico Especializado' }}
+                                {{ $personal->categoria->nombre_categoria ?? 'Sin categoría' }}
                             </div>
                         </div>
                     </div>
@@ -42,14 +42,14 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">ID Empleado</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ str_pad($personal->id ?? 1, 4, '0', STR_PAD_LEFT) }}
+                                {{ str_pad($personal->id, 4, '0', STR_PAD_LEFT) }}
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Estatus</label>
-                            <div class="bg-green-600 text-white px-3 py-2 rounded text-sm font-medium flex items-center">
-                                <span class="w-2 h-2 bg-green-300 rounded-full mr-2"></span>
-                                {{ ucfirst($personal->estatus ?? 'Activo') }}
+                            <div class="bg-{{ $personal->estatus === 'activo' ? 'green' : 'red' }}-600 text-white px-3 py-2 rounded text-sm font-medium flex items-center">
+                                <span class="w-2 h-2 bg-{{ $personal->estatus === 'activo' ? 'green' : 'red' }}-300 rounded-full mr-2"></span>
+                                {{ ucfirst($personal->estatus) }}
                             </div>
                         </div>
                     </div>
@@ -59,28 +59,32 @@
                             <label class="block text-sm font-medium text-gray-600">CURP</label>
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    DERJ850315HNLGYR07
+                                    {{ $personal->curp ?? 'No registrado' }}
                                 </div>
+                                @if($personal->curp && isset($documentosPorTipo['CURP']))
                                 <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                     </svg>
                                 </button>
+                                @endif
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">RFC</label>
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    DERJ850315XY4
+                                    {{ $personal->rfc ?? 'No registrado' }}
                                 </div>
+                                @if($personal->rfc && isset($documentosPorTipo['RFC']))
                                 <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                     </svg>
                                 </button>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -90,28 +94,32 @@
                             <label class="block text-sm font-medium text-gray-600">Identificación (INE)</label>
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    1234567890123
+                                    {{ isset($documentosPorTipo['INE']) ? 'Disponible' : 'No registrado' }}
                                 </div>
+                                @if(isset($documentosPorTipo['INE']))
                                 <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                     </svg>
                                 </button>
+                                @endif
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">NSS</label>
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    12345678901
+                                    {{ $personal->nss ?? 'No registrado' }}
                                 </div>
+                                @if($personal->nss && isset($documentosPorTipo['NSS']))
                                 <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                     </svg>
                                 </button>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -121,28 +129,32 @@
                             <label class="block text-sm font-medium text-gray-600">Licencia de Manejo</label>
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    LIC123456789
+                                    {{ isset($documentosPorTipo['Licencia de Manejo']) ? 'Disponible' : 'No registrado' }}
                                 </div>
+                                @if(isset($documentosPorTipo['Licencia de Manejo']))
                                 <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                     </svg>
                                 </button>
+                                @endif
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">CV Profesional</label>
                             <div class="flex items-center space-x-2">
-                                <div class="bg-green-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    Disponible
+                                <div class="bg-{{ isset($documentosPorTipo['CV']) ? 'green' : 'gray' }}-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                    {{ isset($documentosPorTipo['CV']) ? 'Disponible' : 'No registrado' }}
                                 </div>
+                                @if(isset($documentosPorTipo['CV']))
                                 <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                     </svg>
                                 </button>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -264,113 +276,63 @@
                             <!-- Documentos Obligatorios -->
                             <h6 class="text-sm font-medium text-gray-700 mb-2">Documentos Obligatorios</h6>
                             <ul class="divide-y divide-gray-200 mb-6">
-                                <!-- Identificación Oficial -->
-                                <li class="py-2 flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                        <div>
-                                            <span class="text-sm font-medium text-gray-800">Identificación Oficial (INE)</span>
-                                            <p class="text-xs text-gray-500">Vence: 15/08/2030</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex space-x-2">
-                                        <button onclick="viewPersonalDocument('ine')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
-                                            Ver
-                                        </button>
-                                        <button onclick="downloadPersonalDocument('ine')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                            </svg>
-                                            Descargar
-                                        </button>
-                                    </div>
-                                </li>
+                                @php
+                                    $documentosObligatorios = ['INE', 'CURP', 'RFC', 'NSS'];
+                                @endphp
                                 
-                                <!-- CURP -->
-                                <li class="py-2 flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                        <div>
-                                            <span class="text-sm font-medium text-gray-800">CURP</span>
-                                            <p class="text-xs text-gray-500">Documento permanente</p>
+                                @foreach($documentosObligatorios as $tipoDoc)
+                                    @php
+                                        $documento = $documentosPorTipo[$tipoDoc] ?? null;
+                                        $tieneDocumento = !is_null($documento) && $documento->count() > 0;
+                                        $primerDocumento = $tieneDocumento ? $documento->first() : null;
+                                    @endphp
+                                    
+                                    <li class="py-2 flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2 text-{{ $tieneDocumento ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <div>
+                                                <span class="text-sm font-medium text-gray-800">
+                                                    @if($tipoDoc === 'INE')
+                                                        Identificación Oficial (INE)
+                                                    @elseif($tipoDoc === 'NSS')
+                                                        NSS (Número de Seguro Social)
+                                                    @else
+                                                        {{ $tipoDoc }}
+                                                    @endif
+                                                </span>
+                                                @if($tieneDocumento && $primerDocumento->fecha_vencimiento)
+                                                    <p class="text-xs text-gray-500">Vence: {{ \Carbon\Carbon::parse($primerDocumento->fecha_vencimiento)->format('d/m/Y') }}</p>
+                                                @elseif($tieneDocumento)
+                                                    <p class="text-xs text-gray-500">{{ $primerDocumento->descripcion ?? 'Documento disponible' }}</p>
+                                                @else
+                                                    <p class="text-xs text-red-500">No disponible</p>
+                                                @endif
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="flex space-x-2">
-                                        <button onclick="viewPersonalDocument('curp')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
-                                            Ver
-                                        </button>
-                                        <button onclick="downloadPersonalDocument('curp')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                            </svg>
-                                            Descargar
-                                        </button>
-                                    </div>
-                                </li>
-                                
-                                <!-- RFC -->
-                                <li class="py-2 flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                        <div>
-                                            <span class="text-sm font-medium text-gray-800">RFC</span>
-                                            <p class="text-xs text-gray-500">Documento fiscal</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex space-x-2">
-                                        <button onclick="viewPersonalDocument('rfc')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
-                                            Ver
-                                        </button>
-                                        <button onclick="downloadPersonalDocument('rfc')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                            </svg>
-                                            Descargar
-                                        </button>
-                                    </div>
-                                </li>
-
-                                <!-- NSS -->
-                                <li class="py-2 flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                        <div>
-                                            <span class="text-sm font-medium text-gray-800">NSS (Número de Seguro Social)</span>
-                                            <p class="text-xs text-gray-500">Documento de seguridad social</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex space-x-2">
-                                        <button onclick="viewPersonalDocument('nss')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
-                                            Ver
-                                        </button>
-                                        <button onclick="downloadPersonalDocument('nss')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                            </svg>
-                                            Descargar
-                                        </button>
-                                    </div>
-                                </li>
+                                        @if($tieneDocumento)
+                                            <div class="flex space-x-2">
+                                                <button onclick="viewPersonalDocument('{{ $primerDocumento->id }}')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    </svg>
+                                                    Ver
+                                                </button>
+                                                <button onclick="downloadPersonalDocument('{{ $primerDocumento->id }}')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                    </svg>
+                                                    Descargar
+                                                </button>
+                                            </div>
+                                        @else
+                                            <div class="text-xs text-red-500">
+                                                Faltante
+                                            </div>
+                                        @endif
+                                    </li>
+                                @endforeach
                             </ul>
                             
                             <!-- Documentos Adicionales -->
@@ -378,59 +340,48 @@
                             <div id="documentos-adicionales-personal">
                                 <!-- Documentos adicionales existentes -->
                                 <ul class="divide-y divide-gray-200 mb-4">
-                                    <!-- Curriculum Vitae -->
-                                    <li class="py-2 flex items-center justify-between">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
-                                            <div>
-                                                <span class="text-sm font-medium text-gray-800">Curriculum Vitae</span>
-                                                <p class="text-xs text-gray-500">CV_Marco_Delgado_2025.pdf</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex space-x-2">
-                                            <button onclick="viewPersonalDocument('cv')" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                                Ver
-                                            </button>
-                                            <button onclick="downloadPersonalDocument('cv')" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                </svg>
-                                                Descargar
-                                            </button>
-                                        </div>
-                                    </li>
-
-                                    <!-- Licencia de Manejo -->
-                                    <li class="py-2 flex items-center justify-between">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
-                                            <div>
-                                                <span class="text-sm font-medium text-gray-800">Licencia de Manejo</span>
-                                                <p class="text-xs text-gray-500">Vence: 20/03/2027</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex space-x-2">
-                                            <button onclick="viewPersonalDocument('licencia')" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                                Ver
-                                            </button>
-                                            <button onclick="downloadPersonalDocument('licencia')" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                </svg>
-                                                Descargar
-                                            </button>
-                                        </div>
-                                    </li>
+                                    @php
+                                        $documentosAdicionales = $documentosPorTipo->except(['INE', 'CURP', 'RFC', 'NSS']);
+                                    @endphp
+                                    
+                                    @forelse($documentosAdicionales as $tipoDocumento => $documentos)
+                                        @foreach($documentos as $documento)
+                                            <li class="py-2 flex items-center justify-between">
+                                                <div class="flex items-center">
+                                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                    <div>
+                                                        <span class="text-sm font-medium text-gray-800">{{ $tipoDocumento }}</span>
+                                                        @if($documento->descripcion)
+                                                            <p class="text-xs text-gray-500">{{ $documento->descripcion }}</p>
+                                                        @endif
+                                                        @if($documento->fecha_vencimiento)
+                                                            <p class="text-xs text-gray-500">Vence: {{ \Carbon\Carbon::parse($documento->fecha_vencimiento)->format('d/m/Y') }}</p>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="flex space-x-2">
+                                                    <button onclick="viewPersonalDocument('{{ $documento->id }}')" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        </svg>
+                                                        Ver
+                                                    </button>
+                                                    <button onclick="downloadPersonalDocument('{{ $documento->id }}')" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                        </svg>
+                                                        Descargar
+                                                    </button>
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    @empty
+                                        <li class="py-4 text-center text-gray-500 text-sm">
+                                            No hay documentos adicionales registrados
+                                        </li>
+                                    @endforelse
                                 </ul>
                                 
                                 <!-- Lista de documentos adicionales dinámicos (se llenará dinámicamente) -->

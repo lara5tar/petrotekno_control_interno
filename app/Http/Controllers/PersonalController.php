@@ -85,7 +85,14 @@ class PersonalController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $personal = Personal::with(['categoria', 'usuario'])->findOrFail($id);
+        $personal = Personal::with([
+            'categoria', 
+            'usuario',
+            'documentos' => function ($query) {
+                $query->with('tipoDocumento')
+                      ->select('id', 'tipo_documento_id', 'descripcion', 'fecha_vencimiento', 'personal_id', 'contenido', 'created_at', 'updated_at');
+            }
+        ])->findOrFail($id);
 
         return response()->json([
             'success' => true,

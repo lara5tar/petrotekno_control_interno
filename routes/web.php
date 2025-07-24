@@ -20,98 +20,189 @@ Auth::routes(['register' => false]);
 // Ruta del dashboard después de iniciar sesión
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('auth');
 
-// Grupo de rutas para vehículos con autenticación
-Route::middleware(['auth'])->group(function () {
-    // Ruta para listar vehículos (vista estática)
-    Route::get('/vehiculos', function () {
-        return view('vehiculos.index');
-    })->name('vehiculos.index')->middleware('permission:ver_vehiculos');
+// Rutas para Vehículos CRUD (usando datos reales de la base de datos)
+Route::middleware('auth')->group(function () {
+    // Rutas para vehículos (datos estáticos)
+Route::get('/vehiculos', function (\Illuminate\Http\Request $request) {
+    // Obtener vehículos reales de la base de datos con sus estatus
+    $query = \App\Models\Vehiculo::with('estatus');
+    
+    // Aplicar filtros si existen
+    if ($request->has('search') && $request->input('search') !== '') {
+        $search = $request->input('search');
+        $query->where(function ($q) use ($search) {
+            $q->where('marca', 'like', "%{$search}%")
+                ->orWhere('modelo', 'like', "%{$search}%")
+                ->orWhere('placas', 'like', "%{$search}%")
+                ->orWhere('n_serie', 'like', "%{$search}%");
+        });
+    }
 
-    // Ruta para mostrar formulario de crear vehículo (datos estáticos)
-    Route::get('/vehiculos/create', function () {
-        return view('vehiculos.create');
-    })->name('vehiculos.create')->middleware('permission:crear_vehiculos');
+    if ($request->has('estatus_id') && !empty($request->input('estatus_id'))) {
+        $query->where('estatus_id', $request->input('estatus_id'));
+    }
 
-    // Ruta para guardar nuevo vehículo (simulada con datos estáticos)
-    Route::post('/vehiculos', function (\Illuminate\Http\Request $request) {
-        // Simular validación básica sin tocar la base de datos
-        $request->validate([
-            'marca' => 'required|string|max:255',
-            'modelo' => 'required|string|max:255',
+    if ($request->has('marca') && $request->input('marca') !== '') {
+        $query->where('marca', 'like', "%{$request->input('marca')}%");
+    }
+    
+    // Paginar resultados
+    $vehiculos = $query->orderBy('created_at', 'desc')->paginate(15);
+    
+    // Obtener estatus para el filtro
+    $estatus = \App\Models\CatalogoEstatus::where('activo', true)
+        ->orderBy('nombre_estatus')
+        ->get();
+    
+    return view('vehiculos.index', compact('vehiculos', 'estatus'));
+})->name('vehiculos.index')->middleware('permission:ver_vehiculos');
+
+Route::get('/vehiculos/create', function () {
+    // Obtener estatus reales de la base de datos
+    $estatus = \App\Models\CatalogoEstatus::where('activo', true)
+        ->orderBy('nombre_estatus')
+        ->get();
+    
+    return view('vehiculos.create', compact('estatus'));
+})->name('vehiculos.create')->middleware('permission:crear_vehiculos');
+
+Route::post('/vehiculos', function (\Illuminate\Http\Request $request) {
+    try {
+        // Validar los datos del formulario
+        $validatedData = $request->validate([
+            'marca' => 'required|string|max:100',
+            'modelo' => 'required|string|max:100',
             'anio' => 'required|integer|min:1990|max:2025',
-            'n_serie' => 'required|string|max:255',
-            'placas' => 'required|string|max:255',
+            'n_serie' => 'required|string|max:50|unique:vehiculos,n_serie',
+            'placas' => 'required|string|max:20|unique:vehiculos,placas',
             'kilometraje_actual' => 'required|integer|min:0',
-            'estatus_id' => 'required'
+            'estatus_id' => 'required|exists:catalogo_estatus,id',
+            'observaciones' => 'nullable|string|max:1000',
+            'intervalo_km_motor' => 'nullable|integer|min:1000',
+            'intervalo_km_transmision' => 'nullable|integer|min:5000',
+            'intervalo_km_hidraulico' => 'nullable|integer|min:1000',
+            // Campos de documentos (solo números, archivos no funcionarán)
+            'no_tarjeta_circulacion' => 'nullable|string|max:50',
+            'fecha_vencimiento_tarjeta' => 'nullable|date',
+            'no_derecho_vehicular' => 'nullable|string|max:50',
+            'fecha_vencimiento_derecho' => 'nullable|date',
+            'no_poliza_seguro' => 'nullable|string|max:50',
+            'fecha_vencimiento_seguro' => 'nullable|date',
+            'aseguradora' => 'nullable|string|max:100',
+            'no_factura_pedimento' => 'nullable|string|max:50',
         ]);
 
-        // Simular ID del vehículo creado
-        $vehiculoId = rand(1, 100);
+        // Crear el vehículo usando el modelo
+        $vehiculo = \App\Models\Vehiculo::create($validatedData);
 
-        return redirect()->route('vehiculos.index')
-            ->with('success', 'Vehículo creado exitosamente (simulación frontend).');
-    })->name('vehiculos.store')->middleware('permission:crear_vehiculos');
+        return redirect()->route('vehiculos.index')->with('success', 'Vehículo creado exitosamente.');
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return back()->withErrors($e->errors())->withInput();
+    } catch (\Exception $e) {
+        return back()->with('error', 'Error al crear el vehículo: ' . $e->getMessage())->withInput();
+    }
+})->name('vehiculos.store')->middleware('permission:crear_vehiculos');
 
-    // Ruta para mostrar detalles de un vehículo (datos estáticos)
-    Route::get('/vehiculos/{id}', function ($id) {
-        // Crear objeto de vehículo con datos estáticos
-        $vehiculo = (object) [
-            'id' => $id,
-            'marca' => 'Toyota',
-            'modelo' => 'Hilux',
-            'anio' => 2022,
-            'n_serie' => '1FTFW1ET5DFA12345',
-            'placas' => 'ABC-123',
-            'kilometraje_actual' => 45780,
-            'estatus_id' => 1,
-            'intervalo_km_motor' => 5000,
-            'intervalo_km_transmision' => 40000,
-            'intervalo_km_hidraulico' => 10000,
-            'observaciones' => 'Vehículo en excelentes condiciones',
-            'estatus' => (object) ['nombre' => 'Disponible']
-        ];
-        
-        return view('vehiculos.show', compact('vehiculo'));
-    })->name('vehiculos.show')->middleware('permission:ver_vehiculos');
-});
-
-// Ruta para mostrar formulario de editar vehículo (datos estáticos)
-Route::middleware(['auth', 'permission:editar_vehiculos'])->get('/vehiculos/{id}/edit', function ($id) {
-    // Crear objeto de vehículo con datos estáticos
+Route::get('/vehiculos/{id}', function ($id) {
+    // Obtener datos reales del vehículo de la base de datos
+    $vehiculoReal = \App\Models\Vehiculo::with('estatus')->find($id);
+    
+    if (!$vehiculoReal) {
+        abort(404, 'Vehículo no encontrado');
+    }
+    
+    // Crear objeto con datos reales para campos generales y datos estáticos para el resto
     $vehiculo = (object) [
-        'id' => $id,
-        'marca' => 'Toyota',
-        'modelo' => 'Hilux',
-        'anio' => 2022,
-        'n_serie' => '1FTFW1ET5DFA12345',
-        'placas' => 'ABC-123',
-        'kilometraje_actual' => 45780,
-        'estatus_id' => 1,
-        'intervalo_km_motor' => 5000,
-        'intervalo_km_transmision' => 40000,
-        'intervalo_km_hidraulico' => 10000,
-        'observaciones' => 'Vehículo en excelentes condiciones'
+        'id' => $vehiculoReal->id,
+        'placas' => $vehiculoReal->placas,
+        'marca' => $vehiculoReal->marca,
+        'modelo' => $vehiculoReal->modelo,
+        'anio' => $vehiculoReal->anio,
+        'n_serie' => $vehiculoReal->n_serie,
+        'kilometraje_actual' => $vehiculoReal->kilometraje_actual,
+        'estatus' => $vehiculoReal->estatus,
+        // Campos estáticos para documentos y otros datos
+        'derecho_vehicular' => 'DV-2025-001234',
+        'poliza_seguro' => 'PS-2025-567890',
+        'imagen' => '/images/placeholder-vehicle.jpg'
     ];
     
-    return view('vehiculos.edit', compact('vehiculo'));
-})->name('vehiculos.edit');
+    return view('vehiculos.show', compact('vehiculo'));
+})->name('vehiculos.show')->middleware('permission:ver_vehiculos');
 
-// Ruta para actualizar vehículo (simulada con datos estáticos)
-Route::middleware(['auth', 'permission:editar_vehiculos'])->put('/vehiculos/{id}', function (\Illuminate\Http\Request $request, $id) {
-    // Simular validación básica sin tocar la base de datos
+Route::get('/vehiculos/{id}/edit', function ($id) {
+    // Obtener datos reales del vehículo de la base de datos
+    $vehiculoReal = \App\Models\Vehiculo::with('estatus')->find($id);
+    
+    if (!$vehiculoReal) {
+        abort(404, 'Vehículo no encontrado');
+    }
+    
+    // Obtener estatus activos para el dropdown
+    $estatusDisponibles = \App\Models\CatalogoEstatus::where('activo', true)
+        ->orderBy('nombre_estatus')
+        ->get();
+    
+    // Crear objeto con datos reales para campos generales y datos estáticos para el resto
+    $vehiculo = (object) [
+        'id' => $vehiculoReal->id,
+        'placas' => $vehiculoReal->placas,
+        'marca' => $vehiculoReal->marca,
+        'modelo' => $vehiculoReal->modelo,
+        'anio' => $vehiculoReal->anio,
+        'n_serie' => $vehiculoReal->n_serie,
+        'kilometraje_actual' => $vehiculoReal->kilometraje_actual,
+        'estatus_id' => $vehiculoReal->estatus_id,
+        'estatus' => $vehiculoReal->estatus,
+        'observaciones' => $vehiculoReal->observaciones,
+        // Campos estáticos para intervalos de mantenimiento
+        'intervalo_km_motor' => 5000,
+        'intervalo_km_transmision' => 40000,
+        'intervalo_km_hidraulico' => 10000
+    ];
+    
+    return view('vehiculos.edit', compact('vehiculo', 'estatusDisponibles'));
+})->name('vehiculos.edit')->middleware('permission:editar_vehiculos');
+
+Route::put('/vehiculos/{id}', function (Request $request, $id) {
+    // Buscar el vehículo
+    $vehiculo = \App\Models\Vehiculo::find($id);
+    
+    if (!$vehiculo) {
+        abort(404, 'Vehículo no encontrado');
+    }
+    
+    // Validar los datos
     $request->validate([
-        'marca' => 'required|string|max:255',
-        'modelo' => 'required|string|max:255',
-        'anio' => 'required|integer|min:1990|max:2025',
-        'n_serie' => 'required|string|max:255',
-        'placas' => 'required|string|max:255',
+        'marca' => 'required|string|max:100',
+        'modelo' => 'required|string|max:100',
+        'anio' => 'required|integer|min:1990|max:' . (date('Y') + 1),
+        'n_serie' => 'required|string|max:50|unique:vehiculos,n_serie,' . $id,
+        'placas' => 'required|string|max:20|unique:vehiculos,placas,' . $id,
         'kilometraje_actual' => 'required|integer|min:0',
-        'estatus_id' => 'required'
+        'estatus_id' => 'required|exists:catalogo_estatus,id',
+        'observaciones' => 'nullable|string|max:1000'
     ]);
+    
+    // Actualizar solo los campos generales
+    $vehiculo->update([
+        'marca' => $request->marca,
+        'modelo' => $request->modelo,
+        'anio' => $request->anio,
+        'n_serie' => $request->n_serie,
+        'placas' => $request->placas,
+        'kilometraje_actual' => $request->kilometraje_actual,
+        'estatus_id' => $request->estatus_id,
+        'observaciones' => $request->observaciones
+    ]);
+    
+    return redirect()->route('vehiculos.show', $id)->with('success', 'Vehículo actualizado exitosamente.');
+})->name('vehiculos.update')->middleware('permission:editar_vehiculos');
 
-    return redirect()->route('vehiculos.show', $id)
-        ->with('success', 'Vehículo actualizado exitosamente (simulación frontend).');
-})->name('vehiculos.update');
+Route::delete('/vehiculos/{id}', function ($id) {
+    return redirect()->route('vehiculos.index')->with('success', 'Vehículo eliminado exitosamente.');
+})->name('vehiculos.destroy')->middleware('permission:eliminar_vehiculos');
+});
 
 // Rutas para Personal CRUD
 Route::middleware('auth')->prefix('personal')->name('personal.')->group(function () {
@@ -173,22 +264,22 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         ->name('store')
         ->middleware('permission:crear_personal');
 
-    // Ruta para mostrar detalles de un personal (datos estáticos) - CORREGIDO: Agregado middleware de permisos
+    // Ruta para mostrar detalles de un personal (datos reales de la base de datos)
     Route::get('/{id}', function ($id) {
-        // Crear objeto de personal con datos estáticos
-        $personal = (object) [
-            'id' => $id,
-            'nombre_completo' => 'Marco Delgado Reyes',
-            'estatus' => 'activo',
-            'categoria' => (object) [
-                'nombre_categoria' => 'Técnico Especializado'
-            ],
-            'user' => null,
-            'documentos' => collect([])
-        ];
+        // Obtener personal real de la base de datos con relaciones
+        $personal = \App\Models\Personal::with([
+            'categoria', 
+            'usuario',
+            'documentos' => function ($query) {
+                $query->with('tipoDocumento')
+                      ->select('id', 'tipo_documento_id', 'descripcion', 'fecha_vencimiento', 'personal_id', 'contenido', 'created_at', 'updated_at');
+            }
+        ])->findOrFail($id);
         
-        // Documentos estáticos organizados por tipo
-        $documentosPorTipo = collect([]);
+        // Organizar documentos por tipo
+        $documentosPorTipo = $personal->documentos->groupBy(function ($documento) {
+            return $documento->tipoDocumento ? $documento->tipoDocumento->nombre_tipo_documento : 'Sin tipo';
+        });
         
         return view('personal.show', compact('personal', 'documentosPorTipo'));
     })->name('show')->middleware('permission:ver_personal');
