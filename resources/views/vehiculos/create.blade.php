@@ -74,6 +74,200 @@
                     </div>
                 </div>
 
+                <!-- Sección de Documentos del Vehículo -->
+                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                    <h4 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clip-rule="evenodd" />
+                        </svg>
+                        Documentos del Vehículo
+                    </h4>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Primera columna -->
+                        <div class="space-y-6">
+                            <!-- 1. Tarjeta de Circulación -->
+                            <div class="space-y-3 p-4 border border-gray-200 rounded-lg">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Tarjeta de Circulación
+                                </label>
+                                <div class="flex items-center space-x-3">
+                                    <input type="text" 
+                                           name="no_tarjeta_circulacion" 
+                                           placeholder="Número de tarjeta de circulación" 
+                                           value="{{ old('no_tarjeta_circulacion') }}"
+                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
+                                    <div class="flex-shrink-0">
+                                        <input type="file" 
+                                               id="tarjeta_circulacion_file" 
+                                               name="tarjeta_circulacion_file" 
+                                               accept=".pdf,.jpg,.jpeg,.png" 
+                                               class="hidden" 
+                                               @change="handleFileInput($event, 'tarjeta_circulacion')" />
+                                        <label for="tarjeta_circulacion_file" 
+                                               class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
+                                            <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                            </svg>
+                                            Adjuntar
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <input type="date" 
+                                           name="fecha_vencimiento_tarjeta" 
+                                           placeholder="Fecha de vencimiento"
+                                           value="{{ old('fecha_vencimiento_tarjeta') }}"
+                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
+                                    <span class="text-sm text-gray-500 flex-shrink-0">Vencimiento</span>
+                                </div>
+                                <p class="text-xs text-gray-500" x-text="fileStatus.tarjeta_circulacion || 'PDF, JPG, PNG (máx. 5MB)'"></p>
+                            </div>
+
+                            <!-- 2. Derecho Vehicular -->
+                            <div class="space-y-3 p-4 border border-gray-200 rounded-lg">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Derecho Vehicular
+                                </label>
+                                <div class="flex items-center space-x-3">
+                                    <input type="text" 
+                                           name="no_derecho_vehicular" 
+                                           placeholder="Número de derecho vehicular" 
+                                           value="{{ old('no_derecho_vehicular') }}"
+                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
+                                    <div class="flex-shrink-0">
+                                        <input type="file" 
+                                               id="derecho_vehicular_file" 
+                                               name="derecho_vehicular_file" 
+                                               accept=".pdf,.jpg,.jpeg,.png" 
+                                               class="hidden" 
+                                               @change="handleFileInput($event, 'derecho_vehicular')" />
+                                        <label for="derecho_vehicular_file" 
+                                               class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
+                                            <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                            </svg>
+                                            Adjuntar
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <input type="date" 
+                                           name="fecha_vencimiento_derecho" 
+                                           placeholder="Fecha de vencimiento"
+                                           value="{{ old('fecha_vencimiento_derecho') }}"
+                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
+                                    <span class="text-sm text-gray-500 flex-shrink-0">Vencimiento</span>
+                                </div>
+                                <p class="text-xs text-gray-500" x-text="fileStatus.derecho_vehicular || 'PDF, JPG, PNG (máx. 5MB)'"></p>
+                            </div>
+                        </div>
+
+                        <!-- Segunda columna -->
+                        <div class="space-y-6">
+                            <!-- 3. Póliza de Seguro -->
+                            <div class="space-y-3 p-4 border border-gray-200 rounded-lg">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Póliza de Seguro
+                                </label>
+                                <div class="flex items-center space-x-3">
+                                    <input type="text" 
+                                           name="no_poliza_seguro" 
+                                           placeholder="Número de póliza" 
+                                           value="{{ old('no_poliza_seguro') }}"
+                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
+                                    <div class="flex-shrink-0">
+                                        <input type="file" 
+                                               id="poliza_seguro_file" 
+                                               name="poliza_seguro_file" 
+                                               accept=".pdf,.jpg,.jpeg,.png" 
+                                               class="hidden" 
+                                               @change="handleFileInput($event, 'poliza_seguro')" />
+                                        <label for="poliza_seguro_file" 
+                                               class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
+                                            <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                            </svg>
+                                            Adjuntar
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <input type="date" 
+                                           name="fecha_vencimiento_seguro" 
+                                           placeholder="Fecha de vencimiento"
+                                           value="{{ old('fecha_vencimiento_seguro') }}"
+                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
+                                    <span class="text-sm text-gray-500 flex-shrink-0">Vencimiento</span>
+                                </div>
+                                <div class="mt-2">
+                                    <input type="text" 
+                                           name="aseguradora" 
+                                           placeholder="Nombre de la aseguradora" 
+                                           value="{{ old('aseguradora') }}"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
+                                </div>
+                                <p class="text-xs text-gray-500" x-text="fileStatus.poliza_seguro || 'PDF, JPG, PNG (máx. 5MB)'"></p>
+                            </div>
+
+                            <!-- 4. Factura y/o Pedimento -->
+                            <div class="space-y-3 p-4 border border-gray-200 rounded-lg">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Factura y/o Pedimento
+                                </label>
+                                <div class="flex items-center space-x-3">
+                                    <input type="text" 
+                                           name="no_factura_pedimento" 
+                                           placeholder="Número de factura y/o pedimento" 
+                                           value="{{ old('no_factura_pedimento') }}"
+                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
+                                    <div class="flex-shrink-0">
+                                        <input type="file" 
+                                               id="factura_pedimento_file" 
+                                               name="factura_pedimento_file" 
+                                               accept=".pdf,.jpg,.jpeg,.png" 
+                                               class="hidden" 
+                                               @change="handleFileInput($event, 'factura_pedimento')" />
+                                        <label for="factura_pedimento_file" 
+                                               class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
+                                            <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                            </svg>
+                                            Adjuntar
+                                        </label>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500" x-text="fileStatus.factura_pedimento || 'PDF, JPG, PNG (máx. 5MB)'"></p>
+                            </div>
+
+                            <!-- 5. Fotografía -->
+                            <div class="space-y-3 p-4 border border-gray-200 rounded-lg">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Fotografía del Vehículo
+                                </label>
+                                <div class="flex items-center space-x-3">
+                                    <div class="flex-1">
+                                        <input type="file" 
+                                               id="fotografia_file" 
+                                               name="fotografia_file" 
+                                               accept=".jpg,.jpeg,.png" 
+                                               class="hidden" 
+                                               @change="handleFileInput($event, 'fotografia')" />
+                                        <label for="fotografia_file" 
+                                               class="cursor-pointer inline-flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
+                                            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            Subir Fotografía del Vehículo
+                                        </label>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 text-center" x-text="fileStatus.fotografia || 'JPG, PNG (máx. 5MB)'"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Configuración de Mantenimiento -->
                 <div class="bg-white border border-gray-200 rounded-lg p-6">
                     <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
@@ -155,235 +349,6 @@
                         @error('observaciones') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
                 </div>
-
-                <!-- Sección de Documentos del Vehículo -->
-                <div class="bg-white border border-gray-200 rounded-lg p-6">
-                    <h4 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clip-rule="evenodd" />
-                        </svg>
-                        Documentos del Vehículo
-                    </h4>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- 1. Tarjeta de Circulación -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-medium text-gray-700">
-                                Tarjeta de Circulación
-                            </label>
-                            <div class="flex items-center space-x-3">
-                                <input type="text" 
-                                       name="no_tarjeta_circulacion" 
-                                       placeholder="Número de tarjeta de circulación" 
-                                       value="{{ old('no_tarjeta_circulacion') }}"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                <div class="flex-shrink-0">
-                                    <input type="file" 
-                                           id="tarjeta_circulacion_file" 
-                                           name="tarjeta_circulacion_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'tarjeta_circulacion')" />
-                                    <label for="tarjeta_circulacion_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Adjuntar
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <input type="date" 
-                                       name="fecha_vencimiento_tarjeta" 
-                                       placeholder="Fecha de vencimiento"
-                                       value="{{ old('fecha_vencimiento_tarjeta') }}"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                <span class="text-sm text-gray-500 flex-shrink-0">Vencimiento</span>
-                            </div>
-                            <p class="text-xs text-gray-500" x-text="fileStatus.tarjeta_circulacion || 'PDF, JPG, PNG (máx. 5MB)'"></p>
-                        </div>
-
-                        <!-- 2. Póliza de Seguro -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-medium text-gray-700">
-                                Póliza de Seguro
-                            </label>
-                            <div class="flex items-center space-x-3">
-                                <input type="text" 
-                                       name="no_poliza_seguro" 
-                                       placeholder="Número de póliza" 
-                                       value="{{ old('no_poliza_seguro') }}"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                <div class="flex-shrink-0">
-                                    <input type="file" 
-                                           id="poliza_seguro_file" 
-                                           name="poliza_seguro_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'poliza_seguro')" />
-                                    <label for="poliza_seguro_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Adjuntar
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <input type="date" 
-                                       name="fecha_vencimiento_seguro" 
-                                       placeholder="Fecha de vencimiento"
-                                       value="{{ old('fecha_vencimiento_seguro') }}"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                <span class="text-sm text-gray-500 flex-shrink-0">Vencimiento</span>
-                            </div>
-                            <div class="mt-2">
-                                <input type="text" 
-                                       name="aseguradora" 
-                                       placeholder="Nombre de la aseguradora" 
-                                       value="{{ old('aseguradora') }}"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                            </div>
-                            <p class="text-xs text-gray-500" x-text="fileStatus.poliza_seguro || 'PDF, JPG, PNG (máx. 5MB)'"></p>
-                        </div>
-
-                        <!-- 3. Verificación Vehicular -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-medium text-gray-700">
-                                Verificación Vehicular
-                            </label>
-                            <div class="flex items-center space-x-3">
-                                <input type="text" 
-                                       name="no_verificacion" 
-                                       placeholder="Folio de verificación" 
-                                       value="{{ old('no_verificacion') }}"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                <div class="flex-shrink-0">
-                                    <input type="file" 
-                                           id="verificacion_file" 
-                                           name="verificacion_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'verificacion')" />
-                                    <label for="verificacion_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Adjuntar
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <input type="date" 
-                                       name="fecha_vencimiento_verificacion" 
-                                       placeholder="Próxima verificación"
-                                       value="{{ old('fecha_vencimiento_verificacion') }}"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                <span class="text-sm text-gray-500 flex-shrink-0">Próxima verificación</span>
-                            </div>
-                            <p class="text-xs text-gray-500" x-text="fileStatus.verificacion || 'PDF, JPG, PNG (máx. 5MB)'"></p>
-                        </div>
-
-                        <!-- 4. Tenencia/Refrendo -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-medium text-gray-700">
-                                Tenencia/Refrendo
-                            </label>
-                            <div class="flex items-center space-x-3">
-                                <select name="tenencia_anio" 
-                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow">
-                                    <option value="">Año de tenencia</option>
-                                    @for($year = date('Y'); $year >= (date('Y') - 10); $year--)
-                                        <option value="{{ $year }}" {{ old('tenencia_anio') == $year ? 'selected' : '' }}>{{ $year }}</option>
-                                    @endfor
-                                </select>
-                                <div class="flex-shrink-0">
-                                    <input type="file" 
-                                           id="tenencia_file" 
-                                           name="tenencia_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'tenencia')" />
-                                    <label for="tenencia_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Adjuntar
-                                    </label>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500" x-text="fileStatus.tenencia || 'PDF, JPG, PNG (máx. 5MB)'"></p>
-                        </div>
-
-                        <!-- 5. Factura Original -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-medium text-gray-700">
-                                Factura Original
-                            </label>
-                            <div class="flex items-center space-x-3">
-                                <input type="text" 
-                                       name="no_factura" 
-                                       placeholder="Número de factura" 
-                                       value="{{ old('no_factura') }}"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                <div class="flex-shrink-0">
-                                    <input type="file" 
-                                           id="factura_file" 
-                                           name="factura_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'factura')" />
-                                    <label for="factura_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Adjuntar
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <input type="date" 
-                                       name="fecha_compra" 
-                                       placeholder="Fecha de compra"
-                                       value="{{ old('fecha_compra') }}"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                            </div>
-                            <p class="text-xs text-gray-500" x-text="fileStatus.factura || 'PDF, JPG, PNG (máx. 5MB)'"></p>
-                        </div>
-
-                        <!-- 6. Manual del Vehículo -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-medium text-gray-700">
-                                Manual del Vehículo
-                            </label>
-                            <div class="border-2 border-dashed border-gray-300 rounded-md p-4 text-center hover:border-petroyellow transition-colors">
-                                <svg class="mx-auto h-6 w-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                </svg>
-                                <input type="file" 
-                                       id="manual_file" 
-                                       name="manual_file" 
-                                       accept=".pdf,.doc,.docx" 
-                                       class="hidden" 
-                                       @change="handleFileInput($event, 'manual')" />
-                                <label for="manual_file" 
-                                       class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                    Seleccionar Manual
-                                </label>
-                                <p class="mt-2 text-xs text-gray-500" x-show="!fileStatus.manual">
-                                    PDF, DOC, DOCX (máx. 10MB)
-                                </p>
-                                <p class="mt-2 text-sm text-petroyellow font-medium" x-show="fileStatus.manual" x-text="fileStatus.manual">
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Botones de acción -->
@@ -409,10 +374,9 @@
             fileStatus: {
                 tarjeta_circulacion: '',
                 poliza_seguro: '',
-                verificacion: '',
-                tenencia: '',
-                factura: '',
-                manual: ''
+                derecho_vehicular: '',
+                factura_pedimento: '',
+                fotografia: ''
             },
             
             handleFileInput(event, type) {
@@ -422,8 +386,8 @@
                     return;
                 }
 
-                // Validar tamaño (10MB para manual, 5MB para otros)
-                const maxSize = type === 'manual' ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+                // Validar tamaño (5MB para todos los archivos)
+                const maxSize = 5 * 1024 * 1024;
                 if (file.size > maxSize) {
                     alert(`El archivo es demasiado grande. Máximo ${maxSize / 1024 / 1024}MB`);
                     event.target.value = '';
@@ -431,10 +395,8 @@
                     return;
                 }
 
-                // Validar tipo de archivo
-                const allowedTypes = type === 'manual' 
-                    ? ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-                    : ['application/pdf', 'image/jpeg', 'image/png'];
+                // Validar tipo de archivo (PDF, JPG, PNG)
+                const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
                 
                 if (!allowedTypes.includes(file.type)) {
                     alert('Formato de archivo no permitido');

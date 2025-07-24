@@ -40,47 +40,59 @@
 
     <!-- Filtros y búsqueda -->
     <div class="bg-white p-4 rounded-lg shadow-md mb-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div class="flex-1">
-                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                        </svg>
+        <form method="GET" action="{{ route('personal.index') }}" id="filtrosForm">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex-1">
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <input type="text" 
+                               id="search" 
+                               name="search" 
+                               value="{{ request('search') }}"
+                               placeholder="Buscar por nombre, categoría, etc." 
+                               class="pl-10 p-2 border border-gray-300 rounded-md w-full">
                     </div>
-                    <input type="text" 
-                           id="search" 
-                           name="search" 
-                           value="{{ request('search') }}"
-                           placeholder="Buscar por nombre, categoría, etc." 
-                           class="pl-10 p-2 border border-gray-300 rounded-md w-full">
+                </div>
+                <div class="flex-1 md:flex-none md:w-48">
+                    <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                    <select id="estado" 
+                            name="estatus"
+                            class="p-2 border border-gray-300 rounded-md w-full">
+                        <option value="">Todos</option>
+                        <option value="activo" {{ request('estatus') == 'activo' ? 'selected' : '' }}>Activo</option>
+                        <option value="inactivo" {{ request('estatus') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+                    </select>
+                </div>
+                <div class="flex-1 md:flex-none md:w-48">
+                    <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                    <select id="tipo" 
+                            name="categoria_id"
+                            class="p-2 border border-gray-300 rounded-md w-full">
+                        <option value="">Todos</option>
+                        @foreach($categorias as $categoria)
+                            <option value="{{ $categoria->id }}" {{ request('categoria_id') == $categoria->id ? 'selected' : '' }}>
+                                {{ $categoria->nombre_categoria }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex gap-2">
+                    <button type="submit" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded transition duration-200">
+                        Filtrar
+                    </button>
+                    @if(request()->hasAny(['search', 'categoria_id', 'estatus']))
+                        <a href="{{ route('personal.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition duration-200">
+                            Limpiar
+                        </a>
+                    @endif
                 </div>
             </div>
-            <div class="flex-1 md:flex-none md:w-48">
-                <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                <select id="estado" 
-                        name="estatus"
-                        class="p-2 border border-gray-300 rounded-md w-full">
-                    <option value="">Todos</option>
-                    <option value="activo" {{ request('estatus') == 'activo' ? 'selected' : '' }}>Activo</option>
-                    <option value="inactivo" {{ request('estatus') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
-                </select>
-            </div>
-            <div class="flex-1 md:flex-none md:w-48">
-                <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                <select id="tipo" 
-                        name="categoria_id"
-                        class="p-2 border border-gray-300 rounded-md w-full">
-                    <option value="">Todos</option>
-                    @foreach($categorias as $categoria)
-                        <option value="{{ $categoria->id }}" {{ request('categoria_id') == $categoria->id ? 'selected' : '' }}>
-                            {{ $categoria->nombre_categoria }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
+        </form>
     </div>
 
     <!-- Tabla de personal -->
@@ -207,3 +219,46 @@
         @endif
     </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos del formulario
+    const searchInput = document.getElementById('search');
+    const estadoSelect = document.getElementById('estado');
+    const tipoSelect = document.getElementById('tipo');
+    const form = document.getElementById('filtrosForm');
+    
+    // Función para enviar el formulario automáticamente
+    function autoSubmit() {
+        form.submit();
+    }
+    
+    // Event listeners para filtros automáticos
+    estadoSelect.addEventListener('change', autoSubmit);
+    tipoSelect.addEventListener('change', autoSubmit);
+    
+    // Event listener para búsqueda con delay
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+            autoSubmit();
+        }, 500); // Esperar 500ms después de que el usuario deje de escribir
+    });
+    
+    // Prevenir envío múltiple del formulario
+    form.addEventListener('submit', function() {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Filtrando...';
+            setTimeout(function() {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Filtrar';
+            }, 2000);
+        }
+    });
+});
+</script>
+@endpush

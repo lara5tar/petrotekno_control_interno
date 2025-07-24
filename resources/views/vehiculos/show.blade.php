@@ -294,14 +294,14 @@
                                 </div>
                             </div>
                             
-                            <!-- Sección: Personal Asignado -->
+                            <!-- Sección: Operador Actual -->
                             <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
                                 <div class="flex justify-between items-center mb-4">
                                     <h5 class="text-base font-semibold text-gray-800 flex items-center">
                                         <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                                         </svg>
-                                        Personal Asignado
+                                        Operador Actual
                                     </h5>
                                     <button class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -311,34 +311,47 @@
                                     </button>
                                 </div>
                                 
-                                <div class="space-y-2">
+                                <div class="space-y-3">
                                     <div class="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label class="block text-sm text-gray-600">Operador Actual</label>
-                                            <div class="flex items-center space-x-2">
-                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm flex-1">
-                                                    Marco Alfredo
-                                                </div>
-                                                <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm">
-                                                    Cambiar
-                                                </button>
+                                            <label class="block text-sm text-gray-600">Nombre Completo</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                Marco Alfredo
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="block text-sm text-gray-600">Supervisor</label>
+                                            <label class="block text-sm text-gray-600">NSS</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                Tonko de las Mercedes
+                                                12345678901
                                             </div>
                                         </div>
                                     </div>
                                     
                                     <div class="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label class="block text-sm text-gray-600">Cert. Electrónica</label>
+                                            <label class="block text-sm text-gray-600">RFC</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                5588
+                                                MAAL850615ABC
                                             </div>
                                         </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">INE</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                MAALRC85061512H100
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 gap-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Domicilio</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                Av. Revolución #123, Col. Centro, Monterrey, N.L. C.P. 64000
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 gap-3">
                                         <div>
                                             <label class="block text-sm text-gray-600">Licencia de Manejo</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
@@ -614,7 +627,7 @@
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
-                                                <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Taller</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Proveedor</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                                             </tr>
@@ -624,7 +637,7 @@
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">15/03/2024</td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Preventivo</td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">125,000 km</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Taller Mecánico Central</td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Proveedor Mecánico Central</td>
                                                 <td class="px-3 py-2 whitespace-nowrap">
                                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                         Completado
@@ -662,7 +675,7 @@
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">05/12/2023</td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Preventivo</td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">115,000 km</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Taller Mecánico Central</td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Proveedor Mecánico Central</td>
                                                 <td class="px-3 py-2 whitespace-nowrap">
                                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                         Completado
@@ -755,10 +768,6 @@
             <div class="mb-4">
                 <label for="fecha" class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
                 <input type="date" id="fecha" name="fecha" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
-            </div>
-            <div class="mb-4">
-                <label for="ubicacion" class="block text-sm font-medium text-gray-700 mb-1">Ubicación</label>
-                <input type="text" id="ubicacion" name="ubicacion" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
             </div>
             <div class="flex justify-end space-x-3">
                 <button type="button" onclick="closeAddKilometrajeModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded text-sm">

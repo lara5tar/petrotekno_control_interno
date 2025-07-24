@@ -16,7 +16,61 @@ use Illuminate\Support\Facades\Hash;
 class PersonalManagementController extends Controller
 {
     /**
-     * Crear personal con documentos y usuario opcional
+     * Crear personal desde formulario web (sin archivos por ahora)
+     */
+    public function storeWeb(CreatePersonalRequest $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $validatedData = $request->validated();
+            
+            // Mapear campos del formulario web a los esperados por el controlador
+            $personalData = [
+                'nombre_completo' => $validatedData['nombre_completo'],
+                'estatus' => $validatedData['estatus'],
+                'categoria_id' => $validatedData['categoria_personal_id'], // El formulario usa categoria_personal_id
+            ];
+
+            // Crear el registro de personal
+            $personal = $this->createPersonal($personalData);
+
+            // Crear usuario si se solicita
+            $usuario = null;
+            if (isset($validatedData['crear_usuario']) && $validatedData['crear_usuario']) {
+                // Mapear datos del usuario
+                $userData = [
+                    'email' => $validatedData['email_usuario'], // El formulario usa email_usuario
+                    'rol_id' => 3, // Rol Operador por defecto para personal nuevo
+                    'crear_usuario' => true
+                ];
+                $usuario = $this->createPersonalUser($personal, $userData);
+            }
+
+            DB::commit();
+
+            // Redirigir con mensaje de éxito
+            $mensaje = 'Personal creado exitosamente';
+            if ($usuario) {
+                $mensaje .= '. Usuario creado con email: ' . $usuario->email;
+                // Mostrar contraseña temporal en el mensaje (solo para desarrollo)
+                $mensaje .= '. Contraseña temporal: ' . $usuario->getAttribute('password_temp');
+            }
+
+            return redirect()->route('personal.show', $personal->id)
+                ->with('success', $mensaje);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Error al crear el personal: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Crear personal con documentos y usuario opcional (API)
      */
     public function create(Request $request): JsonResponse
     {

@@ -96,7 +96,9 @@
                             <input type="checkbox" 
                                    id="crear_usuario" 
                                    name="crear_usuario" 
+                                   value="1"
                                    x-model="crearUsuario"
+                                   {{ old('crear_usuario') ? 'checked' : '' }}
                                    class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300 rounded" />
                             <label for="crear_usuario" class="ml-3 text-sm font-medium text-gray-700">
                                 Crear usuario del sistema para este personal
@@ -370,6 +372,11 @@
                 licencia: '',
                 comprobante: '',
                 cv: ''
+            },
+            
+            init() {
+                // Inicializar el estado del checkbox basado en old values
+                this.crearUsuario = document.getElementById('crear_usuario').checked;
             },
             
             handleFileInput(event, type) {

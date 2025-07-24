@@ -64,16 +64,7 @@
                     <option value="inactivo">Inactivo</option>
                 </select>
             </div>
-            <div class="flex-1 md:flex-none md:w-48">
-                <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                <select id="tipo" class="p-2 border border-gray-300 rounded-md w-full">
-                    <option value="">Todos</option>
-                    <option value="automovil">Automóvil</option>
-                    <option value="camioneta">Camioneta</option>
-                    <option value="camion">Camión</option>
-                    <option value="maquinaria">Maquinaria</option>
-                </select>
-            </div>
+
         </div>
     </div>
     
@@ -86,7 +77,7 @@
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Placa</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marca/Modelo</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Año</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Última Revisión</th>
@@ -99,7 +90,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">ABC-123</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Toyota Hilux</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2022</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Camioneta</td>
+
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
                         </td>
@@ -138,7 +129,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">XYZ-789</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Ford Ranger</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2021</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Camioneta</td>
+
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Mantenimiento</span>
                         </td>
@@ -177,7 +168,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">DEF-456</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Chevrolet Silverado</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Camioneta</td>
+
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
                         </td>
@@ -216,7 +207,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">GHI-789</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Caterpillar 320</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2020</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Maquinaria</td>
+
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Reparación</span>
                         </td>
@@ -255,7 +246,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">JKL-012</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Komatsu PC200</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2021</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Maquinaria</td>
+
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inactivo</span>
                         </td>

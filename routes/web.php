@@ -115,43 +115,35 @@ Route::middleware(['auth', 'permission:editar_vehiculos'])->put('/vehiculos/{id}
 
 // Rutas para Personal CRUD
 Route::middleware('auth')->prefix('personal')->name('personal.')->group(function () {
-    // Ruta para listar personal (datos estáticos)
-    Route::get('/', function () {
-        // Categorías estáticas
-        $categorias = collect([
-            (object) ['id' => 1, 'nombre_categoria' => 'Técnico Especializado'],
-            (object) ['id' => 2, 'nombre_categoria' => 'Operador'],
-            (object) ['id' => 3, 'nombre_categoria' => 'Supervisor'],
-            (object) ['id' => 4, 'nombre_categoria' => 'Administrador']
-        ]);
+    // Ruta para listar personal (datos reales de la base de datos)
+    Route::get('/', function (\Illuminate\Http\Request $request) {
+        // Obtener categorías reales de la base de datos
+        $categorias = \App\Models\CategoriaPersonal::orderBy('nombre_categoria')->get();
         
-        // Personal estático
-        $personal = collect([
-            (object) [
-                'id' => 1,
-                'nombre_completo' => 'Marco Delgado Reyes',
-                'estatus' => 'activo',
-                'categoria' => (object) ['nombre_categoria' => 'Técnico Especializado', 'descripcion' => 'Personal técnico especializado'],
-                'usuario' => null,
-                'created_at' => \Carbon\Carbon::now()->subDays(30)
-            ],
-            (object) [
-                'id' => 2,
-                'nombre_completo' => 'Ana García López',
-                'estatus' => 'activo',
-                'categoria' => (object) ['nombre_categoria' => 'Supervisor', 'descripcion' => 'Personal supervisor'],
-                'usuario' => (object) ['nombre_usuario' => 'ana.garcia', 'email' => 'ana.garcia@petrotekno.com'],
-                'created_at' => \Carbon\Carbon::now()->subDays(15)
-            ],
-            (object) [
-                'id' => 3,
-                'nombre_completo' => 'Carlos Rodríguez Morales',
-                'estatus' => 'inactivo',
-                'categoria' => (object) ['nombre_categoria' => 'Operador', 'descripcion' => 'Personal operador'],
-                'usuario' => null,
-                'created_at' => \Carbon\Carbon::now()->subDays(7)
-            ]
-        ]);
+        // Construir consulta para personal con filtros
+        $query = \App\Models\Personal::with('categoria', 'usuario');
+        
+        // Aplicar filtros si existen
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('nombre_completo', 'like', "%{$search}%")
+                    ->orWhereHas('categoria', function ($cq) use ($search) {
+                        $cq->where('nombre_categoria', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($request->has('categoria_id') && $request->input('categoria_id') !== '') {
+            $query->where('categoria_id', $request->input('categoria_id'));
+        }
+
+        if ($request->has('estatus') && $request->input('estatus') !== '') {
+            $query->where('estatus', $request->input('estatus'));
+        }
+        
+        // Paginar resultados
+        $personal = $query->orderBy('created_at', 'desc')->paginate(15);
         
         return view('personal.index', compact('personal', 'categorias'));
     })->name('index')->middleware('permission:ver_personal');
@@ -176,21 +168,10 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         return view('personal.create', compact('categorias', 'usuarios'));
     })->name('create')->middleware('permission:crear_personal');
 
-    // Ruta para guardar nuevo personal (simulada con datos estáticos)
-    Route::post('/', function (\Illuminate\Http\Request $request) {
-        // Simular validación básica sin tocar la base de datos
-        $request->validate([
-            'nombre_completo' => 'required|string|max:255',
-            'categoria_id' => 'required',
-            'estatus' => 'required|in:activo,inactivo'
-        ]);
-
-        // Simular ID del personal creado
-        $personalId = rand(1, 100);
-
-        return redirect()->route('personal.show', $personalId)
-            ->with('success', 'Personal creado exitosamente (simulación).');
-    })->name('store')->middleware('permission:crear_personal');
+    // Ruta para guardar nuevo personal
+    Route::post('/', [App\Http\Controllers\PersonalManagementController::class, 'storeWeb'])
+        ->name('store')
+        ->middleware('permission:crear_personal');
 
     // Ruta para mostrar detalles de un personal (datos estáticos) - CORREGIDO: Agregado middleware de permisos
     Route::get('/{id}', function ($id) {
