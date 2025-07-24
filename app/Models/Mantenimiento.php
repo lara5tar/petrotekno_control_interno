@@ -319,4 +319,41 @@ class Mantenimiento extends Model
             default => ucfirst($this->sistema_vehiculo)
         };
     }
+
+    // ===========================================
+    // MÉTODOS PARA SISTEMA DE ALERTAS
+    // ===========================================
+
+    /**
+     * Scope para filtrar por sistema específico
+     */
+    public function scopeBySistema(Builder $query, string $sistema): Builder
+    {
+        return $query->where('sistema_vehiculo', $sistema);
+    }
+
+    /**
+     * Scope para filtrar por vehículo y sistema
+     */
+    public function scopeByVehiculoYSistema(Builder $query, int $vehiculoId, string $sistema): Builder
+    {
+        return $query->where('vehiculo_id', $vehiculoId)
+                     ->where('sistema_vehiculo', $sistema);
+    }
+
+    /**
+     * Verificar si el mantenimiento es del sistema especificado
+     */
+    public function esDelSistema(string $sistema): bool
+    {
+        return $this->sistema_vehiculo === $sistema;
+    }
+
+    /**
+     * Obtener nombre del sistema formateado
+     */
+    public function getNombreSistemaFormateado(): string
+    {
+        return $this->sistema_vehiculo_formateado;
+    }
 }
