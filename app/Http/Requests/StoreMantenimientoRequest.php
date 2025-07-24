@@ -84,21 +84,21 @@ class StoreMantenimientoRequest extends FormRequest
                     // NUEVA LÓGICA: Permitir kilometraje mayor al actual (se actualizará automáticamente)
                     // Solo validar que no sea excesivamente mayor (diferencia máxima de 50,000 km)
                     $diferencia = $this->kilometraje_servicio - $vehiculo->kilometraje_actual;
-                    
+
                     if ($diferencia > 50000) {
                         $validator->errors()->add(
                             'kilometraje_servicio',
                             "El kilometraje de servicio ({$this->kilometraje_servicio}) parece excesivamente alto comparado con el kilometraje actual del vehículo ({$vehiculo->kilometraje_actual}). Diferencia: {$diferencia} km."
                         );
                     }
-                    
+
                     // Validar contra mantenimientos previos del mismo sistema
                     if ($this->filled('sistema_vehiculo') && $this->sistema_vehiculo !== 'general') {
                         $ultimoMantenimiento = \App\Models\Mantenimiento::where('vehiculo_id', $this->vehiculo_id)
                             ->where('sistema_vehiculo', $this->sistema_vehiculo)
                             ->orderBy('kilometraje_servicio', 'desc')
                             ->first();
-                            
+
                         if ($ultimoMantenimiento && $this->kilometraje_servicio < $ultimoMantenimiento->kilometraje_servicio) {
                             $validator->errors()->add(
                                 'kilometraje_servicio',

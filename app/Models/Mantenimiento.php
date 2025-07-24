@@ -311,7 +311,7 @@ class Mantenimiento extends Model
      */
     public function getSistemaVehiculoFormateadoAttribute(): string
     {
-        return match($this->sistema_vehiculo) {
+        return match ($this->sistema_vehiculo) {
             self::SISTEMA_MOTOR => 'Motor',
             self::SISTEMA_TRANSMISION => 'Transmisión',
             self::SISTEMA_HIDRAULICO => 'Hidráulico',

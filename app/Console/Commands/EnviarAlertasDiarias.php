@@ -32,40 +32,40 @@ class EnviarAlertasDiarias extends Command
     {
         try {
             $this->info('🚀 Iniciando proceso de alertas diarias de mantenimiento...');
-            
+
             // Verificar si están habilitados los recordatorios
             if (!$this->option('force') && !ConfiguracionAlertasService::debeEnviarRecordatorios()) {
                 $this->warn('❌ Recordatorios desactivados en configuración');
                 return Command::SUCCESS;
             }
-            
+
             // Verificar si hoy es día activo
             if (!$this->option('force') && !ConfiguracionAlertasService::esHoyDiaActivo()) {
                 $this->info('ℹ️  Hoy no es día activo para envío de alertas');
                 return Command::SUCCESS;
             }
-            
+
             // Obtener todas las alertas
             $this->info('🔍 Verificando alertas de mantenimiento...');
             $todasLasAlertas = AlertasMantenimientoService::verificarTodosLosVehiculos();
-            
+
             if (empty($todasLasAlertas)) {
                 $this->info('✅ No hay alertas de mantenimiento pendientes');
                 return Command::SUCCESS;
             }
-            
+
             // Mostrar resumen
             $resumen = AlertasMantenimientoService::obtenerResumen($todasLasAlertas);
             $this->mostrarResumen($resumen, $todasLasAlertas);
-            
+
             // Obtener emails de destino
             $emails = ConfiguracionAlertasService::getEmailsDestino();
-            
+
             if (empty($emails['to'])) {
                 $this->error('❌ No hay emails configurados para envío');
                 return Command::FAILURE;
             }
-            
+
             if ($this->option('dry-run')) {
                 $this->info('🧪 DRY RUN: No se enviarán emails reales');
                 $this->info('📧 Se enviarían a: ' . implode(', ', $emails['to']));
@@ -74,27 +74,26 @@ class EnviarAlertasDiarias extends Command
                 }
                 return Command::SUCCESS;
             }
-            
+
             // Generar y enviar reporte
             $this->info('📄 Generando reporte PDF...');
             $rutaPDF = $this->generarReportePDF($todasLasAlertas);
-            
+
             $this->info('📧 Enviando emails...');
             $this->enviarEmails($todasLasAlertas, $emails, $rutaPDF);
-            
+
             $this->info("✅ Proceso completado exitosamente");
             $this->info("📊 Total de alertas enviadas: {$resumen['total_alertas']}");
             $this->info("🚛 Vehículos afectados: {$resumen['vehiculos_afectados']}");
-            
+
             return Command::SUCCESS;
-            
         } catch (\Exception $e) {
             $this->error('❌ Error en proceso de alertas diarias: ' . $e->getMessage());
             Log::error('Error en comando EnviarAlertasDiarias', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return Command::FAILURE;
         }
     }
@@ -118,7 +117,7 @@ class EnviarAlertasDiarias extends Command
                 ['Hidráulico', $resumen['por_sistema']['Hidraulico']],
             ]
         );
-        
+
         // Mostrar alertas críticas
         $alertasCriticas = array_filter($alertas, fn($a) => $a['urgencia'] === 'critica');
         if (!empty($alertasCriticas)) {
@@ -137,18 +136,18 @@ class EnviarAlertasDiarias extends Command
         // Por ahora simular la generación del PDF
         $filename = 'alertas-mantenimiento-' . now()->format('Y-m-d') . '.pdf';
         $rutaCompleta = storage_path('app/reportes/' . $filename);
-        
+
         // Crear directorio si no existe
         $directorioReportes = storage_path('app/reportes');
         if (!is_dir($directorioReportes)) {
             mkdir($directorioReportes, 0755, true);
         }
-        
+
         // Por ahora crear un archivo de texto como placeholder
         $contenido = "REPORTE DE ALERTAS DE MANTENIMIENTO\n";
         $contenido .= "Fecha: " . now()->format('d/m/Y H:i:s') . "\n";
         $contenido .= "Total de alertas: " . count($alertas) . "\n\n";
-        
+
         foreach ($alertas as $alerta) {
             $contenido .= "Vehículo: {$alerta['vehiculo_info']['nombre_completo']}\n";
             $contenido .= "Sistema: {$alerta['sistema']}\n";
@@ -157,11 +156,11 @@ class EnviarAlertasDiarias extends Command
             $contenido .= "Urgencia: {$alerta['urgencia']}\n";
             $contenido .= "---\n";
         }
-        
+
         file_put_contents($rutaCompleta, $contenido);
-        
+
         $this->info("📄 Reporte generado: {$rutaCompleta}");
-        
+
         return $rutaCompleta;
     }
 
@@ -173,19 +172,19 @@ class EnviarAlertasDiarias extends Command
         // Por ahora simular el envío
         $this->info('📧 Simulando envío de email...');
         $this->info("   📧 TO: " . implode(', ', $emails['to']));
-        
+
         if (!empty($emails['cc'])) {
             $this->info("   📧 CC: " . implode(', ', $emails['cc']));
         }
-        
+
         $this->info("   📎 Adjunto: " . basename($rutaPDF));
         $this->info("   📄 Contenido: " . count($alertas) . " alertas de mantenimiento");
-        
+
         // TODO: Implementar envío real cuando tengamos los templates
         // Mail::to($emails['to'])
         //     ->cc($emails['cc'])
         //     ->send(new AlertasDiariasMantenimiento($alertas, $rutaPDF));
-        
+
         Log::info('Alertas diarias enviadas (simulación)', [
             'num_alertas' => count($alertas),
             'emails_to' => $emails['to'],

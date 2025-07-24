@@ -42,29 +42,30 @@ class RecalcularAlertasVehiculo implements ShouldQueue
                 'trigger' => $this->trigger,
                 'usuario_id' => $this->usuarioId
             ]);
-            
+
             // Verificar alertas actuales
             $alertas = AlertasMantenimientoService::verificarVehiculo($this->vehiculoId);
-            
+
             if (empty($alertas)) {
                 Log::info('No se encontraron alertas para el vehículo', [
                     'vehiculo_id' => $this->vehiculoId
                 ]);
                 return;
             }
-            
+
             // Verificar si debe enviar alertas inmediatas
-            if (ConfiguracionAlertasService::debeEnviarAlertaInmediata() && 
-                $this->debeEnviarAlertaInmediata()) {
-                
+            if (
+                ConfiguracionAlertasService::debeEnviarAlertaInmediata() &&
+                $this->debeEnviarAlertaInmediata()
+            ) {
+
                 $this->enviarAlertaInmediata($alertas);
             }
-            
+
             Log::info('Recálculo de alertas completado exitosamente', [
                 'vehiculo_id' => $this->vehiculoId,
                 'alertas_encontradas' => count($alertas)
             ]);
-            
         } catch (\Exception $e) {
             Log::error('Error en recálculo de alertas', [
                 'vehiculo_id' => $this->vehiculoId,
@@ -72,7 +73,7 @@ class RecalcularAlertasVehiculo implements ShouldQueue
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             // Re-lanzar excepción para que el job falle y se reintente
             throw $e;
         }
@@ -83,7 +84,7 @@ class RecalcularAlertasVehiculo implements ShouldQueue
      */
     private function determinarCola(string $trigger): string
     {
-        return match(true) {
+        return match (true) {
             str_contains($trigger, 'mantenimiento_created') => 'alerts-high',
             str_contains($trigger, 'kilometraje') => 'alerts-medium',
             default => 'alerts-low'
@@ -96,14 +97,14 @@ class RecalcularAlertasVehiculo implements ShouldQueue
     private function debeEnviarAlertaInmediata(): bool
     {
         $cooldownHoras = ConfiguracionAlertasService::getCooldownHoras();
-        
+
         // Verificar si ya se enviaron alertas recientes para este vehículo
         $ultimaAlerta = LogAccion::where('accion', 'alerta_mantenimiento_enviada')
             ->where('tabla_afectada', 'vehiculos')
             ->where('registro_id', $this->vehiculoId)
             ->where('created_at', '>=', now()->subHours($cooldownHoras))
             ->first();
-            
+
         if ($ultimaAlerta) {
             Log::info('Alerta omitida por cooldown', [
                 'vehiculo_id' => $this->vehiculoId,
@@ -112,7 +113,7 @@ class RecalcularAlertasVehiculo implements ShouldQueue
             ]);
             return false;
         }
-        
+
         return true;
     }
 
@@ -123,12 +124,12 @@ class RecalcularAlertasVehiculo implements ShouldQueue
     {
         try {
             $emails = ConfiguracionAlertasService::getEmailsDestino();
-            
+
             if (empty($emails['to'])) {
                 Log::warning('No hay emails configurados para enviar alertas');
                 return;
             }
-            
+
             // Enviar email inmediato (por ahora simular)
             Log::info('Enviando alerta inmediata', [
                 'vehiculo_id' => $this->vehiculoId,
@@ -136,12 +137,12 @@ class RecalcularAlertasVehiculo implements ShouldQueue
                 'emails_cc' => $emails['cc'],
                 'num_alertas' => count($alertas)
             ]);
-            
+
             // TODO: Implementar Mail::send cuando tengamos el template
             // Mail::to($emails['to'])
             //     ->cc($emails['cc'])
             //     ->send(new AlertaInmediataMantenimiento($alertas, $this->trigger));
-            
+
             // Registrar en log de acciones
             LogAccion::create([
                 'usuario_id' => $this->usuarioId ?? 1, // Sistema
@@ -155,13 +156,12 @@ class RecalcularAlertasVehiculo implements ShouldQueue
                     'emails_enviados' => $emails['to']
                 ])
             ]);
-            
         } catch (\Exception $e) {
             Log::error('Error enviando alerta inmediata', [
                 'vehiculo_id' => $this->vehiculoId,
                 'error' => $e->getMessage()
             ]);
-            
+
             // No relanzar excepción para que el job no falle por problemas de email
         }
     }

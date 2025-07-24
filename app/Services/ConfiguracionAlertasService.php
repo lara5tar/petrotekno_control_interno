@@ -13,17 +13,17 @@ class ConfiguracionAlertasService
     public static function get(string $tipo, string $clave, $default = null)
     {
         $cacheKey = "config_alerta_{$tipo}_{$clave}";
-        
+
         return Cache::remember($cacheKey, 300, function () use ($tipo, $clave, $default) {
             $config = ConfiguracionAlerta::tipo($tipo)
                 ->clave($clave)
                 ->activo()
                 ->first();
-                
+
             return $config ? $config->valor : $default;
         });
     }
-    
+
     /**
      * Obtener emails de destino
      */
@@ -31,13 +31,13 @@ class ConfiguracionAlertasService
     {
         $principales = self::get('destinatarios', 'emails_principales', []);
         $copia = self::get('destinatarios', 'emails_copia', []);
-        
+
         return [
             'to' => is_array($principales) ? $principales : [$principales],
             'cc' => is_array($copia) ? $copia : ($copia ? [$copia] : [])
         ];
     }
-    
+
     /**
      * Verificar si debe enviar alerta inmediata
      */
@@ -45,7 +45,7 @@ class ConfiguracionAlertasService
     {
         return self::get('general', 'alerta_inmediata', true);
     }
-    
+
     /**
      * Verificar si debe enviar recordatorios
      */
@@ -53,7 +53,7 @@ class ConfiguracionAlertasService
     {
         return self::get('general', 'recordatorios_activos', true);
     }
-    
+
     /**
      * Obtener hora de envío diario
      */
@@ -61,7 +61,7 @@ class ConfiguracionAlertasService
     {
         return self::get('horarios', 'hora_envio_diario', '08:00');
     }
-    
+
     /**
      * Obtener días activos para envío
      */
@@ -69,7 +69,7 @@ class ConfiguracionAlertasService
     {
         return self::get('horarios', 'dias_semana', ['lunes', 'martes', 'miercoles', 'jueves', 'viernes']);
     }
-    
+
     /**
      * Obtener cooldown en horas
      */
@@ -77,7 +77,7 @@ class ConfiguracionAlertasService
     {
         return (int) self::get('general', 'cooldown_horas', 4);
     }
-    
+
     /**
      * Verificar si hoy es día activo para envío
      */
@@ -85,10 +85,10 @@ class ConfiguracionAlertasService
     {
         $diasActivos = self::getDiasActivosEnvio();
         $hoy = strtolower(now()->locale('es')->translatedFormat('l'));
-        
+
         return in_array($hoy, $diasActivos);
     }
-    
+
     /**
      * Actualizar configuración
      */
@@ -99,7 +99,7 @@ class ConfiguracionAlertasService
             if (is_array($valor)) {
                 $valor = json_encode($valor);
             }
-            
+
             ConfiguracionAlerta::updateOrCreate(
                 [
                     'tipo_config' => $tipo,
@@ -111,10 +111,10 @@ class ConfiguracionAlertasService
                     'activo' => true
                 ]
             );
-            
+
             // Limpiar caché
             Cache::forget("config_alerta_{$tipo}_{$clave}");
-            
+
             return true;
         } catch (\Exception $e) {
             \Log::error('Error actualizando configuración de alertas', [
@@ -122,18 +122,18 @@ class ConfiguracionAlertasService
                 'clave' => $clave,
                 'error' => $e->getMessage()
             ]);
-            
+
             return false;
         }
     }
-    
+
     /**
      * Obtener todas las configuraciones agrupadas por tipo
      */
     public static function obtenerTodas(): array
     {
         $configuraciones = ConfiguracionAlerta::activo()->get()->groupBy('tipo_config');
-        
+
         $resultado = [];
         foreach ($configuraciones as $tipo => $configs) {
             $resultado[$tipo] = [];
@@ -144,7 +144,7 @@ class ConfiguracionAlertasService
                 ];
             }
         }
-        
+
         return $resultado;
     }
 }

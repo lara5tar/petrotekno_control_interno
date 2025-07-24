@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::table('mantenimientos', function (Blueprint $table) {
             $table->enum('sistema_vehiculo', ['motor', 'transmision', 'hidraulico', 'general'])
-                  ->default('general')
-                  ->after('tipo_servicio')
-                  ->comment('Sistema del vehículo al que corresponde el mantenimiento');
+                ->default('general')
+                ->after('tipo_servicio')
+                ->comment('Sistema del vehículo al que corresponde el mantenimiento');
         });
     }
 

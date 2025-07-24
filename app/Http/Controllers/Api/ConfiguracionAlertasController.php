@@ -19,18 +19,17 @@ class ConfiguracionAlertasController extends Controller
     {
         try {
             $configuraciones = ConfiguracionAlertasService::obtenerTodas();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Configuraciones obtenidas exitosamente',
                 'data' => $configuraciones
             ]);
-            
         } catch (\Exception $e) {
             Log::error('Error obteniendo configuraciones de alertas', [
                 'error' => $e->getMessage()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener configuraciones',
@@ -60,11 +59,11 @@ class ConfiguracionAlertasController extends Controller
 
         try {
             $configuraciones = $validator->validated();
-            
+
             foreach ($configuraciones as $clave => $valor) {
                 ConfiguracionAlertasService::actualizar(
-                    'general', 
-                    $clave, 
+                    'general',
+                    $clave,
                     $valor ? 'true' : 'false',
                     $this->getDescripcionConfig('general', $clave)
                 );
@@ -74,13 +73,12 @@ class ConfiguracionAlertasController extends Controller
                 'success' => true,
                 'message' => 'Configuraciones generales actualizadas exitosamente'
             ]);
-            
         } catch (\Exception $e) {
             Log::error('Error actualizando configuraciones generales', [
                 'error' => $e->getMessage(),
                 'data' => $request->all()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar configuraciones generales',
@@ -110,17 +108,17 @@ class ConfiguracionAlertasController extends Controller
 
         try {
             $configuraciones = $validator->validated();
-            
+
             ConfiguracionAlertasService::actualizar(
-                'horarios', 
-                'hora_envio_diario', 
+                'horarios',
+                'hora_envio_diario',
                 $configuraciones['hora_envio_diario'],
                 'Hora del día para envío de recordatorios'
             );
-            
+
             ConfiguracionAlertasService::actualizar(
-                'horarios', 
-                'dias_semana', 
+                'horarios',
+                'dias_semana',
                 $configuraciones['dias_semana'],
                 'Días de la semana para enviar alertas'
             );
@@ -129,13 +127,12 @@ class ConfiguracionAlertasController extends Controller
                 'success' => true,
                 'message' => 'Configuraciones de horarios actualizadas exitosamente'
             ]);
-            
         } catch (\Exception $e) {
             Log::error('Error actualizando configuraciones de horarios', [
                 'error' => $e->getMessage(),
                 'data' => $request->all()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar configuraciones de horarios',
@@ -166,17 +163,17 @@ class ConfiguracionAlertasController extends Controller
 
         try {
             $configuraciones = $validator->validated();
-            
+
             ConfiguracionAlertasService::actualizar(
-                'destinatarios', 
-                'emails_principales', 
+                'destinatarios',
+                'emails_principales',
                 $configuraciones['emails_principales'],
                 'Lista de emails principales para alertas'
             );
-            
+
             ConfiguracionAlertasService::actualizar(
-                'destinatarios', 
-                'emails_copia', 
+                'destinatarios',
+                'emails_copia',
                 $configuraciones['emails_copia'] ?? [],
                 'Lista de emails en copia para alertas'
             );
@@ -185,13 +182,12 @@ class ConfiguracionAlertasController extends Controller
                 'success' => true,
                 'message' => 'Configuraciones de destinatarios actualizadas exitosamente'
             ]);
-            
         } catch (\Exception $e) {
             Log::error('Error actualizando configuraciones de destinatarios', [
                 'error' => $e->getMessage(),
                 'data' => $request->all()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar configuraciones de destinatarios',
@@ -208,7 +204,7 @@ class ConfiguracionAlertasController extends Controller
         try {
             $alertas = AlertasMantenimientoService::verificarTodosLosVehiculos();
             $resumen = AlertasMantenimientoService::obtenerResumen($alertas);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Resumen de alertas obtenido exitosamente',
@@ -217,12 +213,11 @@ class ConfiguracionAlertasController extends Controller
                     'alertas' => $alertas
                 ]
             ]);
-            
         } catch (\Exception $e) {
             Log::error('Error obteniendo resumen de alertas', [
                 'error' => $e->getMessage()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener resumen de alertas',
@@ -239,7 +234,7 @@ class ConfiguracionAlertasController extends Controller
         try {
             $alertas = AlertasMantenimientoService::verificarTodosLosVehiculos();
             $emails = ConfiguracionAlertasService::getEmailsDestino();
-            
+
             if (empty($alertas)) {
                 return response()->json([
                     'success' => true,
@@ -250,7 +245,7 @@ class ConfiguracionAlertasController extends Controller
                     ]
                 ]);
             }
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Simulación de envío completada',
@@ -261,12 +256,11 @@ class ConfiguracionAlertasController extends Controller
                     'alertas_preview' => array_slice($alertas, 0, 5) // Primeras 5 alertas
                 ]
             ]);
-            
         } catch (\Exception $e) {
             Log::error('Error en prueba de envío de alertas', [
                 'error' => $e->getMessage()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error en la prueba de envío',
@@ -295,7 +289,7 @@ class ConfiguracionAlertasController extends Controller
                 'emails_copia' => 'Lista de emails en copia para alertas'
             ]
         ];
-        
+
         return $descripciones[$tipo][$clave] ?? 'Configuración de alertas';
     }
 }

@@ -36,7 +36,7 @@ class ConfiguracionAlertasSeeder extends Seeder
                 'descripcion' => 'Horas de espera entre alertas del mismo vehículo',
                 'activo' => true
             ],
-            
+
             // Configuraciones de horarios
             [
                 'tipo_config' => 'horarios',
@@ -52,7 +52,7 @@ class ConfiguracionAlertasSeeder extends Seeder
                 'descripcion' => 'Días de la semana para enviar alertas',
                 'activo' => true
             ],
-            
+
             // Configuraciones de destinatarios
             [
                 'tipo_config' => 'destinatarios',
