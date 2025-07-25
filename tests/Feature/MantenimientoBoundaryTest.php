@@ -42,6 +42,8 @@ class MantenimientoBoundaryTest extends TestCase
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
             'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => 'Proveedor Test',
             'descripcion' => 'Descripción Test',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -70,6 +72,7 @@ class MantenimientoBoundaryTest extends TestCase
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
             'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => 'Proveedor Hoy',
             'descripcion' => 'Mantenimiento de hoy',
             'fecha_inicio' => $fechaHoy->format('Y-m-d'),
@@ -92,6 +95,7 @@ class MantenimientoBoundaryTest extends TestCase
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
                 'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Fecha $fecha",
                 'descripcion' => "Mantenimiento Fecha $fecha",
                 'fecha_inicio' => $fecha,
@@ -119,6 +123,7 @@ class MantenimientoBoundaryTest extends TestCase
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
                 'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Inválido $fecha",
                 'descripcion' => "Mantenimiento Inválido $fecha",
                 'fecha_inicio' => $fecha,
@@ -149,6 +154,7 @@ class MantenimientoBoundaryTest extends TestCase
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
                 'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Km $kilometraje",
                 'descripcion' => "Mantenimiento Km $kilometraje",
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -167,6 +173,7 @@ class MantenimientoBoundaryTest extends TestCase
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
                 'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Inválido $kilometraje",
                 'descripcion' => "Mantenimiento Inválido $kilometraje",
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -188,6 +195,7 @@ class MantenimientoBoundaryTest extends TestCase
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
                 'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Decimal $kilometraje",
                 'descripcion' => "Mantenimiento Decimal $kilometraje",
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -215,6 +223,7 @@ class MantenimientoBoundaryTest extends TestCase
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
                 'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Costo $costo",
                 'descripcion' => "Mantenimiento Costo $costo",
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -233,6 +242,7 @@ class MantenimientoBoundaryTest extends TestCase
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
                 'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Inválido $costo",
                 'descripcion' => "Mantenimiento Inválido $costo",
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -254,6 +264,7 @@ class MantenimientoBoundaryTest extends TestCase
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
                 'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Decimal $costo",
                 'descripcion' => "Mantenimiento Decimal $costo",
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -285,6 +296,7 @@ class MantenimientoBoundaryTest extends TestCase
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
             'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => $proveedorLimite,
             'descripcion' => 'Descripción Test',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -300,6 +312,7 @@ class MantenimientoBoundaryTest extends TestCase
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
             'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => 'Proveedor Test',
             'descripcion' => $descripcionLarga,
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -315,6 +328,7 @@ class MantenimientoBoundaryTest extends TestCase
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
             'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => $proveedorExcesivo,
             'descripcion' => 'Descripción Test',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -328,11 +342,12 @@ class MantenimientoBoundaryTest extends TestCase
             'Proveedor over 255 characters should be rejected'
         );
 
-        // Test: Descripción extremadamente larga (100000+ caracteres)
-        $descripcionExtrema = str_repeat('D', 100000);
+        // Test: Descripción muy larga (1001+ caracteres - excede max:1000)
+        $descripcionExtrema = str_repeat('D', 1001);
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
             'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => 'Proveedor Test',
             'descripcion' => $descripcionExtrema,
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -350,6 +365,7 @@ class MantenimientoBoundaryTest extends TestCase
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
             'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => '',
             'descripcion' => '',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -365,6 +381,7 @@ class MantenimientoBoundaryTest extends TestCase
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
             'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => '   ',
             'descripcion' => '   ',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -399,6 +416,7 @@ class MantenimientoBoundaryTest extends TestCase
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
                 'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => $proveedor,
                 'descripcion' => "Descripción especial: $proveedor",
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -574,6 +592,7 @@ class MantenimientoBoundaryTest extends TestCase
             $responses[] = $this->putJson("/api/mantenimientos/{$mantenimiento->id}", [
                 'vehiculo_id' => $vehiculo->id,
                 'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Actualizado $i",
                 'descripcion' => "Descripción Actualizada $i",
                 'fecha_inicio' => $mantenimiento->fecha_inicio,

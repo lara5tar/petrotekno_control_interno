@@ -13,9 +13,38 @@
 
 ### **CRÍTICO: Actualizar Formularios de Mantenimiento Existentes**
 
-Los formularios `resources/views/mantenimientos/create.blade.php` y `edit.blade.php` **REQUIEREN** agregar el nuevo campo obligatorio `sistema_vehiculo`.
+Los formularios `resources/views/mantenimientos/create.blade.php` y `edit.blade.php` **REQUIEREN** actualizar el campo `tipo_servicio` y agregar el nuevo campo obligatorio `sistema_vehiculo`.
 
-#### **Código a Agregar Después del Campo "Tipo de Servicio":**
+#### **Campo Tipo de Servicio (ACTUALIZADO):**
+
+```blade
+<!-- Tipo de Servicio - ENUM CORREGIDO -->
+<div class="form-group row">
+    <label for="tipo_servicio" class="col-md-4 col-form-label text-md-right">
+        Tipo de Servicio <span class="text-danger">*</span>
+    </label>
+    <div class="col-md-6">
+        <select id="tipo_servicio" 
+                class="form-control @error('tipo_servicio') is-invalid @enderror" 
+                name="tipo_servicio" required>
+            <option value="">Seleccione el tipo de servicio</option>
+            <option value="CORRECTIVO" {{ old('tipo_servicio', $mantenimiento->tipo_servicio ?? '') == 'CORRECTIVO' ? 'selected' : '' }}>
+                🔧 Mantenimiento Correctivo
+            </option>
+            <option value="PREVENTIVO" {{ old('tipo_servicio', $mantenimiento->tipo_servicio ?? '') == 'PREVENTIVO' ? 'selected' : '' }}>
+                🛠️ Mantenimiento Preventivo
+            </option>
+        </select>
+        @error('tipo_servicio')
+            <span class="invalid-feedback" role="alert">
+                <strong>{{ $message }}</strong>
+            </span>
+        @enderror
+    </div>
+</div>
+```
+
+#### **Campo Sistema del Vehículo (NUEVO CAMPO OBLIGATORIO):**
 
 ```blade
 <!-- Sistema del Vehículo - NUEVO CAMPO OBLIGATORIO -->
@@ -421,6 +450,8 @@ tail -f storage/logs/laravel.log
 ## 📋 **CHECKLIST DE IMPLEMENTACIÓN**
 
 ### **✅ Paso 1: Formularios Existentes (CRÍTICO)**
+- [ ] **Actualizar campo `tipo_servicio` en `create.blade.php` (usar enum)**
+- [ ] **Actualizar campo `tipo_servicio` en `edit.blade.php` (usar enum)**
 - [ ] Agregar campo `sistema_vehiculo` en `create.blade.php`
 - [ ] Agregar campo `sistema_vehiculo` en `edit.blade.php`
 - [ ] Probar formularios actualizados
@@ -462,8 +493,38 @@ tail -f storage/logs/laravel.log
 - ✅ **Tests unitarios y de integración pasando**
 
 ### 🚧 **PENDIENTE (Solo Frontend):**
-- 🔧 **Agregar campo en formularios de mantenimiento**
+- 🔧 **Actualizar campos en formularios de mantenimiento (tipo_servicio + sistema_vehiculo)**
 - 📊 **Crear páginas de dashboard y configuración**
+
+---
+
+## 🔄 **ACTUALIZACIONES RECIENTES**
+
+### **📅 2025-01-24 - Correcciones de Validación**
+
+#### **✅ Problema Resuelto: Campo tipo_servicio**
+- **Situación**: El sistema cambió de `tipo_servicio_id` (foreign key) a `tipo_servicio` (enum)
+- **Solución**: Actualizadas todas las validaciones y tests
+- **Resultado**: Todos los tests pasan (23/23) ✅
+
+#### **🔧 Cambios Aplicados:**
+1. **StoreMantenimientoRequest**: Validación corregida para enum
+2. **Tests**: Datos de prueba actualizados 
+3. **Documentación**: Formularios Blade actualizados
+
+#### **📋 Enum Valores Válidos:**
+```php
+'tipo_servicio' => 'CORRECTIVO' | 'PREVENTIVO'
+```
+
+#### **🧪 Tests Verificados:**
+```bash
+✓ store mantenimiento request validates sistema vehiculo    
+✓ store mantenimiento request validates kilometraje coherente
+✓ Todos los 23 tests del sistema de alertas pasando
+```
+
+**📖 Ver detalles completos en**: `docs/SISTEMA_ALERTAS_VALIDATION_CORRECTIONS.md`
 - 🛣️ **Configurar rutas y controlador Blade**
 - 📱 **Actualizar navegación y menús**
 

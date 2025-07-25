@@ -16,7 +16,9 @@ class EnviarAlertasDiarias extends Command
      */
     protected $signature = 'alertas:enviar-diarias 
                             {--force : Forzar envío independientemente de la configuración}
-                            {--dry-run : Simular envío sin enviar emails}';
+                            {--dry-run : Simular envío sin enviar emails}
+                            {--send-real : Enviar correos reales (sobrescribe dry-run)}
+                            {--email= : Enviar solo a este email específico (test)}';
 
     /**
      * The console command description.
@@ -33,6 +35,10 @@ class EnviarAlertasDiarias extends Command
         try {
             $this->info('🚀 Iniciando proceso de alertas diarias de mantenimiento...');
 
+            if ($this->option('force')) {
+                $this->warn('⚡ MODO FORZADO - Ignorando configuración de días/horarios');
+            }
+
             // Verificar si están habilitados los recordatorios
             if (!$this->option('force') && !ConfiguracionAlertasService::debeEnviarRecordatorios()) {
                 $this->warn('❌ Recordatorios desactivados en configuración');
@@ -47,7 +53,8 @@ class EnviarAlertasDiarias extends Command
 
             // Obtener todas las alertas
             $this->info('🔍 Verificando alertas de mantenimiento...');
-            $todasLasAlertas = AlertasMantenimientoService::verificarTodosLosVehiculos();
+            $resultado = AlertasMantenimientoService::verificarTodosLosVehiculos();
+            $todasLasAlertas = $resultado['alertas'];
 
             if (empty($todasLasAlertas)) {
                 $this->info('✅ No hay alertas de mantenimiento pendientes');
@@ -55,7 +62,7 @@ class EnviarAlertasDiarias extends Command
             }
 
             // Mostrar resumen
-            $resumen = AlertasMantenimientoService::obtenerResumen($todasLasAlertas);
+            $resumen = $resultado['resumen'];
             $this->mostrarResumen($resumen, $todasLasAlertas);
 
             // Obtener emails de destino
@@ -67,7 +74,7 @@ class EnviarAlertasDiarias extends Command
             }
 
             if ($this->option('dry-run')) {
-                $this->info('🧪 DRY RUN: No se enviarán emails reales');
+                $this->info('🔍 MODO SIMULACIÓN - No se enviarán emails reales');
                 $this->info('📧 Se enviarían a: ' . implode(', ', $emails['to']));
                 if (!empty($emails['cc'])) {
                     $this->info('📧 CC: ' . implode(', ', $emails['cc']));
@@ -169,27 +176,73 @@ class EnviarAlertasDiarias extends Command
      */
     private function enviarEmails(array $alertas, array $emails, string $rutaPDF): void
     {
-        // Por ahora simular el envío
-        $this->info('📧 Simulando envío de email...');
-        $this->info("   📧 TO: " . implode(', ', $emails['to']));
+        $sendReal = $this->option('send-real');
+        $emailEspecifico = $this->option('email');
 
-        if (!empty($emails['cc'])) {
-            $this->info("   📧 CC: " . implode(', ', $emails['cc']));
+        if ($this->option('dry-run') && !$sendReal) {
+            $this->info('🔍 MODO SIMULACIÓN - No se enviarán emails reales');
+        }
+
+        if ($sendReal || $emailEspecifico) {
+            $this->info('📧 Enviando correos reales...');
+
+            // Importar el Job
+            $jobClass = \App\Jobs\EnviarAlertaMantenimiento::class;
+
+            // Determinar destinatarios
+            $destinatarios = [];
+            if ($emailEspecifico) {
+                $destinatarios = [$emailEspecifico];
+                $this->info("   📧 Destinatario específico: $emailEspecifico");
+            } else {
+                $destinatarios = array_merge($emails['to'], $emails['cc'] ?? []);
+                $this->info("   📧 TO: " . implode(', ', $emails['to']));
+                if (!empty($emails['cc'])) {
+                    $this->info("   📧 CC: " . implode(', ', $emails['cc']));
+                }
+            }
+
+            try {
+                // Crear job para envío real
+                $esTest = (bool) $emailEspecifico;
+                $job = new $jobClass($esTest, $destinatarios);
+
+                // Ejecutar síncronamente para ver resultado inmediato
+                $job->handle();
+
+                $this->info("✅ Correo(s) enviado(s) exitosamente");
+
+                Log::info('Alertas diarias enviadas', [
+                    'num_alertas' => count($alertas),
+                    'destinatarios' => $destinatarios,
+                    'es_test' => $esTest,
+                    'comando' => 'alertas:enviar-diarias',
+                ]);
+            } catch (\Exception $e) {
+                $this->error("❌ Error al enviar correos: " . $e->getMessage());
+                Log::error('Error enviando alertas diarias', [
+                    'error' => $e->getMessage(),
+                    'destinatarios' => $destinatarios,
+                ]);
+                throw $e;
+            }
+        } else {
+            $this->info('📧 Simulando envío de email...');
+            $this->info("   📧 TO: " . implode(', ', $emails['to']));
+
+            if (!empty($emails['cc'])) {
+                $this->info("   📧 CC: " . implode(', ', $emails['cc']));
+            }
+
+            Log::info('Alertas diarias enviadas (simulación)', [
+                'num_alertas' => count($alertas),
+                'emails_to' => $emails['to'],
+                'emails_cc' => $emails['cc'],
+                'archivo_pdf' => $rutaPDF
+            ]);
         }
 
         $this->info("   📎 Adjunto: " . basename($rutaPDF));
         $this->info("   📄 Contenido: " . count($alertas) . " alertas de mantenimiento");
-
-        // TODO: Implementar envío real cuando tengamos los templates
-        // Mail::to($emails['to'])
-        //     ->cc($emails['cc'])
-        //     ->send(new AlertasDiariasMantenimiento($alertas, $rutaPDF));
-
-        Log::info('Alertas diarias enviadas (simulación)', [
-            'num_alertas' => count($alertas),
-            'emails_to' => $emails['to'],
-            'emails_cc' => $emails['cc'],
-            'archivo_pdf' => $rutaPDF
-        ]);
     }
 }

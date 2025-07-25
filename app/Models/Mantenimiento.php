@@ -338,7 +338,7 @@ class Mantenimiento extends Model
     public function scopeByVehiculoYSistema(Builder $query, int $vehiculoId, string $sistema): Builder
     {
         return $query->where('vehiculo_id', $vehiculoId)
-                     ->where('sistema_vehiculo', $sistema);
+            ->where('sistema_vehiculo', $sistema);
     }
 
     /**

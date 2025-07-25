@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ConfiguracionDestinatariosRequest;
 use App\Services\AlertasMantenimientoService;
 use App\Services\ConfiguracionAlertasService;
 use Illuminate\Http\JsonResponse;
@@ -71,7 +72,8 @@ class ConfiguracionAlertasController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Configuraciones generales actualizadas exitosamente'
+                'message' => 'Configuraciones generales actualizadas exitosamente',
+                'data' => $configuraciones
             ]);
         } catch (\Exception $e) {
             Log::error('Error actualizando configuraciones generales', [
@@ -144,54 +146,73 @@ class ConfiguracionAlertasController extends Controller
     /**
      * Actualizar configuraciones de destinatarios
      */
-    public function updateDestinatarios(Request $request): JsonResponse
+    public function updateDestinatarios(ConfiguracionDestinatariosRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'emails_principales' => 'required|array|min:1',
-            'emails_principales.*' => 'email',
-            'emails_copia' => 'nullable|array',
-            'emails_copia.*' => 'email',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Datos de validación incorrectos',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         try {
-            $configuraciones = $validator->validated();
+            $configuraciones = $request->validated();
 
+            // Actualizar emails principales
             ConfiguracionAlertasService::actualizar(
                 'destinatarios',
                 'emails_principales',
                 $configuraciones['emails_principales'],
-                'Lista de emails principales para alertas'
+                'Lista de emails principales para alertas de mantenimiento'
             );
 
+            // Actualizar emails de copia (puede ser vacío)
             ConfiguracionAlertasService::actualizar(
                 'destinatarios',
                 'emails_copia',
                 $configuraciones['emails_copia'] ?? [],
-                'Lista de emails en copia para alertas'
+                'Lista de emails en copia para alertas de mantenimiento'
             );
+
+            // Opcional: configuraciones adicionales
+            if (isset($configuraciones['notificar_inmediato'])) {
+                ConfiguracionAlertasService::actualizar(
+                    'destinatarios',
+                    'notificar_inmediato',
+                    $configuraciones['notificar_inmediato'],
+                    'Notificar inmediatamente a estos destinatarios'
+                );
+            }
+
+            if (isset($configuraciones['incluir_en_copia_diaria'])) {
+                ConfiguracionAlertasService::actualizar(
+                    'destinatarios',
+                    'incluir_en_copia_diaria',
+                    $configuraciones['incluir_en_copia_diaria'],
+                    'Incluir en el reporte diario automático'
+                );
+            }
+
+            Log::info('Configuración de destinatarios actualizada', [
+                'emails_principales_count' => count($configuraciones['emails_principales']),
+                'emails_copia_count' => count($configuraciones['emails_copia'] ?? []),
+                'user_id' => auth('sanctum')->id() ?? 'system',
+            ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Configuraciones de destinatarios actualizadas exitosamente'
+                'message' => 'Configuraciones de destinatarios actualizadas exitosamente',
+                'data' => [
+                    'emails_principales' => $configuraciones['emails_principales'],
+                    'emails_copia' => $configuraciones['emails_copia'] ?? [],
+                    'total_destinatarios' => count($configuraciones['emails_principales']) + count($configuraciones['emails_copia'] ?? []),
+                    'fecha_actualizacion' => now()->toISOString(),
+                ]
             ]);
         } catch (\Exception $e) {
             Log::error('Error actualizando configuraciones de destinatarios', [
                 'error' => $e->getMessage(),
-                'data' => $request->all()
+                'data' => $request->validated(),
+                'user_id' => auth('sanctum')->id() ?? 'system',
             ]);
 
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar configuraciones de destinatarios',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Error interno del servidor'
             ], 500);
         }
     }
@@ -202,15 +223,14 @@ class ConfiguracionAlertasController extends Controller
     public function resumenAlertas(): JsonResponse
     {
         try {
-            $alertas = AlertasMantenimientoService::verificarTodosLosVehiculos();
-            $resumen = AlertasMantenimientoService::obtenerResumen($alertas);
+            $resultado = AlertasMantenimientoService::verificarTodosLosVehiculos();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Resumen de alertas obtenido exitosamente',
                 'data' => [
-                    'resumen' => $resumen,
-                    'alertas' => $alertas
+                    'resumen' => $resultado['resumen'],
+                    'alertas' => $resultado['alertas']
                 ]
             ]);
         } catch (\Exception $e) {
@@ -229,10 +249,23 @@ class ConfiguracionAlertasController extends Controller
     /**
      * Probar envío de alertas (dry run)
      */
-    public function probarEnvio(): JsonResponse
+    public function probarEnvio(Request $request): JsonResponse
     {
         try {
-            $alertas = AlertasMantenimientoService::verificarTodosLosVehiculos();
+            $email = $request->input('email');
+            $mailer = $request->input('mailer', 'log');
+            $enviarReal = $request->input('enviar_real', false);
+
+            // Validar email si se proporciona
+            if ($email && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El email proporcionado no es válido'
+                ], 400);
+            }
+
+            $resultado = AlertasMantenimientoService::verificarTodosLosVehiculos();
+            $alertas = $resultado['alertas'];
             $emails = ConfiguracionAlertasService::getEmailsDestino();
 
             if (empty($alertas)) {
@@ -241,14 +274,44 @@ class ConfiguracionAlertasController extends Controller
                     'message' => 'No hay alertas pendientes para enviar',
                     'data' => [
                         'alertas_count' => 0,
+                        'vehiculos_afectados' => 0,
                         'emails_destino' => $emails
                     ]
                 ]);
             }
 
+            // Si se solicita envío real
+            if ($enviarReal && $email) {
+                // Configurar mailer temporalmente
+                $originalMailer = config('mail.default');
+                config(['mail.default' => $mailer]);
+
+                // Enviar correo usando el Job
+                \App\Jobs\EnviarAlertaMantenimiento::dispatch(
+                    true, // Es test
+                    [$email] // Emails de prueba
+                )->onQueue('default');
+
+                // Restaurar mailer original
+                config(['mail.default' => $originalMailer]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Correo de prueba enviado exitosamente',
+                    'data' => [
+                        'email_enviado_a' => $email,
+                        'mailer_usado' => $mailer,
+                        'alertas_count' => count($alertas),
+                        'vehiculos_afectados' => count(array_unique(array_column($alertas, 'vehiculo_id'))),
+                        'alertas_preview' => array_slice($alertas, 0, 3)
+                    ]
+                ]);
+            }
+
+            // Modo simulación (por defecto)
             return response()->json([
                 'success' => true,
-                'message' => 'Simulación de envío completada',
+                'message' => 'Simulación de envío completada (usar enviar_real=true para envío real)',
                 'data' => [
                     'alertas_count' => count($alertas),
                     'vehiculos_afectados' => count(array_unique(array_column($alertas, 'vehiculo_id'))),
@@ -267,6 +330,125 @@ class ConfiguracionAlertasController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Enviar correo de prueba real
+     */
+    public function enviarCorreoPrueba(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'mailer' => 'sometimes|string|in:resend,log,array',
+            'method' => 'sometimes|string|in:facade,mail',
+        ]);
+
+        try {
+            $email = $request->input('email');
+            $mailer = $request->input('mailer', config('mail.default'));
+            $method = $request->input('method', 'mail');
+
+            // Configurar mailer temporalmente si se especifica
+            $originalMailer = config('mail.default');
+            if ($mailer !== $originalMailer) {
+                config(['mail.default' => $mailer]);
+            }
+
+            if ($method === 'facade' && $mailer === 'resend') {
+                // Usar Resend Facade directamente
+                $this->enviarConResendFacade($email);
+            } else {
+                // Usar Laravel Mail tradicional
+                $job = new \App\Jobs\EnviarAlertaMantenimiento(true, [$email]);
+                $job->handle();
+            }
+
+            // Restaurar configuración original
+            if ($mailer !== $originalMailer) {
+                config(['mail.default' => $originalMailer]);
+            }
+
+            Log::info('Correo de prueba enviado desde API', [
+                'email' => $email,
+                'mailer' => $mailer,
+                'method' => $method,
+                'user_id' => auth('sanctum')->id() ?? 'unknown',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Correo de prueba enviado exitosamente',
+                'data' => [
+                    'email_destino' => $email,
+                    'mailer_usado' => $mailer,
+                    'method_usado' => $method,
+                    'fecha_envio' => now()->toISOString(),
+                    'tipo' => 'prueba',
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error enviando correo de prueba desde API', [
+                'error' => $e->getMessage(),
+                'email' => $request->input('email'),
+                'user_id' => auth('sanctum')->id() ?? 'unknown',
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al enviar correo de prueba',
+                'error' => config('app.debug') ? $e->getMessage() : 'Error interno del servidor'
+            ], 500);
+        }
+    }
+
+    /**
+     * Enviar email usando Resend Facade directamente
+     */
+    private function enviarConResendFacade(string $email): void
+    {
+        $alertasData = [
+            'alertas' => [
+                [
+                    'vehiculo_info' => [
+                        'marca' => 'Volvo',
+                        'modelo' => 'FH16',
+                        'placas' => 'API-001',
+                        'nombre_completo' => 'Volvo FH16 - API-001'
+                    ],
+                    'sistema' => 'Motor Turbo',
+                    'urgencia' => 'alta',
+                    'kilometraje_actual' => 80000,
+                    'ultimo_mantenimiento' => [
+                        'fecha' => '20/06/2025',
+                        'kilometraje' => 70000,
+                        'descripcion' => 'Mantenimiento de turbo'
+                    ],
+                    'km_exceso' => 10000,
+                    'mensaje' => '🚛 Enviado desde API con Resend Facade'
+                ]
+            ],
+            'resumen' => [
+                'total_alertas' => 1,
+                'vehiculos_afectados' => 1,
+                'por_urgencia' => ['critica' => 0, 'alta' => 1, 'media' => 0],
+                'por_sistema' => ['Motor Turbo' => 1],
+            ],
+        ];
+
+        $mailable = new \App\Mail\AlertasMantenimientoMail($alertasData, true);
+        $html = $mailable->render();
+
+        \Resend\Laravel\Facades\Resend::emails()->send([
+            'from' => config('mail.from.name') . ' <' . config('mail.from.address') . '>',
+            'to' => [$email],
+            'subject' => '[API TEST] Alertas de Mantenimiento - Petrotekno',
+            'html' => $html,
+            'tags' => [
+                'environment' => config('app.env'),
+                'type' => 'api-test',
+                'service' => 'resend-facade'
+            ]
+        ]);
     }
 
     /**

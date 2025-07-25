@@ -8,6 +8,7 @@
 - [x] **#TODO**: Implementar configuración flexible de destinatarios y horarios ✅
 - [x] **#TODO**: Agregar campo sistema_vehiculo a mantenimientos (motor, transmisión, hidráulico) ✅
 - [x] **#TODO**: Crear API endpoints para configuración desde frontend ✅
+- [x] **#FIXME**: Corregir validaciones de tipo_servicio (cambio de ID a enum) ✅ **24/01/2025**
 
 ### Sistema de Asignaciones
 - [x] **#TODO**: Implementar sistema de notificaciones automáticas cuando una asignación esté cerca de vencer (30 días sin liberación) ✅
@@ -16,6 +17,15 @@
 - [x] **#TODO**: Implementar cálculo automático de próximo mantenimiento basado en kilometraje recorrido en asignaciones ✅
 
 ## 🟡 Mejoras de Funcionalidad
+
+### Frontend - Sistema de Alertas de Mantenimiento 🚨 **ALTA PRIORIDAD**
+- [ ] **#CRITICAL**: Actualizar campo `tipo_servicio` en formularios (cambio a enum)
+- [ ] **#CRITICAL**: Agregar campo `sistema_vehiculo` en `create.blade.php` 
+- [ ] **#CRITICAL**: Agregar campo `sistema_vehiculo` en `edit.blade.php`
+- [ ] **#TODO**: Crear dashboard de alertas (`resources/views/alertas/dashboard.blade.php`)
+- [ ] **#TODO**: Crear página de configuración (`resources/views/alertas/configuracion.blade.php`)
+- [ ] **#TODO**: Implementar controller Blade para alertas
+- [ ] **#TODO**: Agregar rutas web para sistema de alertas
 
 ### Documentación y Comunicación
 - [ ] **#TODO**: Actualizar README.md con nuevos cambios estructurales

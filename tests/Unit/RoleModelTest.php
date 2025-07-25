@@ -60,15 +60,15 @@ class RoleModelTest extends TestCase
     public function test_role_creation_with_valid_data(): void
     {
         $roleData = [
-            'nombre_rol' => 'supervisor',
-            'descripcion' => 'Rol de supervisor',
+            'nombre_rol' => 'supervisor_test',
+            'descripcion' => 'Rol de supervisor de prueba',
         ];
 
         $role = Role::create($roleData);
 
         $this->assertInstanceOf(Role::class, $role);
-        $this->assertEquals('supervisor', $role->nombre_rol);
-        $this->assertEquals('Rol de supervisor', $role->descripcion);
+        $this->assertEquals('supervisor_test', $role->nombre_rol);
+        $this->assertEquals('Rol de supervisor de prueba', $role->descripcion);
     }
 
     /**

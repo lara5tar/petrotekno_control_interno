@@ -49,6 +49,7 @@ class UpdateMantenimientoRequest extends FormRequest
                 'sometimes',
                 'required',
                 'string',
+                'max:1000',
             ],
             'fecha_inicio' => [
                 'sometimes',

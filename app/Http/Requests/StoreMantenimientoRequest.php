@@ -27,10 +27,10 @@ class StoreMantenimientoRequest extends FormRequest
                 'integer',
                 'exists:vehiculos,id',
             ],
-            'tipo_servicio_id' => [
+            'tipo_servicio' => [
                 'required',
-                'integer',
-                'exists:catalogo_tipos_servicio,id',
+                'string',
+                'in:CORRECTIVO,PREVENTIVO',
             ],
             'sistema_vehiculo' => [
                 'required',
@@ -45,6 +45,7 @@ class StoreMantenimientoRequest extends FormRequest
             'descripcion' => [
                 'required',
                 'string',
+                'max:1000',
             ],
             'fecha_inicio' => [
                 'required',
@@ -119,8 +120,8 @@ class StoreMantenimientoRequest extends FormRequest
         return [
             'vehiculo_id.required' => 'El vehículo es obligatorio.',
             'vehiculo_id.exists' => 'El vehículo seleccionado no existe.',
-            'tipo_servicio_id.required' => 'El tipo de servicio es obligatorio.',
-            'tipo_servicio_id.exists' => 'El tipo de servicio seleccionado no existe.',
+            'tipo_servicio.required' => 'El tipo de servicio es obligatorio.',
+            'tipo_servicio.in' => 'El tipo de servicio debe ser CORRECTIVO o PREVENTIVO.',
             'sistema_vehiculo.required' => 'El sistema del vehículo es obligatorio.',
             'sistema_vehiculo.in' => 'El sistema del vehículo debe ser: motor, transmisión, hidráulico o general.',
             'descripcion.required' => 'La descripción del mantenimiento es obligatoria.',
@@ -141,7 +142,7 @@ class StoreMantenimientoRequest extends FormRequest
     {
         return [
             'vehiculo_id' => 'vehículo',
-            'tipo_servicio_id' => 'tipo de servicio',
+            'tipo_servicio' => 'tipo de servicio',
             'sistema_vehiculo' => 'sistema del vehículo',
             'proveedor' => 'proveedor',
             'descripcion' => 'descripción',

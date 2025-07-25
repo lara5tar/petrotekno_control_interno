@@ -22,8 +22,9 @@ class AlertasMantenimientoService
                 return [];
             }
 
-            // Solo procesar vehículos disponibles o en obra
-            if (!in_array($vehiculo->estatus->nombre_estatus, ['disponible', 'en_obra'])) {
+            // Solo procesar vehículos disponibles, en obra o activos
+            $estatusPermitidos = ['disponible', 'en_obra', 'activo'];
+            if (!in_array(strtolower($vehiculo->estatus->nombre_estatus), $estatusPermitidos)) {
                 Log::info('Vehículo omitido por estatus', [
                     'vehiculo_id' => $vehiculoId,
                     'estatus' => $vehiculo->estatus->nombre_estatus
@@ -144,7 +145,7 @@ class AlertasMantenimientoService
     public static function verificarTodosLosVehiculos(): array
     {
         $vehiculos = Vehiculo::whereHas('estatus', function ($query) {
-            $query->whereIn('nombre_estatus', ['disponible', 'en_obra']);
+            $query->whereRaw('LOWER(nombre_estatus) IN (?, ?, ?)', ['disponible', 'en_obra', 'activo']);
         })
             ->get();
 
@@ -166,7 +167,22 @@ class AlertasMantenimientoService
             return $b['km_vencido_por'] - $a['km_vencido_por']; // Descendente por km vencido
         });
 
-        return $todasLasAlertas;
+        return [
+            'alertas' => $todasLasAlertas,
+            'resumen' => self::obtenerResumen($todasLasAlertas)
+        ];
+    }
+
+    /**
+     * Obtener resumen de alertas basado en verificación de vehículos
+     */
+    public static function obtenerResumenAlertas(): array
+    {
+        $resultado = self::verificarTodosLosVehiculos();
+        return [
+            'resumen' => $resultado['resumen'],
+            'alertas' => $resultado['alertas']
+        ];
     }
 
     /**

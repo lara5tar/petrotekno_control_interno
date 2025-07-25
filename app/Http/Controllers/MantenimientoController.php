@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\MantenimientoRequest;
+use App\Http\Requests\StoreMantenimientoRequest;
 use App\Models\LogAccion;
 use App\Models\Mantenimiento;
 use App\Models\Vehiculo;
@@ -182,7 +182,7 @@ class MantenimientoController extends Controller
      * Store a newly created resource in storage.
      * Patrón Híbrido: API (JSON) + Blade (Redirect)
      */
-    public function store(MantenimientoRequest $request)
+    public function store(StoreMantenimientoRequest $request)
     {
         // Verificar permisos
         if (! $this->hasPermission('crear_mantenimientos')) {
@@ -340,7 +340,7 @@ class MantenimientoController extends Controller
      * Update the specified resource in storage.
      * Patrón Híbrido: API (JSON) + Blade (Redirect)
      */
-    public function update(MantenimientoRequest $request, $id)
+    public function update(StoreMantenimientoRequest $request, $id)
     {
         // Verificar permisos
         if (! $this->hasPermission('actualizar_mantenimientos')) {

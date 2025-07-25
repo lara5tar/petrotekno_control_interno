@@ -20,7 +20,26 @@ class ConfiguracionAlertasService
                 ->activo()
                 ->first();
 
-            return $config ? $config->valor : $default;
+            if (!$config) {
+                return $default;
+            }
+
+            $valor = $config->valor;
+
+            // Convertir strings a boolean cuando corresponda
+            if ($valor === '1' || $valor === 'true' || $valor === 'on') {
+                return true;
+            }
+            if ($valor === '0' || $valor === 'false' || $valor === 'off') {
+                return false;
+            }
+
+            // Convertir strings numéricos
+            if (is_numeric($valor)) {
+                return (int) $valor;
+            }
+
+            return $valor;
         });
     }
 
