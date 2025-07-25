@@ -239,21 +239,23 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         return view('personal.index', compact('personal', 'categorias'));
     })->name('index')->middleware('permission:ver_personal');
 
-    // Ruta para mostrar formulario de crear personal (datos estáticos)
+    // Ruta para mostrar formulario de crear personal (valores estáticos)
     Route::get('/create', function () {
         // Categorías estáticas
         $categorias = collect([
-            (object) ['id' => 1, 'nombre_categoria' => 'Técnico Especializado'],
-            (object) ['id' => 2, 'nombre_categoria' => 'Operador'],
-            (object) ['id' => 3, 'nombre_categoria' => 'Supervisor'],
-            (object) ['id' => 4, 'nombre_categoria' => 'Administrador']
+            (object)['id' => 1, 'nombre_categoria' => 'Administrador'],
+            (object)['id' => 2, 'nombre_categoria' => 'Supervisor'],
+            (object)['id' => 3, 'nombre_categoria' => 'Operador'],
+            (object)['id' => 4, 'nombre_categoria' => 'Técnico'],
+            (object)['id' => 5, 'nombre_categoria' => 'Mecánico'],
+            (object)['id' => 6, 'nombre_categoria' => 'Jefe de Obra']
         ]);
         
         // Usuarios estáticos
         $usuarios = collect([
-            (object) ['id' => 1, 'nombre_usuario' => 'admin'],
-            (object) ['id' => 2, 'nombre_usuario' => 'supervisor01'],
-            (object) ['id' => 3, 'nombre_usuario' => 'operador01']
+            (object)['id' => 1, 'nombre_usuario' => 'Administrador del Sistema'],
+            (object)['id' => 2, 'nombre_usuario' => 'Juan Pérez Supervisor'],
+            (object)['id' => 3, 'nombre_usuario' => 'Ana Patricia']
         ]);
         
         return view('personal.create', compact('categorias', 'usuarios'));
@@ -279,19 +281,18 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         // Organizar documentos por tipo
         $documentosPorTipo = $personal->documentos->groupBy(function ($documento) {
             return $documento->tipoDocumento ? $documento->tipoDocumento->nombre_tipo_documento : 'Sin tipo';
-        });
+        })->toArray();
         
         return view('personal.show', compact('personal', 'documentosPorTipo'));
     })->name('show')->middleware('permission:ver_personal');
 
-    // Ruta para subir documentos del personal - CORREGIDO: Agregado middleware de permisos
+    // Ruta para guardar datos de documentos del personal (sin archivos)
     Route::post('/{id}/documents/upload', function (Request $request, $id) {
         $personal = Personal::findOrFail($id);
         
         $request->validate([
-            'archivo' => 'required|file|max:10240', // 10MB máximo
             'tipo_documento' => 'required|string',
-            'descripcion' => 'nullable|string',
+            'descripcion' => 'required|string|max:500',
             'fecha_vencimiento' => 'nullable|date'
         ]);
         
@@ -299,7 +300,10 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         $tipoDocumento = CatalogoTipoDocumento::where('nombre_tipo_documento', $request->tipo_documento)->first();
         
         if (!$tipoDocumento) {
-            return back()->with('error', 'Tipo de documento no válido.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Tipo de documento no válido.'
+            ], 400);
         }
         
         // Verificar si ya existe un documento de este tipo para este personal
@@ -308,43 +312,59 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
                                        ->first();
         
         try {
-            // Subir archivo
-            $archivo = $request->file('archivo');
-            $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
-            $rutaArchivo = $archivo->storeAs('documentos/personal/' . $personal->id, $nombreArchivo, 'public');
-            
             if ($documentoExistente) {
                 // Actualizar documento existente
                 $documentoExistente->update([
-                    'ruta_archivo' => $rutaArchivo,
                     'descripcion' => $request->descripcion,
-                    'fecha_vencimiento' => $request->fecha_vencimiento
+                    'fecha_vencimiento' => $request->fecha_vencimiento,
+                    'contenido' => $request->descripcion // Guardar los datos en el campo contenido
                 ]);
-                $mensaje = 'Documento actualizado exitosamente.';
+                $mensaje = 'Datos del documento actualizados exitosamente.';
             } else {
                 // Crear nuevo documento
                 Documento::create([
                     'personal_id' => $personal->id,
                     'tipo_documento_id' => $tipoDocumento->id,
-                    'ruta_archivo' => $rutaArchivo,
                     'descripcion' => $request->descripcion,
-                    'fecha_vencimiento' => $request->fecha_vencimiento
+                    'fecha_vencimiento' => $request->fecha_vencimiento,
+                    'contenido' => $request->descripcion // Guardar los datos en el campo contenido
                 ]);
-                $mensaje = 'Documento subido exitosamente.';
+                $mensaje = 'Datos del documento guardados exitosamente.';
             }
             
-            return back()->with('success', $mensaje);
+            return response()->json([
+                'success' => true,
+                'message' => $mensaje
+            ]);
             
         } catch (\Exception $e) {
-            return back()->with('error', 'Error al subir el documento: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al guardar los datos del documento: ' . $e->getMessage()
+            ], 500);
         }
     })->name('documents.upload')->middleware('permission:editar_personal');
 
     // Ruta para mostrar formulario de editar personal - CORREGIDO: Agregado middleware de permisos
     Route::get('/{id}/edit', function ($id) {
         $personal = \App\Models\Personal::findOrFail($id);
-        $categorias = \App\Models\CategoriaPersonal::orderBy('nombre_categoria')->get();
-        $usuarios = \App\Models\User::orderBy('nombre_usuario')->get();
+        
+        // Categorías estáticas
+        $categorias = collect([
+            (object)['id' => 1, 'nombre_categoria' => 'Administrador'],
+            (object)['id' => 2, 'nombre_categoria' => 'Supervisor'],
+            (object)['id' => 3, 'nombre_categoria' => 'Operador'],
+            (object)['id' => 4, 'nombre_categoria' => 'Técnico'],
+            (object)['id' => 5, 'nombre_categoria' => 'Mecánico'],
+            (object)['id' => 6, 'nombre_categoria' => 'Jefe de Obra']
+        ]);
+        
+        // Usuarios estáticos
+        $usuarios = collect([
+            (object)['id' => 1, 'nombre_usuario' => 'Administrador del Sistema'],
+            (object)['id' => 2, 'nombre_usuario' => 'Juan Pérez Supervisor'],
+            (object)['id' => 3, 'nombre_usuario' => 'Ana Patricia']
+        ]);
         
         return view('personal.edit', compact('personal', 'categorias', 'usuarios'));
     })->name('edit')->middleware('permission:editar_personal');

@@ -268,7 +268,7 @@
                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>
-                                    Subir Documento
+                                    Agregar Datos
                                 </button>
                                 @endhasPermission
                             </div>
@@ -283,8 +283,8 @@
                                 @foreach($documentosObligatorios as $tipoDoc)
                                     @php
                                         $documento = $documentosPorTipo[$tipoDoc] ?? null;
-                                        $tieneDocumento = !is_null($documento) && $documento->count() > 0;
-                                        $primerDocumento = $tieneDocumento ? $documento->first() : null;
+                                        $tieneDocumento = !is_null($documento) && is_array($documento) && count($documento) > 0;
+                                        $primerDocumento = $tieneDocumento ? $documento[0] : null;
                                     @endphp
                                     
                                     <li class="py-2 flex items-center justify-between">
@@ -302,10 +302,10 @@
                                                         {{ $tipoDoc }}
                                                     @endif
                                                 </span>
-                                                @if($tieneDocumento && $primerDocumento->fecha_vencimiento)
-                                                    <p class="text-xs text-gray-500">Vence: {{ \Carbon\Carbon::parse($primerDocumento->fecha_vencimiento)->format('d/m/Y') }}</p>
+                                                @if($tieneDocumento && isset($primerDocumento['fecha_vencimiento']) && $primerDocumento['fecha_vencimiento'])
+                                                    <p class="text-xs text-gray-500">Vence: {{ \Carbon\Carbon::parse($primerDocumento['fecha_vencimiento'])->format('d/m/Y') }}</p>
                                                 @elseif($tieneDocumento)
-                                                    <p class="text-xs text-gray-500">{{ $primerDocumento->descripcion ?? 'Documento disponible' }}</p>
+                                                    <p class="text-xs text-gray-500">{{ $primerDocumento['descripcion'] ?? 'Documento disponible' }}</p>
                                                 @else
                                                     <p class="text-xs text-red-500">No disponible</p>
                                                 @endif
@@ -313,13 +313,13 @@
                                         </div>
                                         @if($tieneDocumento)
                                             <div class="flex space-x-2">
-                                                <button onclick="viewPersonalDocument('{{ $primerDocumento->id }}')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                <button data-document-id="{{ $primerDocumento['id'] }}" class="btn-view-document bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
                                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     </svg>
                                                     Ver
                                                 </button>
-                                                <button onclick="downloadPersonalDocument('{{ $primerDocumento->id }}')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                <button data-document-id="{{ $primerDocumento['id'] }}" class="btn-download-document bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
                                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                                     </svg>
@@ -341,7 +341,7 @@
                                 <!-- Documentos adicionales existentes -->
                                 <ul class="divide-y divide-gray-200 mb-4">
                                     @php
-                                        $documentosAdicionales = $documentosPorTipo->except(['INE', 'CURP', 'RFC', 'NSS']);
+                                        $documentosAdicionales = array_diff_key($documentosPorTipo, array_flip(['INE', 'CURP', 'RFC', 'NSS']));
                                     @endphp
                                     
                                     @forelse($documentosAdicionales as $tipoDocumento => $documentos)
@@ -353,22 +353,22 @@
                                                     </svg>
                                                     <div>
                                                         <span class="text-sm font-medium text-gray-800">{{ $tipoDocumento }}</span>
-                                                        @if($documento->descripcion)
-                                                            <p class="text-xs text-gray-500">{{ $documento->descripcion }}</p>
+                                                        @if(isset($documento['descripcion']) && $documento['descripcion'])
+                                                            <p class="text-xs text-gray-500">{{ $documento['descripcion'] }}</p>
                                                         @endif
-                                                        @if($documento->fecha_vencimiento)
-                                                            <p class="text-xs text-gray-500">Vence: {{ \Carbon\Carbon::parse($documento->fecha_vencimiento)->format('d/m/Y') }}</p>
+                                                        @if(isset($documento['fecha_vencimiento']) && $documento['fecha_vencimiento'])
+                                                            <p class="text-xs text-gray-500">Vence: {{ \Carbon\Carbon::parse($documento['fecha_vencimiento'])->format('d/m/Y') }}</p>
                                                         @endif
                                                     </div>
                                                 </div>
                                                 <div class="flex space-x-2">
-                                                    <button onclick="viewPersonalDocument('{{ $documento->id }}')" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <button data-document-id="{{ $documento['id'] }}" class="btn-view-document bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
                                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                         </svg>
                                                         Ver
                                                     </button>
-                                                    <button onclick="downloadPersonalDocument('{{ $documento->id }}')" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <button data-document-id="{{ $documento['id'] }}" class="btn-download-document bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
                                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                                         </svg>
@@ -432,6 +432,57 @@
     @endhasPermission
 </div>
 
+<!-- Modal para agregar datos de documentos de personal -->
+<div id="uploadPersonalDocumentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Agregar Datos de Documento</h3>
+            <button onclick="closeUploadPersonalDocumentModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <form id="uploadPersonalDocumentForm" action="{{ route('personal.documents.upload', $personal->id) }}" method="POST">
+            @csrf
+            <div class="mb-4">
+                <label for="tipo_documento" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Documento</label>
+                <select name="tipo_documento" id="tipo_documento" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Seleccionar tipo...</option>
+                    <option value="Identificación Oficial">Identificación Oficial (INE)</option>
+                    <option value="CURP">CURP</option>
+                    <option value="RFC">RFC</option>
+                    <option value="Certificado Médico">Certificado Médico</option>
+                    <option value="Licencia de Conducir">Licencia de Conducir</option>
+                    <option value="Comprobante de Estudios">Comprobante de Estudios</option>
+                    <option value="Contrato de Trabajo">Contrato de Trabajo</option>
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">Número/Datos del Documento</label>
+                <textarea name="descripcion" id="descripcion" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: 123456789012345678 (CURP), RFC123456789, etc."></textarea>
+                <p class="text-xs text-gray-500 mt-1">Ingresa el número o datos principales del documento</p>
+            </div>
+            
+            <div class="mb-4">
+                <label for="fecha_vencimiento" class="block text-sm font-medium text-gray-700 mb-2">Fecha de Vencimiento (Opcional)</label>
+                <input type="date" name="fecha_vencimiento" id="fecha_vencimiento" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeUploadPersonalDocumentModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded text-sm">
+                    Cancelar
+                </button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
+                    Guardar Datos
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @push('scripts')
 <script>
 // Hacer la función global para que sea accesible desde los elementos HTML
@@ -472,9 +523,79 @@ window.switchTab = function(tabName) {
     });
 };
 
+// Funciones para el modal de subir documentos de personal
+window.showUploadPersonalDocumentModal = function() {
+    const modal = document.getElementById('uploadPersonalDocumentModal');
+    modal.classList.remove('hidden');
+};
+
+window.closeUploadPersonalDocumentModal = function() {
+    const modal = document.getElementById('uploadPersonalDocumentModal');
+    modal.classList.add('hidden');
+    document.getElementById('uploadPersonalDocumentForm').reset();
+};
+
+// Funciones para ver y mostrar datos de documentos de personal
+window.viewPersonalDocument = function(documentId) {
+    // Como no hay archivos, solo mostramos la información disponible
+    const documentRow = document.querySelector(`li[data-document-id="${documentId}"]`);
+    if (documentRow) {
+        const tipo = documentRow.querySelector('.document-type')?.textContent || 'No especificado';
+        const descripcion = documentRow.querySelector('.document-description')?.textContent || 'No especificada';
+        const fecha = documentRow.querySelector('.document-date')?.textContent || 'No especificada';
+        
+        alert(`Información del Documento:\n\nTipo: ${tipo}\nDatos: ${descripcion}\nFecha de Vencimiento: ${fecha}`);
+    } else {
+        alert('No se encontró la información del documento');
+    }
+};
+
+window.downloadPersonalDocument = function(documentId) {
+    // Como no hay archivos, mostramos los datos en formato de texto
+    const documentRow = document.querySelector(`li[data-document-id="${documentId}"]`);
+    if (documentRow) {
+        const tipo = documentRow.querySelector('.document-type')?.textContent || 'No especificado';
+        const descripcion = documentRow.querySelector('.document-description')?.textContent || 'No especificada';
+        const fecha = documentRow.querySelector('.document-date')?.textContent || 'No especificada';
+        
+        const documentData = `DATOS DEL DOCUMENTO\n\nTipo: ${tipo}\nDatos: ${descripcion}\nFecha de Vencimiento: ${fecha}\n\nGenerado el: ${new Date().toLocaleString()}`;
+        
+        // Crear un blob con los datos y "descargarlo"
+        const blob = new Blob([documentData], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `documento_${tipo.replace(/\s+/g, '_').toLowerCase()}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    } else {
+        alert('No se encontró la información del documento');
+    }
+};
+
 // Navegación con teclado para accesibilidad
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing tabs'); // Debug
+    
+    // Agregar event listeners para botones de documentos
+    const viewButtons = document.querySelectorAll('.btn-view-document');
+    const downloadButtons = document.querySelectorAll('.btn-download-document');
+    
+    viewButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const documentId = this.getAttribute('data-document-id');
+            viewPersonalDocument(documentId);
+        });
+    });
+    
+    downloadButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const documentId = this.getAttribute('data-document-id');
+            downloadPersonalDocument(documentId);
+        });
+    });
     
     const tabButtons = document.querySelectorAll('[role="tab"]');
     console.log('Found tab buttons:', tabButtons.length); // Debug
@@ -514,6 +635,74 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const tabName = this.id.replace('-tab', '');
             window.switchTab(tabName);
+        });
+    });
+    
+    // Cerrar modal al hacer clic fuera de él
+    document.getElementById('uploadPersonalDocumentModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeUploadPersonalDocumentModal();
+        }
+    });
+    
+    // Manejar envío del formulario de datos de documentos
+    document.getElementById('uploadPersonalDocumentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const submitButton = this.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        
+        // Validación básica
+        const tipoDocumento = formData.get('tipo_documento');
+        const descripcion = formData.get('descripcion');
+        
+        if (!tipoDocumento) {
+            alert('Por favor selecciona un tipo de documento');
+            return;
+        }
+        
+        if (!descripcion || descripcion.trim() === '') {
+            alert('Por favor ingresa los datos del documento');
+            return;
+        }
+        
+        submitButton.textContent = 'Guardando...';
+        submitButton.disabled = true;
+        
+        // Obtener el token CSRF del meta tag
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Datos del documento guardados exitosamente');
+                closeUploadPersonalDocumentModal();
+                location.reload(); // Recargar para mostrar el nuevo documento
+            } else {
+                alert('Error: ' + (data.message || 'No se pudieron guardar los datos'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al guardar los datos del documento: ' + error.message);
+        })
+        .finally(() => {
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
         });
     });
 });

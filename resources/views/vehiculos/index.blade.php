@@ -134,7 +134,7 @@
                                 </a>
                                 @endhasPermission
                                 @hasPermission('eliminar_vehiculos')
-                                <button onclick="confirmarEliminacion({{ $vehiculo->id }}, '{{ $vehiculo->placas }}')" class="text-red-600 hover:text-red-900" title="Eliminar vehículo">
+                                <button data-vehiculo-id="{{ $vehiculo->id }}" data-vehiculo-placas="{{ $vehiculo->placas }}" class="btn-eliminar text-red-600 hover:text-red-900" title="Eliminar vehículo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                                     </svg>
@@ -203,6 +203,19 @@
 
 @push('scripts')
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Agregar event listeners a todos los botones de eliminar
+        const botonesEliminar = document.querySelectorAll('.btn-eliminar');
+        
+        botonesEliminar.forEach(function(boton) {
+            boton.addEventListener('click', function() {
+                const vehiculoId = this.getAttribute('data-vehiculo-id');
+                const vehiculoPlacas = this.getAttribute('data-vehiculo-placas');
+                confirmarEliminacion(vehiculoId, vehiculoPlacas);
+            });
+        });
+    });
+
     function confirmarEliminacion(id, placas) {
         if (confirm(`¿Estás seguro de que deseas eliminar el vehículo con placas ${placas}?`)) {
             // Simulación de eliminación (solo frontend)
