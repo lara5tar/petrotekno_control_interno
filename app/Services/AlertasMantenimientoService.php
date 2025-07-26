@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Vehiculo;
 use App\Models\Mantenimiento;
+use App\Models\ConfiguracionAlerta;
 use Illuminate\Support\Facades\Log;
 
 class AlertasMantenimientoService
@@ -96,31 +97,100 @@ class AlertasMantenimientoService
 
             $kmVencidoPor = $vehiculo->kilometraje_actual - $proximoMantenimiento;
 
+            // Obtener los dos últimos mantenimientos de este mismo sistema
+            $ultimosMantenimientos = Mantenimiento::where('vehiculo_id', $vehiculo->id)
+                ->where('sistema_vehiculo', $sistema)
+                ->orderBy('kilometraje_servicio', 'desc')
+                ->limit(2)
+                ->get()
+                ->map(function ($mantenimiento) {
+                    return [
+                        'fecha' => $mantenimiento->fecha_inicio?->format('d/m/Y') ?? 'No especificada',
+                        'kilometraje' => $mantenimiento->kilometraje_servicio,
+                        'tipo_servicio' => $mantenimiento->tipo_servicio,
+                        'descripcion' => $mantenimiento->descripcion ?? 'Sin descripción',
+                        'proveedor' => $mantenimiento->proveedor ?? 'No especificado',
+                        'costo' => $mantenimiento->costo ? '$' . number_format($mantenimiento->costo, 2) : 'No especificado'
+                    ];
+                });
+
             return [
                 'vehiculo_id' => $vehiculo->id,
-                'sistema' => ucfirst($sistema),
+                'sistema' => ucfirst($sistema), // Para compatibilidad con tests
                 'vehiculo_info' => [
                     'marca' => $vehiculo->marca,
                     'modelo' => $vehiculo->modelo,
                     'placas' => $vehiculo->placas,
-                    'nombre_completo' => "{$vehiculo->marca} {$vehiculo->modelo} - {$vehiculo->placas}"
+                    'nombre_completo' => "{$vehiculo->marca} {$vehiculo->modelo} - {$vehiculo->placas}",
+                    'kilometraje_actual' => number_format($vehiculo->kilometraje_actual) . ' km'
                 ],
-                'kilometraje_actual' => $vehiculo->kilometraje_actual,
-                'intervalo_configurado' => $intervalo,
-                'ultimo_mantenimiento' => [
-                    'fecha' => $ultimoMantenimiento?->fecha_inicio?->format('d/m/Y') ?? 'Nunca',
-                    'kilometraje' => $kmBaseMantenimiento,
-                    'descripcion' => $ultimoMantenimiento?->descripcion ?? 'Sin mantenimientos previos'
+                'sistema_mantenimiento' => [
+                    'nombre_sistema' => ucfirst($sistema),
+                    'intervalo_km' => number_format($intervalo) . ' km',
+                    'tipo_mantenimiento' => self::obtenerTipoMantenimientoPorSistema($sistema),
+                    'descripcion_sistema' => self::obtenerDescripcionSistema($sistema)
                 ],
-                'proximo_mantenimiento_km' => $proximoMantenimiento,
-                'km_vencido_por' => $kmVencidoPor,
+                'intervalo_alcanzado' => [
+                    'intervalo_configurado' => $intervalo,
+                    'kilometraje_base' => $kmBaseMantenimiento,
+                    'proximo_mantenimiento_esperado' => $proximoMantenimiento,
+                    'kilometraje_actual' => $vehiculo->kilometraje_actual,
+                    'km_exceso' => $kmVencidoPor,
+                    'porcentaje_sobrepaso' => round(($kmVencidoPor / $intervalo) * 100, 1) . '%'
+                ],
+                'historial_mantenimientos' => [
+                    'cantidad_encontrada' => $ultimosMantenimientos->count(),
+                    'mantenimientos' => $ultimosMantenimientos->toArray()
+                ],
                 'urgencia' => self::determinarUrgencia($kmVencidoPor, $intervalo),
-                'porcentaje_sobrepaso' => round(($kmVencidoPor / $intervalo) * 100, 1),
-                'fecha_deteccion' => now()->format('d/m/Y H:i:s')
+                'fecha_deteccion' => now()->format('d/m/Y H:i:s'),
+                'mensaje_resumen' => self::generarMensajeResumen($vehiculo, $sistema, $intervalo, $kmVencidoPor, $proximoMantenimiento)
             ];
         }
 
         return null;
+    }
+
+    /**
+     * Obtener tipo de mantenimiento según el sistema
+     */
+    private static function obtenerTipoMantenimientoPorSistema(string $sistema): string
+    {
+        $tipos = [
+            'motor' => 'Mantenimiento Preventivo de Motor',
+            'transmision' => 'Mantenimiento Preventivo de Transmisión',
+            'hidraulico' => 'Mantenimiento Preventivo del Sistema Hidráulico'
+        ];
+
+        return $tipos[$sistema] ?? 'Mantenimiento Preventivo';
+    }
+
+    /**
+     * Obtener descripción detallada del sistema
+     */
+    private static function obtenerDescripcionSistema(string $sistema): string
+    {
+        $descripciones = [
+            'motor' => 'Cambio de aceite, filtros y revisión general del motor',
+            'transmision' => 'Cambio de aceite de transmisión, filtros y ajustes',
+            'hidraulico' => 'Cambio de aceite hidráulico, filtros y revisión de mangueras'
+        ];
+
+        return $descripciones[$sistema] ?? 'Mantenimiento general del sistema';
+    }
+
+    /**
+     * Generar mensaje resumen más descriptivo
+     */
+    private static function generarMensajeResumen(Vehiculo $vehiculo, string $sistema, int $intervalo, int $kmVencidoPor, int $proximoMantenimiento): string
+    {
+        $sistemaTexto = ucfirst($sistema);
+        $vehiculoInfo = "{$vehiculo->marca} {$vehiculo->modelo} ({$vehiculo->placas})";
+
+        return "El vehículo {$vehiculoInfo} ha superado su intervalo de mantenimiento del {$sistemaTexto} " .
+            "por " . number_format($kmVencidoPor) . " km. " .
+            "Se esperaba mantenimiento en los " . number_format($proximoMantenimiento) . " km, " .
+            "pero actualmente tiene " . number_format($vehiculo->kilometraje_actual) . " km.";
     }
 
     /**
@@ -164,7 +234,7 @@ class AlertasMantenimientoService
                 return $urgencias[$b['urgencia']] - $urgencias[$a['urgencia']]; // Descendente por urgencia
             }
 
-            return $b['km_vencido_por'] - $a['km_vencido_por']; // Descendente por km vencido
+            return $b['intervalo_alcanzado']['km_exceso'] - $a['intervalo_alcanzado']['km_exceso']; // Descendente por km vencido
         });
 
         return [
@@ -218,5 +288,73 @@ class AlertasMantenimientoService
                 'Hidraulico' => $porSistema['Hidraulico'] ?? 0
             ]
         ];
+    }
+
+    /**
+     * Obtener lista completa de destinatarios (configuración + prueba)
+     */
+    public static function obtenerDestinatarios(): array
+    {
+        try {
+            $destinatarios = [];
+
+            // 1. Obtener destinatarios de configuración del usuario
+            $configuracion = ConfiguracionAlerta::where('activo', true)->first();
+            if ($configuracion && !empty($configuracion->emails_principales)) {
+                $emailsConfiguracion = is_array($configuracion->emails_principales)
+                    ? $configuracion->emails_principales
+                    : json_decode($configuracion->emails_principales, true) ?? [];
+
+                $destinatarios = array_merge($destinatarios, $emailsConfiguracion);
+            }
+
+            // 2. Obtener destinatarios de prueba desde .env
+            $emailsPrueba = self::obtenerEmailsPrueba();
+            $destinatarios = array_merge($destinatarios, $emailsPrueba);
+
+            // 3. Limpiar y validar emails
+            $destinatarios = array_filter(array_unique($destinatarios), function ($email) {
+                return filter_var(trim($email), FILTER_VALIDATE_EMAIL);
+            });
+
+            Log::info('Destinatarios de alertas obtenidos', [
+                'total_destinatarios' => count($destinatarios),
+                'destinatarios' => $destinatarios
+            ]);
+
+            return array_values($destinatarios);
+        } catch (\Exception $e) {
+            Log::error('Error obteniendo destinatarios', ['error' => $e->getMessage()]);
+
+            // Fallback a emails de prueba
+            return self::obtenerEmailsPrueba();
+        }
+    }
+
+    /**
+     * Obtener emails de prueba desde .env
+     */
+    public static function obtenerEmailsPrueba(): array
+    {
+        $emailsPrueba = env('MAIL_TEST_RECIPIENTS', '');
+
+        if (empty($emailsPrueba)) {
+            Log::warning('MAIL_TEST_RECIPIENTS no configurado en .env');
+            return [];
+        }
+
+        $emails = array_map('trim', explode(',', $emailsPrueba));
+
+        // Validar emails
+        $emailsValidos = array_filter($emails, function ($email) {
+            return filter_var($email, FILTER_VALIDATE_EMAIL);
+        });
+
+        Log::info('Emails de prueba obtenidos', [
+            'emails_raw' => $emailsPrueba,
+            'emails_validos' => $emailsValidos
+        ]);
+
+        return array_values($emailsValidos);
     }
 }

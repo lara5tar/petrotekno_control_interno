@@ -266,7 +266,7 @@ class ConfiguracionAlertasController extends Controller
 
             $resultado = AlertasMantenimientoService::verificarTodosLosVehiculos();
             $alertas = $resultado['alertas'];
-            $emails = ConfiguracionAlertasService::getEmailsDestino();
+            $emails = AlertasMantenimientoService::obtenerDestinatarios();
 
             if (empty($alertas)) {
                 return response()->json([
@@ -286,10 +286,10 @@ class ConfiguracionAlertasController extends Controller
                 $originalMailer = config('mail.default');
                 config(['mail.default' => $mailer]);
 
-                // Enviar correo usando el Job
+                // Enviar correo usando el Job (solo al email específico para test)
                 \App\Jobs\EnviarAlertaMantenimiento::dispatch(
                     true, // Es test
-                    [$email] // Emails de prueba
+                    [$email] // Email específico de prueba
                 )->onQueue('default');
 
                 // Restaurar mailer original
@@ -302,8 +302,47 @@ class ConfiguracionAlertasController extends Controller
                         'email_enviado_a' => $email,
                         'mailer_usado' => $mailer,
                         'alertas_count' => count($alertas),
-                        'vehiculos_afectados' => count(array_unique(array_column($alertas, 'vehiculo_id'))),
-                        'alertas_preview' => array_slice($alertas, 0, 3)
+                        'vehiculos_afectados' => empty($alertas) ? 0 : count(array_unique(array_column($alertas, 'vehiculo_id'))),
+                        'alertas_preview' => array_slice($alertas, 0, 3),
+                        'emails_destino_configurados' => $emails
+                    ]
+                ]);
+            }
+
+            // Si se solicita envío real sin email específico, usar emails de prueba
+            if ($enviarReal && !$email) {
+                $emailsPrueba = AlertasMantenimientoService::obtenerEmailsPrueba();
+
+                if (empty($emailsPrueba)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No hay emails de prueba configurados en MAIL_TEST_RECIPIENTS'
+                    ], 400);
+                }
+
+                // Configurar mailer temporalmente
+                $originalMailer = config('mail.default');
+                config(['mail.default' => $mailer]);
+
+                // Enviar correo usando el Job con emails de prueba
+                \App\Jobs\EnviarAlertaMantenimiento::dispatch(
+                    true, // Es test
+                    $emailsPrueba // Emails de prueba del .env
+                )->onQueue('default');
+
+                // Restaurar mailer original
+                config(['mail.default' => $originalMailer]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Correos de prueba enviados exitosamente',
+                    'data' => [
+                        'emails_enviados_a' => $emailsPrueba,
+                        'mailer_usado' => $mailer,
+                        'alertas_count' => count($alertas),
+                        'vehiculos_afectados' => empty($alertas) ? 0 : count(array_unique(array_column($alertas, 'vehiculo_id'))),
+                        'alertas_preview' => array_slice($alertas, 0, 3),
+                        'emails_destino_configurados' => $emails
                     ]
                 ]);
             }
@@ -314,7 +353,7 @@ class ConfiguracionAlertasController extends Controller
                 'message' => 'Simulación de envío completada (usar enviar_real=true para envío real)',
                 'data' => [
                     'alertas_count' => count($alertas),
-                    'vehiculos_afectados' => count(array_unique(array_column($alertas, 'vehiculo_id'))),
+                    'vehiculos_afectados' => empty($alertas) ? 0 : count(array_unique(array_column($alertas, 'vehiculo_id'))),
                     'emails_destino' => $emails,
                     'alertas_preview' => array_slice($alertas, 0, 5) // Primeras 5 alertas
                 ]

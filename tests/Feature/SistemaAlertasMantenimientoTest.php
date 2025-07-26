@@ -581,7 +581,20 @@ class SistemaAlertasMantenimientoTest extends TestCase
             ['valor' => '["test@example.com"]', 'activo' => true]
         );
 
-        $this->artisan('alertas:enviar-diarias --dry-run')
+        // Configurar días activos para incluir hoy
+        $hoyNombre = strtolower(now()->locale('es')->translatedFormat('l'));
+        ConfiguracionAlerta::firstOrCreate(
+            ['tipo_config' => 'horarios', 'clave' => 'dias_semana'],
+            ['valor' => json_encode([$hoyNombre]), 'activo' => true]
+        );
+
+        // Habilitar recordatorios
+        ConfiguracionAlerta::firstOrCreate(
+            ['tipo_config' => 'general', 'clave' => 'recordatorios_activos'],
+            ['valor' => json_encode(true), 'activo' => true]
+        );
+
+        $this->artisan('alertas:enviar-diarias --dry-run --force')
             ->expectsOutput('🔍 MODO SIMULACIÓN - No se enviarán emails reales')
             ->assertExitCode(0);
     }

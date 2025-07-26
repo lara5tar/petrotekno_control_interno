@@ -23,8 +23,8 @@
 ```
 
 ### **2. Envelope Profesional**
-- **From:** ederjahir@gmail.com (verificado)
-- **Reply-To:** ederjahir@gmail.com
+- **From:** ebravotube@gmail.com (verificado)
+- **Reply-To:** ebravotube@gmail.com
 - **Subject:** Claro y profesional
 - **Tags:** Para tracking y categorización
 - **Metadata:** Para analytics
@@ -59,10 +59,10 @@ php artisan config:clear
 ### **Paso 4: Probar envío**
 ```bash
 # Prueba con Gmail SMTP
-php artisan test:real-email ederjahir@gmail.com --password=tu-contraseña-app
+php artisan test:real-email ebravotube@gmail.com --password=tu-contraseña-app
 
 # O usando el comando original
-php artisan test:enviar-correo ederjahir@gmail.com --mailer=smtp --sync
+php artisan test:enviar-correo ebravotube@gmail.com --mailer=smtp --sync
 ```
 
 ---
@@ -99,10 +99,10 @@ php artisan test:enviar-correo ederjahir@gmail.com --mailer=smtp --sync
 ### **Envío de Prueba Real**
 ```bash
 # Con contraseña temporal
-php artisan test:real-email ederjahir@gmail.com --password=abcd-efgh-ijkl-mnop
+php artisan test:real-email ebravotube@gmail.com --password=abcd-efgh-ijkl-mnop
 
 # Con configuración en .env
-php artisan test:enviar-correo ederjahir@gmail.com --mailer=smtp --sync
+php artisan test:enviar-correo ebravotube@gmail.com --mailer=smtp --sync
 ```
 
 ### **Alertas Diarias**
@@ -119,7 +119,7 @@ php artisan alertas:enviar-diarias --force
 curl -X POST "http://petrotekno.test/api/configuracion-alertas/probar-envio" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer TOKEN" \
-  -d '{"email": "ederjahir@gmail.com", "mailer": "smtp", "enviar_real": true}'
+  -d '{"email": "ebravotube@gmail.com", "mailer": "smtp", "enviar_real": true}'
 ```
 
 ---

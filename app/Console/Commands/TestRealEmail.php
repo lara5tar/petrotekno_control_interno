@@ -45,7 +45,7 @@ class TestRealEmail extends Command
         $this->info('🔧 Configurando Gmail SMTP temporalmente...');
 
         // Configurar temporalmente las credenciales
-        Config::set('mail.mailers.smtp.username', 'ederjahir@gmail.com');
+        Config::set('mail.mailers.smtp.username', 'ebravotube@gmail.com');
         Config::set('mail.mailers.smtp.password', $password);
         Config::set('mail.default', 'smtp');
 

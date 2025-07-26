@@ -52,7 +52,7 @@ class EnviarCorreoPrueba extends Command
             if (empty($username) || empty($password) || $password === 'TU_CONTRASEÑA_DE_APLICACION') {
                 $this->error('❌ Configuración SMTP incompleta');
                 $this->info('💡 Necesitas configurar en .env:');
-                $this->info('   MAIL_USERNAME=ederjahir@gmail.com');
+                $this->info('   MAIL_USERNAME=ebravotube@gmail.com');
                 $this->info('   MAIL_PASSWORD=tu-contraseña-de-aplicacion-real');
                 $this->info('');
                 $this->info('📋 Para obtener la contraseña de aplicación:');

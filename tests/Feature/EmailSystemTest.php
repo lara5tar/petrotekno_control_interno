@@ -59,6 +59,15 @@ class EmailSystemTest extends TestCase
         ]);
     }
 
+    /**
+     * Obtener emails de prueba para tests
+     */
+    private function getTestEmails(): array
+    {
+        $emailsPrueba = env('MAIL_TEST_RECIPIENTS', 'test@example.com,test2@example.com');
+        return array_map('trim', explode(',', $emailsPrueba));
+    }
+
     /** @test */
     public function mailable_se_construye_correctamente()
     {
@@ -148,11 +157,12 @@ class EmailSystemTest extends TestCase
         );
 
         // Usar dispatch estático en lugar de método de instancia
-        EnviarAlertaMantenimiento::dispatch(true, ['admin@test.com']);
+        $testEmails = $this->getTestEmails();
+        EnviarAlertaMantenimiento::dispatch(true, $testEmails);
 
         // Verificar que el job fue despachado correctamente
-        Queue::assertPushed(EnviarAlertaMantenimiento::class, function ($job) {
-            return $job->esTest === true && in_array('admin@test.com', $job->emailsTest);
+        Queue::assertPushed(EnviarAlertaMantenimiento::class, function ($job) use ($testEmails) {
+            return $job->esTest === true && !empty(array_intersect($testEmails, $job->emailsTest));
         });
     }
 
@@ -170,8 +180,9 @@ class EmailSystemTest extends TestCase
             ['valor' => json_encode(true)]
         );
 
-        // Usar dispatch estático
-        EnviarAlertaMantenimiento::dispatch(true, ['test@example.com']);
+        // Usar dispatch estático con emails de prueba
+        $testEmails = $this->getTestEmails();
+        EnviarAlertaMantenimiento::dispatch(true, $testEmails);
 
         // Verificar que el job fue despachado
         Queue::assertPushed(EnviarAlertaMantenimiento::class);
@@ -183,8 +194,9 @@ class EmailSystemTest extends TestCase
     /** @test */
     public function api_endpoint_probar_envio_requiere_autenticacion()
     {
+        $testEmails = $this->getTestEmails();
         $response = $this->postJson('/api/configuracion-alertas/probar-envio', [
-            'emails' => ['test@example.com']
+            'emails' => $testEmails
         ]);
 
         $response->assertStatus(401);
@@ -252,9 +264,10 @@ class EmailSystemTest extends TestCase
         Queue::fake();
 
         // Configurar usando DB directamente
+        $testEmails = $this->getTestEmails();
         \DB::table('configuracion_alertas')->updateOrInsert(
             ['tipo_config' => 'destinatarios', 'clave' => 'emails_principales'],
-            ['valor' => json_encode(['admin@test.com'])]
+            ['valor' => json_encode($testEmails)]
         );
 
         \DB::table('configuracion_alertas')->updateOrInsert(
@@ -302,16 +315,47 @@ class EmailSystemTest extends TestCase
                         'marca' => 'Toyota',
                         'modelo' => 'Hilux',
                         'placas' => 'ABC-123',
-                        'nombre_completo' => 'Toyota Hilux ABC-123'
+                        'nombre_completo' => 'Toyota Hilux ABC-123',
+                        'kilometraje_actual' => '150,000 km'
                     ],
-                    'sistema' => 'Motor',
-                    'kilometraje_actual' => 150000,
-                    'ultimo_mantenimiento' => [
-                        'kilometraje' => 130000,
-                        'fecha' => '2024-01-15'
+                    'sistema_mantenimiento' => [
+                        'nombre_sistema' => 'Motor',
+                        'intervalo_km' => '20,000 km',
+                        'tipo_mantenimiento' => 'Mantenimiento Preventivo de Motor',
+                        'descripcion_sistema' => 'Cambio de aceite, filtros y revisión general del motor'
                     ],
-                    'km_vencido_por' => 10000,
-                    'urgencia' => 'alta'
+                    'intervalo_alcanzado' => [
+                        'intervalo_configurado' => 20000,
+                        'kilometraje_base' => 130000,
+                        'proximo_mantenimiento_esperado' => 150000,
+                        'kilometraje_actual' => 150000,
+                        'km_exceso' => 10000,
+                        'porcentaje_sobrepaso' => '50.0%'
+                    ],
+                    'historial_mantenimientos' => [
+                        'cantidad_encontrada' => 2,
+                        'mantenimientos' => [
+                            [
+                                'fecha' => '15/01/2024',
+                                'kilometraje' => 130000,
+                                'tipo_servicio' => 'PREVENTIVO',
+                                'descripcion' => 'Cambio de aceite de motor',
+                                'proveedor' => 'Taller Central',
+                                'costo' => '$2,500.00'
+                            ],
+                            [
+                                'fecha' => '15/09/2023',
+                                'kilometraje' => 110000,
+                                'tipo_servicio' => 'PREVENTIVO',
+                                'descripcion' => 'Mantenimiento preventivo completo',
+                                'proveedor' => 'Taller Norte',
+                                'costo' => '$3,200.00'
+                            ]
+                        ]
+                    ],
+                    'urgencia' => 'high',
+                    'fecha_deteccion' => '25/01/2024 10:30:15',
+                    'mensaje_resumen' => 'El vehículo Toyota Hilux (ABC-123) ha superado su intervalo de mantenimiento del Motor por 10,000 km.'
                 ]
             ],
             'resumen' => [
@@ -330,6 +374,8 @@ class EmailSystemTest extends TestCase
         $this->assertNotEmpty($html);
         $this->assertStringContainsString('Toyota Hilux', $html);
         $this->assertStringContainsString('Motor', $html);
+        $this->assertStringContainsString('150,000 km', $html);
+        $this->assertStringContainsString('Mantenimiento Preventivo de Motor', $html);
     }
 
     /** @test */
@@ -344,5 +390,58 @@ class EmailSystemTest extends TestCase
 
         // Verificar configuración del mailer resend
         $this->assertEquals('resend', $mailers['resend']['transport']);
+    }
+
+    /** @test */
+    public function sistema_usa_emails_prueba_desde_env()
+    {
+        // Verificar que se obtienen los emails de prueba del .env
+        $emailsPrueba = \App\Services\AlertasMantenimientoService::obtenerEmailsPrueba();
+
+        $this->assertNotEmpty($emailsPrueba, 'Deben existir emails de prueba en MAIL_TEST_RECIPIENTS');
+
+        foreach ($emailsPrueba as $email) {
+            $this->assertNotFalse(filter_var($email, FILTER_VALIDATE_EMAIL), "Email '$email' debe ser válido");
+        }
+
+        // Verificar que los destinatarios incluyen emails de prueba
+        $todosLosDestinatarios = \App\Services\AlertasMantenimientoService::obtenerDestinatarios();
+
+        foreach ($emailsPrueba as $emailPrueba) {
+            $this->assertContains(
+                $emailPrueba,
+                $todosLosDestinatarios,
+                "Email de prueba '$emailPrueba' debe estar en la lista de destinatarios"
+            );
+        }
+    }
+
+    /** @test */
+    public function job_test_usa_emails_prueba_cuando_no_especifica_emails()
+    {
+        Mail::fake();
+
+        // Obtener emails de prueba del .env
+        $emailsPrueba = \App\Services\AlertasMantenimientoService::obtenerEmailsPrueba();
+        $this->assertNotEmpty($emailsPrueba, 'Deben existir emails de prueba configurados');
+
+        // Verificar que el job usa emails de prueba cuando es test y no se especifican emails
+        $job = new EnviarAlertaMantenimiento(true, null);
+
+        // Usar reflexión para verificar que obtiene los emails correctos
+        $reflection = new \ReflectionClass($job);
+        $method = $reflection->getMethod('obtenerDestinatarios');
+        $method->setAccessible(true);
+
+        $destinatarios = $method->invoke($job);
+
+        // Los destinatarios deben incluir los emails de prueba
+        foreach ($emailsPrueba as $emailPrueba) {
+            $this->assertContains(
+                $emailPrueba,
+                $destinatarios,
+                "Email de prueba '$emailPrueba' debe estar en destinatarios del job de test"
+            );
+        }
     }
 }

@@ -79,38 +79,59 @@ class ProbarResend extends Command
     private function enviarConFacade(string $email): void
     {
         // Datos de prueba para el email
-        $alertasData = [
+        $datosTest = [
             'alertas' => [
                 [
+                    'vehiculo_id' => 999,
                     'vehiculo_info' => [
                         'marca' => 'Tesla',
-                        'modelo' => 'Model S',
-                        'placas' => 'RSN-001',
-                        'nombre_completo' => 'Tesla Model S - RSN-001'
+                        'modelo' => 'Cybertruck',
+                        'placas' => 'RESEND-001',
+                        'nombre_completo' => 'Tesla Cybertruck - RESEND-001',
+                        'kilometraje_actual' => '50,000 km'
                     ],
-                    'sistema' => 'Motor Eléctrico',
-                    'urgencia' => 'alta',
-                    'kilometraje_actual' => 50000,
-                    'ultimo_mantenimiento' => [
-                        'fecha' => '15/06/2025',
-                        'kilometraje' => 45000,
-                        'descripcion' => 'Actualización de software'
+                    'sistema_mantenimiento' => [
+                        'nombre_sistema' => 'Motor Electrico',
+                        'intervalo_km' => '10,000 km',
+                        'tipo_mantenimiento' => 'Mantenimiento Preventivo de Motor Eléctrico',
+                        'descripcion_sistema' => 'Revisión de batería, sistemas eléctricos y actualizaciones'
                     ],
-                    'km_exceso' => 5000,
-                    'km_vencido_por' => 5000,
-                    'mensaje' => '🔋 Batería requiere revisión - Enviado con Resend!'
+                    'intervalo_alcanzado' => [
+                        'intervalo_configurado' => 10000,
+                        'kilometraje_base' => 45000,
+                        'proximo_mantenimiento_esperado' => 55000,
+                        'kilometraje_actual' => 50000,
+                        'km_exceso' => 5000,
+                        'porcentaje_sobrepaso' => '50.0%'
+                    ],
+                    'historial_mantenimientos' => [
+                        'cantidad_encontrada' => 1,
+                        'mantenimientos' => [
+                            [
+                                'fecha' => '15/06/2025',
+                                'kilometraje' => 45000,
+                                'tipo_servicio' => 'PREVENTIVO',
+                                'descripcion' => 'Actualización de software y revisión de batería',
+                                'proveedor' => 'Tesla Service Center',
+                                'costo' => '$3,500.00'
+                            ]
+                        ]
+                    ],
+                    'urgencia' => 'medium',
+                    'fecha_deteccion' => now()->format('d/m/Y H:i:s'),
+                    'mensaje_resumen' => '🔋 El vehículo Tesla Cybertruck (RESEND-001) requiere revisión - Enviado con Resend!'
                 ]
             ],
             'resumen' => [
                 'total_alertas' => 1,
                 'vehiculos_afectados' => 1,
-                'por_urgencia' => ['critica' => 0, 'alta' => 1, 'media' => 0],
+                'por_urgencia' => ['critica' => 0, 'alta' => 0, 'media' => 1],
                 'por_sistema' => ['Motor Eléctrico' => 1],
             ],
         ];
 
         // Renderizar el mailable para obtener el HTML
-        $mailable = new AlertasMantenimientoMail($alertasData, true);
+        $mailable = new AlertasMantenimientoMail($datosTest, true);
         $html = $mailable->render();
 
         // Enviar directamente con Resend Facade

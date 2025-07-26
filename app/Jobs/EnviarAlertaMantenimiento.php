@@ -86,28 +86,13 @@ class EnviarAlertaMantenimiento implements ShouldQueue
             return $this->emailsTest;
         }
 
-        // Obtener emails de la configuración
-        $emailsPrincipales = ConfiguracionAlertasService::get('destinatarios', 'emails_principales');
-        $emailsCopia = ConfiguracionAlertasService::get('destinatarios', 'emails_copia');
-
-        $destinatarios = [];
-
-        // Agregar emails principales
-        if (is_array($emailsPrincipales)) {
-            $destinatarios = array_merge($destinatarios, $emailsPrincipales);
+        // Si es test sin emails específicos, usar solo emails de prueba
+        if ($this->esTest) {
+            return AlertasMantenimientoService::obtenerEmailsPrueba();
         }
 
-        // Agregar emails de copia solo si no es test
-        if (!$this->esTest && is_array($emailsCopia)) {
-            $destinatarios = array_merge($destinatarios, $emailsCopia);
-        }
-
-        // Filtrar emails válidos y únicos
-        $destinatarios = array_unique(array_filter($destinatarios, function ($email) {
-            return filter_var($email, FILTER_VALIDATE_EMAIL);
-        }));
-
-        return array_values($destinatarios);
+        // Para alertas reales, usar todos los destinatarios (configuración + prueba)
+        return AlertasMantenimientoService::obtenerDestinatarios();
     }
 
     /**
@@ -123,21 +108,39 @@ class EnviarAlertaMantenimiento implements ShouldQueue
                         'marca' => 'Caterpillar',
                         'modelo' => '320D',
                         'placas' => 'TEST-001',
-                        'nombre_completo' => 'Caterpillar 320D - TEST-001'
+                        'nombre_completo' => 'Caterpillar 320D - TEST-001',
+                        'kilometraje_actual' => '15,000 km'
                     ],
-                    'sistema' => 'Motor',
-                    'urgencia' => 'critica',
-                    'kilometraje_actual' => 15000,
-                    'intervalo_configurado' => 10000,
-                    'ultimo_mantenimiento' => [
-                        'fecha' => '01/01/2025',
-                        'kilometraje' => 5000,
-                        'descripcion' => 'Cambio de aceite y filtros'
+                    'sistema_mantenimiento' => [
+                        'nombre_sistema' => 'Motor',
+                        'intervalo_km' => '10,000 km',
+                        'tipo_mantenimiento' => 'Mantenimiento Preventivo de Motor',
+                        'descripcion_sistema' => 'Cambio de aceite, filtros y revisión general del motor'
                     ],
-                    'proximo_mantenimiento_km' => 15000,
-                    'km_exceso' => 5000,
-                    'dias_exceso' => 15,
-                    'mensaje' => 'Mantenimiento de motor vencido hace 5000 km (50% de exceso)',
+                    'intervalo_alcanzado' => [
+                        'intervalo_configurado' => 10000,
+                        'kilometraje_base' => 5000,
+                        'proximo_mantenimiento_esperado' => 15000,
+                        'kilometraje_actual' => 15000,
+                        'km_exceso' => 5000,
+                        'porcentaje_sobrepaso' => '50.0%'
+                    ],
+                    'historial_mantenimientos' => [
+                        'cantidad_encontrada' => 1,
+                        'mantenimientos' => [
+                            [
+                                'fecha' => '01/01/2025',
+                                'kilometraje' => 5000,
+                                'tipo_servicio' => 'PREVENTIVO',
+                                'descripcion' => 'Cambio de aceite y filtros de motor',
+                                'proveedor' => 'Taller de Prueba',
+                                'costo' => '$1,500.00'
+                            ]
+                        ]
+                    ],
+                    'urgencia' => 'high',
+                    'fecha_deteccion' => now()->format('d/m/Y H:i:s'),
+                    'mensaje_resumen' => 'El vehículo Caterpillar 320D (TEST-001) ha superado su intervalo de mantenimiento del Motor por 5,000 km. Se esperaba mantenimiento en los 15,000 km, pero actualmente tiene 15,000 km.'
                 ],
                 [
                     'vehiculo_id' => 998,
@@ -145,30 +148,56 @@ class EnviarAlertaMantenimiento implements ShouldQueue
                         'marca' => 'Komatsu',
                         'modelo' => 'PC200',
                         'placas' => 'TEST-002',
-                        'nombre_completo' => 'Komatsu PC200 - TEST-002'
+                        'nombre_completo' => 'Komatsu PC200 - TEST-002',
+                        'kilometraje_actual' => '32,000 km'
                     ],
-                    'sistema' => 'Hidráulico',
-                    'urgencia' => 'alta',
-                    'kilometraje_actual' => 32000,
-                    'intervalo_configurado' => 10000,
-                    'ultimo_mantenimiento' => [
-                        'fecha' => '15/12/2024',
-                        'kilometraje' => 20000,
-                        'descripcion' => 'Cambio de aceite hidráulico'
+                    'sistema_mantenimiento' => [
+                        'nombre_sistema' => 'Hidraulico',
+                        'intervalo_km' => '10,000 km',
+                        'tipo_mantenimiento' => 'Mantenimiento Preventivo del Sistema Hidráulico',
+                        'descripcion_sistema' => 'Cambio de aceite hidráulico, filtros y revisión de mangueras'
                     ],
-                    'proximo_mantenimiento_km' => 30000,
-                    'km_exceso' => 2000,
-                    'dias_exceso' => 8,
-                    'mensaje' => 'Mantenimiento hidráulico próximo a vencer (2000 km de exceso)',
+                    'intervalo_alcanzado' => [
+                        'intervalo_configurado' => 10000,
+                        'kilometraje_base' => 20000,
+                        'proximo_mantenimiento_esperado' => 30000,
+                        'kilometraje_actual' => 32000,
+                        'km_exceso' => 2000,
+                        'porcentaje_sobrepaso' => '20.0%'
+                    ],
+                    'historial_mantenimientos' => [
+                        'cantidad_encontrada' => 2,
+                        'mantenimientos' => [
+                            [
+                                'fecha' => '15/12/2024',
+                                'kilometraje' => 20000,
+                                'tipo_servicio' => 'PREVENTIVO',
+                                'descripcion' => 'Cambio de aceite hidráulico y filtros',
+                                'proveedor' => 'Servicio Especializado',
+                                'costo' => '$2,800.00'
+                            ],
+                            [
+                                'fecha' => '15/06/2024',
+                                'kilometraje' => 10000,
+                                'tipo_servicio' => 'PREVENTIVO',
+                                'descripcion' => 'Mantenimiento preventivo del sistema hidráulico',
+                                'proveedor' => 'Servicio Especializado',
+                                'costo' => '$2,500.00'
+                            ]
+                        ]
+                    ],
+                    'urgencia' => 'medium',
+                    'fecha_deteccion' => now()->format('d/m/Y H:i:s'),
+                    'mensaje_resumen' => 'El vehículo Komatsu PC200 (TEST-002) ha superado su intervalo de mantenimiento del Hidráulico por 2,000 km. Se esperaba mantenimiento en los 30,000 km, pero actualmente tiene 32,000 km.'
                 ],
             ],
             'resumen' => [
                 'total_alertas' => 2,
                 'vehiculos_afectados' => 2,
                 'por_urgencia' => [
-                    'critica' => 1,
+                    'critica' => 0,
                     'alta' => 1,
-                    'media' => 0,
+                    'media' => 1,
                 ],
                 'por_sistema' => [
                     'Motor' => 1,

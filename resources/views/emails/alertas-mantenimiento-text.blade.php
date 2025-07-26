@@ -7,54 +7,53 @@ Este es un correo de prueba para verificar que el sistema de alertas funciona co
 No se requiere ninguna acción.
 
 @endif
-📊 RESUMEN DEL REPORTE
-================================================================
-Total de Alertas: {{ $resumen['total_alertas'] ?? 0 }}
-Vehículos Afectados: {{ $resumen['vehiculos_afectados'] ?? 0 }}
-Alertas Urgentes: {{ ($resumen['por_urgencia']['critica'] ?? 0) + ($resumen['por_urgencia']['alta'] ?? 0) }}
-Requieren Acción: {{ count(array_unique(array_column($alertas, 'vehiculo_info'))) }}
-
-@if(!empty($resumen['por_urgencia']))
-⚡ DISTRIBUCIÓN POR URGENCIA
-================================================================
-@if(($resumen['por_urgencia']['critica'] ?? 0) > 0)
-🔴 Críticas: {{ $resumen['por_urgencia']['critica'] }}
-@endif
-@if(($resumen['por_urgencia']['alta'] ?? 0) > 0)
-🟡 Altas: {{ $resumen['por_urgencia']['alta'] }}
-@endif
-@if(($resumen['por_urgencia']['media'] ?? 0) > 0)
-🟢 Medias: {{ $resumen['por_urgencia']['media'] }}
-@endif
-
-@endif
 @if(!empty($alertas))
-🚛 DETALLES DE VEHÍCULOS CON ALERTAS
+� ALERTAS DE MANTENIMIENTO DETECTADAS
 ================================================================
 
 @foreach($alertas as $alerta)
 ----------------------------------------------------------------
-🚛 VEHÍCULO: {{ $alerta['vehiculo_info']['marca'] ?? 'N/A' }} {{ $alerta['vehiculo_info']['modelo'] ?? 'N/A' }}@if(!empty($alerta['vehiculo_info']['placas'])) ({{ $alerta['vehiculo_info']['placas'] }})@endif
-
+🚛 VEHÍCULO: {{ $alerta['vehiculo_info']['nombre_completo'] }}
 URGENCIA: {{ strtoupper($alerta['urgencia']) }}
-Sistema: {{ $alerta['sistema'] }}
-Kilometraje Actual: {{ number_format($alerta['kilometraje_actual']) }} km
-Último Mantenimiento: {{ number_format($alerta['ultimo_mantenimiento']['kilometraje']) }} km
-Exceso de Kilometraje: +{{ number_format($alerta['km_vencido_por']) }} km
-@if(!empty($alerta['ultimo_mantenimiento']['fecha']) && $alerta['ultimo_mantenimiento']['fecha'] !== 'Nunca')
-Fecha Último Servicio: {{ $alerta['ultimo_mantenimiento']['fecha'] }}
+
+Sistema: {{ $alerta['sistema_mantenimiento']['nombre_sistema'] }}
+Tipo de Mantenimiento: {{ $alerta['sistema_mantenimiento']['tipo_mantenimiento'] }}
+Descripción: {{ $alerta['sistema_mantenimiento']['descripcion_sistema'] }}
+
+KILOMETRAJE:
+- Actual: {{ $alerta['vehiculo_info']['kilometraje_actual'] }}
+- Intervalo: {{ $alerta['sistema_mantenimiento']['intervalo_km'] }}
+- Exceso: {{ number_format($alerta['intervalo_alcanzado']['km_exceso']) }} km
+- Sobrepaso: {{ $alerta['intervalo_alcanzado']['porcentaje_sobrepaso'] }}
+
+@if($alerta['historial_mantenimientos']['cantidad_encontrada'] > 0)
+HISTORIAL DE MANTENIMIENTOS ({{ $alerta['sistema_mantenimiento']['nombre_sistema'] }}):
+@foreach($alerta['historial_mantenimientos']['mantenimientos'] as $index => $mantenimiento)
+  {{ $index === 0 ? '🏷️ Último:' : '📅 Anterior:' }} {{ $mantenimiento['fecha'] }} - {{ number_format($mantenimiento['kilometraje']) }} km
+  Tipo: {{ ucfirst(strtolower($mantenimiento['tipo_servicio'])) }}
+  Descripción: {{ $mantenimiento['descripcion'] }}
+@if($mantenimiento['proveedor'] !== 'No especificado')
+  Proveedor: {{ $mantenimiento['proveedor'] }}
+@endif
+@if($mantenimiento['costo'] !== 'No especificado')
+  Costo: {{ $mantenimiento['costo'] }}
 @endif
 
-DESCRIPCIÓN:
-El vehículo {{ $alerta['vehiculo_info']['nombre_completo'] }} requiere mantenimiento del sistema {{ $alerta['sistema'] }}. Ha excedido {{ number_format($alerta['km_vencido_por']) }} km del intervalo programado.
+@endforeach
+@else
+📝 No se encontraron mantenimientos previos para este sistema.
+Este será el primer mantenimiento registrado del sistema {{ strtolower($alerta['sistema_mantenimiento']['nombre_sistema']) }}.
+
+@endif
+RESUMEN:
+{{ $alerta['mensaje_resumen'] }}
+Detectado el: {{ $alerta['fecha_deteccion'] }}
 
 @endforeach
 ================================================================
 
 ⚡ ACCIÓN RECOMENDADA
 Se recomienda programar los mantenimientos pendientes lo antes posible para evitar daños mayores.
-
-Gestionar Mantenimientos: {{ $sistemaUrl }}/mantenimientos
 
 @else
 ================================================================
@@ -71,13 +70,10 @@ No hay alertas de mantenimiento pendientes.
 
 ================================================================
 SISTEMA DE CONTROL INTERNO - PETROTEKNO
-Reporte generado automáticamente el {{ $fechaGeneracion }}
+Reporte generado automáticamente el {{ now()->format('d/m/Y H:i:s') }}
 
 Este correo es generado automáticamente.
-@if(!$esTest)
-Para configurar las alertas, accede al panel de administración.
-@endif
+Para más información, contacta al administrador del sistema.
 
-Soporte Técnico: soporte@110694.xyz
-Sistema: {{ $sistemaUrl }}
+Sistema: PetroTekno Control Interno
 ================================================================

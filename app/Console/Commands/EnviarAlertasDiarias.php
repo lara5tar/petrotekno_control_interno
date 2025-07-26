@@ -56,6 +56,26 @@ class EnviarAlertasDiarias extends Command
             $resultado = AlertasMantenimientoService::verificarTodosLosVehiculos();
             $todasLasAlertas = $resultado['alertas'];
 
+            // Obtener emails de destino (configuración + prueba)
+            $emails = AlertasMantenimientoService::obtenerDestinatarios();
+
+            if (empty($emails)) {
+                $this->error('❌ No hay emails configurados para envío');
+                return Command::FAILURE;
+            }
+
+            if ($this->option('dry-run')) {
+                $this->info('🔍 MODO SIMULACIÓN - No se enviarán emails reales');
+                if (empty($todasLasAlertas)) {
+                    $this->info('✅ No hay alertas de mantenimiento pendientes');
+                } else {
+                    $resumen = $resultado['resumen'];
+                    $this->mostrarResumen($resumen, $todasLasAlertas);
+                }
+                $this->info('📧 Se enviarían a: ' . implode(', ', $emails));
+                return Command::SUCCESS;
+            }
+
             if (empty($todasLasAlertas)) {
                 $this->info('✅ No hay alertas de mantenimiento pendientes');
                 return Command::SUCCESS;
@@ -64,23 +84,6 @@ class EnviarAlertasDiarias extends Command
             // Mostrar resumen
             $resumen = $resultado['resumen'];
             $this->mostrarResumen($resumen, $todasLasAlertas);
-
-            // Obtener emails de destino
-            $emails = ConfiguracionAlertasService::getEmailsDestino();
-
-            if (empty($emails['to'])) {
-                $this->error('❌ No hay emails configurados para envío');
-                return Command::FAILURE;
-            }
-
-            if ($this->option('dry-run')) {
-                $this->info('🔍 MODO SIMULACIÓN - No se enviarán emails reales');
-                $this->info('📧 Se enviarían a: ' . implode(', ', $emails['to']));
-                if (!empty($emails['cc'])) {
-                    $this->info('📧 CC: ' . implode(', ', $emails['cc']));
-                }
-                return Command::SUCCESS;
-            }
 
             // Generar y enviar reporte
             $this->info('📄 Generando reporte PDF...');
@@ -130,7 +133,7 @@ class EnviarAlertasDiarias extends Command
         if (!empty($alertasCriticas)) {
             $this->warn('⚠️  ALERTAS CRÍTICAS (>20% sobrepaso):');
             foreach ($alertasCriticas as $alerta) {
-                $this->warn("   • {$alerta['vehiculo_info']['nombre_completo']} - {$alerta['sistema']} ({$alerta['km_vencido_por']} km vencido)");
+                $this->warn("   • {$alerta['vehiculo_info']['nombre_completo']} - {$alerta['sistema_mantenimiento']['nombre_sistema']} ({$alerta['intervalo_alcanzado']['km_exceso']} km vencido)");
             }
         }
     }
@@ -157,9 +160,9 @@ class EnviarAlertasDiarias extends Command
 
         foreach ($alertas as $alerta) {
             $contenido .= "Vehículo: {$alerta['vehiculo_info']['nombre_completo']}\n";
-            $contenido .= "Sistema: {$alerta['sistema']}\n";
-            $contenido .= "Kilometraje actual: {$alerta['kilometraje_actual']} km\n";
-            $contenido .= "Vencido por: {$alerta['km_vencido_por']} km\n";
+            $contenido .= "Sistema: {$alerta['sistema_mantenimiento']['nombre_sistema']}\n";
+            $contenido .= "Kilometraje actual: {$alerta['vehiculo_info']['kilometraje_actual']}\n";
+            $contenido .= "Vencido por: {$alerta['intervalo_alcanzado']['km_exceso']} km\n";
             $contenido .= "Urgencia: {$alerta['urgencia']}\n";
             $contenido .= "---\n";
         }
@@ -195,11 +198,8 @@ class EnviarAlertasDiarias extends Command
                 $destinatarios = [$emailEspecifico];
                 $this->info("   📧 Destinatario específico: $emailEspecifico");
             } else {
-                $destinatarios = array_merge($emails['to'], $emails['cc'] ?? []);
-                $this->info("   📧 TO: " . implode(', ', $emails['to']));
-                if (!empty($emails['cc'])) {
-                    $this->info("   📧 CC: " . implode(', ', $emails['cc']));
-                }
+                $destinatarios = $emails;
+                $this->info("   📧 Destinatarios: " . implode(', ', $emails));
             }
 
             try {
@@ -228,16 +228,11 @@ class EnviarAlertasDiarias extends Command
             }
         } else {
             $this->info('📧 Simulando envío de email...');
-            $this->info("   📧 TO: " . implode(', ', $emails['to']));
-
-            if (!empty($emails['cc'])) {
-                $this->info("   📧 CC: " . implode(', ', $emails['cc']));
-            }
+            $this->info("   📧 Destinatarios: " . implode(', ', $emails));
 
             Log::info('Alertas diarias enviadas (simulación)', [
                 'num_alertas' => count($alertas),
-                'emails_to' => $emails['to'],
-                'emails_cc' => $emails['cc'],
+                'emails_destino' => $emails,
                 'archivo_pdf' => $rutaPDF
             ]);
         }

@@ -4,7 +4,7 @@
 
 ### **Resumen de Verificación**
 - **Fecha:** 24 de julio de 2025
-- **Email de Prueba:** ederjahir@gmail.com
+- **Email de Prueba:** ebravotube@gmail.com
 - **Estado:** ✅ FUNCIONANDO CORRECTAMENTE
 - **Emails Enviados:** 3 correos de prueba exitosos
 - **Mailer Configurado:** log (para desarrollo) con capacidad para smtp
@@ -79,14 +79,17 @@ MAIL_FROM_NAME="Sistema de Alertas Petrotekno"
 
 ### **Test 1: Comando Directo**
 ```bash
-php artisan test:enviar-correo ederjahir@gmail.com --mailer=log --sync
+**Comando de Prueba:**
+```bash
+php artisan test:enviar-correo ebravotube@gmail.com --mailer=log --sync
+```
 ```
 **Resultado:** ✅ Exitoso - Registrado en log
 
 ### **Test 2: API Endpoint (Simulación)**
 ```json
 {
-  "email": "ederjahir@gmail.com",
+  "email": "ebravotube@gmail.com",
   "mailer": "log",
   "enviar_real": false
 }
@@ -96,7 +99,7 @@ php artisan test:enviar-correo ederjahir@gmail.com --mailer=log --sync
 ### **Test 3: API Endpoint (Envío Real)**
 ```json
 {
-  "email": "ederjahir@gmail.com", 
+  "email": "ebravotube@gmail.com", 
   "mailer": "log",
   "enviar_real": true
 }
@@ -161,7 +164,7 @@ MAIL_FROM_NAME="Sistema de Alertas Petrotekno"
 ### **Logs Exitosos**
 ```
 [2025-07-24 04:15:56] local.INFO: Email de prueba enviado {
-    "destinatario":"ederjahir@gmail.com",
+    "destinatario":"ebravotube@gmail.com",
     "total_alertas":1,
     "vehiculos_afectados":1,
     "es_test":true
