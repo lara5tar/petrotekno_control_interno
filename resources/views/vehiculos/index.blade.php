@@ -74,7 +74,7 @@
                 <input type="text" id="marca" name="marca" value="{{ request('marca') }}" placeholder="Filtrar por marca" class="p-2 border border-gray-300 rounded-md w-full">
             </div>
             <div class="flex gap-2">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200">
+                <button type="submit" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md transition duration-200">
                     Filtrar
                 </button>
                 <a href="{{ route('vehiculos.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-200">

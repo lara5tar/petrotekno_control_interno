@@ -22,9 +22,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-
         // Registrar observers
         Mantenimiento::observe(MantenimientoObserver::class);
 
+        // Registrar directivas Blade personalizadas
+        Blade::directive('hasPermission', function ($permission) {
+            return "<?php if(auth()->check() && auth()->user()->hasPermission($permission)): ?>";
+        });
+
+        Blade::directive('endhasPermission', function () {
+            return "<?php endif; ?>";
+        });
     }
 }
