@@ -20,8 +20,7 @@ return new class extends Migration
             $table->foreignId('vehiculo_id')->nullable()->constrained('vehiculos')->onDelete('cascade');
             $table->foreignId('personal_id')->nullable()->constrained('personal')->onDelete('cascade');
             $table->foreignId('obra_id')->nullable()->constrained('obras')->onDelete('cascade');
-            // TODO: Agregar foreign key cuando se implemente la tabla mantenimientos
-            $table->unsignedBigInteger('mantenimiento_id')->nullable();
+            $table->foreignId('mantenimiento_id')->nullable()->constrained('mantenimientos')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
 

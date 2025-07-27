@@ -55,6 +55,32 @@ class Personal extends Model
     protected $dates = ['deleted_at'];
 
     /**
+     * Estados válidos para personal
+     */
+    public const ESTATUS_VALIDOS = ['activo', 'inactivo', 'suspendido', 'vacaciones'];
+
+    /**
+     * Validar y limpiar el estatus
+     */
+    public function setEstatusAttribute($value): void
+    {
+        if (! in_array($value, self::ESTATUS_VALIDOS)) {
+            throw new \InvalidArgumentException("Estatus inválido: {$value}. Los valores válidos son: " . implode(', ', self::ESTATUS_VALIDOS));
+        }
+
+        $this->attributes['estatus'] = $value;
+    }
+
+    /**
+     * Mutator para limpiar y validar nombre_completo contra XSS
+     */
+    public function setNombreCompletoAttribute($value): void
+    {
+        // Sanitización básica sin usar mews/purifier directamente
+        $this->attributes['nombre_completo'] = strip_tags(trim($value));
+    }
+
+    /**
      * Relación con CategoriaPersonal
      */
     public function categoria(): BelongsTo
@@ -71,10 +97,12 @@ class Personal extends Model
     }
 
     /**
-     * Relación con Documentos
+
+     * Relación con Asignaciones
      */
-    public function documentos(): HasMany
+    public function asignaciones(): HasMany
     {
-        return $this->hasMany(Documento::class, 'personal_id');
+        return $this->hasMany(Asignacion::class, 'personal_id');
+
     }
 }

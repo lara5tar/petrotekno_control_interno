@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\CatalogoTipoServicio;
 use App\Models\Mantenimiento;
 use App\Models\Permission;
 use App\Models\Personal;
@@ -37,12 +36,14 @@ class MantenimientoBoundaryTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $vehiculo = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
 
         // Test simple primero para verificar permisos
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => 'Proveedor Test',
             'descripcion' => 'Descripción Test',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -56,12 +57,12 @@ class MantenimientoBoundaryTest extends TestCase
             $this->adminUser->refresh();
             $this->adminUser->load(['rol.permisos']);
 
-            dump('Usuario ID: '.$this->adminUser->id);
-            dump('Rol: '.$this->adminUser->rol->nombre_rol);
-            dump('Permisos: '.$this->adminUser->rol->permisos->pluck('nombre_permiso')->implode(', '));
-            dump('hasPermission crear_mantenimientos: '.($this->adminUser->hasPermission('crear_mantenimientos') ? 'true' : 'false'));
-            dump('Response status: '.$response->status());
-            dump('Response body: '.$response->content());
+            dump('Usuario ID: ' . $this->adminUser->id);
+            dump('Rol: ' . $this->adminUser->rol->nombre_rol);
+            dump('Permisos: ' . $this->adminUser->rol->permisos->pluck('nombre_permiso')->implode(', '));
+            dump('hasPermission crear_mantenimientos: ' . ($this->adminUser->hasPermission('crear_mantenimientos') ? 'true' : 'false'));
+            dump('Response status: ' . $response->status());
+            dump('Response body: ' . $response->content());
         }
 
         $response->assertStatus(201);
@@ -70,7 +71,8 @@ class MantenimientoBoundaryTest extends TestCase
         $fechaHoy = Carbon::today();
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => 'Proveedor Hoy',
             'descripcion' => 'Mantenimiento de hoy',
             'fecha_inicio' => $fechaHoy->format('Y-m-d'),
@@ -92,7 +94,8 @@ class MantenimientoBoundaryTest extends TestCase
         foreach ($fechasLimite as $fecha) {
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Fecha $fecha",
                 'descripcion' => "Mantenimiento Fecha $fecha",
                 'fecha_inicio' => $fecha,
@@ -119,7 +122,8 @@ class MantenimientoBoundaryTest extends TestCase
         foreach ($fechasInvalidas as $fecha) {
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Inválido $fecha",
                 'descripcion' => "Mantenimiento Inválido $fecha",
                 'fecha_inicio' => $fecha,
@@ -127,8 +131,11 @@ class MantenimientoBoundaryTest extends TestCase
                 'costo' => 1500.50,
             ]);
 
-            $this->assertEquals(422, $response->status(),
-                "Fecha inválida $fecha should be rejected with 422");
+            $this->assertEquals(
+                422,
+                $response->status(),
+                "Fecha inválida $fecha should be rejected with 422"
+            );
         }
     }
 
@@ -138,7 +145,7 @@ class MantenimientoBoundaryTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $vehiculo = Vehiculo::factory()->create(['kilometraje_actual' => 200000]); // Vehículo con mucho kilometraje
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
 
         // Test: Kilometrajes en valores límite válidos
         $kilometrajesValidos = [0, 1, 50000, 100000, 150000, 200000];
@@ -146,7 +153,8 @@ class MantenimientoBoundaryTest extends TestCase
         foreach ($kilometrajesValidos as $kilometraje) {
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Km $kilometraje",
                 'descripcion' => "Mantenimiento Km $kilometraje",
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -164,7 +172,8 @@ class MantenimientoBoundaryTest extends TestCase
         foreach ($kilometrajesInvalidos as $kilometraje) {
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Inválido $kilometraje",
                 'descripcion' => "Mantenimiento Inválido $kilometraje",
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -172,8 +181,11 @@ class MantenimientoBoundaryTest extends TestCase
                 'costo' => 1500.50,
             ]);
 
-            $this->assertEquals(422, $response->status(),
-                "Kilometraje $kilometraje should be rejected with 422");
+            $this->assertEquals(
+                422,
+                $response->status(),
+                "Kilometraje $kilometraje should be rejected with 422"
+            );
         }
 
         // Test: Kilometrajes con decimales
@@ -182,7 +194,8 @@ class MantenimientoBoundaryTest extends TestCase
         foreach ($kilometrajesDecimales as $kilometraje) {
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Decimal $kilometraje",
                 'descripcion' => "Mantenimiento Decimal $kilometraje",
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -201,7 +214,7 @@ class MantenimientoBoundaryTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $vehiculo = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
 
         // Test: Costos en valores límite válidos
         $costosValidos = [0.00, 0.01, 100.50, 1000.99, 50000.00, 999999.99];
@@ -209,7 +222,8 @@ class MantenimientoBoundaryTest extends TestCase
         foreach ($costosValidos as $costo) {
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Costo $costo",
                 'descripcion' => "Mantenimiento Costo $costo",
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -227,7 +241,8 @@ class MantenimientoBoundaryTest extends TestCase
         foreach ($costosInvalidos as $costo) {
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Inválido $costo",
                 'descripcion' => "Mantenimiento Inválido $costo",
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -235,8 +250,11 @@ class MantenimientoBoundaryTest extends TestCase
                 'costo' => $costo,
             ]);
 
-            $this->assertEquals(422, $response->status(),
-                "Costo $costo should be rejected with 422");
+            $this->assertEquals(
+                422,
+                $response->status(),
+                "Costo $costo should be rejected with 422"
+            );
         }
 
         // Test: Costos con muchos decimales
@@ -245,7 +263,8 @@ class MantenimientoBoundaryTest extends TestCase
         foreach ($costosDecimales as $costo) {
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Decimal $costo",
                 'descripcion' => "Mantenimiento Decimal $costo",
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -270,13 +289,14 @@ class MantenimientoBoundaryTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $vehiculo = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
 
         // Test: Proveedor en el límite exacto (255 caracteres)
         $proveedorLimite = str_repeat('A', 255);
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => $proveedorLimite,
             'descripcion' => 'Descripción Test',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -291,7 +311,8 @@ class MantenimientoBoundaryTest extends TestCase
         $descripcionLarga = str_repeat('B', 65535);
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => 'Proveedor Test',
             'descripcion' => $descripcionLarga,
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -306,7 +327,8 @@ class MantenimientoBoundaryTest extends TestCase
         $proveedorExcesivo = str_repeat('C', 256);
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => $proveedorExcesivo,
             'descripcion' => 'Descripción Test',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -314,14 +336,18 @@ class MantenimientoBoundaryTest extends TestCase
             'costo' => 1500.50,
         ]);
 
-        $this->assertEquals(422, $response->status(),
-            'Proveedor over 255 characters should be rejected');
+        $this->assertEquals(
+            422,
+            $response->status(),
+            'Proveedor over 255 characters should be rejected'
+        );
 
-        // Test: Descripción extremadamente larga (100000+ caracteres)
-        $descripcionExtrema = str_repeat('D', 100000);
+        // Test: Descripción muy larga (1001+ caracteres - excede max:1000)
+        $descripcionExtrema = str_repeat('D', 1001);
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => 'Proveedor Test',
             'descripcion' => $descripcionExtrema,
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -329,13 +355,17 @@ class MantenimientoBoundaryTest extends TestCase
             'costo' => 1500.50,
         ]);
 
-        $this->assertEquals(422, $response->status(),
-            'Extremely long description should be rejected');
+        $this->assertEquals(
+            422,
+            $response->status(),
+            'Extremely long description should be rejected'
+        );
 
         // Test: Campos vacíos
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => '',
             'descripcion' => '',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -350,7 +380,8 @@ class MantenimientoBoundaryTest extends TestCase
         // Test: Solo espacios
         $response = $this->postJson('/api/mantenimientos', [
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => '   ',
             'descripcion' => '   ',
             'fecha_inicio' => now()->format('Y-m-d'),
@@ -367,7 +398,7 @@ class MantenimientoBoundaryTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $vehiculo = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
 
         $textosEspeciales = [
             'Proveedor con áéíóú ñ', // Acentos españoles
@@ -384,7 +415,8 @@ class MantenimientoBoundaryTest extends TestCase
         foreach ($textosEspeciales as $proveedor) {
             $response = $this->postJson('/api/mantenimientos', [
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => $proveedor,
                 'descripcion' => "Descripción especial: $proveedor",
                 'fecha_inicio' => now()->format('Y-m-d'),
@@ -417,12 +449,12 @@ class MantenimientoBoundaryTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $vehiculo = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
 
         // Crear muchos mantenimientos para probar paginación
         Mantenimiento::factory()->count(150)->create([
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         // Test: Página 0 (inválida)
@@ -463,30 +495,30 @@ class MantenimientoBoundaryTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $vehiculo = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
 
         // Crear mantenimientos con proveedores específicos para buscar
         $mantenimientos = [
             Mantenimiento::factory()->create([
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
                 'proveedor' => 'Mecánica Principal',
             ]),
             Mantenimiento::factory()->create([
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
                 'proveedor' => 'mecánica secundaria',
             ]),
             Mantenimiento::factory()->create([
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
                 'proveedor' => 'MECÁNICA TERCIARIA',
             ]),
         ];
 
         // Test: Búsqueda con string muy largo
         $busquedaLarga = str_repeat('mecánica ', 100);
-        $response = $this->getJson('/api/mantenimientos?buscar='.urlencode($busquedaLarga));
+        $response = $this->getJson('/api/mantenimientos?buscar=' . urlencode($busquedaLarga));
         $response->assertStatus(200);
 
         // Test: Búsqueda vacía
@@ -494,7 +526,7 @@ class MantenimientoBoundaryTest extends TestCase
         $response->assertStatus(200);
 
         // Test: Búsqueda solo con espacios
-        $response = $this->getJson('/api/mantenimientos?buscar='.urlencode('   '));
+        $response = $this->getJson('/api/mantenimientos?buscar=' . urlencode('   '));
         $response->assertStatus(200);
 
         // Test: Búsqueda con caracteres especiales
@@ -511,15 +543,15 @@ class MantenimientoBoundaryTest extends TestCase
         ];
 
         foreach ($busquedasEspeciales as $busqueda) {
-            $response = $this->getJson('/api/mantenimientos?buscar='.urlencode($busqueda));
+            $response = $this->getJson('/api/mantenimientos?buscar=' . urlencode($busqueda));
             $response->assertStatus(200);
         }
 
         // Test: Múltiples filtros simultáneos con valores extremos
-        $response = $this->getJson('/api/mantenimientos?'.http_build_query([
+        $response = $this->getJson('/api/mantenimientos?' . http_build_query([
             'buscar' => str_repeat('test', 50),
             'vehiculo_id' => 99999,
-            'tipo_servicio_id' => 99999,
+            'tipo_servicio' => 99999,
             'proveedor' => str_repeat('proveedor', 20),
             'fecha_inicio_desde' => '1900-01-01',
             'fecha_inicio_hasta' => '2100-12-31',
@@ -542,12 +574,12 @@ class MantenimientoBoundaryTest extends TestCase
         $vehiculo = Vehiculo::factory()->create([
             'kilometraje_actual' => 100000, // Aseguramos un kilometraje base alto
         ]);
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
 
         // Crear mantenimiento con kilometraje seguro
         $mantenimiento = Mantenimiento::factory()->create([
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
             'kilometraje_servicio' => 95000, // Menor al kilometraje actual del vehículo
             'costo' => 1000.00,
             'proveedor' => 'Proveedor Original',
@@ -559,7 +591,8 @@ class MantenimientoBoundaryTest extends TestCase
         for ($i = 0; $i < 5; $i++) {
             $responses[] = $this->putJson("/api/mantenimientos/{$mantenimiento->id}", [
                 'vehiculo_id' => $vehiculo->id,
-                'tipo_servicio_id' => $tipoServicio->id,
+                'tipo_servicio' => 'CORRECTIVO',
+                'sistema_vehiculo' => 'motor',
                 'proveedor' => "Proveedor Actualizado $i",
                 'descripcion' => "Descripción Actualizada $i",
                 'fecha_inicio' => $mantenimiento->fecha_inicio,
@@ -590,12 +623,12 @@ class MantenimientoBoundaryTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $vehiculo = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
 
         // Crear un volumen considerable de mantenimientos
         Mantenimiento::factory()->count(500)->create([
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         $initialMemory = memory_get_usage();
@@ -608,13 +641,16 @@ class MantenimientoBoundaryTest extends TestCase
         $memoryUsed = $finalMemory - $initialMemory;
 
         // Verificar que el uso de memoria no sea excesivo (menos de 50MB)
-        $this->assertLessThan(50 * 1024 * 1024, $memoryUsed,
-            'Memory usage should not exceed 50MB for large queries');
+        $this->assertLessThan(
+            50 * 1024 * 1024,
+            $memoryUsed,
+            'Memory usage should not exceed 50MB for large queries'
+        );
 
         // Verificar que la respuesta tiene la estructura correcta
         $this->assertIsArray($response->json('data'));
-        $this->assertArrayHasKey('current_page', $response->json('data'));
-        $this->assertArrayHasKey('total', $response->json('data'));
+        $this->assertArrayHasKey('current_page', $response->json('meta'));
+        $this->assertArrayHasKey('total', $response->json('meta'));
     }
 
     #[Test]
@@ -623,12 +659,12 @@ class MantenimientoBoundaryTest extends TestCase
         Sanctum::actingAs($this->adminUser);
 
         $vehiculo = Vehiculo::factory()->create();
-        $tipoServicio = CatalogoTipoServicio::factory()->create();
+        $tipoServicio = 'CORRECTIVO';
 
         // Crear muchos mantenimientos para un vehículo
         $mantenimientos = Mantenimiento::factory()->count(50)->create([
             'vehiculo_id' => $vehiculo->id,
-            'tipo_servicio_id' => $tipoServicio->id,
+            'tipo_servicio' => 'CORRECTIVO',
         ]);
 
         // Test: Filtrar mantenimientos por vehículo
@@ -648,8 +684,11 @@ class MantenimientoBoundaryTest extends TestCase
 
         // Verificar que la respuesta no exceda límites razonables
         $responseSize = strlen($response->getContent());
-        $this->assertLessThan(2 * 1024 * 1024, $responseSize,
-            'Response size should not exceed 2MB');
+        $this->assertLessThan(
+            2 * 1024 * 1024,
+            $responseSize,
+            'Response size should not exceed 2MB'
+        );
     }
 
     private function createTestUsers()

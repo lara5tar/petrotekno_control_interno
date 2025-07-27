@@ -70,7 +70,9 @@ class ObraControllerTest extends TestCase
 
         $supervisorRole = Role::firstOrCreate(['nombre_rol' => 'Supervisor']);
         $supervisorPermissions = Permission::whereIn('nombre_permiso', [
-            'ver_obras', 'crear_obras', 'actualizar_obras',
+            'ver_obras',
+            'crear_obras',
+            'actualizar_obras',
         ])->get();
         $supervisorRole->permisos()->sync($supervisorPermissions);
 
@@ -528,7 +530,7 @@ class ObraControllerTest extends TestCase
         Obra::factory()->completada()->create(['nombre_obra' => 'Obra Completada']);
 
         // Test filtro por estatus
-        $response = $this->getJson('/api/obras?estatus='.Obra::ESTATUS_EN_PROGRESO);
+        $response = $this->getJson('/api/obras?estatus=' . Obra::ESTATUS_EN_PROGRESO);
         $response->assertStatus(200);
         $this->assertCount(1, $response->json('data.data'));
 
@@ -566,7 +568,7 @@ class ObraControllerTest extends TestCase
     {
         Sanctum::actingAs($this->adminUser);
 
-        $response = $this->getJson('/api/obras/estatus');
+        $response = $this->getJson('/api/obras/estatus-options');
 
         $response->assertStatus(200)
             ->assertJsonStructure([

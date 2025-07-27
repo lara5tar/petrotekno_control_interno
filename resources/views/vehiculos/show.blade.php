@@ -98,6 +98,7 @@
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ $vehiculo->modelo ?? 'NP300' }}
                             </div>
+
                         </div>
                     </div>
                     
@@ -157,12 +158,11 @@
                                     </svg>
                                 </button>
                             </div>
+
                         </div>
                     </div>
                 </div>
             </div>
-
-
 
         </div>
 
@@ -732,6 +732,7 @@
             <div class="mb-4">
                 <label for="document_file" class="block text-sm font-medium text-gray-700 mb-1">Archivo</label>
                 <input type="file" id="document_file" name="document_file" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+
             </div>
             <div class="mb-4">
                 <label for="expiration_date" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Vencimiento (opcional)</label>

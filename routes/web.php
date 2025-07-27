@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\DocumentoController;
+use App\Http\Controllers\KilometrajeController;
+use App\Http\Controllers\MantenimientoController;
+use App\Http\Controllers\PersonalController;
+use App\Http\Controllers\VehiculoController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;

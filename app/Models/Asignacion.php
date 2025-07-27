@@ -23,6 +23,11 @@ class Asignacion extends Model
         'fecha_liberacion',
         'kilometraje_inicial',
         'kilometraje_final',
+        'combustible_inicial',
+        'combustible_final',
+        'combustible_suministrado',
+        'costo_combustible',
+        'historial_combustible',
         'observaciones',
     ];
 
@@ -35,6 +40,8 @@ class Asignacion extends Model
         'esta_activa',
         'duracion_en_dias',
         'kilometraje_recorrido',
+        'combustible_consumido',
+        'eficiencia_combustible',
     ];
 
     protected $casts = [
@@ -42,6 +49,11 @@ class Asignacion extends Model
         'fecha_liberacion' => 'datetime',
         'kilometraje_inicial' => 'integer',
         'kilometraje_final' => 'integer',
+        'combustible_inicial' => 'decimal:2',
+        'combustible_final' => 'decimal:2',
+        'combustible_suministrado' => 'decimal:2',
+        'costo_combustible' => 'decimal:2',
+        'historial_combustible' => 'array',
     ];
 
     /**
@@ -158,11 +170,84 @@ class Asignacion extends Model
 
         if ($observaciones) {
             $this->observaciones = $this->observaciones
-                ? $this->observaciones."\n\nLiberación: ".$observaciones
-                : 'Liberación: '.$observaciones;
+                ? $this->observaciones . "\n\nLiberación: " . $observaciones
+                : 'Liberación: ' . $observaciones;
         }
 
         return $this->save();
+    }
+
+    /**
+     * Calcular combustible consumido
+     */
+    public function getCombustibleConsumidoAttribute(): ?float
+    {
+        if ($this->combustible_inicial && $this->combustible_final) {
+            // Combustible consumido = inicial - final + suministrado
+            return (float) (($this->combustible_inicial - $this->combustible_final) + ($this->combustible_suministrado ?? 0));
+        }
+
+        return $this->combustible_suministrado ? (float) $this->combustible_suministrado : null;
+    }
+
+    /**
+     * Calcular eficiencia de combustible (km por litro)
+     */
+    public function getEficienciaCombustibleAttribute(): ?float
+    {
+        $kilometraje = $this->kilometraje_recorrido;
+        $combustible = $this->combustible_consumido;
+
+        if ($kilometraje && $combustible && $combustible > 0) {
+            return round($kilometraje / $combustible, 2);
+        }
+
+        return null;
+    }
+
+    /**
+     * Agregar combustible al historial
+     */
+    public function agregarCombustible(float $litros, float $costo, ?string $estacion = null, array $metadata = []): void
+    {
+        $historial = $this->historial_combustible ?? [];
+
+        $registro = [
+            'fecha' => now()->toISOString(),
+            'litros' => $litros,
+            'costo' => $costo,
+            'precio_por_litro' => $litros > 0 ? round($costo / $litros, 2) : 0,
+            'estacion' => $estacion,
+            'kilometraje_actual' => $this->vehiculo->kilometraje_actual ?? null,
+            'metadata' => $metadata,
+        ];
+
+        $historial[] = $registro;
+
+        $this->update([
+            'historial_combustible' => $historial,
+            'combustible_suministrado' => ($this->combustible_suministrado ?? 0) + $litros,
+            'costo_combustible' => ($this->costo_combustible ?? 0) + $costo,
+        ]);
+    }
+
+    /**
+     * Obtener resumen de combustible
+     */
+    public function getResumenCombustible(): array
+    {
+        return [
+            'inicial' => $this->combustible_inicial,
+            'final' => $this->combustible_final,
+            'suministrado' => $this->combustible_suministrado,
+            'consumido' => $this->combustible_consumido,
+            'costo_total' => $this->costo_combustible,
+            'eficiencia' => $this->eficiencia_combustible,
+            'total_recargas' => count($this->historial_combustible ?? []),
+            'promedio_precio_litro' => $this->combustible_suministrado > 0
+                ? round($this->costo_combustible / $this->combustible_suministrado, 2)
+                : null,
+        ];
     }
 
     /**
@@ -188,7 +273,7 @@ class Asignacion extends Model
 
         // Log de creación
         static::created(function ($asignacion) {
-            LogAccion::create([
+            \App\Models\LogAccion::create([
                 'usuario_id' => $asignacion->creado_por_id,
                 'accion' => 'crear_asignacion',
                 'tabla_afectada' => 'asignaciones',

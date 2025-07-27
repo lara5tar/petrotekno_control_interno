@@ -75,7 +75,7 @@ class PermissionController extends Controller
         $permission = Permission::findOrFail($id);
 
         $request->validate([
-            'nombre_permiso' => 'required|string|unique:permisos,nombre_permiso,'.$permission->id,
+            'nombre_permiso' => 'required|string|unique:permisos,nombre_permiso,' . $permission->id,
             'descripcion' => 'nullable|string',
         ]);
 

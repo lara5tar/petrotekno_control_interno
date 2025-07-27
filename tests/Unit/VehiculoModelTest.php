@@ -99,8 +99,8 @@ class VehiculoModelTest extends TestCase
             'marca' => 'Toyota',
             'modelo' => 'Corolla',
             'anio' => 2020,
-            'n_serie' => 'TOY'.now()->timestamp,
-            'placas' => 'TOY-'.rand(100, 999),
+            'n_serie' => 'TOY' . now()->timestamp,
+            'placas' => 'TOY-' . rand(100, 999),
             'estatus_id' => $estatus->id,
             'kilometraje_actual' => 25000,
         ]);
@@ -109,8 +109,8 @@ class VehiculoModelTest extends TestCase
             'marca' => 'Ford',
             'modelo' => 'Explorer',
             'anio' => 2019,
-            'n_serie' => 'FOR'.now()->timestamp,
-            'placas' => 'FOR-'.rand(100, 999),
+            'n_serie' => 'FOR' . now()->timestamp,
+            'placas' => 'FOR-' . rand(100, 999),
             'estatus_id' => $estatus->id,
             'kilometraje_actual' => 35000,
         ]);

@@ -3,8 +3,8 @@
 use App\Http\Controllers\AsignacionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CatalogoTipoDocumentoController;
-use App\Http\Controllers\CatalogoTipoServicioController;
 use App\Http\Controllers\DocumentoController;
+use App\Http\Controllers\KilometrajeController;
 use App\Http\Controllers\MantenimientoController;
 use App\Http\Controllers\ObraController;
 use App\Http\Controllers\PermissionController;
@@ -87,11 +87,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [PersonalController::class, 'index'])
             ->middleware('permission:ver_personal');
 
+        Route::get('/create', [PersonalController::class, 'create'])
+            ->middleware('permission:crear_personal');
+
         Route::post('/', [PersonalController::class, 'store'])
             ->middleware('permission:crear_personal');
 
         Route::get('/{id}', [PersonalController::class, 'show'])
             ->middleware('permission:ver_personal');
+
+        Route::get('/{id}/edit', [PersonalController::class, 'edit'])
+            ->middleware('permission:editar_personal');
 
         Route::put('/{id}', [PersonalController::class, 'update'])
             ->middleware('permission:editar_personal');
@@ -105,6 +111,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [VehiculoController::class, 'index'])
             ->middleware('permission:ver_vehiculos');
 
+        Route::get('/create', [VehiculoController::class, 'create'])
+            ->middleware('permission:crear_vehiculos');
+
         Route::post('/', [VehiculoController::class, 'store'])
             ->middleware('permission:crear_vehiculos');
 
@@ -112,6 +121,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/{id}', [VehiculoController::class, 'show'])
             ->middleware('permission:ver_vehiculos');
+
+        Route::get('/{id}/edit', [VehiculoController::class, 'edit'])
+            ->middleware('permission:editar_vehiculos');
 
         Route::put('/{id}', [VehiculoController::class, 'update'])
             ->middleware('permission:editar_vehiculos');
@@ -128,19 +140,25 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [ObraController::class, 'index'])
             ->middleware('permission:ver_obras');
 
+        Route::get('/create', [ObraController::class, 'create'])
+            ->middleware('permission:crear_obras');
+
         Route::post('/', [ObraController::class, 'store'])
             ->middleware('permission:crear_obras');
 
-        Route::get('/estatus', [ObraController::class, 'getEstatus'])
+        Route::get('/estatus-options', [ObraController::class, 'status'])
             ->middleware('permission:ver_obras');
 
-        Route::get('/{obra}', [ObraController::class, 'show'])
+        Route::get('/{id}', [ObraController::class, 'show'])
             ->middleware('permission:ver_obras');
 
-        Route::put('/{obra}', [ObraController::class, 'update'])
+        Route::get('/{id}/edit', [ObraController::class, 'edit'])
             ->middleware('permission:actualizar_obras');
 
-        Route::delete('/{obra}', [ObraController::class, 'destroy'])
+        Route::put('/{id}', [ObraController::class, 'update'])
+            ->middleware('permission:actualizar_obras');
+
+        Route::delete('/{id}', [ObraController::class, 'destroy'])
             ->middleware('permission:eliminar_obras');
 
         Route::post('/{id}/restore', [ObraController::class, 'restore'])
@@ -151,6 +169,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('documentos')->group(function () {
         Route::get('/', [DocumentoController::class, 'index'])
             ->middleware('permission:ver_documentos');
+
+        Route::get('/create', [DocumentoController::class, 'create'])
+            ->middleware('permission:crear_documentos');
 
         Route::post('/', [DocumentoController::class, 'store'])
             ->middleware('permission:crear_documentos');
@@ -163,6 +184,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/{documento}', [DocumentoController::class, 'show'])
             ->middleware('permission:ver_documentos');
+
+        Route::get('/{documento}/edit', [DocumentoController::class, 'edit'])
+            ->middleware('permission:editar_documentos');
 
         Route::put('/{documento}', [DocumentoController::class, 'update'])
             ->middleware('permission:editar_documentos');
@@ -189,28 +213,13 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:eliminar_catalogos');
     });
 
-    // Rutas de catálogo de tipos de servicio
-    Route::prefix('catalogo-tipos-servicio')->group(function () {
-        Route::get('/', [CatalogoTipoServicioController::class, 'index'])
-            ->middleware('permission:ver_catalogos');
-
-        Route::post('/', [CatalogoTipoServicioController::class, 'store'])
-            ->middleware('permission:crear_catalogos');
-
-        Route::get('/{catalogoTipoServicio}', [CatalogoTipoServicioController::class, 'show'])
-            ->middleware('permission:ver_catalogos');
-
-        Route::put('/{catalogoTipoServicio}', [CatalogoTipoServicioController::class, 'update'])
-            ->middleware('permission:editar_catalogos');
-
-        Route::delete('/{catalogoTipoServicio}', [CatalogoTipoServicioController::class, 'destroy'])
-            ->middleware('permission:eliminar_catalogos');
-    });
-
     // Rutas de mantenimientos
     Route::prefix('mantenimientos')->group(function () {
         Route::get('/', [MantenimientoController::class, 'index'])
             ->middleware('permission:ver_mantenimientos');
+
+        Route::get('/create', [MantenimientoController::class, 'create'])
+            ->middleware('permission:crear_mantenimientos');
 
         Route::post('/', [MantenimientoController::class, 'store'])
             ->middleware('permission:crear_mantenimientos');
@@ -221,23 +230,59 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/estadisticas', [MantenimientoController::class, 'estadisticas'])
             ->middleware('permission:ver_mantenimientos');
 
-        Route::get('/{mantenimiento}', [MantenimientoController::class, 'show'])
+        Route::get('/{id}', [MantenimientoController::class, 'show'])
             ->middleware('permission:ver_mantenimientos');
 
-        Route::put('/{mantenimiento}', [MantenimientoController::class, 'update'])
+        Route::get('/{id}/edit', [MantenimientoController::class, 'edit'])
             ->middleware('permission:actualizar_mantenimientos');
 
-        Route::delete('/{mantenimiento}', [MantenimientoController::class, 'destroy'])
+        Route::put('/{id}', [MantenimientoController::class, 'update'])
+            ->middleware('permission:actualizar_mantenimientos');
+
+        Route::delete('/{id}', [MantenimientoController::class, 'destroy'])
             ->middleware('permission:eliminar_mantenimientos');
 
         Route::post('/{id}/restore', [MantenimientoController::class, 'restore'])
             ->middleware('permission:restaurar_mantenimientos');
     });
 
+    // Rutas de kilometrajes
+    Route::prefix('kilometrajes')->group(function () {
+        Route::get('/', [KilometrajeController::class, 'index'])
+            ->middleware('permission:ver_kilometrajes');
+
+        Route::post('/', [KilometrajeController::class, 'store'])
+            ->middleware('permission:crear_kilometrajes');
+
+        Route::get('/create', [KilometrajeController::class, 'create'])
+            ->middleware('permission:crear_kilometrajes');
+
+        Route::get('/vehiculo/{vehiculoId}/historial', [KilometrajeController::class, 'historialPorVehiculo'])
+            ->middleware('permission:ver_kilometrajes');
+
+        Route::get('/alertas-mantenimiento', [KilometrajeController::class, 'alertasMantenimiento'])
+            ->middleware('permission:ver_kilometrajes');
+
+        Route::get('/{kilometraje}', [KilometrajeController::class, 'show'])
+            ->middleware('permission:ver_kilometrajes');
+
+        Route::get('/{kilometraje}/edit', [KilometrajeController::class, 'edit'])
+            ->middleware('permission:editar_kilometrajes');
+
+        Route::put('/{kilometraje}', [KilometrajeController::class, 'update'])
+            ->middleware('permission:editar_kilometrajes');
+
+        Route::delete('/{kilometraje}', [KilometrajeController::class, 'destroy'])
+            ->middleware('permission:eliminar_kilometrajes');
+    });
+
     // Rutas de asignaciones
     Route::prefix('asignaciones')->group(function () {
         Route::get('/', [AsignacionController::class, 'index'])
             ->middleware('permission:ver_asignaciones');
+
+        Route::get('/create', [AsignacionController::class, 'create'])
+            ->middleware('permission:crear_asignaciones');
 
         Route::post('/', [AsignacionController::class, 'store'])
             ->middleware('permission:crear_asignaciones');
@@ -251,8 +296,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/operador/{personalId}', [AsignacionController::class, 'porOperador'])
             ->middleware('permission:ver_asignaciones');
 
+        // Nuevas rutas para estadísticas avanzadas y alertas
+        Route::get('/estadisticas/operador/{id}', [AsignacionController::class, 'estadisticasOperador'])
+            ->middleware('permission:ver_estadisticas_asignaciones');
+
+        Route::get('/alertas', [AsignacionController::class, 'alertasAsignaciones'])
+            ->middleware('permission:ver_asignaciones');
+
         Route::get('/{id}', [AsignacionController::class, 'show'])
             ->middleware('permission:ver_asignaciones');
+
+        Route::get('/{id}/edit', [AsignacionController::class, 'edit'])
+            ->middleware('permission:editar_asignaciones');
 
         Route::put('/{id}', [AsignacionController::class, 'update'])
             ->middleware('permission:editar_asignaciones');
@@ -260,8 +315,32 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{id}/liberar', [AsignacionController::class, 'liberar'])
             ->middleware('permission:liberar_asignaciones');
 
+        Route::post('/{id}/transferir', [AsignacionController::class, 'transferir'])
+            ->middleware('permission:gestionar_asignaciones');
+
         Route::delete('/{id}', [AsignacionController::class, 'destroy'])
             ->middleware('permission:eliminar_asignaciones');
+    });
+
+    // Rutas de configuración de alertas de mantenimiento
+    Route::prefix('configuracion-alertas')->group(function () {
+        Route::get('/', [App\Http\Controllers\Api\ConfiguracionAlertasController::class, 'index'])
+            ->middleware('permission:ver_configuraciones');
+
+        Route::put('/general', [App\Http\Controllers\Api\ConfiguracionAlertasController::class, 'updateGeneral'])
+            ->middleware('permission:editar_configuraciones');
+
+        Route::put('/horarios', [App\Http\Controllers\Api\ConfiguracionAlertasController::class, 'updateHorarios'])
+            ->middleware('permission:editar_configuraciones');
+
+        Route::put('/destinatarios', [App\Http\Controllers\Api\ConfiguracionAlertasController::class, 'updateDestinatarios'])
+            ->middleware('permission:editar_configuraciones');
+
+        Route::get('/resumen-alertas', [App\Http\Controllers\Api\ConfiguracionAlertasController::class, 'resumenAlertas'])
+            ->middleware('permission:ver_alertas_mantenimiento');
+
+        Route::post('/probar-envio', [App\Http\Controllers\Api\ConfiguracionAlertasController::class, 'probarEnvio'])
+            ->middleware('permission:gestionar_alertas_mantenimiento');
     });
 
     // Rutas de consulta general (sin restricciones especiales)

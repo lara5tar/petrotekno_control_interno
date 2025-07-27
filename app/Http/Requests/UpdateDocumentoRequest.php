@@ -68,7 +68,7 @@ class UpdateDocumentoRequest extends FormRequest
                 'sometimes',
                 'nullable',
                 'integer',
-                // TODO: Agregar exists cuando se implemente mantenimientos
+                'exists:mantenimientos,id',
             ],
             'archivo' => [
                 'sometimes',
@@ -97,6 +97,7 @@ class UpdateDocumentoRequest extends FormRequest
             'vehiculo_id.exists' => 'El vehículo seleccionado no es válido.',
             'personal_id.exists' => 'El personal seleccionado no es válido.',
             'obra_id.exists' => 'La obra seleccionada no es válida.',
+            'mantenimiento_id.exists' => 'El mantenimiento seleccionado no es válido.',
             'archivo.file' => 'Debe seleccionar un archivo válido.',
             'archivo.max' => 'El archivo no puede ser mayor a 10MB.',
             'archivo.mimes' => 'El archivo debe ser de tipo: PDF, DOC, DOCX, JPG, JPEG, PNG, TXT, XLS, XLSX.',

@@ -70,7 +70,7 @@ class AsignacionFactory extends Factory
     public function conObservaciones(): static
     {
         return $this->state(fn (array $attributes) => [
-            'observaciones' => $this->faker->paragraph()."\n\nObservaciones adicionales: ".$this->faker->sentence(),
+            'observaciones' => $this->faker->paragraph() . "\n\nObservaciones adicionales: " . $this->faker->sentence(),
         ]);
     }
 }

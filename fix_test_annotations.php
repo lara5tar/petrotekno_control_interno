@@ -27,7 +27,7 @@ foreach ($testDirectories as $directory) {
                 }
 
                 // Convertir a test_nombre_funcion
-                $newFunctionName = 'test_'.$functionName;
+                $newFunctionName = 'test_' . $functionName;
 
                 // Reemplazar sin el @test
                 return "    public function {$newFunctionName}(";
@@ -35,7 +35,7 @@ foreach ($testDirectories as $directory) {
 
             if ($newContent !== $content) {
                 file_put_contents($file->getPathname(), $newContent);
-                echo 'Procesado: '.$file->getPathname()."\n";
+                echo 'Procesado: ' . $file->getPathname() . "\n";
             }
         }
     }

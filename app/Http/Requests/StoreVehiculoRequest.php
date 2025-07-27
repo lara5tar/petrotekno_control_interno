@@ -42,7 +42,7 @@ class StoreVehiculoRequest extends FormRequest
                 'required',
                 'integer',
                 'min:1990',
-                'max:'.(date('Y') + 1),
+                'max:' . (date('Y') + 1),
             ],
             'n_serie' => [
                 'required',

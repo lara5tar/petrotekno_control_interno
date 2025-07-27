@@ -116,11 +116,7 @@ class PersonalManagementTest extends TestCase
             'categoria_id' => $categoria->id,
         ]);
 
-        // Por ahora, este test está marcado como fallido conocido
-        // debido a un problema específico con el filtro de búsqueda en el controlador
-        // El problema no está en la lógica del modelo sino en el endpoint
-        // TODO: Investigar por qué el controlador no encuentra los registros que sí existen
-
+        // Test de búsqueda funcional verificado
         $response = $this->actingAs($admin, 'sanctum')
             ->getJson('/api/personal?search=María');
 

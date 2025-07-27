@@ -48,7 +48,7 @@ class UpdateObraRequest extends FormRequest
                 'sometimes',
                 'required',
                 'string',
-                'in:'.implode(',', Obra::ESTADOS_VALIDOS),
+                'in:' . implode(',', Obra::ESTADOS_VALIDOS),
             ],
             'avance' => [
                 'sometimes',

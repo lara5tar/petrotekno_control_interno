@@ -65,21 +65,25 @@ class VehiculoControllerTest extends TestCase
                 'success',
                 'message',
                 'data' => [
-                    'data' => [
-                        '*' => [
-                            'id',
-                            'marca',
-                            'modelo',
-                            'anio',
-                            'n_serie',
-                            'placas',
-                            'estatus_id',
-                        ],
+                    '*' => [
+                        'id',
+                        'marca',
+                        'modelo',
+                        'anio',
+                        'n_serie',
+                        'placas',
+                        'estatus_id',
                     ],
+                ],
+                'meta' => [
+                    'current_page',
+                    'last_page',
+                    'per_page',
+                    'total',
                 ],
             ]);
 
-        $this->assertEquals(3, count($response->json('data.data')));
+        $this->assertEquals(3, count($response->json('data')));
     }
 
     public function test_admin_can_create_vehiculo()
@@ -98,7 +102,12 @@ class VehiculoControllerTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonFragment(['marca' => 'Toyota'])
-            ->assertJsonFragment(['modelo' => 'Corolla']);
+            ->assertJsonFragment(['modelo' => 'Corolla'])
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => ['id', 'marca', 'modelo'],
+            ]);
 
         $this->assertDatabaseHas('vehiculos', [
             'marca' => 'Toyota',
@@ -183,8 +192,10 @@ class VehiculoControllerTest extends TestCase
 
     public function test_admin_can_delete_vehiculo()
     {
-
         $vehiculo = Vehiculo::factory()->create(['estatus_id' => $this->estatus->id]);
+
+        // Asegurar que no hay asignaciones activas para este vehículo
+        \App\Models\Asignacion::where('vehiculo_id', $vehiculo->id)->whereNull('fecha_liberacion')->delete();
 
         $response = $this->deleteJson("/api/vehiculos/{$vehiculo->id}");
 
