@@ -628,15 +628,45 @@ class AsignacionController extends Controller
     public function estadisticas(): JsonResponse
     {
         try {
+            // Obtener estadísticas básicas
+            $totalAsignaciones = Asignacion::count();
+            $asignacionesActivas = Asignacion::activas()->count();
+            $asignacionesLiberadas = Asignacion::liberadas()->count();
+            $vehiculosAsignados = Asignacion::activas()->distinct('vehiculo_id')->count();
+            $operadoresActivos = Asignacion::activas()->distinct('personal_id')->count();
+            $obrasConAsignaciones = Asignacion::activas()->distinct('obra_id')->count();
+
+            // Calcular promedio de días manualmente
+            $asignacionesConDuracion = Asignacion::liberadas()
+                ->whereNotNull('fecha_liberacion')
+                ->get()
+                ->map(function ($asignacion) {
+                    return $asignacion->fecha_liberacion->diffInDays($asignacion->fecha_asignacion);
+                });
+
+            $promedioDias = $asignacionesConDuracion->count() > 0 ?
+                round($asignacionesConDuracion->avg(), 1) : 0;
+
+            // Calcular promedio de kilometraje manualmente
+            $asignacionesConKm = Asignacion::liberadas()
+                ->whereNotNull('kilometraje_final')
+                ->get()
+                ->map(function ($asignacion) {
+                    return max(0, $asignacion->kilometraje_final - $asignacion->kilometraje_inicial);
+                });
+
+            $promedioKm = $asignacionesConKm->count() > 0 ?
+                round($asignacionesConKm->avg(), 0) : 0;
+
             $stats = [
-                'total_asignaciones' => Asignacion::count(),
-                'asignaciones_activas' => Asignacion::activas()->count(),
-                'asignaciones_liberadas' => Asignacion::liberadas()->count(),
-                'vehiculos_asignados' => Asignacion::activas()->distinct('vehiculo_id')->count(),
-                'operadores_activos' => Asignacion::activas()->distinct('personal_id')->count(),
-                'obras_con_asignaciones' => Asignacion::activas()->distinct('obra_id')->count(),
-                'promedio_dias_asignacion' => round(Asignacion::liberadas()->avg('duracion_en_dias') ?? 0, 1),
-                'promedio_kilometraje_recorrido' => round(Asignacion::liberadas()->whereNotNull('kilometraje_final')->avg('kilometraje_recorrido') ?? 0, 0),
+                'total_asignaciones' => $totalAsignaciones,
+                'asignaciones_activas' => $asignacionesActivas,
+                'asignaciones_liberadas' => $asignacionesLiberadas,
+                'vehiculos_asignados' => $vehiculosAsignados,
+                'operadores_activos' => $operadoresActivos,
+                'obras_con_asignaciones' => $obrasConAsignaciones,
+                'promedio_dias_asignacion' => $promedioDias,
+                'promedio_kilometraje_recorrido' => $promedioKm,
             ];
 
             return response()->json([

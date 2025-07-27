@@ -34,6 +34,12 @@ class UpdateMantenimientoRequest extends FormRequest
                 'integer',
                 'exists:catalogo_tipos_servicio,id',
             ],
+            'sistema_vehiculo' => [
+                'sometimes',
+                'required',
+                'string',
+                'in:motor,transmision,hidraulico,general',
+            ],
             'proveedor' => [
                 'nullable',
                 'string',
@@ -43,6 +49,7 @@ class UpdateMantenimientoRequest extends FormRequest
                 'sometimes',
                 'required',
                 'string',
+                'max:1000',
             ],
             'fecha_inicio' => [
                 'sometimes',
@@ -80,6 +87,8 @@ class UpdateMantenimientoRequest extends FormRequest
             'vehiculo_id.exists' => 'El vehículo seleccionado no existe.',
             'tipo_servicio_id.required' => 'El tipo de servicio es obligatorio.',
             'tipo_servicio_id.exists' => 'El tipo de servicio seleccionado no existe.',
+            'sistema_vehiculo.required' => 'El sistema del vehículo es obligatorio.',
+            'sistema_vehiculo.in' => 'El sistema del vehículo debe ser: motor, transmisión, hidráulico o general.',
             'descripcion.required' => 'La descripción del mantenimiento es obligatoria.',
             'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
             'fecha_inicio.before_or_equal' => 'La fecha de inicio no puede ser futura.',
@@ -99,6 +108,7 @@ class UpdateMantenimientoRequest extends FormRequest
         return [
             'vehiculo_id' => 'vehículo',
             'tipo_servicio_id' => 'tipo de servicio',
+            'sistema_vehiculo' => 'sistema del vehículo',
             'proveedor' => 'proveedor',
             'descripcion' => 'descripción',
             'fecha_inicio' => 'fecha de inicio',
@@ -120,11 +130,35 @@ class UpdateMantenimientoRequest extends FormRequest
             if ($vehiculoId && $this->filled('kilometraje_servicio')) {
                 $vehiculo = \App\Models\Vehiculo::find($vehiculoId);
 
-                if ($vehiculo && $this->kilometraje_servicio > $vehiculo->kilometraje_actual) {
-                    $validator->errors()->add(
-                        'kilometraje_servicio',
-                        "El kilometraje de servicio ({$this->kilometraje_servicio}) no puede ser mayor al kilometraje actual del vehículo ({$vehiculo->kilometraje_actual})."
-                    );
+                if ($vehiculo) {
+                    // NUEVA LÓGICA: Permitir kilometraje mayor al actual (se actualizará automáticamente)
+                    // Solo validar que no sea excesivamente mayor (diferencia máxima de 50,000 km)
+                    $diferencia = $this->kilometraje_servicio - $vehiculo->kilometraje_actual;
+
+                    if ($diferencia > 50000) {
+                        $validator->errors()->add(
+                            'kilometraje_servicio',
+                            "El kilometraje de servicio ({$this->kilometraje_servicio}) parece excesivamente alto comparado con el kilometraje actual del vehículo ({$vehiculo->kilometraje_actual}). Diferencia: {$diferencia} km."
+                        );
+                    }
+
+                    // Validar contra mantenimientos previos del mismo sistema
+                    $sistemaVehiculo = $this->filled('sistema_vehiculo') ? $this->sistema_vehiculo : $this->route('mantenimiento')->sistema_vehiculo;
+
+                    if ($sistemaVehiculo && $sistemaVehiculo !== 'general') {
+                        $ultimoMantenimiento = \App\Models\Mantenimiento::where('vehiculo_id', $vehiculoId)
+                            ->where('sistema_vehiculo', $sistemaVehiculo)
+                            ->where('id', '!=', $this->route('mantenimiento')->id) // Excluir el registro actual
+                            ->orderBy('kilometraje_servicio', 'desc')
+                            ->first();
+
+                        if ($ultimoMantenimiento && $this->kilometraje_servicio < $ultimoMantenimiento->kilometraje_servicio) {
+                            $validator->errors()->add(
+                                'kilometraje_servicio',
+                                "El kilometraje de servicio ({$this->kilometraje_servicio}) no puede ser menor al último mantenimiento de {$sistemaVehiculo} ({$ultimoMantenimiento->kilometraje_servicio} km)."
+                            );
+                        }
+                    }
                 }
             }
         });

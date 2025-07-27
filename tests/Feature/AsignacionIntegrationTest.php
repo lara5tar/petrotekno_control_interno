@@ -143,7 +143,7 @@ class AsignacionIntegrationTest extends TestCase
         Sanctum::actingAs($user, ['*']);
 
         $vehiculo = Vehiculo::factory()->create();
-        $obra = Obra::factory()->create();
+        $obra = Obra::factory()->enProgreso()->create(); // Usar obra en progreso que permite asignaciones
         $personal = Personal::factory()->create();
 
         // 1. Crear asignación

@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Mantenimiento;
+use App\Observers\MantenimientoObserver;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 
@@ -20,6 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Registrar observers
+        Mantenimiento::observe(MantenimientoObserver::class);
+
         // Registrar directiva personalizada para verificar permisos
         Blade::directive('hasPermission', function ($permission) {
             return "<?php if(auth()->check() && auth()->user()->hasPermission($permission)): ?>";

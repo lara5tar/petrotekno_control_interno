@@ -25,11 +25,20 @@ class Mantenimiento extends Model
     const TIPO_PREVENTIVO = 'PREVENTIVO';
 
     /**
+     * Sistemas de vehículo disponibles.
+     */
+    const SISTEMA_MOTOR = 'motor';
+    const SISTEMA_TRANSMISION = 'transmision';
+    const SISTEMA_HIDRAULICO = 'hidraulico';
+    const SISTEMA_GENERAL = 'general';
+
+    /**
      * The attributes that are mass assignable.
      */
     protected $fillable = [
         'vehiculo_id',
         'tipo_servicio',
+        'sistema_vehiculo',
         'proveedor',
         'descripcion',
         'fecha_inicio',
@@ -56,6 +65,19 @@ class Mantenimiento extends Model
         return [
             self::TIPO_CORRECTIVO,
             self::TIPO_PREVENTIVO,
+        ];
+    }
+
+    /**
+     * Get available sistemas de vehículo.
+     */
+    public static function getSistemasVehiculo(): array
+    {
+        return [
+            self::SISTEMA_MOTOR,
+            self::SISTEMA_TRANSMISION,
+            self::SISTEMA_HIDRAULICO,
+            self::SISTEMA_GENERAL,
         ];
     }
 
@@ -130,6 +152,46 @@ class Mantenimiento extends Model
     public function scopePreventivos(Builder $query): Builder
     {
         return $query->where('tipo_servicio', self::TIPO_PREVENTIVO);
+    }
+
+    /**
+     * Scope a query to filter by sistema de vehículo.
+     */
+    public function scopeBySistemaVehiculo(Builder $query, string $sistema): Builder
+    {
+        return $query->where('sistema_vehiculo', $sistema);
+    }
+
+    /**
+     * Scope a query to only include mantenimientos de motor.
+     */
+    public function scopeMotor(Builder $query): Builder
+    {
+        return $query->where('sistema_vehiculo', self::SISTEMA_MOTOR);
+    }
+
+    /**
+     * Scope a query to only include mantenimientos de transmisión.
+     */
+    public function scopeTransmision(Builder $query): Builder
+    {
+        return $query->where('sistema_vehiculo', self::SISTEMA_TRANSMISION);
+    }
+
+    /**
+     * Scope a query to only include mantenimientos hidráulicos.
+     */
+    public function scopeHidraulico(Builder $query): Builder
+    {
+        return $query->where('sistema_vehiculo', self::SISTEMA_HIDRAULICO);
+    }
+
+    /**
+     * Scope a query to only include mantenimientos generales.
+     */
+    public function scopeGeneral(Builder $query): Builder
+    {
+        return $query->where('sistema_vehiculo', self::SISTEMA_GENERAL);
     }
 
     /**
@@ -210,5 +272,88 @@ class Mantenimiento extends Model
     public function getIsCorrectivo(): bool
     {
         return $this->tipo_servicio === self::TIPO_CORRECTIVO;
+    }
+
+    /**
+     * Check if the mantenimiento is de motor.
+     */
+    public function getIsMotor(): bool
+    {
+        return $this->sistema_vehiculo === self::SISTEMA_MOTOR;
+    }
+
+    /**
+     * Check if the mantenimiento is de transmisión.
+     */
+    public function getIsTransmision(): bool
+    {
+        return $this->sistema_vehiculo === self::SISTEMA_TRANSMISION;
+    }
+
+    /**
+     * Check if the mantenimiento is hidráulico.
+     */
+    public function getIsHidraulico(): bool
+    {
+        return $this->sistema_vehiculo === self::SISTEMA_HIDRAULICO;
+    }
+
+    /**
+     * Check if the mantenimiento is general.
+     */
+    public function getIsGeneral(): bool
+    {
+        return $this->sistema_vehiculo === self::SISTEMA_GENERAL;
+    }
+
+    /**
+     * Get sistema vehículo formatted.
+     */
+    public function getSistemaVehiculoFormateadoAttribute(): string
+    {
+        return match ($this->sistema_vehiculo) {
+            self::SISTEMA_MOTOR => 'Motor',
+            self::SISTEMA_TRANSMISION => 'Transmisión',
+            self::SISTEMA_HIDRAULICO => 'Hidráulico',
+            self::SISTEMA_GENERAL => 'General',
+            default => ucfirst($this->sistema_vehiculo)
+        };
+    }
+
+    // ===========================================
+    // MÉTODOS PARA SISTEMA DE ALERTAS
+    // ===========================================
+
+    /**
+     * Scope para filtrar por sistema específico
+     */
+    public function scopeBySistema(Builder $query, string $sistema): Builder
+    {
+        return $query->where('sistema_vehiculo', $sistema);
+    }
+
+    /**
+     * Scope para filtrar por vehículo y sistema
+     */
+    public function scopeByVehiculoYSistema(Builder $query, int $vehiculoId, string $sistema): Builder
+    {
+        return $query->where('vehiculo_id', $vehiculoId)
+            ->where('sistema_vehiculo', $sistema);
+    }
+
+    /**
+     * Verificar si el mantenimiento es del sistema especificado
+     */
+    public function esDelSistema(string $sistema): bool
+    {
+        return $this->sistema_vehiculo === $sistema;
+    }
+
+    /**
+     * Obtener nombre del sistema formateado
+     */
+    public function getNombreSistemaFormateado(): string
+    {
+        return $this->sistema_vehiculo_formateado;
     }
 }
