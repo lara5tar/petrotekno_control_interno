@@ -322,6 +322,27 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:eliminar_asignaciones');
     });
 
+    // Rutas de configuración de alertas de mantenimiento
+    Route::prefix('configuracion-alertas')->group(function () {
+        Route::get('/', [App\Http\Controllers\Api\ConfiguracionAlertasController::class, 'index'])
+            ->middleware('permission:ver_configuraciones');
+
+        Route::put('/general', [App\Http\Controllers\Api\ConfiguracionAlertasController::class, 'updateGeneral'])
+            ->middleware('permission:editar_configuraciones');
+
+        Route::put('/horarios', [App\Http\Controllers\Api\ConfiguracionAlertasController::class, 'updateHorarios'])
+            ->middleware('permission:editar_configuraciones');
+
+        Route::put('/destinatarios', [App\Http\Controllers\Api\ConfiguracionAlertasController::class, 'updateDestinatarios'])
+            ->middleware('permission:editar_configuraciones');
+
+        Route::get('/resumen-alertas', [App\Http\Controllers\Api\ConfiguracionAlertasController::class, 'resumenAlertas'])
+            ->middleware('permission:ver_alertas_mantenimiento');
+
+        Route::post('/probar-envio', [App\Http\Controllers\Api\ConfiguracionAlertasController::class, 'probarEnvio'])
+            ->middleware('permission:gestionar_alertas_mantenimiento');
+    });
+
     // Rutas de consulta general (sin restricciones especiales)
     Route::prefix('data')->group(function () {
         Route::get('/categorias-personal', function () {

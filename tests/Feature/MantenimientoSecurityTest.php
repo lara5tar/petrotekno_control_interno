@@ -151,6 +151,7 @@ class MantenimientoSecurityTest extends TestCase
         $maliciousData = [
             'vehiculo_id' => $vehiculo->id,
             'tipo_servicio' => 'CORRECTIVO',
+            'sistema_vehiculo' => 'motor',
             'proveedor' => 'Proveedor Test',
             'descripcion' => 'Descripción Test',
             'fecha_inicio' => now()->format('Y-m-d'),

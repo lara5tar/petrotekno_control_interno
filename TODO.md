@@ -2,13 +2,30 @@
 
 ## 🔴 Tareas Críticas
 
+### Sistema de Alertas de Mantenimiento ✅ **COMPLETADO**
+- [x] **#TODO**: Implementar sistema completo de alertas de mantenimiento automatizado ✅
+- [x] **#TODO**: Crear sistema de notificaciones por email para mantenimientos vencidos ✅
+- [x] **#TODO**: Implementar configuración flexible de destinatarios y horarios ✅
+- [x] **#TODO**: Agregar campo sistema_vehiculo a mantenimientos (motor, transmisión, hidráulico) ✅
+- [x] **#TODO**: Crear API endpoints para configuración desde frontend ✅
+- [x] **#FIXME**: Corregir validaciones de tipo_servicio (cambio de ID a enum) ✅ **24/01/2025**
+
 ### Sistema de Asignaciones
 - [x] **#TODO**: Implementar sistema de notificaciones automáticas cuando una asignación esté cerca de vencer (30 días sin liberación) ✅
 - [x] **#FIXME**: Validar que el kilometraje_final sea mayor al kilometraje_inicial en el método liberar() ✅
 - [x] **#TODO**: Agregar validación de negocio para no permitir asignaciones a obras canceladas o completadas ✅
-- [ ] **#TODO**: Implementar cálculo automático de próximo mantenimiento basado en kilometraje recorrido en asignaciones
+- [x] **#TODO**: Implementar cálculo automático de próximo mantenimiento basado en kilometraje recorrido en asignaciones ✅
 
 ## 🟡 Mejoras de Funcionalidad
+
+### Frontend - Sistema de Alertas de Mantenimiento 🚨 **ALTA PRIORIDAD**
+- [ ] **#CRITICAL**: Actualizar campo `tipo_servicio` en formularios (cambio a enum)
+- [ ] **#CRITICAL**: Agregar campo `sistema_vehiculo` en `create.blade.php` 
+- [ ] **#CRITICAL**: Agregar campo `sistema_vehiculo` en `edit.blade.php`
+- [ ] **#TODO**: Crear dashboard de alertas (`resources/views/alertas/dashboard.blade.php`)
+- [ ] **#TODO**: Crear página de configuración (`resources/views/alertas/configuracion.blade.php`)
+- [ ] **#TODO**: Implementar controller Blade para alertas
+- [ ] **#TODO**: Agregar rutas web para sistema de alertas
 
 ### Documentación y Comunicación
 - [ ] **#TODO**: Actualizar README.md con nuevos cambios estructurales
@@ -55,6 +72,20 @@
 ## ✅ Completado
 
 ### Completado Recientemente (Julio 23, 2025) ✅
+
+#### Sistema de Alertas de Mantenimiento Automatizado (NUEVO) 🚀
+- [x] **#FEATURE**: Sistema completo de alertas de mantenimiento con intervalos automáticos
+  - [x] Campo `sistema_vehiculo` agregado a mantenimientos (motor|transmision|hidraulico|general)
+  - [x] Tabla `configuracion_alertas` para configuración runtime flexible
+  - [x] Observer `MantenimientoObserver` para eventos automáticos
+  - [x] Command `EnviarAlertasDiarias` para envío programado
+  - [x] Job `RecalcularAlertasVehiculo` para procesamiento asíncrono
+  - [x] Services: `ConfiguracionAlertasService` y `AlertasMantenimientoService`
+  - [x] Controller `ConfiguracionAlertasController` con API completa
+  - [x] Actualización automática de kilometraje de vehículos
+  - [x] Sistema anti-spam con cooldown configurable
+  - [x] Generación de reportes PDF (simulado, listo para templates reales)
+  - [x] Documentación completa para integración frontend
 
 #### Funcionalidad No Crítica Implementada
 - [x] **#DOCS**: Documentación del campo `contenido` JSON con ejemplos prácticos
@@ -114,6 +145,24 @@
 
 ---
 
-**Última actualización**: 23 de Julio de 2025 - v1.4.0
+**Última actualización**: 23 de Julio de 2025 - v1.5.0
 **Responsable**: Backend Development Team
-**Funcionalidades completadas**: Transferencia de asignaciones, campos de combustible, documentación JSON `contenido`
+**Funcionalidades completadas**: Sistema de Alertas de Mantenimiento Automatizado, Transferencia de asignaciones, campos de combustible, documentación JSON `contenido`
+
+### 🚀 Nueva Versión v1.5.0 - Sistema de Alertas de Mantenimiento
+
+**Características destacadas:**
+- ✅ Alertas automáticas por intervalos de kilometraje (motor, transmisión, hidráulico)
+- ✅ Actualización automática de kilometraje de vehículos
+- ✅ Sistema de configuración flexible desde frontend
+- ✅ Envío inteligente de emails con anti-spam
+- ✅ Reportes en PDF (listo para templates)
+- ✅ API completa para gestión de configuración
+- ✅ Background jobs para performance óptima
+- ✅ Observer pattern para eventos automáticos
+
+**Próximos pasos recomendados:**
+1. Implementar templates reales de email y PDF
+2. Integrar frontend con nuevos endpoints API
+3. Configurar cron job para envío diario programado
+4. Crear dashboard de alertas para supervisores
