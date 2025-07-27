@@ -97,10 +97,12 @@ class Personal extends Model
     }
 
     /**
+
      * Relación con Asignaciones
      */
     public function asignaciones(): HasMany
     {
         return $this->hasMany(Asignacion::class, 'personal_id');
+
     }
 }

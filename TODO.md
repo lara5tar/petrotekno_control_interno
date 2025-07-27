@@ -1,4 +1,68 @@
-# TODO - Lista de tareas pendientes
+# TODO - Sistema de Control Interno
+
+## 🔥 **CRÍTICO - Autenticación Web**
+- [ ] Crear `app/Http/Controllers/Auth/LoginController.php` para web
+- [ ] Crear `app/Http/Controllers/Auth/RegisterController.php` para web  
+- [ ] Crear `app/Http/Controllers/Auth/LogoutController.php` para web
+- [ ] Implementar middleware `auth:web` en rutas protegidas
+- [ ] Configurar guards de autenticación en `config/auth.php`
+- [ ] Crear vistas de login/register en `resources/views/auth/`
+- [ ] Configurar redirecciones post-login/logout
+- [ ] Implementar "Remember Me" functionality
+- [ ] Configurar protección CSRF en formularios
+- [ ] Testear flujo completo de autenticación web
+
+## ✅ **COMPLETADO - Crear Personal con Usuario**
+- [x] Conectar formulario web con PersonalManagementController
+- [x] Adaptar CreatePersonalRequest para campos del formulario web
+- [x] Implementar método storeWeb() para manejo de formularios web
+- [x] Configurar validaciones para información básica y usuario
+- [x] Actualizar ruta web para usar controlador real
+- [x] Configurar rol por defecto (Operador) para usuarios nuevos
+
+## 🚧 **PENDIENTE - Manejo de Archivos en Formulario Personal**
+- [ ] Implementar procesamiento de archivos multipart/form-data en storeWeb()
+- [ ] Configurar almacenamiento de documentos en storage/app/public/documentos/
+- [ ] Crear validaciones específicas para tipos de archivo (PDF, JPG, PNG)
+- [ ] Implementar límites de tamaño de archivo (5MB por archivo)
+- [ ] Mapear campos de archivo del formulario a tipos de documento:
+  - [ ] identificacion_file → Tipo "INE"
+  - [ ] curp_file → Tipo "CURP"  
+  - [ ] rfc_file → Tipo "RFC"
+  - [ ] nss_file → Tipo "NSS"
+  - [ ] licencia_file → Tipo "Licencia de Conducir"
+  - [ ] comprobante_domicilio_file → Tipo "Comprobante de Domicilio"
+  - [ ] cv_file → Tipo "CV Profesional"
+- [ ] Crear helper para generar nombres únicos de archivos
+- [ ] Implementar eliminación de archivos temporales en caso de error
+- [ ] Agregar logging para subida de documentos
+- [ ] Crear tests para validación y procesamiento de archivos
+
+## 🔧 **MEJORAS TÉCNICAS**
+- [ ] Implementar notificación por email con credenciales temporales
+- [ ] Crear job en cola para envío de emails
+- [ ] Implementar soft deletes para personal y usuarios
+- [ ] Agregar auditoría de cambios en personal
+- [ ] Crear API endpoints para gestión de documentos
+- [ ] Implementar compresión automática de imágenes
+- [ ] Agregar preview de documentos en interfaz web
+
+## 📋 **VALIDACIONES ADICIONALES**
+- [ ] Validar formato de CURP (18 caracteres alfanuméricos)
+- [ ] Validar formato de RFC (10-13 caracteres)
+- [ ] Validar formato de NSS (11 dígitos)
+- [ ] Implementar validación de duplicados por CURP/RFC
+- [ ] Agregar validación de email único en tiempo real
+- [ ] Crear validaciones personalizadas para documentos mexicanos
+
+## 🧪 **TESTING**
+- [ ] Crear tests para PersonalManagementController::storeWeb()
+- [ ] Tests de validación de formulario web
+- [ ] Tests de creación de usuario asociado
+- [ ] Tests de manejo de errores y rollback
+- [ ] Tests de integración formulario-controlador-base de datos
+- [ ] Tests de subida y validación de archivos
+- [ ] Tests de seguridad para tipos de archivo maliciosos
 
 ## 🔴 Tareas Críticas
 

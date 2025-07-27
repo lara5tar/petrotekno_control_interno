@@ -194,6 +194,7 @@ class PersonalController extends Controller
      */
     public function show(Request $request, $id)
     {
+
         // Verificar permisos
         if (! $request->user()->hasPermission('ver_personal')) {
             if ($request->expectsJson()) {
