@@ -99,29 +99,7 @@
                 </div>
             </div>
 
-            <!-- Fotografía del Vehículo -->
-            <div class="bg-white border border-gray-300 rounded-lg">
-                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800">Fotografía del Vehículo</h3>
-                </div>
-                <div class="p-4">
-                    <div class="relative">
-                        <div class="h-48 bg-gray-100 rounded overflow-hidden mb-3">
-                            <img src="{{ $vehiculo->imagen ?? '/images/placeholder-vehicle.jpg' }}" 
-                                 alt="Vehículo {{ $vehiculo->marca ?? 'Nissan' }} {{ $vehiculo->modelo ?? 'NP300' }}" 
-                                 class="w-full h-full object-cover"
-                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xNTAgODBWMTIwTTEzMCAxMDBIMTcwIiBzdHJva2U9IiM5QjlDQTQiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSIxNTAiIHk9IjE0MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmaWxsPSIjOUI5Q0E0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TaW4gZm90bzwvdGV4dD4KPC9zdmc+Cg=='">
-                            <div class="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-sm">
-                                15/07/2025
-                            </div>
-                        </div>
-                        <div class="flex justify-center space-x-2">
-                            <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm">Actualizar</button>
-                            <button class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded text-sm">Descargar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </div>
 
         <!-- Panel Derecho -->

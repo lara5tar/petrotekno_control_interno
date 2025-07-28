@@ -137,7 +137,7 @@ Route::get('/vehiculos/{id}', function ($id) {
 
 Route::get('/vehiculos/{id}/edit', function ($id) {
     // Obtener datos reales del vehículo de la base de datos
-    $vehiculoReal = \App\Models\Vehiculo::with('estatus')->find($id);
+    $vehiculoReal = \App\Models\Vehiculo::with(['estatus', 'documentos.tipoDocumento'])->find($id);
     
     if (!$vehiculoReal) {
         abort(404, 'Vehículo no encontrado');
@@ -147,6 +147,9 @@ Route::get('/vehiculos/{id}/edit', function ($id) {
     $estatusDisponibles = \App\Models\CatalogoEstatus::where('activo', true)
         ->orderBy('nombre_estatus')
         ->get();
+    
+    // Obtener tipos de documentos disponibles
+    $tiposDocumento = \App\Models\CatalogoTipoDocumento::orderBy('nombre_tipo_documento')->get();
     
     // Crear objeto con datos reales para campos generales y datos estáticos para el resto
     $vehiculo = (object) [
@@ -160,13 +163,15 @@ Route::get('/vehiculos/{id}/edit', function ($id) {
         'estatus_id' => $vehiculoReal->estatus_id,
         'estatus' => $vehiculoReal->estatus,
         'observaciones' => $vehiculoReal->observaciones,
+        'documentos_adicionales' => $vehiculoReal->documentos_adicionales,
+        'documentos' => $vehiculoReal->documentos,
         // Campos estáticos para intervalos de mantenimiento
         'intervalo_km_motor' => 5000,
         'intervalo_km_transmision' => 40000,
         'intervalo_km_hidraulico' => 10000
     ];
     
-    return view('vehiculos.edit', compact('vehiculo', 'estatusDisponibles'));
+    return view('vehiculos.edit', compact('vehiculo', 'estatusDisponibles', 'tiposDocumento'));
 })->name('vehiculos.edit')->middleware('permission:editar_vehiculos');
 
 Route::put('/vehiculos/{id}', function (Request $request, $id) {
@@ -186,11 +191,12 @@ Route::put('/vehiculos/{id}', function (Request $request, $id) {
         'placas' => 'required|string|max:20|unique:vehiculos,placas,' . $id,
         'kilometraje_actual' => 'required|integer|min:0',
         'estatus_id' => 'required|exists:catalogo_estatus,id',
-        'observaciones' => 'nullable|string|max:1000'
+        'observaciones' => 'nullable|string|max:1000',
+        'documentos_adicionales.*' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png,webp|max:10240'
     ]);
     
-    // Actualizar solo los campos generales
-    $vehiculo->update([
+    // Preparar datos para actualizar
+    $datosVehiculo = [
         'marca' => $request->marca,
         'modelo' => $request->modelo,
         'anio' => $request->anio,
@@ -199,7 +205,31 @@ Route::put('/vehiculos/{id}', function (Request $request, $id) {
         'kilometraje_actual' => $request->kilometraje_actual,
         'estatus_id' => $request->estatus_id,
         'observaciones' => $request->observaciones
-    ]);
+    ];
+    
+    // Manejar documentos adicionales si se subieron nuevos
+    if ($request->hasFile('documentos_adicionales')) {
+        // Eliminar documentos anteriores si existen
+        if ($vehiculo->documentos_adicionales) {
+            foreach ($vehiculo->documentos_adicionales as $rutaDoc) {
+                if (\Storage::disk('public')->exists($rutaDoc)) {
+                    \Storage::disk('public')->delete($rutaDoc);
+                }
+            }
+        }
+        
+        // Subir nuevos documentos
+        $documentosRutas = [];
+        foreach ($request->file('documentos_adicionales') as $archivo) {
+            $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
+            $ruta = $archivo->storeAs('vehiculos/documentos', $nombreArchivo, 'public');
+            $documentosRutas[] = $ruta;
+        }
+        $datosVehiculo['documentos_adicionales'] = $documentosRutas;
+    }
+    
+    // Actualizar el vehículo
+    $vehiculo->update($datosVehiculo);
     
     return redirect()->route('vehiculos.show', $id)->with('success', 'Vehículo actualizado exitosamente.');
 })->name('vehiculos.update')->middleware('permission:editar_vehiculos');
@@ -410,6 +440,11 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         return redirect()->route('personal.index')
             ->with('success', "Personal '{$nombre}' eliminado exitosamente.");
     })->name('destroy')->middleware('permission:eliminar_personal');
+});
+
+// Rutas para Documentos
+Route::middleware('auth')->group(function () {
+    Route::resource('documentos', DocumentoController::class);
 });
 
 // Rutas web para obtener datos (proxy a los modelos) - CORREGIDO: Agregado middleware de permisos

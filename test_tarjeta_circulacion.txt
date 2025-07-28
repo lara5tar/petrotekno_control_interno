@@ -1,0 +1,19 @@
+TARJETA DE CIRCULACIÓN
+======================
+
+Número de Tarjeta: TC-123456789
+Fecha de Expedición: 15/01/2024
+Fecha de Vencimiento: 15/01/2025
+
+DATOS DEL VEHÍCULO:
+- Marca: Toyota
+- Modelo: Corolla
+- Año: 2023
+- Placas: ABC-123
+- Serie: 1234567890
+
+PROPIETARIO:
+- Nombre: PETROTEKNO S.A. DE C.V.
+- RFC: PET123456789
+
+Este documento es válido hasta la fecha de vencimiento indicada.

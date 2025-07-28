@@ -1,0 +1,24 @@
+FACTURA DE COMPRA
+=================
+
+Folio: FAC-001234
+Fecha: 10/12/2023
+Vendedor: Distribuidora Automotriz del Norte S.A.
+
+VEHÍCULO VENDIDO:
+- Marca: Toyota
+- Modelo: Corolla
+- Año: 2023
+- VIN: 1234567890ABCDEFG
+- Color: Blanco
+
+COMPRADOR:
+- Razón Social: PETROTEKNO S.A. DE C.V.
+- RFC: PET123456789
+- Dirección: Av. Principal 123, Monterrey, N.L.
+
+PRECIO DE VENTA: $350,000.00 MXN
+IVA (16%): $56,000.00 MXN
+TOTAL: $406,000.00 MXN
+
+Forma de Pago: Transferencia Bancaria

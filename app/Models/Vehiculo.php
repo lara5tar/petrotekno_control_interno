@@ -90,6 +90,8 @@ class Vehiculo extends Model
         'intervalo_km_transmision',
         'intervalo_km_hidraulico',
         'observaciones',
+        'documentos_adicionales',
+        'fotografia_vehiculo',
     ];
 
     /**
@@ -102,6 +104,7 @@ class Vehiculo extends Model
         'intervalo_km_transmision' => 'integer',
         'intervalo_km_hidraulico' => 'integer',
         'fecha_eliminacion' => 'datetime',
+        'documentos_adicionales' => 'array',
     ];
 
     /**
@@ -148,12 +151,12 @@ class Vehiculo extends Model
     }
 
     /**
-     * Preparado para futuras relaciones con documentos
+     * Relación con documentos
      */
-    // public function documentos(): HasMany
-    // {
-    //     return $this->hasMany(Documento::class);
-    // }
+    public function documentos(): HasMany
+    {
+        return $this->hasMany(Documento::class);
+    }
 
     /**
      * Scope para filtrar por marca

@@ -797,6 +797,59 @@ function viewDocument(fileName) {
     }
 }
 
+// Función para visualizar imágenes
+function viewImage(imageUrl, imageName) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50';
+    modal.id = 'imageModal';
+    
+    modal.innerHTML = `
+        <div class="relative top-10 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">${imageName}</h3>
+                <button onclick="closeImageModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="mb-4 flex justify-center">
+                <img src="${imageUrl}" alt="${imageName}" class="max-w-full max-h-96 object-contain rounded">
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button onclick="downloadImage('${imageUrl}', '${imageName}')" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
+                    Descargar
+                </button>
+                <button onclick="closeImageModal()" 
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded text-sm">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Función para cerrar modal de imagen
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Función para descargar imagen
+function downloadImage(imageUrl, imageName) {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = imageName.toLowerCase().replace(/\s+/g, '_') + '.jpg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 // Función para mostrar modal de documento
 function showDocumentModal(url, fileName) {
     const modal = document.createElement('div');
@@ -1011,6 +1064,7 @@ function submitKilometraje() {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeDocumentModal();
+        closeImageModal();
         closeUploadDocumentModal();
         closeAddKilometrajeModal();
     }

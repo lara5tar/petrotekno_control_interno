@@ -5,6 +5,32 @@
 @section('header', 'Editar Vehículo')
 
 @section('content')
+    {{-- Mensajes de éxito y error --}}
+    @if(session('success'))
+        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+            <strong class="font-bold">¡Éxito!</strong>
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong class="font-bold">¡Error!</strong>
+            <span class="block sm:inline">{{ session('error') }}</span>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong class="font-bold">¡Errores de validación!</strong>
+            <ul class="mt-2 list-disc list-inside">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     {{-- Breadcrumb --}}
     <x-breadcrumb :items="[
         ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
@@ -14,10 +40,10 @@
 
     <!-- Encabezado -->
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Editar Vehículo - Placas: {{ $vehiculo->placas ?? 'ABC-123' }}</h2>
+        <h2 class="text-2xl font-bold text-gray-800">Editar Vehículo - Placas: {{ $vehiculo->placas }}</h2>
         <div class="flex space-x-3">
             @hasPermission('ver_vehiculos')
-            <a href="{{ route('vehiculos.show', $vehiculo->id ?? 1) }}" 
+            <a href="{{ route('vehiculos.show', $vehiculo->id) }}" 
                class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
@@ -38,7 +64,7 @@
 
     <!-- Formulario -->
     <div class="bg-white rounded-lg shadow p-6" x-data="vehiculoEditFormController()">
-        <form action="{{ route('vehiculos.update', $vehiculo->id ?? 1) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('vehiculos.update', $vehiculo->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
@@ -54,18 +80,18 @@
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <x-form-input name="marca" label="Marca" required placeholder="Ej: Ford, Chevrolet, Toyota" value="{{ old('marca', $vehiculo->marca ?? 'Toyota') }}" />
-                        <x-form-input name="modelo" label="Modelo" required placeholder="Ej: F-150, Silverado, Hilux" value="{{ old('modelo', $vehiculo->modelo ?? 'Hilux') }}" />
-                        <x-form-input name="anio" label="Año" type="number" required min="1990" max="2025" placeholder="2023" value="{{ old('anio', $vehiculo->anio ?? '2022') }}" />
+                        <x-form-input name="marca" label="Marca" required placeholder="Ej: Ford, Chevrolet, Toyota" value="{{ old('marca', $vehiculo->marca) }}" />
+                        <x-form-input name="modelo" label="Modelo" required placeholder="Ej: F-150, Silverado, Hilux" value="{{ old('modelo', $vehiculo->modelo) }}" />
+                        <x-form-input name="anio" label="Año" type="number" required min="1990" max="2025" placeholder="2023" value="{{ old('anio', $vehiculo->anio) }}" />
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                        <x-form-input name="n_serie" label="Número de Serie (VIN)" required placeholder="1FTFW1ET5DFA12345" value="{{ old('n_serie', $vehiculo->n_serie ?? '1FTFW1ET5DFA12345') }}" />
-                        <x-form-input name="placas" label="Placas" required placeholder="ABC-123-A" value="{{ old('placas', $vehiculo->placas ?? 'ABC-123') }}" />
+                        <x-form-input name="n_serie" label="Número de Serie (VIN)" required placeholder="1FTFW1ET5DFA12345" value="{{ old('n_serie', $vehiculo->n_serie) }}" />
+                        <x-form-input name="placas" label="Placas" required placeholder="ABC-123-A" value="{{ old('placas', $vehiculo->placas) }}" />
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                        <x-form-input name="kilometraje_actual" label="Kilometraje Actual (km)" type="number" required min="0" placeholder="15000" value="{{ old('kilometraje_actual', $vehiculo->kilometraje_actual ?? '45780') }}" />
+                        <x-form-input name="kilometraje_actual" label="Kilometraje Actual (km)" type="number" required min="0" placeholder="15000" value="{{ old('kilometraje_actual', $vehiculo->kilometraje_actual) }}" />
                         
                         <div class="form-group">
                             <label for="estatus_id" class="block text-sm font-medium text-gray-700 mb-2">
@@ -76,10 +102,10 @@
                                     required
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('estatus_id') border-red-500 @enderror">
                                 <option value="">Seleccione el estatus</option>
-                                @foreach($estatusDisponibles as $estatus)
-                                    <option value="{{ $estatus->id }}" 
-                                            {{ old('estatus_id', $vehiculo->estatus_id ?? '') == $estatus->id ? 'selected' : '' }}>
-                                        {{ $estatus->nombre_estatus }}
+                                @foreach($estatusDisponibles as $estado)
+                                    <option value="{{ $estado->id }}" 
+                                            {{ old('estatus_id', $vehiculo->estatus_id) == $estado->id ? 'selected' : '' }}>
+                                        {{ ucfirst($estado->nombre_estatus) }}
                                     </option>
                                 @endforeach
                             </select>
@@ -108,7 +134,7 @@
                                    min="1000" 
                                    step="500"
                                    placeholder="5000"
-                                   value="{{ old('intervalo_km_motor', $vehiculo->intervalo_km_motor ?? '5000') }}"
+                                   value="{{ old('intervalo_km_motor', $vehiculo->intervalo_km_motor) }}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('intervalo_km_motor') border-red-500 @enderror">
                             @error('intervalo_km_motor') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             <p class="mt-1 text-xs text-gray-500">Cada cuántos kilómetros cambiar aceite de motor</p>
@@ -124,7 +150,7 @@
                                    min="5000" 
                                    step="1000"
                                    placeholder="40000"
-                                   value="{{ old('intervalo_km_transmision', $vehiculo->intervalo_km_transmision ?? '40000') }}"
+                                   value="{{ old('intervalo_km_transmision', $vehiculo->intervalo_km_transmision) }}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('intervalo_km_transmision') border-red-500 @enderror">
                             @error('intervalo_km_transmision') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             <p class="mt-1 text-xs text-gray-500">Cada cuántos kilómetros cambiar aceite de transmisión</p>
@@ -140,14 +166,186 @@
                                    min="1000" 
                                    step="500"
                                    placeholder="10000"
-                                   value="{{ old('intervalo_km_hidraulico', $vehiculo->intervalo_km_hidraulico ?? '10000') }}"
+                                   value="{{ old('intervalo_km_hidraulico', $vehiculo->intervalo_km_hidraulico) }}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('intervalo_km_hidraulico') border-red-500 @enderror">
                             @error('intervalo_km_hidraulico') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             <p class="mt-1 text-xs text-gray-500">Cada cuántos kilómetros cambiar aceite hidráulico (si aplica)</p>
                         </div>
                     </div>
                 </div>
-                
+
+                <!-- Sección de Documentos -->
+                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                    <h4 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                        </svg>
+                        Documentos del Vehículo
+                    </h4>
+
+                    <!-- Documentos Estructurados -->
+                    <div class="mb-8">
+                        <h5 class="text-md font-medium text-gray-800 mb-4 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            Documentos Oficiales
+                        </h5>
+                        
+                        <!-- Mostrar documentos existentes -->
+                        @if(isset($vehiculo->documentos) && $vehiculo->documentos->count() > 0)
+                            <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+                                <h6 class="text-sm font-medium text-blue-800 mb-3">Documentos registrados:</h6>
+                                <div class="space-y-2">
+                                    @foreach($vehiculo->documentos as $documento)
+                                        <div class="flex items-center justify-between p-3 bg-white rounded border border-blue-200">
+                                            <div class="flex-1">
+                                                <div class="flex items-center">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-3">
+                                                        {{ $documento->tipoDocumento->nombre_tipo_documento ?? 'Sin tipo' }}
+                                                    </span>
+                                                    <span class="text-sm text-gray-900">{{ $documento->descripcion }}</span>
+                                                </div>
+                                                @if($documento->fecha_vencimiento)
+                                                    <p class="text-xs text-gray-500 mt-1">
+                                                        Vence: {{ \Carbon\Carbon::parse($documento->fecha_vencimiento)->format('d/m/Y') }}
+                                                        @if(\Carbon\Carbon::parse($documento->fecha_vencimiento)->isPast())
+                                                            <span class="text-red-600 font-medium">(VENCIDO)</span>
+                                                        @elseif(\Carbon\Carbon::parse($documento->fecha_vencimiento)->diffInDays() <= 30)
+                                                            <span class="text-yellow-600 font-medium">(PRÓXIMO A VENCER)</span>
+                                                        @endif
+                                                    </p>
+                                                @endif
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                @if($documento->ruta_archivo)
+                                                    <a href="{{ asset('storage/' . $documento->ruta_archivo) }}" 
+                                                       target="_blank" 
+                                                       class="text-blue-600 hover:text-blue-800 text-sm">
+                                                        Ver archivo
+                                                    </a>
+                                                @endif
+                                                <button type="button" 
+                                                        onclick="editarDocumento({{ $documento->id }})"
+                                                        class="text-green-600 hover:text-green-800 text-sm">
+                                                    Editar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Formulario para agregar nuevo documento -->
+                        <div class="border border-gray-300 rounded-lg p-4">
+                            <h6 class="text-sm font-medium text-gray-700 mb-3">Agregar nuevo documento oficial:</h6>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="nuevo_tipo_documento" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Tipo de Documento
+                                    </label>
+                                    <select id="nuevo_tipo_documento" 
+                                            name="nuevo_tipo_documento" 
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow">
+                                        <option value="">Seleccionar tipo...</option>
+                                        @foreach($tiposDocumento as $tipo)
+                                            <option value="{{ $tipo->id }}" data-requiere-vencimiento="{{ $tipo->requiere_vencimiento }}">
+                                                {{ $tipo->nombre_tipo_documento }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="nuevo_descripcion" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Descripción
+                                    </label>
+                                    <input type="text" 
+                                           id="nuevo_descripcion" 
+                                           name="nuevo_descripcion" 
+                                           placeholder="Ej: Tarjeta de circulación 2025"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow">
+                                </div>
+                                <div id="fecha_vencimiento_container" style="display: none;">
+                                    <label for="nuevo_fecha_vencimiento" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Fecha de Vencimiento
+                                    </label>
+                                    <input type="date" 
+                                           id="nuevo_fecha_vencimiento" 
+                                           name="nuevo_fecha_vencimiento" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow">
+                                </div>
+                                <div>
+                                    <label for="nuevo_archivo" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Archivo (Opcional)
+                                    </label>
+                                    <input type="file" 
+                                           id="nuevo_archivo" 
+                                           name="nuevo_archivo" 
+                                           accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow">
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="button" 
+                                        onclick="agregarDocumento()"
+                                        class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    Agregar Documento
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Documentos Adicionales -->
+                    <div>
+                        <h5 class="text-md font-medium text-gray-800 mb-4 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                            Documentos Adicionales (Archivos Múltiples)
+                        </h5>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            Subir múltiples archivos (Opcional)
+                        </label>
+                        @if(isset($vehiculo->documentos_adicionales) && is_array($vehiculo->documentos_adicionales) && count($vehiculo->documentos_adicionales) > 0)
+                            <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+                                <h6 class="text-sm font-medium text-gray-700 mb-2">Archivos actuales:</h6>
+                                <div class="space-y-2">
+                                    @foreach($vehiculo->documentos_adicionales as $index => $documento)
+                                        <div class="flex items-center justify-between p-2 bg-white rounded border">
+                                            <span class="text-sm text-gray-600">{{ basename($documento) }}</span>
+                                            <a href="{{ asset('storage/' . $documento) }}" 
+                                               target="_blank" 
+                                               class="text-blue-600 hover:text-blue-800 text-sm">
+                                                Ver archivo
+                                            </a>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                            <input type="file" 
+                                   id="documentos_adicionales" 
+                                   name="documentos_adicionales[]" 
+                                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" 
+                                   multiple
+                                   class="hidden" 
+                                   @change="handleMultipleFileInput($event, 'documentos_adicionales')" />
+                            <label for="documentos_adicionales" class="cursor-pointer">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m-16-5c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <span class="mt-2 block text-sm font-medium text-gray-900">{{ isset($vehiculo->documentos_adicionales) && count($vehiculo->documentos_adicionales) > 0 ? 'Cambiar documentos adicionales' : 'Subir documentos adicionales' }}</span>
+                                <span class="mt-1 block text-sm text-gray-500">PDF, JPG, PNG, DOC hasta 10MB cada uno</span>
+                                <span class="mt-1 block text-xs text-gray-400">Puede seleccionar múltiples archivos</span>
+                            </label>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2" x-text="fileStatus.documentos_adicionales || ''"></p>
+                        @error('documentos_adicionales.*') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
                 <!-- Observaciones -->
                 <div class="bg-white border border-gray-200 rounded-lg p-6">
                     <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
@@ -165,7 +363,7 @@
                                 id="observaciones"
                                 rows="4" 
                                 placeholder="Agregue cualquier información adicional sobre el vehículo (características especiales, modificaciones, etc.)" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('observaciones') border-red-500 @enderror">{{ old('observaciones', $vehiculo->observaciones ?? 'Vehículo en excelentes condiciones. Se le realizó mantenimiento general el mes pasado.') }}</textarea>
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('observaciones') border-red-500 @enderror">{{ old('observaciones', $vehiculo->observaciones) }}</textarea>
                         @error('observaciones') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -182,14 +380,14 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <h4 class="text-sm font-medium text-gray-700 mb-2">Información de Creación</h4>
-                            <p class="text-sm text-gray-600">Creado el: <strong>15 de junio, 2023 - 10:30 AM</strong></p>
-                            <p class="text-sm text-gray-600">Por: <strong>Marco Delgado</strong></p>
+                            <p class="text-sm text-gray-600">Creado el: <strong>{{ isset($vehiculo->created_at) && $vehiculo->created_at ? $vehiculo->created_at->format('d/m/Y - H:i') : 'No disponible' }}</strong></p>
+                            <p class="text-sm text-gray-600">Por: <strong>{{ $vehiculo->created_by ?? 'Sistema' }}</strong></p>
                         </div>
                         
                         <div class="bg-gray-50 p-4 rounded-lg">
                             <h4 class="text-sm font-medium text-gray-700 mb-2">Última Modificación</h4>
-                            <p class="text-sm text-gray-600">Modificado el: <strong>02 de julio, 2023 - 03:15 PM</strong></p>
-                            <p class="text-sm text-gray-600">Por: <strong>Ana García</strong></p>
+                            <p class="text-sm text-gray-600">Modificado el: <strong>{{ isset($vehiculo->updated_at) && $vehiculo->updated_at ? $vehiculo->updated_at->format('d/m/Y - H:i') : 'No disponible' }}</strong></p>
+                            <p class="text-sm text-gray-600">Por: <strong>{{ $vehiculo->updated_by ?? 'Sistema' }}</strong></p>
                         </div>
                     </div>
 
@@ -207,247 +405,11 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Sección de Documentos del Vehículo -->
-                <div class="bg-white border border-gray-200 rounded-lg p-6">
-                    <h4 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clip-rule="evenodd" />
-                        </svg>
-                        Actualizar Documentos del Vehículo
-                        <span class="ml-2 text-sm text-gray-500 font-normal">(Opcional - Solo subir si hay cambios)</span>
-                    </h4>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- 1. Tarjeta de Circulación -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-medium text-gray-700">
-                                Tarjeta de Circulación
-                                <span class="text-green-600 text-xs ml-1">✓ Documento existente</span>
-                            </label>
-                            <div class="flex items-center space-x-3">
-                                <input type="text" 
-                                       name="no_tarjeta_circulacion" 
-                                       placeholder="Número de tarjeta de circulación" 
-                                       value="{{ old('no_tarjeta_circulacion', 'TC-123456789') }}"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                <div class="flex-shrink-0">
-                                    <input type="file" 
-                                           id="tarjeta_circulacion_file" 
-                                           name="tarjeta_circulacion_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'tarjeta_circulacion')" />
-                                    <label for="tarjeta_circulacion_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Actualizar
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <input type="date" 
-                                       name="fecha_vencimiento_tarjeta" 
-                                       placeholder="Fecha de vencimiento"
-                                       value="{{ old('fecha_vencimiento_tarjeta', '2024-06-15') }}"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                <span class="text-sm text-gray-500 flex-shrink-0">Vencimiento</span>
-                            </div>
-                            <p class="text-xs text-gray-500" x-text="fileStatus.tarjeta_circulacion || 'PDF, JPG, PNG (máx. 5MB) - Archivo actual: tarjeta_ABC123.pdf'"></p>
-                        </div>
-
-                        <!-- 2. Póliza de Seguro -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-medium text-gray-700">
-                                Póliza de Seguro
-                                <span class="text-green-600 text-xs ml-1">✓ Documento existente</span>
-                            </label>
-                            <div class="flex items-center space-x-3">
-                                <input type="text" 
-                                       name="no_poliza_seguro" 
-                                       placeholder="Número de póliza" 
-                                       value="{{ old('no_poliza_seguro', 'PS-987654321') }}"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                <div class="flex-shrink-0">
-                                    <input type="file" 
-                                           id="poliza_seguro_file" 
-                                           name="poliza_seguro_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'poliza_seguro')" />
-                                    <label for="poliza_seguro_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Actualizar
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <input type="date" 
-                                       name="fecha_vencimiento_seguro" 
-                                       placeholder="Fecha de vencimiento"
-                                       value="{{ old('fecha_vencimiento_seguro', '2024-08-20') }}"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                <span class="text-sm text-gray-500 flex-shrink-0">Vencimiento</span>
-                            </div>
-                            <div class="mt-2">
-                                <input type="text" 
-                                       name="aseguradora" 
-                                       placeholder="Nombre de la aseguradora" 
-                                       value="{{ old('aseguradora', 'AXA Seguros México') }}"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                            </div>
-                            <p class="text-xs text-gray-500" x-text="fileStatus.poliza_seguro || 'PDF, JPG, PNG (máx. 5MB) - Archivo actual: poliza_ABC123.pdf'"></p>
-                        </div>
-
-                        <!-- 3. Verificación Vehicular -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-medium text-gray-700">
-                                Verificación Vehicular
-                                <span class="text-yellow-600 text-xs ml-1">⚠ Próximo a vencer</span>
-                            </label>
-                            <div class="flex items-center space-x-3">
-                                <input type="text" 
-                                       name="no_verificacion" 
-                                       placeholder="Folio de verificación" 
-                                       value="{{ old('no_verificacion', 'VER-456789123') }}"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                <div class="flex-shrink-0">
-                                    <input type="file" 
-                                           id="verificacion_file" 
-                                           name="verificacion_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'verificacion')" />
-                                    <label for="verificacion_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-yellow-400 bg-yellow-50 rounded-md shadow-sm text-sm font-medium text-yellow-700 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Actualizar
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <input type="date" 
-                                       name="fecha_vencimiento_verificacion" 
-                                       placeholder="Próxima verificación"
-                                       value="{{ old('fecha_vencimiento_verificacion', '2023-08-30') }}"
-                                       class="flex-1 px-3 py-2 border border-yellow-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                <span class="text-sm text-yellow-600 flex-shrink-0">Próxima verificación</span>
-                            </div>
-                            <p class="text-xs text-yellow-600">⚠ Verificación vence pronto - Archivo actual: verificacion_ABC123.pdf</p>
-                        </div>
-
-                        <!-- 4. Tenencia/Refrendo -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-medium text-gray-700">
-                                Tenencia/Refrendo
-                                <span class="text-green-600 text-xs ml-1">✓ Documento existente</span>
-                            </label>
-                            <div class="flex items-center space-x-3">
-                                <select name="tenencia_anio" 
-                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow">
-                                    <option value="">Año de tenencia</option>
-                                    @for($year = date('Y'); $year >= (date('Y') - 10); $year--)
-                                        <option value="{{ $year }}" {{ old('tenencia_anio', '2023') == $year ? 'selected' : '' }}>{{ $year }}</option>
-                                    @endfor
-                                </select>
-                                <div class="flex-shrink-0">
-                                    <input type="file" 
-                                           id="tenencia_file" 
-                                           name="tenencia_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'tenencia')" />
-                                    <label for="tenencia_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Actualizar
-                                    </label>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500" x-text="fileStatus.tenencia || 'PDF, JPG, PNG (máx. 5MB) - Archivo actual: tenencia_2023_ABC123.pdf'"></p>
-                        </div>
-
-                        <!-- 5. Factura Original -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-medium text-gray-700">
-                                Factura Original
-                                <span class="text-green-600 text-xs ml-1">✓ Documento existente</span>
-                            </label>
-                            <div class="flex items-center space-x-3">
-                                <input type="text" 
-                                       name="no_factura" 
-                                       placeholder="Número de factura" 
-                                       value="{{ old('no_factura', 'FAC-2022-001234') }}"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                <div class="flex-shrink-0">
-                                    <input type="file" 
-                                           id="factura_file" 
-                                           name="factura_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'factura')" />
-                                    <label for="factura_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Ver/Actualizar
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <input type="date" 
-                                       name="fecha_compra" 
-                                       placeholder="Fecha de compra"
-                                       value="{{ old('fecha_compra', '2022-03-15') }}"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                            </div>
-                            <p class="text-xs text-gray-500" x-text="fileStatus.factura || 'PDF, JPG, PNG (máx. 5MB) - Archivo actual: factura_ABC123.pdf'"></p>
-                        </div>
-
-                        <!-- 6. Manual del Vehículo -->
-                        <div class="space-y-3">
-                            <label class="block text-sm font-medium text-gray-700">
-                                Manual del Vehículo
-                                <span class="text-green-600 text-xs ml-1">✓ Documento existente</span>
-                            </label>
-                            <div class="border-2 border-dashed border-gray-300 rounded-md p-4 text-center hover:border-petroyellow transition-colors">
-                                <svg class="mx-auto h-6 w-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                </svg>
-                                <input type="file" 
-                                       id="manual_file" 
-                                       name="manual_file" 
-                                       accept=".pdf,.doc,.docx" 
-                                       class="hidden" 
-                                       @change="handleFileInput($event, 'manual')" />
-                                <label for="manual_file" 
-                                       class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                    Actualizar Manual
-                                </label>
-                                <p class="mt-2 text-xs text-gray-500" x-show="!fileStatus.manual">
-                                    PDF, DOC, DOCX (máx. 10MB) - Archivo actual: manual_toyota_hilux_2022.pdf
-                                </p>
-                                <p class="mt-2 text-sm text-petroyellow font-medium" x-show="fileStatus.manual" x-text="fileStatus.manual">
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Botones de acción -->
             <div class="mt-8 flex justify-end space-x-4">
-                <a href="{{ route('vehiculos.show', $vehiculo->id ?? 1) }}" 
+                <a href="{{ route('vehiculos.show', $vehiculo->id) }}" 
                    class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
                     Cancelar
                 </a>
@@ -463,48 +425,235 @@
 @push('scripts')
 <script src="//unpkg.com/alpinejs" defer></script>
 <script>
+    // Función para mostrar/ocultar el campo de fecha de vencimiento según el tipo de documento
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoDocumentoSelect = document.getElementById('nuevo_tipo_documento');
+        const fechaVencimientoContainer = document.getElementById('fecha_vencimiento_container');
+        
+        if (tipoDocumentoSelect && fechaVencimientoContainer) {
+            tipoDocumentoSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const requiereVencimiento = selectedOption.getAttribute('data-requiere-vencimiento');
+                
+                if (requiereVencimiento === '1') {
+                    fechaVencimientoContainer.style.display = 'block';
+                } else {
+                    fechaVencimientoContainer.style.display = 'none';
+                    document.getElementById('nuevo_fecha_vencimiento').value = '';
+                }
+            });
+        }
+    });
+    
+    // Función para agregar un nuevo documento estructurado
+    function agregarDocumento() {
+        const tipoDocumentoId = document.getElementById('nuevo_tipo_documento').value;
+        const descripcion = document.getElementById('nuevo_descripcion').value;
+        const fechaVencimiento = document.getElementById('nuevo_fecha_vencimiento').value;
+        const archivoInput = document.getElementById('nuevo_archivo');
+        
+        // Validaciones básicas
+        if (!tipoDocumentoId) {
+            alert('Debe seleccionar un tipo de documento');
+            return;
+        }
+        
+        if (!descripcion) {
+            alert('Debe ingresar una descripción');
+            return;
+        }
+        
+        // Verificar si el tipo requiere fecha de vencimiento
+        const tipoDocumentoSelect = document.getElementById('nuevo_tipo_documento');
+        const selectedOption = tipoDocumentoSelect.options[tipoDocumentoSelect.selectedIndex];
+        const requiereVencimiento = selectedOption.getAttribute('data-requiere-vencimiento');
+        
+        if (requiereVencimiento === '1' && !fechaVencimiento) {
+            alert('Este tipo de documento requiere fecha de vencimiento');
+            return;
+        }
+        
+        // Crear FormData para enviar los datos
+        const formData = new FormData();
+        formData.append('tipo_documento_id', tipoDocumentoId);
+        formData.append('descripcion', descripcion);
+        formData.append('vehiculo_id', '{{ $vehiculo->id }}');
+        
+        if (fechaVencimiento) {
+            formData.append('fecha_vencimiento', fechaVencimiento);
+        }
+        
+        if (archivoInput.files.length > 0) {
+            formData.append('archivo', archivoInput.files[0]);
+        }
+        
+        // Mostrar indicador de carga
+        const btnAgregar = document.querySelector('button[onclick="agregarDocumento()"]');
+        const textoOriginal = btnAgregar.textContent;
+        btnAgregar.textContent = 'Guardando...';
+        btnAgregar.disabled = true;
+        
+        // Enviar solicitud AJAX
+        fetch('{{ route("documentos.store") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Documento guardado exitosamente');
+                // Recargar la página para mostrar el nuevo documento
+                window.location.reload();
+            } else {
+                let errorMessage = 'Error al guardar el documento';
+                if (data.errors) {
+                    errorMessage += ': ' + Object.values(data.errors).flat().join(', ');
+                } else if (data.message) {
+                    errorMessage += ': ' + data.message;
+                }
+                alert(errorMessage);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al guardar el documento. Por favor, intente nuevamente.');
+        })
+        .finally(() => {
+            // Restaurar el botón
+            btnAgregar.textContent = textoOriginal;
+            btnAgregar.disabled = false;
+        });
+    }
+    
     document.addEventListener('alpine:init', () => {
         Alpine.data('vehiculoEditFormController', () => ({
             fileStatus: {
-                tarjeta_circulacion: '',
-                poliza_seguro: '',
-                verificacion: '',
-                tenencia: '',
-                factura: '',
-                manual: ''
+                documentos_adicionales: ''
             },
-            
-            handleFileInput(event, type) {
-                const file = event.target.files[0];
-                if (!file) {
-                    this.fileStatus[type] = '';
+
+            handleMultipleFileInput(event) {
+                const files = Array.from(event.target.files);
+                if (files.length === 0) {
+                    this.fileStatus.documentos_adicionales = '';
                     return;
                 }
 
-                // Validar tamaño (10MB para manual, 5MB para otros)
-                const maxSize = type === 'manual' ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
-                if (file.size > maxSize) {
-                    alert(`El archivo es demasiado grande. Máximo ${maxSize / 1024 / 1024}MB`);
-                    event.target.value = '';
-                    this.fileStatus[type] = '';
-                    return;
+                const maxSize = 10 * 1024 * 1024; // 10MB por archivo
+                const allowedTypes = [
+                    'application/pdf',
+                    'image/jpeg',
+                    'image/png', 
+                    'image/jpg',
+                    'application/msword',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                ];
+
+                for (let file of files) {
+                    if (file.size > maxSize) {
+                        alert(`El archivo ${file.name} es demasiado grande. Máximo 10MB por archivo`);
+                        event.target.value = '';
+                        this.fileStatus.documentos_adicionales = '';
+                        return;
+                    }
+
+                    if (!allowedTypes.includes(file.type)) {
+                        alert(`El archivo ${file.name} tiene un formato no permitido`);
+                        event.target.value = '';
+                        this.fileStatus.documentos_adicionales = '';
+                        return;
+                    }
                 }
 
-                // Validar tipo de archivo
-                const allowedTypes = type === 'manual' 
-                    ? ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-                    : ['application/pdf', 'image/jpeg', 'image/png'];
-                
-                if (!allowedTypes.includes(file.type)) {
-                    alert('Formato de archivo no permitido');
-                    event.target.value = '';
-                    this.fileStatus[type] = '';
-                    return;
-                }
-
-                this.fileStatus[type] = `Nuevo archivo seleccionado: ${file.name}`;
+                this.fileStatus.documentos_adicionales = `${files.length} archivo(s) seleccionado(s): ${files.map(f => f.name).join(', ')}`;
             }
         }));
     });
+
+    // Funciones para manejar documentos estructurados
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mostrar/ocultar campo de fecha de vencimiento según el tipo de documento
+        const tipoDocumentoSelect = document.getElementById('nuevo_tipo_documento');
+        const fechaVencimientoContainer = document.getElementById('fecha_vencimiento_container');
+
+        if (tipoDocumentoSelect) {
+            tipoDocumentoSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const requiereVencimiento = selectedOption.getAttribute('data-requiere-vencimiento');
+                
+                if (requiereVencimiento === '1') {
+                    fechaVencimientoContainer.style.display = 'block';
+                } else {
+                    fechaVencimientoContainer.style.display = 'none';
+                    document.getElementById('nuevo_fecha_vencimiento').value = '';
+                }
+            });
+        }
+    });
+
+    // Función para agregar documento estructurado
+    function agregarDocumento() {
+        const tipoDocumento = document.getElementById('nuevo_tipo_documento').value;
+        const descripcion = document.getElementById('nuevo_descripcion').value;
+        const fechaVencimiento = document.getElementById('nuevo_fecha_vencimiento').value;
+        const archivo = document.getElementById('nuevo_archivo').files[0];
+
+        // Validaciones básicas
+        if (!tipoDocumento) {
+            alert('Por favor seleccione un tipo de documento');
+            return;
+        }
+
+        if (!descripcion.trim()) {
+            alert('Por favor ingrese una descripción para el documento');
+            return;
+        }
+
+        // Crear FormData para envío AJAX
+        const formData = new FormData();
+        formData.append('vehiculo_id', '{{ $vehiculo->id }}');
+        formData.append('tipo_documento_id', tipoDocumento);
+        formData.append('descripcion', descripcion);
+        if (fechaVencimiento) {
+            formData.append('fecha_vencimiento', fechaVencimiento);
+        }
+        if (archivo) {
+            formData.append('archivo', archivo);
+        }
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+        // Enviar documento via AJAX
+        fetch('{{ route("documentos.store") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Documento agregado exitosamente');
+                // Recargar la página para mostrar el nuevo documento
+                window.location.reload();
+            } else {
+                alert('Error al agregar el documento: ' + (data.message || 'Error desconocido'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al agregar el documento');
+        });
+    }
+
+    // Función para editar documento (placeholder)
+    function editarDocumento(documentoId) {
+        // Por ahora solo mostrar un mensaje, se puede implementar un modal más adelante
+        alert('Función de edición en desarrollo. ID del documento: ' + documentoId);
+    }
 </script>
 @endpush

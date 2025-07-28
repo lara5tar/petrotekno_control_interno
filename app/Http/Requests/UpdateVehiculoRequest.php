@@ -101,6 +101,13 @@ class UpdateVehiculoRequest extends FormRequest
                 'string',
                 'max:1000',
             ],
+            // Validaciones para documentos adicionales
+            'documentos_adicionales.*' => [
+                'nullable',
+                'file',
+                'mimes:pdf,doc,docx,jpg,jpeg,png,webp',
+                'max:10240', // 10MB máximo por archivo
+            ],
         ];
     }
 
@@ -138,6 +145,10 @@ class UpdateVehiculoRequest extends FormRequest
             'intervalo_km_hidraulico.min' => 'El intervalo hidráulico debe ser al menos 5,000 km.',
             'intervalo_km_hidraulico.max' => 'El intervalo hidráulico no puede exceder 100,000 km.',
             'observaciones.max' => 'Las observaciones no pueden exceder 1,000 caracteres.',
+            // Mensajes para documentos adicionales
+            'documentos_adicionales.*.file' => 'Cada documento adicional debe ser un archivo válido.',
+            'documentos_adicionales.*.mimes' => 'Los documentos adicionales deben ser de tipo: pdf, doc, docx, jpg, jpeg, png, webp.',
+            'documentos_adicionales.*.max' => 'Cada documento adicional no puede exceder 10MB.',
         ];
     }
 
