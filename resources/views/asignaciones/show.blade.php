@@ -71,7 +71,7 @@
                                     @endif
                                     <div class="row mb-2">
                                         <div class="col-sm-4"><strong>Registrado por:</strong></div>
-                                        <div class="col-sm-8">{{ $asignacion->creadoPor->personal->nombre_completo ?? 'N/A' }}</div>
+                                        <div class="col-sm-8">{{ $asignacion->encargado->personal->nombre_completo ?? 'N/A' }}</div>
                                     </div>
                                 </div>
                             </div>

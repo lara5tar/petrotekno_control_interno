@@ -47,6 +47,18 @@ class Personal extends Model
         'nombre_completo',
         'estatus',
         'categoria_id',
+        'curp_numero',
+        'rfc',
+        'nss',
+        'no_licencia',
+        'direccion',
+        'ine',
+        'url_ine',
+        'url_curp',
+        'url_rfc',
+        'url_nss',
+        'url_licencia',
+        'url_comprobante_domicilio',
     ];
 
     /**

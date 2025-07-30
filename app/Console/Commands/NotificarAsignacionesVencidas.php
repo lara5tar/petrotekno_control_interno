@@ -39,7 +39,7 @@ class NotificarAsignacionesVencidas extends Command
         // Buscar asignaciones activas que superen el límite de días
         $fechaLimite = Carbon::now()->subDays($diasAnticipacion);
 
-        $asignacionesVencidas = Asignacion::with(['vehiculo', 'obra', 'personal', 'creadoPor'])
+        $asignacionesVencidas = Asignacion::with(['vehiculo', 'obra', 'personal', 'encargado'])
             ->activas()
             ->where('fecha_asignacion', '<=', $fechaLimite)
             ->get();

@@ -13,6 +13,32 @@
 
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js -->
+    <style>[x-cloak] { display: none !important; }</style>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Alpine.js Controllers -->
+    <script>
+        window.formController = function() {
+            return {
+                crearUsuario: false,
+                passwordType: 'random',
+                fileStatus: {},
+                init() {
+                    this.crearUsuario = false;
+                    this.passwordType = 'random';
+                    this.fileStatus = {};
+                },
+                handleFileInput(event, type) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        this.fileStatus[type] = `Archivo seleccionado: ${file.name}`;
+                    }
+                }
+            }
+        }
+    </script>
     <script>
         tailwind.config = {
             theme: {

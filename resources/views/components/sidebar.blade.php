@@ -26,6 +26,12 @@
                 label="Personal" />
 
             <x-sidebar-item 
+                route="{{ route('obras.index') }}" 
+                :active="request()->routeIs('obras.*')" 
+                icon='<path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM7 5h10v2H7V5zm0 4h10v2H7V9zm0 4h10v2H7v-2z" />'
+                label="Obras" />
+
+            <x-sidebar-item 
                 route="#" 
                 :active="request()->routeIs('reportes.*')" 
                 icon='<path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v7a1 1 0 102 0V8z" clip-rule="evenodd" />'

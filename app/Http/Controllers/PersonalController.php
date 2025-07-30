@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePersonalRequest;
+use App\Http\Requests\UpdatePersonalRequest;
 use App\Models\CategoriaPersonal;
 use App\Models\LogAccion;
 use App\Models\Personal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class PersonalController extends Controller
@@ -140,11 +142,23 @@ class PersonalController extends Controller
             // Los datos ya vienen validados desde StorePersonalRequest
             $validated = $request->validated();
 
-            // Crear el personal con los datos básicos
+            // Crear el personal con los datos básicos y documentos
             $personal = Personal::create([
                 'nombre_completo' => $validated['nombre_completo'],
                 'estatus' => $validated['estatus'],
                 'categoria_id' => $validated['categoria_personal_id'],
+                'ine' => $validated['ine'] ?? null,
+                'url_ine' => $validated['url_ine'] ?? null,
+                'curp_numero' => $validated['curp_numero'] ?? null,
+                'url_curp' => $validated['url_curp'] ?? null,
+                'rfc' => $validated['rfc'] ?? null,
+                'url_rfc' => $validated['url_rfc'] ?? null,
+                'nss' => $validated['nss'] ?? null,
+                'url_nss' => $validated['url_nss'] ?? null,
+                'no_licencia' => $validated['no_licencia'] ?? null,
+                'url_licencia' => $validated['url_licencia'] ?? null,
+                'direccion' => $validated['direccion'] ?? null,
+                'url_comprobante_domicilio' => $validated['url_comprobante_domicilio'] ?? null,
             ]);
 
             $personal->load('categoria');
@@ -216,21 +230,35 @@ class PersonalController extends Controller
                 }
             ])->findOrFail($id);
 
-            // Organizar documentos por tipo para la vista
+            // Organizar documentos por tipo con mapeo para la vista
             $documentosPorTipo = [];
+            $tiposDocumentoMap = [
+                8 => 'identificacion',  // Identificación Oficial
+                9 => 'curp',           // CURP
+                10 => 'rfc',           // RFC
+                11 => 'nss',           // NSS
+                7 => 'licencia',       // Licencia de Conducir
+                15 => 'cv',            // CV Profesional
+                16 => 'domicilio'      // Comprobante de Domicilio
+            ];
+            
             foreach ($personal->documentos as $documento) {
+                $tipoId = $documento->tipo_documento_id;
+                if (isset($tiposDocumentoMap[$tipoId])) {
+                    $campo = $tiposDocumentoMap[$tipoId];
+                    $documentosPorTipo[$campo] = $documento;
+                }
+                
+                // Mantener compatibilidad con nombres antiguos para la vista
                 $tipoNombre = $documento->tipoDocumento->nombre_tipo_documento;
-                
-                // Mapear nombres para compatibilidad con la vista
-                $tipoMapeado = $tipoNombre;
                 if ($tipoNombre === 'Identificación Oficial') {
-                    $tipoMapeado = 'INE';
+                    $documentosPorTipo['INE'] = $documento;
+                } else {
+                    // Solo asignar si no existe ya para evitar arrays
+                    if (!isset($documentosPorTipo[$tipoNombre])) {
+                        $documentosPorTipo[$tipoNombre] = $documento;
+                    }
                 }
-                
-                if (!isset($documentosPorTipo[$tipoMapeado])) {
-                    $documentosPorTipo[$tipoMapeado] = [];
-                }
-                $documentosPorTipo[$tipoMapeado][] = $documento->toArray();
             }
 
             // Respuesta híbrida
@@ -276,11 +304,31 @@ class PersonalController extends Controller
         }
 
         try {
-            $personal = Personal::with('categoria')->findOrFail($id);
+            $personal = Personal::with(['categoria', 'documentos.tipoDocumento'])->findOrFail($id);
 
             $categorias = CategoriaPersonal::select('id', 'nombre_categoria')
                 ->orderBy('nombre_categoria')
                 ->get();
+
+            // Organizar documentos por tipo con mapeo para la vista
+            $documentosPorTipo = [];
+            $tiposDocumentoMap = [
+                8 => 'identificacion',  // Identificación Oficial
+                9 => 'curp',           // CURP
+                10 => 'rfc',           // RFC
+                11 => 'nss',           // NSS
+                7 => 'licencia',       // Licencia de Conducir
+                15 => 'cv',            // CV Profesional
+                16 => 'domicilio'      // Comprobante de Domicilio
+            ];
+            
+            foreach ($personal->documentos as $documento) {
+                $tipoId = $documento->tipo_documento_id;
+                if (isset($tiposDocumentoMap[$tipoId])) {
+                    $campo = $tiposDocumentoMap[$tipoId];
+                    $documentosPorTipo[$campo] = $documento;
+                }
+            }
 
             // Respuesta híbrida
             if ($request->expectsJson()) {
@@ -293,7 +341,7 @@ class PersonalController extends Controller
                 ]);
             }
 
-            return view('personal.edit', compact('personal', 'categorias'));
+            return view('personal.edit', compact('personal', 'categorias', 'documentosPorTipo'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -312,7 +360,7 @@ class PersonalController extends Controller
      * Update the specified resource in storage.
      * Patrón Híbrido: API (JSON) + Blade (Redirect)
      */
-    public function update(Request $request, $id)
+    public function update(UpdatePersonalRequest $request, $id)
     {
         // Verificar permisos
         if (! $request->user()->hasPermission('editar_personal')) {
@@ -326,21 +374,63 @@ class PersonalController extends Controller
             return redirect()->back()->with('error', 'No tienes permisos para acceder a esta sección');
         }
 
-        $request->validate([
-            'nombre_completo' => 'required|string|max:255',
-            'estatus' => ['required', Rule::in(['activo', 'inactivo'])],
-            'categoria_id' => 'required|exists:categorias_personal,id',
-        ]);
+        $validated = $request->validated();
 
         try {
             $personal = Personal::findOrFail($id);
             $oldData = $personal->toArray();
 
-            $personal->update($request->only([
-                'nombre_completo',
-                'estatus',
-                'categoria_id',
-            ]));
+            // Actualizar datos básicos y documentos
+            $personal->update([
+                'nombre_completo' => $validated['nombre_completo'],
+                'estatus' => $validated['estatus'],
+                'categoria_id' => $validated['categoria_id'],
+                'curp_numero' => $validated['curp_numero'] ?? $personal->curp_numero,
+                'ine' => $validated['ine'] ?? $personal->ine,
+                'url_ine' => $validated['url_ine'] ?? $personal->url_ine,
+                'url_curp' => $validated['url_curp'] ?? $personal->url_curp,
+                'rfc' => $validated['rfc'] ?? $personal->rfc,
+                'url_rfc' => $validated['url_rfc'] ?? $personal->url_rfc,
+                'nss' => $validated['nss'] ?? $personal->nss,
+                'url_nss' => $validated['url_nss'] ?? $personal->url_nss,
+                'no_licencia' => $validated['no_licencia'] ?? $personal->no_licencia,
+                'url_licencia' => $validated['url_licencia'] ?? $personal->url_licencia,
+                'direccion' => $validated['direccion'] ?? $personal->direccion,
+                'url_comprobante_domicilio' => $validated['url_comprobante_domicilio'] ?? $personal->url_comprobante_domicilio,
+            ]);
+
+            // Manejar archivo CURP si se proporciona
+            if ($request->hasFile('curp_file')) {
+                $tipoDocumentoCurp = 9; // ID para documentos tipo CURP
+                $archivo = $request->file('curp_file');
+                $nombreArchivo = time() . '_' . $personal->id . '_' . $archivo->getClientOriginalName();
+                $rutaArchivo = $archivo->storeAs('personal/documentos', $nombreArchivo, 'private');
+
+                // Buscar si ya existe un documento CURP
+                $documentoExistente = $personal->documentos()
+                    ->where('tipo_documento_id', $tipoDocumentoCurp)
+                    ->first();
+
+                if ($documentoExistente) {
+                    // Eliminar archivo anterior
+                    if ($documentoExistente->ruta_archivo && \Storage::disk('private')->exists($documentoExistente->ruta_archivo)) {
+                        \Storage::disk('private')->delete($documentoExistente->ruta_archivo);
+                    }
+                    
+                    // Actualizar documento existente
+                    $documentoExistente->update([
+                        'ruta_archivo' => $rutaArchivo,
+                        'contenido' => 'CURP'
+                    ]);
+                } else {
+                    // Crear nuevo documento
+                    $personal->documentos()->create([
+                        'tipo_documento_id' => $tipoDocumentoCurp,
+                        'ruta_archivo' => $rutaArchivo,
+                        'contenido' => 'CURP'
+                    ]);
+                }
+            }
 
             $personal->load('categoria');
 

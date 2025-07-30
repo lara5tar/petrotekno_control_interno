@@ -202,7 +202,7 @@ class ObraController extends Controller
                 return redirect()->back()->with('error', $message);
             }
 
-            $obra = Obra::find($id);
+            $obra = Obra::with(['asignaciones.vehiculo', 'asignaciones.personal', 'asignaciones.encargado'])->find($id);
 
             if (! $obra) {
                 if ($request->expectsJson()) {

@@ -316,13 +316,13 @@
                                         <div>
                                             <label class="block text-sm text-gray-600">Nombre Completo</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                Marco Alfredo
+                                                {{ $vehiculo->operadorActual->nombre_completo ?? 'Sin asignar' }}
                                             </div>
                                         </div>
                                         <div>
                                             <label class="block text-sm text-gray-600">NSS</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                12345678901
+                                                {{ $vehiculo->operadorActual->nss ?? 'Sin asignar' }}
                                             </div>
                                         </div>
                                     </div>
@@ -399,44 +399,30 @@
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
-                                            <tr>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">125,145</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">28/05/2023</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Libramiento Monterrey</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Marco Delgado</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
-                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                        </svg>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">124,956</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">26/05/2023</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Libramiento Monterrey</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Marco Delgado</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
-                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                        </svg>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">122,890</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">20/05/2023</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Libramiento Monterrey</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Marco Delgado</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
-                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            @if($vehiculo->kilometrajes && $vehiculo->kilometrajes->count() > 0)
+                                                @foreach($vehiculo->kilometrajes->take(5) as $kilometraje)
+                                                <tr>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{{ number_format($kilometraje->kilometraje_actual) }}</td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">{{ $kilometraje->fecha_registro->format('d/m/Y') }}</td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">{{ $kilometraje->ubicacion ?? 'No especificada' }}</td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">{{ $kilometraje->personal->nombre_completo ?? 'No asignado' }}</td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
+                                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                            </svg>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            @else
+                                                <tr>
+                                                    <td colspan="5" class="px-3 py-4 text-center text-sm text-gray-500">
+                                                        No hay registros de kilometraje disponibles
+                                                    </td>
+                                                </tr>
+                                            @endif
                                                         </svg>
                                                     </button>
                                                 </td>

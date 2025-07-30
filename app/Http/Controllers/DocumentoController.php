@@ -922,7 +922,7 @@ class DocumentoController extends Controller
     /**
      * Mostrar archivo de documento en el navegador
      */
-    public function showFile(Request $request, $id)
+    public function showFile(Request $request, Documento $documento)
     {
         // Verificar permisos
         if (! $this->hasPermission('ver_documentos')) {
@@ -933,8 +933,6 @@ class DocumentoController extends Controller
         }
 
         try {
-            $documento = Documento::findOrFail($id);
-
             // Verificar si el documento tiene archivo
             if (!$documento->ruta_archivo) {
                 if ($request->expectsJson()) {
@@ -947,10 +945,7 @@ class DocumentoController extends Controller
             }
 
             // Determinar el disco de almacenamiento
-            $disk = 'public';
-            if (str_contains($documento->ruta_archivo, 'personal/')) {
-                $disk = 'private'; // Los documentos de personal se guardan en disco privado
-            }
+            $disk = 'public'; // Todos los documentos se guardan en el disco público
 
             // Verificar si el archivo existe
             if (!Storage::disk($disk)->exists($documento->ruta_archivo)) {
@@ -988,23 +983,15 @@ class DocumentoController extends Controller
                 ->header('Pragma', 'no-cache')
                 ->header('Expires', '0');
 
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Documento no encontrado'
-                ], 404);
-            }
-            return redirect()->back()->withErrors(['error' => 'Documento no encontrado']);
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al mostrar el archivo del documento',
+                    'message' => 'Error al obtener el archivo del documento',
                     'error' => $e->getMessage()
                 ], 500);
             }
-            return redirect()->back()->withErrors(['error' => 'Error al mostrar el archivo del documento: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Error al obtener el archivo del documento: ' . $e->getMessage()]);
         }
     }
 }

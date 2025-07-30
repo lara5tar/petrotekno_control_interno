@@ -45,7 +45,7 @@ class AsignacionController extends Controller
         }
 
         try {
-            $query = Asignacion::with(['vehiculo', 'obra', 'personal', 'creadoPor']);
+            $query = Asignacion::with(['vehiculo', 'obra', 'personal', 'encargado']);
 
             // Filtros
             if ($request->has('estado')) {
@@ -173,6 +173,12 @@ class AsignacionController extends Controller
                 ->orderBy('nombre_completo')
                 ->get();
 
+            // Obtener obra preseleccionada si se pasa como parámetro
+            $obraPreseleccionada = null;
+            if ($request->has('obra_id')) {
+                $obraPreseleccionada = Obra::find($request->obra_id);
+            }
+
             // Si es solicitud API (AJAX/fetch con JSON)
             if ($request->expectsJson()) {
                 return response()->json([
@@ -181,12 +187,13 @@ class AsignacionController extends Controller
                         'vehiculos_disponibles' => $vehiculosDisponibles,
                         'obras_activas' => $obrasActivas,
                         'operadores_disponibles' => $operadoresDisponibles,
+                        'obra_preseleccionada' => $obraPreseleccionada,
                     ],
                 ]);
             }
 
             // Si es solicitud web (navegador tradicional)
-            return view('asignaciones.create', compact('vehiculosDisponibles', 'obrasActivas', 'operadoresDisponibles'));
+            return view('asignaciones.create', compact('vehiculosDisponibles', 'obrasActivas', 'operadoresDisponibles', 'obraPreseleccionada'));
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -211,10 +218,10 @@ class AsignacionController extends Controller
             $validated = $request->validated();
 
             // Agregar usuario que crea la asignación
-            $validated['creado_por_id'] = Auth::id();
+            $validated['encargado_id'] = Auth::id();
 
             $asignacion = Asignacion::create($validated);
-            $asignacion->load(['vehiculo', 'obra', 'personal', 'creadoPor']);
+            $asignacion->load(['vehiculo', 'obra', 'personal', 'encargado']);
 
             // Registrar en log de auditoría
             LogAccion::create([
@@ -269,7 +276,7 @@ class AsignacionController extends Controller
         }
 
         try {
-            $asignacion = Asignacion::with(['vehiculo', 'obra', 'personal', 'creadoPor'])->findOrFail($id);
+            $asignacion = Asignacion::with(['vehiculo', 'obra', 'personal', 'encargado'])->findOrFail($id);
 
             // Si es solicitud API (AJAX/fetch con JSON)
             if ($request->expectsJson()) {
@@ -409,7 +416,7 @@ class AsignacionController extends Controller
             $validated = $request->validated();
 
             $asignacion->update($validated);
-            $asignacion->load(['vehiculo', 'obra', 'personal', 'creadoPor']);
+            $asignacion->load(['vehiculo', 'obra', 'personal', 'encargado']);
 
             // Registrar en log de auditoría
             LogAccion::create([
@@ -490,7 +497,7 @@ class AsignacionController extends Controller
                 $validated['observaciones_liberacion'] ?? null
             );
 
-            $asignacion->load(['vehiculo', 'obra', 'personal', 'creadoPor']);
+            $asignacion->load(['vehiculo', 'obra', 'personal', 'encargado']);
 
             // Registrar en log de auditoría
             LogAccion::create([
@@ -691,7 +698,7 @@ class AsignacionController extends Controller
         try {
             $vehiculo = Vehiculo::findOrFail($vehiculoId);
 
-            $asignaciones = Asignacion::with(['obra', 'personal', 'creadoPor'])
+            $asignaciones = Asignacion::with(['obra', 'personal', 'encargado'])
                 ->porVehiculo($vehiculoId)
                 ->orderBy('fecha_asignacion', 'desc')
                 ->get();
@@ -728,7 +735,7 @@ class AsignacionController extends Controller
         try {
             $operador = Personal::findOrFail($personalId);
 
-            $asignaciones = Asignacion::with(['vehiculo', 'obra', 'creadoPor'])
+            $asignaciones = Asignacion::with(['vehiculo', 'obra', 'encargado'])
                 ->porOperador($personalId)
                 ->orderBy('fecha_asignacion', 'desc')
                 ->get();

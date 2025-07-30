@@ -18,7 +18,7 @@ class Asignacion extends Model
         'vehiculo_id',
         'obra_id',
         'personal_id',
-        'creado_por_id',
+        'encargado_id',
         'fecha_asignacion',
         'fecha_liberacion',
         'kilometraje_inicial',
@@ -74,9 +74,9 @@ class Asignacion extends Model
         return $this->belongsTo(Personal::class);
     }
 
-    public function creadoPor(): BelongsTo
+    public function encargado(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'creado_por_id');
+        return $this->belongsTo(User::class, 'encargado_id');
     }
 
     /**
@@ -274,7 +274,7 @@ class Asignacion extends Model
         // Log de creación
         static::created(function ($asignacion) {
             \App\Models\LogAccion::create([
-                'usuario_id' => $asignacion->creado_por_id,
+                'usuario_id' => $asignacion->encargado_id,
                 'accion' => 'crear_asignacion',
                 'tabla_afectada' => 'asignaciones',
                 'registro_id' => $asignacion->id,

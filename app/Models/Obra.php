@@ -99,12 +99,12 @@ class Obra extends Model
     ];
 
     /**
-     * Preparado para futuras relaciones con asignaciones
+     * Relación con asignaciones
      */
-    // public function asignaciones(): HasMany
-    // {
-    //     return $this->hasMany(Asignacion::class);
-    // }
+    public function asignaciones(): HasMany
+    {
+        return $this->hasMany(Asignacion::class);
+    }
 
     /**
      * Preparado para futuras relaciones con kilometrajes

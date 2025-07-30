@@ -57,11 +57,41 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">CURP</label>
+                            @if(isset($documentosPorTipo['curp']))
+                                @php $doc = $documentosPorTipo['curp']; @endphp
+                                <div class="mb-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                                    <p class="text-xs text-green-800">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        {{ $doc->tipoDocumento->descripcion }}
+                                    </p>
+                                    @if($doc->numero_documento)
+                                        <p class="text-xs text-green-600 mt-1">
+                                            Número: {{ $doc->numero_documento }}
+                                        </p>
+                                    @endif
+                                    <div class="mt-1">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <i class="fas fa-paperclip mr-1"></i>
+                                            Archivo adjunto
+                                        </span>
+                                    </div>
+                                </div>
+                                @else
+                                    <div class="text-sm text-red-600">No registrado</div>
+                                @endif
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    {{ $personal->curp ?? 'No registrado' }}
+                                    @php
+                                        $documentoCURP = $documentosPorTipo['CURP'] ?? null;
+                                        $tieneDocumentoCURP = !is_null($documentoCURP) && is_object($documentoCURP);
+                                    @endphp
+                                    @if($tieneDocumentoCURP && isset($documentoCURP->descripcion))
+                                        {{ $documentoCURP->descripcion }}
+                                    @else
+                                        {{ $personal->curp ?? 'No registrado' }}
+                                    @endif
                                 </div>
-                                @if($personal->curp && isset($documentosPorTipo['CURP']))
+                                @if($tieneDocumentoCURP)
                                 <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,11 +103,39 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">RFC</label>
+                            @if(isset($documentosPorTipo['rfc']))
+                                @php $doc = $documentosPorTipo['rfc']; @endphp
+                                <div class="mb-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                                    <p class="text-xs text-green-800">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        {{ $doc->tipoDocumento->descripcion }}
+                                    </p>
+                                    @if($doc->numero_documento)
+                                        <p class="text-xs text-green-600 mt-1">
+                                            Número: {{ $doc->numero_documento }}
+                                        </p>
+                                    @endif
+                                    <div class="mt-1">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <i class="fas fa-paperclip mr-1"></i>
+                                            Archivo adjunto
+                                        </span>
+                                    </div>
+                                </div>
+                            @endif
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    {{ $personal->rfc ?? 'No registrado' }}
+                                    @php
+                                        $documentoRFC = $documentosPorTipo['RFC'] ?? null;
+                                        $tieneDocumentoRFC = !is_null($documentoRFC) && is_object($documentoRFC);
+                                    @endphp
+                                    @if($tieneDocumentoRFC && isset($documentoRFC->descripcion))
+                                        {{ $documentoRFC->descripcion }}
+                                    @else
+                                        {{ $personal->rfc ?? 'No registrado' }}
+                                    @endif
                                 </div>
-                                @if($personal->rfc && isset($documentosPorTipo['RFC']))
+                                @if($tieneDocumentoRFC)
                                 <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,11 +150,47 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Identificación (INE)</label>
+                            @if(isset($documentosPorTipo['identificacion']) || isset($documentosPorTipo['INE']))
+                                @php 
+                                    $doc = $documentosPorTipo['identificacion'] ?? $documentosPorTipo['INE']; 
+                                    // Asegurar que $doc es un objeto y no un array
+                                    if (is_array($doc)) {
+                                        $doc = $doc[0] ?? null;
+                                    }
+                                @endphp
+                                @if($doc && is_object($doc))
+                                <div class="mb-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                                    <p class="text-xs text-green-800">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        {{ $doc->tipoDocumento->descripcion }}
+                                    </p>
+                                    @if($doc->numero_documento)
+                                        <p class="text-xs text-green-600 mt-1">
+                                            Número: {{ $doc->numero_documento }}
+                                        </p>
+                                    @endif
+                                    <div class="mt-1">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <i class="fas fa-paperclip mr-1"></i>
+                                            Archivo adjunto
+                                        </span>
+                                    </div>
+                                </div>
+                                @endif
+                            @endif
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    {{ isset($documentosPorTipo['INE']) ? 'Disponible' : 'No registrado' }}
+                                    @php
+                                        $documentoINE = $documentosPorTipo['INE'] ?? null;
+                                        $tieneDocumentoINE = !is_null($documentoINE) && is_object($documentoINE);
+                                    @endphp
+                                    @if($tieneDocumentoINE && isset($documentoINE->descripcion))
+                                        {{ $documentoINE->descripcion }}
+                                    @else
+                                        No registrado
+                                    @endif
                                 </div>
-                                @if(isset($documentosPorTipo['INE']))
+                                @if($tieneDocumentoINE)
                                 <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,11 +202,39 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">NSS</label>
+                            @if(isset($documentosPorTipo['nss']) || isset($documentosPorTipo['NSS']))
+                                @php $doc = $documentosPorTipo['nss'] ?? $documentosPorTipo['NSS']; @endphp
+                                <div class="mb-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                                    <p class="text-xs text-green-800">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        {{ $doc->tipoDocumento->descripcion }}
+                                    </p>
+                                    @if($doc->numero_documento)
+                                        <p class="text-xs text-green-600 mt-1">
+                                            Número: {{ $doc->numero_documento }}
+                                        </p>
+                                    @endif
+                                    <div class="mt-1">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <i class="fas fa-paperclip mr-1"></i>
+                                            Archivo adjunto
+                                        </span>
+                                    </div>
+                                </div>
+                            @endif
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    {{ $personal->nss ?? 'No registrado' }}
+                                    @php
+                                        $documentoNSS = $documentosPorTipo['NSS'] ?? null;
+                                        $tieneDocumentoNSS = !is_null($documentoNSS) && is_object($documentoNSS);
+                                    @endphp
+                                    @if($tieneDocumentoNSS && isset($documentoNSS->descripcion))
+                                        {{ $documentoNSS->descripcion }}
+                                    @else
+                                        {{ $personal->nss ?? 'No registrado' }}
+                                    @endif
                                 </div>
-                                @if($personal->nss && isset($documentosPorTipo['NSS']))
+                                @if($tieneDocumentoNSS)
                                 <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,11 +249,44 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Licencia de Manejo</label>
+                            @if(isset($documentosPorTipo['licencia']) || isset($documentosPorTipo['Licencia de Manejo']))
+                                @php $doc = $documentosPorTipo['licencia'] ?? $documentosPorTipo['Licencia de Manejo']; @endphp
+                                <div class="mb-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                                    <p class="text-xs text-green-800">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        {{ $doc->tipoDocumento->descripcion }}
+                                    </p>
+                                    @if($doc->numero_documento)
+                                        <p class="text-xs text-green-600 mt-1">
+                                            Número: {{ $doc->numero_documento }}
+                                        </p>
+                                    @endif
+                                    @if($doc->fecha_vencimiento)
+                                        <p class="text-xs text-green-600 mt-1">
+                                            Vence: {{ \Carbon\Carbon::parse($doc->fecha_vencimiento)->format('d/m/Y') }}
+                                        </p>
+                                    @endif
+                                    <div class="mt-1">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <i class="fas fa-paperclip mr-1"></i>
+                                            Archivo adjunto
+                                        </span>
+                                    </div>
+                                </div>
+                            @endif
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    {{ isset($documentosPorTipo['Licencia de Manejo']) ? 'Disponible' : 'No registrado' }}
+                                    @php
+                                        $documentoLicencia = $documentosPorTipo['Licencia de Manejo'] ?? null;
+                                        $tieneDocumentoLicencia = !is_null($documentoLicencia) && is_object($documentoLicencia);
+                                    @endphp
+                                    @if($tieneDocumentoLicencia && isset($documentoLicencia->descripcion))
+                                        {{ $documentoLicencia->descripcion }}
+                                    @else
+                                        No registrado
+                                    @endif
                                 </div>
-                                @if(isset($documentosPorTipo['Licencia de Manejo']))
+                                @if($tieneDocumentoLicencia)
                                 <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,11 +298,34 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">CV Profesional</label>
-                            <div class="flex items-center space-x-2">
-                                <div class="bg-{{ isset($documentosPorTipo['CV']) ? 'green' : 'gray' }}-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    {{ isset($documentosPorTipo['CV']) ? 'Disponible' : 'No registrado' }}
+                            @if(isset($documentosPorTipo['cv']) || isset($documentosPorTipo['CV Profesional']))
+                                @php $doc = $documentosPorTipo['cv'] ?? $documentosPorTipo['CV Profesional']; @endphp
+                                <div class="mb-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                                    <p class="text-xs text-green-800">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        {{ $doc->tipoDocumento->descripcion }}
+                                    </p>
+                                    <div class="mt-1">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <i class="fas fa-paperclip mr-1"></i>
+                                            Archivo adjunto
+                                        </span>
+                                    </div>
                                 </div>
-                                @if(isset($documentosPorTipo['CV']))
+                            @endif
+                            <div class="flex items-center space-x-2">
+                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                    @php
+                                        $documentoCV = $documentosPorTipo['CV Profesional'] ?? null;
+                                        $tieneDocumentoCV = !is_null($documentoCV) && is_object($documentoCV);
+                                    @endphp
+                                    @if($tieneDocumentoCV && isset($documentoCV->descripcion))
+                                        {{ $documentoCV->descripcion }}
+                                    @else
+                                        No registrado
+                                    @endif
+                                </div>
+                                @if($tieneDocumentoCV)
                                 <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -263,14 +441,7 @@
                                     </svg>
                                     Documentos del Personal
                                 </h5>
-                                @hasPermission('editar_personal')
-                                <button onclick="showUploadPersonalDocumentModal()" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
-                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    Agregar Documentos
-                                </button>
-                                @endhasPermission
+
                             </div>
                             
                             <!-- Documentos Obligatorios -->
@@ -283,8 +454,7 @@
                                 @foreach($documentosObligatorios as $tipoDoc)
                                     @php
                                         $documento = $documentosPorTipo[$tipoDoc] ?? null;
-                                        $tieneDocumento = !is_null($documento) && is_array($documento) && count($documento) > 0;
-                                        $primerDocumento = $tieneDocumento ? $documento[0] : null;
+                                        $tieneDocumento = !is_null($documento) && is_object($documento);
                                     @endphp
                                     
                                     <li class="py-2 flex items-center justify-between">
@@ -302,10 +472,10 @@
                                                         {{ $tipoDoc }}
                                                     @endif
                                                 </span>
-                                                @if($tieneDocumento && isset($primerDocumento['fecha_vencimiento']) && $primerDocumento['fecha_vencimiento'])
-                                                    <p class="text-xs text-gray-500">Vence: {{ \Carbon\Carbon::parse($primerDocumento['fecha_vencimiento'])->format('d/m/Y') }}</p>
+                                                @if($tieneDocumento && isset($documento->fecha_vencimiento) && $documento->fecha_vencimiento)
+                                                    <p class="text-xs text-gray-500">Vence: {{ \Carbon\Carbon::parse($documento->fecha_vencimiento)->format('d/m/Y') }}</p>
                                                 @elseif($tieneDocumento)
-                                                    <p class="text-xs text-gray-500">{{ $primerDocumento['descripcion'] ?? 'Documento disponible' }}</p>
+                                                    <p class="text-xs text-gray-500">{{ $documento->descripcion ?? 'Documento disponible' }}</p>
                                                 @else
                                                     <p class="text-xs text-red-500">No disponible</p>
                                                 @endif
@@ -313,7 +483,7 @@
                                         </div>
                                         @if($tieneDocumento)
                                             <div class="flex space-x-2">
-                                                <button data-document-id="{{ $primerDocumento['id'] }}" class="btn-view-document bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                <button data-document-id="{{ $documento->id }}" class="btn-view-document bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
                                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     </svg>
@@ -432,62 +602,7 @@
     </form>
     @endhasPermission
 </div>
-
-<!-- Modal para agregar datos de documentos de personal -->
-<div id="uploadPersonalDocumentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Agregar Documento</h3>
-            <button onclick="closeUploadPersonalDocumentModal()" class="text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
-        
-        <form id="uploadPersonalDocumentForm" action="{{ route('personal.documents.upload', $personal->id) }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            <div class="mb-4">
-                <label for="tipo_documento" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Documento</label>
-                <select name="tipo_documento" id="tipo_documento" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">Seleccionar tipo...</option>
-                    <option value="Identificación Oficial">Identificación Oficial (INE)</option>
-                    <option value="CURP">CURP</option>
-                    <option value="RFC">RFC</option>
-                    <option value="Certificado Médico">Certificado Médico</option>
-                    <option value="Licencia de Conducir">Licencia de Conducir</option>
-                    <option value="Comprobante de Estudios">Comprobante de Estudios</option>
-                    <option value="Contrato de Trabajo">Contrato de Trabajo</option>
-                </select>
-            </div>
-            
-            <div class="mb-4">
-                <label for="archivo" class="block text-sm font-medium text-gray-700 mb-2">Archivo del Documento</label>
-                <input type="file" name="archivo" id="archivo" accept=".pdf,.jpg,.jpeg,.png" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <p class="text-xs text-gray-500 mt-1">Formatos permitidos: PDF, JPG, JPEG, PNG (máx. 10MB)</p>
-            </div>
-            
-            <div class="mb-4">
-                <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">Descripción (Opcional)</label>
-                <textarea name="descripcion" id="descripcion" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Descripción adicional del documento..."></textarea>
-            </div>
-            
-            <div class="mb-4">
-                <label for="fecha_vencimiento" class="block text-sm font-medium text-gray-700 mb-2">Fecha de Vencimiento (Opcional)</label>
-                <input type="date" name="fecha_vencimiento" id="fecha_vencimiento" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            
-            <div class="flex justify-end space-x-3">
-                <button type="button" onclick="closeUploadPersonalDocumentModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded text-sm">
-                    Cancelar
-                </button>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
-                    Subir Documento
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+@endsection
 
 @push('scripts')
 <script>
@@ -529,17 +644,7 @@ window.switchTab = function(tabName) {
     });
 };
 
-// Funciones para el modal de subir documentos de personal
-window.showUploadPersonalDocumentModal = function() {
-    const modal = document.getElementById('uploadPersonalDocumentModal');
-    modal.classList.remove('hidden');
-};
 
-window.closeUploadPersonalDocumentModal = function() {
-    const modal = document.getElementById('uploadPersonalDocumentModal');
-    modal.classList.add('hidden');
-    document.getElementById('uploadPersonalDocumentForm').reset();
-};
 
 // Funciones para ver y mostrar datos de documentos de personal
 window.viewPersonalDocument = function(documentId) {
@@ -641,73 +746,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Cerrar modal al hacer clic fuera de él
-    document.getElementById('uploadPersonalDocumentModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeUploadPersonalDocumentModal();
-        }
-    });
-    
-    // Manejar envío del formulario de datos de documentos
-    document.getElementById('uploadPersonalDocumentForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const submitButton = this.querySelector('button[type="submit"]');
-        const originalText = submitButton.textContent;
-        
-        // Validación básica
-        const tipoDocumento = formData.get('tipo_documento');
-        const archivo = formData.get('archivo');
-        
-        if (!tipoDocumento) {
-            alert('Por favor selecciona un tipo de documento');
-            return;
-        }
-        
-        if (!archivo || archivo.size === 0) {
-            alert('Por favor selecciona un archivo para subir');
-            return;
-        }
-        
-        submitButton.textContent = 'Guardando...';
-        submitButton.disabled = true;
-        
-        // Obtener el token CSRF del meta tag
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        
-        fetch(this.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                alert('Datos del documento guardados exitosamente');
-                closeUploadPersonalDocumentModal();
-                location.reload(); // Recargar para mostrar el nuevo documento
-            } else {
-                alert('Error: ' + (data.message || 'No se pudieron guardar los datos'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al guardar los datos del documento: ' + error.message);
-        })
-        .finally(() => {
-            submitButton.textContent = originalText;
-            submitButton.disabled = false;
-        });
-    });
+
 });
 
 // Función auxiliar para indicadores de carga
@@ -722,4 +761,3 @@ window.showTabLoading = function(tabName) {
 };
 </script>
 @endpush
-@endsection

@@ -31,6 +31,12 @@ class PersonalManagementController extends Controller
                 'nombre_completo' => $validatedData['nombre_completo'],
                 'estatus' => $validatedData['estatus'],
                 'categoria_id' => $validatedData['categoria_personal_id'],
+                'ine' => $validatedData['ine'] ?? null,
+                'curp_numero' => $validatedData['curp_numero'] ?? null,
+                'rfc' => $validatedData['rfc'] ?? null,
+                'nss' => $validatedData['nss'] ?? null,
+                'no_licencia' => $validatedData['no_licencia'] ?? null,
+                'direccion' => $validatedData['direccion'] ?? null,
             ]);
 
             // 2. Procesar y Guardar Documentos
@@ -39,24 +45,55 @@ class PersonalManagementController extends Controller
                 'identificacion_file' => 8,    // INE - Identificación Oficial
                 'curp_file' => 9,              // CURP
                 'rfc_file' => 10,              // RFC
-                'nss_file' => 28,              // NSS - Número de Seguro Social
+                'nss_file' => 11,              // NSS - Número de Seguro Social
                 'licencia_file' => 7,          // Licencia de Conducir
-                'cv_file' => 31                // CV Profesional
+                'comprobante_file' => 30,      // Comprobante de Domicilio
+                'cv_file' => 28,               // CV Profesional
             ]; // Mapeo de campos a IDs reales de la BD
 
             foreach ($tiposDocumento as $requestKey => $tipoId) {
                 if ($request->hasFile($requestKey)) {
+                    \Log::info("Processing file: {$requestKey}", [
+                        'file_name' => $request->file($requestKey)->getClientOriginalName(),
+                        'file_size' => $request->file($requestKey)->getSize(),
+                        'personal_id' => $personal->id
+                    ]);
+                    
                     $path = $this->handleDocumentUpload($request->file($requestKey), $personal->id);
+                    \Log::info("File uploaded to: {$path}");
+                    
+                    // Obtener el número de identificación correspondiente según el tipo de documento
+                    $descripcion = match($requestKey) {
+                        'identificacion_file' => $request->input('ine'),
+                        'curp_file' => $request->input('curp_numero'),
+                        'rfc_file' => $request->input('rfc'),
+                        'nss_file' => $request->input('nss'),
+                        'licencia_file' => $request->input('no_licencia'),
+                        'comprobante_file' => $request->input('direccion'),
+                        'cv_file' => 'Curriculum Vitae',
+                        default => null
+                    };
+
                     $documentosData[] = [
                         'tipo_documento_id' => $tipoId,
                         'ruta_archivo' => $path,
-                        'descripcion' => "Documento de {$requestKey}",
+                        'descripcion' => $descripcion,
                     ];
+                    
+                    \Log::info("Document data prepared", [
+                        'tipo_documento_id' => $tipoId,
+                        'ruta_archivo' => $path,
+                        'descripcion' => $descripcion
+                    ]);
                 }
             }
 
             if (!empty($documentosData)) {
+                \Log::info("Creating documents", ['count' => count($documentosData), 'data' => $documentosData]);
                 $this->createPersonalDocuments($personal, $documentosData);
+                \Log::info("Documents created successfully");
+            } else {
+                \Log::info("No documents to create");
             }
 
             // 3. Crear Usuario (si se solicita)
@@ -148,6 +185,18 @@ class PersonalManagementController extends Controller
             'nombre_completo' => $data['nombre_completo'],
             'estatus' => $data['estatus'],
             'categoria_id' => $data['categoria_id'],
+            'ine' => $data['ine'] ?? null,
+            'url_ine' => $data['url_ine'] ?? null,
+            'curp_numero' => $data['curp_numero'] ?? null,
+            'url_curp' => $data['url_curp'] ?? null,
+            'rfc' => $data['rfc'] ?? null,
+            'url_rfc' => $data['url_rfc'] ?? null,
+            'nss' => $data['nss'] ?? null,
+            'url_nss' => $data['url_nss'] ?? null,
+            'no_licencia' => $data['no_licencia'] ?? null,
+            'url_licencia' => $data['url_licencia'] ?? null,
+            'direccion' => $data['direccion'] ?? null,
+            'url_comprobante_domicilio' => $data['url_comprobante_domicilio'] ?? null,
         ]);
     }
 
@@ -159,6 +208,13 @@ class PersonalManagementController extends Controller
         $documentos = [];
 
         foreach ($documentosData as $docData) {
+            \Log::info("Creating individual document", [
+                'personal_id' => $personal->id,
+                'tipo_documento_id' => $docData['tipo_documento_id'],
+                'descripcion' => $docData['descripcion'] ?? null,
+                'ruta_archivo' => $docData['ruta_archivo'] ?? null
+            ]);
+            
             $documento = Documento::create([
                 'personal_id' => $personal->id,
                 'tipo_documento_id' => $docData['tipo_documento_id'],
@@ -167,6 +223,8 @@ class PersonalManagementController extends Controller
                 'ruta_archivo' => $docData['ruta_archivo'] ?? null,
                 'contenido' => $docData['contenido'] ?? null,
             ]);
+            
+            \Log::info("Document created with ID: {$documento->id}");
 
             $documentos[] = $this->formatDocumentResponse($documento);
         }
@@ -177,7 +235,7 @@ class PersonalManagementController extends Controller
     private function handleDocumentUpload(\Illuminate\Http\UploadedFile $file, int $personalId): string
     {
         $fileName = time() . '_' . $file->getClientOriginalName();
-        return $file->storeAs("personal/{$personalId}/documentos", $fileName, 'private');
+        return $file->storeAs("personal/{$personalId}/documentos", $fileName, 'public');
     }
 
     /**

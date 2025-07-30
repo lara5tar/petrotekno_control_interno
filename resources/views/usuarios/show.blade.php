@@ -10,7 +10,7 @@
     <x-breadcrumb :items="[
         ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
         ['label' => 'Usuarios', 'url' => '#'],
-        ['label' => 'Marco Delgado [admin001]']
+        ['label' => ($usuario->personal->nombre_completo ?? 'Usuario') . ' [' . $usuario->username . ']']
     ]" />
     
     <!-- Header con navegación -->
@@ -25,13 +25,13 @@
             <span class="text-sm bg-gray-700 px-2 py-1 rounded">v1.0</span>
         </div>
         <div class="text-sm">
-            <span class="bg-petroyellow text-petrodark px-3 py-1 rounded font-medium">MARCO DELGADO</span>
+            <span class="bg-petroyellow text-petrodark px-3 py-1 rounded font-medium">{{ strtoupper($usuario->personal->nombre_completo ?? $usuario->username) }}</span>
         </div>
     </div>
 
     <!-- Breadcrumb -->
     <div class="bg-gray-100 px-4 py-2 text-sm text-gray-600">
-        Gestionar Usuarios / Marco Delgado [admin001]
+        Gestionar Usuarios / {{ ($usuario->personal->nombre_completo ?? 'Usuario') . ' [' . $usuario->username . ']' }}
     </div>
 
     <div class="flex">
@@ -132,7 +132,7 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-600">Personal Asociado</label>
                                     <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                        Marco Delgado Reyes
+                                        {{ $usuario->personal->nombre_completo ?? 'Sin asignar' }}
                                     </div>
                                 </div>
                                 <div>

@@ -51,11 +51,24 @@
                         <!-- Selección de Obra -->
                         <div class="mb-3">
                             <label for="obra_id" class="form-label">{{ __('Obra') }} *</label>
+                            @if($obraPreseleccionada)
+                                <div class="alert alert-info mb-2">
+                                    <i class="fas fa-info-circle"></i> Obra preseleccionada: <strong>{{ $obraPreseleccionada->nombre_obra }}</strong>
+                                </div>
+                            @endif
                             <select class="form-select @error('obra_id') is-invalid @enderror" 
                                     id="obra_id" name="obra_id" required>
                                 <option value="">Seleccionar obra...</option>
                                 @foreach($obrasActivas ?? [] as $obra)
-                                    <option value="{{ $obra->id }}" {{ old('obra_id') == $obra->id ? 'selected' : '' }}>
+                                    @php
+                                        $selected = false;
+                                        if (old('obra_id')) {
+                                            $selected = old('obra_id') == $obra->id;
+                                        } elseif ($obraPreseleccionada) {
+                                            $selected = $obraPreseleccionada->id == $obra->id;
+                                        }
+                                    @endphp
+                                    <option value="{{ $obra->id }}" {{ $selected ? 'selected' : '' }}>
                                         {{ $obra->nombre_obra }}
                                         @if($obra->fecha_fin)
                                             (Hasta: {{ \Carbon\Carbon::parse($obra->fecha_fin)->format('d/m/Y') }})

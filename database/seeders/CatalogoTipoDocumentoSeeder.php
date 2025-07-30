@@ -15,6 +15,11 @@ class CatalogoTipoDocumentoSeeder extends Seeder
         $tiposDocumento = [
             // Documentos de vehículos
             [
+                'nombre_tipo_documento' => 'CV Profesional',
+                'descripcion' => 'Curriculum Vitae del empleado',
+                'requiere_vencimiento' => false,
+            ],
+            [
                 'nombre_tipo_documento' => 'Tarjeta de Circulación',
                 'descripcion' => 'Documento oficial que acredita la propiedad y características del vehículo',
                 'requiere_vencimiento' => true,
@@ -84,6 +89,16 @@ class CatalogoTipoDocumentoSeeder extends Seeder
             [
                 'nombre_tipo_documento' => 'Contrato de Trabajo',
                 'descripcion' => 'Contrato laboral firmado',
+                'requiere_vencimiento' => false,
+            ],
+            [
+                'nombre_tipo_documento' => 'CV Profesional',
+                'descripcion' => 'Curriculum Vitae del empleado',
+                'requiere_vencimiento' => false,
+            ],
+            [
+                'nombre_tipo_documento' => 'Comprobante de Domicilio',
+                'descripcion' => 'Comprobante de domicilio vigente',
                 'requiere_vencimiento' => false,
             ],
 

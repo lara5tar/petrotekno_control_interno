@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('vehiculos', function (Blueprint $table) {
-            $table->dropColumn('fotografia_vehiculo');
+        Schema::table('personal', function (Blueprint $table) {
+            $table->dropColumn('no_identificacion');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('vehiculos', function (Blueprint $table) {
-            $table->string('fotografia_vehiculo')->nullable()->after('observaciones');
+        Schema::table('personal', function (Blueprint $table) {
+            $table->string('no_identificacion', 20)->nullable()->after('categoria_id');
         });
     }
 };

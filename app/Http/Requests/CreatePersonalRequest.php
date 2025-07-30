@@ -51,12 +51,6 @@ class CreatePersonalRequest extends FormRequest
             'password' => 'required_if:password_type,custom|nullable|string|min:8|max:255',
 
             // Documentos - números
-            'no_identificacion' => [
-                'nullable',
-                'string',
-                'max:20',
-                'regex:/^[A-Z0-9]+$/'
-            ],
             'curp_numero' => [
                 'nullable',
                 'string',
@@ -86,6 +80,52 @@ class CreatePersonalRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:500'
+            ],
+            
+            // INE
+            'ine' => [
+                'nullable',
+                'string',
+                'max:20',
+                'regex:/^[A-Z0-9]+$/'
+            ],
+            
+            // URLs de documentos
+            'url_ine' => [
+                'nullable',
+                'string',
+                'max:500',
+                'url'
+            ],
+            'url_curp' => [
+                'nullable',
+                'string',
+                'max:500',
+                'url'
+            ],
+            'url_rfc' => [
+                'nullable',
+                'string',
+                'max:500',
+                'url'
+            ],
+            'url_nss' => [
+                'nullable',
+                'string',
+                'max:500',
+                'url'
+            ],
+            'url_licencia' => [
+                'nullable',
+                'string',
+                'max:500',
+                'url'
+            ],
+            'url_comprobante_domicilio' => [
+                'nullable',
+                'string',
+                'max:500',
+                'url'
             ],
             
             // Archivos de documentos
@@ -173,8 +213,6 @@ class CreatePersonalRequest extends FormRequest
             'password.max' => 'La contraseña no debe exceder 255 caracteres',
             
             // Documentos - números
-            'no_identificacion.regex' => 'El número de identificación solo puede contener letras mayúsculas y números',
-            'no_identificacion.max' => 'El número de identificación no puede exceder 20 caracteres',
             'curp_numero.size' => 'El CURP debe tener exactamente 18 caracteres',
             'rfc.min' => 'El RFC debe tener al menos 10 caracteres',
             'rfc.max' => 'El RFC no puede exceder 13 caracteres',

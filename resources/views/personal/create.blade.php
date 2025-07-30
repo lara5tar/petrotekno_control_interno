@@ -27,7 +27,7 @@
     </div>
 
     <!-- Formulario -->
-    <div class="bg-white rounded-lg shadow p-6" x-data="formController()">
+    <div class="bg-white rounded-lg shadow p-6">
         <form action="{{ route('personal.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             
@@ -52,7 +52,7 @@
                                    value="{{ old('nombre_completo') }}"
                                    placeholder="Nombre completo del empleado" 
                                    required 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('nombre_completo') border-red-500 @enderror" />
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow transition duration-200 @error('nombre_completo') border-red-500 @enderror" />
                             @error('nombre_completo') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
                     </div>
@@ -69,7 +69,6 @@
                                 <option value="">Seleccione una categoría</option>
                                 @foreach($categorias as $categoria)
                                     <option value="{{ $categoria->id }}" {{ old('categoria_personal_id') == $categoria->id ? 'selected' : '' }}>
-
                                         {{ $categoria->nombre_categoria }}
                                     </option>
                                 @endforeach
@@ -94,127 +93,13 @@
                     </div>
                 </div>
 
-                <!-- Sección de Crear Usuario -->
-                <div class="bg-white border border-gray-200 rounded-lg p-6">
-                    <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-3 0a5 5 0 11-10 0 5 5 0 0110 0z" clip-rule="evenodd" />
-                        </svg>
-                        Crear Usuario del Sistema
-                    </h3>
-
-                    <!-- Toggle para crear usuario -->
-                    <div class="mb-6">
-                        <div class="flex items-center">
-                            <input type="checkbox" 
-                                   id="crear_usuario" 
-                                   name="crear_usuario" 
-                                   value="1"
-                                   x-model="crearUsuario"
-                                   {{ old('crear_usuario') ? 'checked' : '' }}
-                                   class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300 rounded" />
-                            <label for="crear_usuario" class="ml-3 text-sm font-medium text-gray-700">
-                                Crear usuario del sistema para este personal
-                            </label>
-                        </div>
-                        <p class="mt-2 text-sm text-gray-500">
-                            Al activar esta opción, se creará automáticamente un usuario para que el personal pueda acceder al sistema.
-                        </p>
-                    </div>
-
-                    <!-- Campo de email (solo visible si se activa el toggle) -->
-                    <div x-show="crearUsuario" x-transition class="space-y-4">
-                        <div class="form-group">
-                            <label for="email_usuario" class="block text-sm font-medium text-gray-700 mb-2">
-                                Email del Usuario
-                            </label>
-                            <input type="email" 
-                                   name="email_usuario" 
-                                   id="email_usuario"
-                                   value="{{ old('email_usuario') }}"
-                                   placeholder="correo@petrotekno.com"
-                                   x-bind:required="crearUsuario"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('email_usuario') border-red-500 @enderror" />
-                            @error('email_usuario') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                            <p class="mt-1 text-xs text-gray-500">
-                                Este será el email para acceder al sistema y donde se enviará la contraseña temporal.
-                            </p>
-                        </div>
-
-                        <!-- Campo de contraseña -->
-                        <div class="form-group">
-                            <label for="password_usuario" class="block text-sm font-medium text-gray-700 mb-2">
-                                Contraseña
-                            </label>
-                            <div class="space-y-3">
-                                <!-- Opción de contraseña personalizada -->
-                                <div class="flex items-center">
-                                    <input type="radio" 
-                                           id="password_custom" 
-                                           name="password_type" 
-                                           value="custom"
-                                           x-model="passwordType"
-                                           class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300" />
-                                    <label for="password_custom" class="ml-3 text-sm font-medium text-gray-700">
-                                        Establecer contraseña personalizada
-                                    </label>
-                                </div>
-                                
-                                <!-- Campo de contraseña personalizada -->
-                                <div x-show="passwordType === 'custom'" x-transition class="ml-7">
-                                    <input type="password" 
-                                           name="password_usuario" 
-                                           id="password_usuario"
-                                           value="{{ old('password_usuario') }}"
-                                           placeholder="Ingrese la contraseña"
-                                           x-bind:required="crearUsuario && passwordType === 'custom'"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('password_usuario') border-red-500 @enderror" />
-                                    @error('password_usuario') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                    <p class="mt-1 text-xs text-gray-500">
-                                        Mínimo 8 caracteres, debe incluir mayúsculas, minúsculas y números.
-                                    </p>
-                                </div>
-
-                                <!-- Opción de contraseña aleatoria -->
-                                <div class="flex items-center">
-                                    <input type="radio" 
-                                           id="password_random" 
-                                           name="password_type" 
-                                           value="random"
-                                           x-model="passwordType"
-                                           checked
-                                           class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300" />
-                                    <label for="password_random" class="ml-3 text-sm font-medium text-gray-700">
-                                        Generar contraseña aleatoria (Recomendado)
-                                    </label>
-                                </div>
-                                
-                                <!-- Información sobre contraseña aleatoria -->
-                                <div x-show="passwordType === 'random'" x-transition class="ml-7">
-                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                        <div class="flex">
-                                            <svg class="h-5 w-5 text-blue-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                                            </svg>
-                                            <div class="text-sm text-blue-800">
-                                                <p class="font-medium">Contraseña Segura Automática</p>
-                                                <p class="mt-1">Se generará una contraseña segura de 12 caracteres que será enviada al email del usuario.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
                 <!-- Sección de Documentos -->
                 <div class="bg-white border border-gray-200 rounded-lg p-6">
                     <h4 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clip-rule="evenodd" />
                         </svg>
-                        Documentos del Personal
+                        Documentos del Personal (Opcional)
                     </h4>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -225,29 +110,18 @@
                             </label>
                             <div class="flex items-center space-x-3">
                                 <input type="text" 
-                                       name="no_identificacion" 
-                                       value="{{ old('no_identificacion') }}"
+                                       name="ine" 
+                                       value="{{ old('ine') }}"
                                        placeholder="Número de INE" 
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('no_identificacion') border-red-500 @enderror" />
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('ine') border-red-500 @enderror" />
                                 <div class="flex-shrink-0">
                                     <input type="file" 
                                            id="identificacion_file" 
-                                           name="identificacion_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'identificacion')" />
-                                    <label for="identificacion_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Adjuntar
-                                    </label>
+                                           name="identificacion_file" />
                                 </div>
                             </div>
-                            @error('no_identificacion') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            @error('ine') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             @error('identificacion_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                            <p class="text-xs text-gray-500" x-text="fileStatus.identificacion || 'PDF, JPG, PNG (máx. 5MB)'"></p>
                         </div>
 
                         <!-- 2. CURP -->
@@ -257,28 +131,16 @@
                                 <input type="text" 
                                        name="curp_numero" 
                                        value="{{ old('curp_numero') }}"
-                                       placeholder="CURP de 18 caracteres" 
-                                       maxlength="18"
+                                       placeholder="Ingrese CURP" 
                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('curp_numero') border-red-500 @enderror" />
                                 <div class="flex-shrink-0">
                                     <input type="file" 
                                            id="curp_file" 
-                                           name="curp_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'curp')" />
-                                    <label for="curp_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Adjuntar
-                                    </label>
+                                           name="curp_file" />
                                 </div>
                             </div>
                             @error('curp_numero') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             @error('curp_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                            <p class="text-xs text-gray-500" x-text="fileStatus.curp || 'PDF, JPG, PNG (máx. 5MB)'"></p>
                         </div>
 
                         <!-- 3. RFC -->
@@ -289,27 +151,15 @@
                                        name="rfc" 
                                        value="{{ old('rfc') }}"
                                        placeholder="Ingrese RFC" 
-                                       maxlength="13"
                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('rfc') border-red-500 @enderror" />
                                 <div class="flex-shrink-0">
                                     <input type="file" 
                                            id="rfc_file" 
-                                           name="rfc_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'rfc')" />
-                                    <label for="rfc_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Adjuntar
-                                    </label>
+                                           name="rfc_file" />
                                 </div>
                             </div>
                             @error('rfc') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             @error('rfc_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                            <p class="text-xs text-gray-500" x-text="fileStatus.rfc || 'PDF, JPG, PNG (máx. 5MB)'"></p>
                         </div>
 
                         <!-- 4. NSS -->
@@ -320,27 +170,15 @@
                                        name="nss" 
                                        value="{{ old('nss') }}"
                                        placeholder="Número de Seguro Social" 
-                                       maxlength="11"
                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('nss') border-red-500 @enderror" />
                                 <div class="flex-shrink-0">
                                     <input type="file" 
                                            id="nss_file" 
-                                           name="nss_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'nss')" />
-                                    <label for="nss_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Adjuntar
-                                    </label>
+                                           name="nss_file" />
                                 </div>
                             </div>
                             @error('nss') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             @error('nss_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                            <p class="text-xs text-gray-500" x-text="fileStatus.nss || 'PDF, JPG, PNG (máx. 5MB)'"></p>
                         </div>
 
                         <!-- 5. Licencia de Manejo -->
@@ -357,22 +195,11 @@
                                 <div class="flex-shrink-0">
                                     <input type="file" 
                                            id="licencia_file" 
-                                           name="licencia_file" 
-                                           accept=".pdf,.jpg,.jpeg,.png" 
-                                           class="hidden" 
-                                           @change="handleFileInput($event, 'licencia')" />
-                                    <label for="licencia_file" 
-                                           class="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                        </svg>
-                                        Adjuntar
-                                    </label>
+                                           name="licencia_file" />
                                 </div>
                             </div>
                             @error('no_licencia') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             @error('licencia_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                            <p class="text-xs text-gray-500" x-text="fileStatus.licencia || 'PDF, JPG, PNG (máx. 5MB)'"></p>
                         </div>
                     </div>
 
@@ -386,23 +213,12 @@
                                 placeholder="Dirección completa" 
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('direccion') border-red-500 @enderror">{{ old('direccion') }}</textarea>
                         @error('direccion') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                        @error('comprobante_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         <div class="flex items-center">
                             <input type="file" 
                                    id="comprobante_file" 
-                                   name="comprobante_file" 
-                                   accept=".pdf,.jpg,.jpeg,.png" 
-                                   class="hidden" 
-                                   @change="handleFileInput($event, 'comprobante')" />
-                            <label for="comprobante_file" 
-                                   class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                </svg>
-                                Adjuntar Comprobante
-                            </label>
+                                   name="comprobante_file" />
                         </div>
-                        <p class="text-xs text-gray-500" x-text="fileStatus.comprobante || 'PDF, JPG, PNG (máx. 5MB)'"></p>
+                        @error('comprobante_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- CV Profesional -->
@@ -410,27 +226,10 @@
                         <label class="block text-sm font-medium text-gray-700">
                             CV Profesional
                         </label>
-                        <div class="border-2 border-dashed border-gray-300 rounded-md p-6 text-center hover:border-petroyellow transition-colors">
-                            <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <input type="file" 
-                                   id="cv_file" 
-                                   name="cv_file" 
-                                   accept=".pdf,.doc,.docx" 
-                                   class="hidden" 
-                                   @change="handleFileInput($event, 'cv')" />
-                            <label for="cv_file" 
-                                   class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                                Seleccionar CV
-                            </label>
-                            <p class="mt-2 text-xs text-gray-500" x-show="!fileStatus.cv">
-                                PDF, DOC, DOCX (máx. 10MB)
-                            </p>
-                            <p class="mt-2 text-sm text-petroyellow font-medium" x-show="fileStatus.cv" x-text="fileStatus.cv">
-                            </p>
-                            @error('cv_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
+                        <input type="file" 
+                                id="cv_file" 
+                                name="cv_file" />
+                        @error('cv_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
                 </div>
             </div>
@@ -453,61 +252,4 @@
         </form>
     </div>
 @endsection
-
-@push('scripts')
-<script src="//unpkg.com/alpinejs" defer></script>
-<script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('formController', () => ({
-            crearUsuario: false,
-            passwordType: 'random',
-            fileStatus: {
-                identificacion: '',
-                curp: '',
-                rfc: '',
-                nss: '',
-                licencia: '',
-                comprobante: '',
-                cv: ''
-            },
-            
-            init() {
-                // Inicializar el estado del checkbox basado en old values
-                this.crearUsuario = document.getElementById('crear_usuario').checked;
-            },
-            
-            handleFileInput(event, type) {
-                const file = event.target.files[0];
-                if (!file) {
-                    this.fileStatus[type] = '';
-                    return;
-                }
-
-                // Validar tamaño (10MB para CV, 5MB para otros)
-                const maxSize = type === 'cv' ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
-                if (file.size > maxSize) {
-                    alert(`El archivo es demasiado grande. Máximo ${maxSize / 1024 / 1024}MB`);
-                    event.target.value = '';
-                    this.fileStatus[type] = '';
-                    return;
-                }
-
-                // Validar tipo de archivo
-                const allowedTypes = type === 'cv' 
-                    ? ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-                    : ['application/pdf', 'image/jpeg', 'image/png'];
-                
-                if (!allowedTypes.includes(file.type)) {
-                    alert('Formato de archivo no permitido');
-                    event.target.value = '';
-                    this.fileStatus[type] = '';
-                    return;
-                }
-
-                this.fileStatus[type] = `Archivo seleccionado: ${file.name}`;
-            }
-        }));
-    });
-</script>
-@endpush
 

@@ -51,30 +51,20 @@ class StorePersonalRequest extends FormRequest
                 'unique:users,email'
             ],
             
-            // Documentos - números
-            'no_identificacion' => [
-                'nullable',
-                'string',
-                'max:20',
-                'regex:/^[A-Z0-9]+$/'
-            ],
+            // Documentos - números (todos opcionales)
             'curp_numero' => [
                 'nullable',
-                'string',
-                'size:18'
+                'string'
             ],
             'rfc' => [
                 'nullable',
                 'string',
-                'max:13',
-                'min:10',
-                'regex:/^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}$/'
+                'max:13'
             ],
             'nss' => [
                 'nullable',
                 'string',
-                'size:11',
-                'regex:/^[0-9]{11}$/'
+                'max:11'
             ],
             'no_licencia' => [
                 'nullable',
@@ -159,8 +149,6 @@ class StorePersonalRequest extends FormRequest
             'email_usuario.unique' => 'Este email ya está registrado en el sistema.',
             
             // Documentos - números
-            'no_identificacion.regex' => 'El número de identificación solo puede contener letras mayúsculas y números.',
-            'no_identificacion.max' => 'El número de identificación no puede exceder 20 caracteres.',
             
             'curp_numero.size' => 'El CURP debe tener exactamente 18 caracteres.',
             
@@ -217,8 +205,7 @@ class StorePersonalRequest extends FormRequest
             'categoria_personal_id' => 'categoría',
             'estatus' => 'estatus',
             'email_usuario' => 'email del usuario',
-            'no_identificacion' => 'número de identificación',
-            'curp_numero' => 'CURP',
+            'curp_numero' => 'CURP'
             'rfc' => 'RFC',
             'nss' => 'NSS',
             'no_licencia' => 'número de licencia',
@@ -238,22 +225,6 @@ class StorePersonalRequest extends FormRequest
      */
     public function withValidator($validator): void
     {
-        $validator->after(function ($validator) {
-            // Validación personalizada: Si se proporciona un número de documento, 
-            // se recomienda también subir el archivo
-            $documentos = [
-                'no_identificacion' => 'identificacion_file',
-                'curp_numero' => 'curp_file',
-                'rfc' => 'rfc_file',
-                'nss' => 'nss_file',
-                'no_licencia' => 'licencia_file'
-            ];
-
-            foreach ($documentos as $numero => $archivo) {
-                if ($this->filled($numero) && !$this->hasFile($archivo)) {
-                    $validator->warnings()->add($archivo, "Se recomienda subir el archivo del documento cuando se proporciona el número.");
-                }
-            }
-        });
+        // Se eliminaron las validaciones de documentos para hacerlos completamente opcionales
     }
 }

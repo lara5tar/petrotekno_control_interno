@@ -4,6 +4,7 @@ use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\KilometrajeController;
 use App\Http\Controllers\MantenimientoController;
 use App\Http\Controllers\PersonalController;
+use App\Http\Controllers\PersonalCompleteController;
 use App\Http\Controllers\PersonalManagementController;
 use App\Http\Controllers\VehiculoController;
 use Illuminate\Support\Facades\Auth;
@@ -306,6 +307,15 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         ->name('store')
         ->middleware('permission:crear_personal');
 
+    // Rutas para creación completa de personal con documentos y usuario
+    Route::get('/complete/create', [PersonalCompleteController::class, 'create'])
+        ->name('complete.create')
+        ->middleware('permission:crear_personal');
+    
+    Route::post('/complete', [PersonalCompleteController::class, 'store'])
+        ->name('complete.store')
+        ->middleware('permission:crear_personal');
+
     // Ruta para mostrar detalles de un personal (datos reales de la base de datos)
     Route::get('/{id}', function ($id) {
         // Obtener personal real de la base de datos con relaciones
@@ -450,7 +460,7 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         
         $request->validate([
             'nombre_completo' => 'required|string|max:255',
-            'curp' => 'required|string|size:18|unique:personal,curp,' . $personal->id,
+            'curp' => 'nullable|string|size:18|unique:personal,curp,' . $personal->id,
             'categoria_personal_id' => 'required|exists:categorias_personal,id',
             'estatus' => 'required|in:activo,inactivo',
             'rfc' => 'nullable|string|max:13|unique:personal,rfc,' . $personal->id,
@@ -554,6 +564,76 @@ Route::middleware('auth')->group(function () {
             ], 500);
         }
     })->name('web-api.personal')->middleware('permission:ver_personal');
+});
+
+// Rutas para Obras
+Route::middleware('auth')->group(function () {
+    Route::get('/obras', [\App\Http\Controllers\ObraController::class, 'index'])
+        ->name('obras.index')
+        ->middleware('permission:ver_obras');
+    
+    Route::get('/obras/create', [\App\Http\Controllers\ObraController::class, 'create'])
+        ->name('obras.create')
+        ->middleware('permission:crear_obras');
+    
+    Route::post('/obras', [\App\Http\Controllers\ObraController::class, 'store'])
+        ->name('obras.store')
+        ->middleware('permission:crear_obras');
+    
+    Route::get('/obras/{obra}', [\App\Http\Controllers\ObraController::class, 'show'])
+        ->name('obras.show')
+        ->middleware('permission:ver_obras');
+    
+    Route::get('/obras/{obra}/edit', [\App\Http\Controllers\ObraController::class, 'edit'])
+        ->name('obras.edit')
+        ->middleware('permission:actualizar_obras');
+    
+    Route::put('/obras/{obra}', [\App\Http\Controllers\ObraController::class, 'update'])
+        ->name('obras.update')
+        ->middleware('permission:actualizar_obras');
+    
+    Route::delete('/obras/{obra}', [\App\Http\Controllers\ObraController::class, 'destroy'])
+        ->name('obras.destroy')
+        ->middleware('permission:eliminar_obras');
+    
+    Route::post('/obras/{id}/restore', [\App\Http\Controllers\ObraController::class, 'restore'])
+        ->name('obras.restore')
+        ->middleware('permission:restaurar_obras');
+});
+
+// Rutas para Asignaciones
+Route::middleware('auth')->group(function () {
+    Route::get('/asignaciones', [\App\Http\Controllers\AsignacionController::class, 'index'])
+        ->name('asignaciones.index')
+        ->middleware('permission:ver_asignaciones');
+    
+    Route::get('/asignaciones/create', [\App\Http\Controllers\AsignacionController::class, 'create'])
+        ->name('asignaciones.create')
+        ->middleware('permission:crear_asignaciones');
+    
+    Route::post('/asignaciones', [\App\Http\Controllers\AsignacionController::class, 'store'])
+        ->name('asignaciones.store')
+        ->middleware('permission:crear_asignaciones');
+    
+    Route::get('/asignaciones/{asignacion}', [\App\Http\Controllers\AsignacionController::class, 'show'])
+        ->name('asignaciones.show')
+        ->middleware('permission:ver_asignaciones');
+    
+    Route::get('/asignaciones/{asignacion}/edit', [\App\Http\Controllers\AsignacionController::class, 'edit'])
+        ->name('asignaciones.edit')
+        ->middleware('permission:editar_asignaciones');
+    
+    Route::put('/asignaciones/{asignacion}', [\App\Http\Controllers\AsignacionController::class, 'update'])
+        ->name('asignaciones.update')
+        ->middleware('permission:editar_asignaciones');
+    
+    Route::post('/asignaciones/{id}/liberar', [\App\Http\Controllers\AsignacionController::class, 'liberar'])
+        ->name('asignaciones.liberar')
+        ->middleware('permission:liberar_asignaciones');
+    
+    Route::delete('/asignaciones/{asignacion}', [\App\Http\Controllers\AsignacionController::class, 'destroy'])
+        ->name('asignaciones.destroy')
+        ->middleware('permission:eliminar_asignaciones');
 });
 
 // Ruta para vista de usuario (datos estáticos)

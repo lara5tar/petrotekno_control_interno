@@ -1,145 +1,233 @@
 @extends('layouts.app')
 
+@section('title', 'Obras')
+
+@section('header', 'Gestión de Obras')
+
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Gestión de Obras</h4>
-                    <a href="{{ route('obras.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Nueva Obra
-                    </a>
-                </div>
+    {{-- Breadcrumb --}}
+    <x-breadcrumb :items="[
+        ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
+        ['label' => 'Obras']
+    ]" />
 
-                <div class="card-body">
-                    <!-- Filtros de búsqueda -->
-                    <form method="GET" action="{{ route('obras.index') }}" class="mb-4">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <input type="text" name="search" class="form-control" 
-                                       placeholder="Buscar obras..." 
-                                       value="{{ request('search') }}">
-                            </div>
-                            <div class="col-md-3">
-                                <select name="estatus" class="form-control">
-                                    <option value="">Todos los estatus</option>
-                                    @foreach($estatusOptions as $valor => $nombre)
-                                        <option value="{{ $valor }}" 
-                                                {{ request('estatus') == $valor ? 'selected' : '' }}>
-                                            {{ $nombre }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <input type="date" name="fecha_inicio_desde" class="form-control" 
-                                       placeholder="Fecha desde" 
-                                       value="{{ request('fecha_inicio_desde') }}">
-                            </div>
-                            <div class="col-md-2">
-                                <input type="date" name="fecha_inicio_hasta" class="form-control" 
-                                       placeholder="Fecha hasta" 
-                                       value="{{ request('fecha_inicio_hasta') }}">
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-secondary">
-                                    <i class="fas fa-search"></i> Buscar
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+    <!-- Encabezado con botón de agregar -->
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Listado de Obras</h2>
+        @hasPermission('crear_obras')
+        <a href="{{ route('obras.create') }}" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            Agregar Obra
+        </a>
+        @endhasPermission
+    </div>
 
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
+    {{-- Mensaje de éxito --}}
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6" role="alert">
+            <strong class="font-bold">¡Éxito!</strong>
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
 
-                    @if($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+    {{-- Mensaje de error --}}
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
+            <strong class="font-bold">¡Error!</strong>
+            <span class="block sm:inline">{{ session('error') }}</span>
+        </div>
+    @endif
 
-                    <!-- Tabla de obras -->
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nombre de la Obra</th>
-                                    <th>Estatus</th>
-                                    <th>Avance</th>
-                                    <th>Fecha Inicio</th>
-                                    <th>Fecha Fin</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($obras as $obra)
-                                <tr>
-                                    <td>{{ $obra->id }}</td>
-                                    <td>{{ $obra->nombre_obra }}</td>
-                                    <td>
-                                        <span class="badge 
-                                            @switch($obra->estatus)
-                                                @case('completada') bg-success @break
-                                                @case('en_progreso') bg-primary @break
-                                                @case('pausada') bg-warning @break
-                                                @case('cancelada') bg-danger @break
-                                                @default bg-secondary
-                                            @endswitch
-                                        ">
-                                            {{ ucfirst(str_replace('_', ' ', $obra->estatus)) }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $obra->avance ?? 0 }}%</td>
-                                    <td>{{ $obra->fecha_inicio ? $obra->fecha_inicio->format('d/m/Y') : '-' }}</td>
-                                    <td>{{ $obra->fecha_fin ? $obra->fecha_fin->format('d/m/Y') : '-' }}</td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <a href="{{ route('obras.show', $obra) }}" 
-                                               class="btn btn-sm btn-info" title="Ver detalles">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="{{ route('obras.edit', $obra) }}" 
-                                               class="btn btn-sm btn-warning" title="Editar">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form action="{{ route('obras.destroy', $obra) }}" 
-                                                  method="POST" style="display: inline;"
-                                                  onsubmit="return confirm('¿Estás seguro de eliminar esta obra?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="7" class="text-center">No se encontraron obras.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+    @if($errors->any())
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
+            <strong class="font-bold">¡Error!</strong>
+            <ul class="mb-0">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <!-- Filtros y búsqueda -->
+    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <form method="GET" action="{{ route('obras.index') }}" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex-1">
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
                     </div>
-
-                    <!-- Paginación -->
-                    <div class="d-flex justify-content-center">
-                        {{ $obras->withQueryString()->links() }}
-                    </div>
+                    <input type="text" id="search" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre de obra..." class="pl-10 p-2 border border-gray-300 rounded-md w-full">
                 </div>
             </div>
-        </div>
+            <div class="flex-1 md:flex-none md:w-48">
+                <label for="estatus" class="block text-sm font-medium text-gray-700 mb-1">Estatus</label>
+                <select id="estatus" name="estatus" class="p-2 border border-gray-300 rounded-md w-full">
+                    <option value="">Todos los estatus</option>
+                    <option value="completada" {{ request('estatus') == 'completada' ? 'selected' : '' }}>Completada</option>
+                    <option value="en_progreso" {{ request('estatus') == 'en_progreso' ? 'selected' : '' }}>En Progreso</option>
+                    <option value="pausada" {{ request('estatus') == 'pausada' ? 'selected' : '' }}>Pausada</option>
+                    <option value="cancelada" {{ request('estatus') == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
+                </select>
+            </div>
+            <div class="flex-1 md:flex-none md:w-48">
+                <label for="fecha_inicio" class="block text-sm font-medium text-gray-700 mb-1">Fecha Inicio</label>
+                <input type="date" id="fecha_inicio" name="fecha_inicio" value="{{ request('fecha_inicio') }}" class="p-2 border border-gray-300 rounded-md w-full">
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md transition duration-200">
+                    Filtrar
+                </button>
+                <a href="{{ route('obras.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-200">
+                    Limpiar
+                </a>
+            </div>
+        </form>
     </div>
-</div>
+
+    <!-- Tabla de obras -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        @if($obras->count() > 0)
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Obra</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estatus</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Inicio</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Fin</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avance</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach($obras as $obra)
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <div class="h-10 w-10 rounded-full bg-petroyellow flex items-center justify-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-petrodark" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">{{ $obra->nombre_obra }}</div>
+                                            @if($obra->descripcion)
+                                                <div class="text-sm text-gray-500">{{ Str::limit($obra->descripcion, 50) }}</div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @switch($obra->estatus)
+                                        @case('completada')
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                                Completada
+                                            </span>
+                                            @break
+                                        @case('en_progreso')
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                En Progreso
+                                            </span>
+                                            @break
+                                        @case('pausada')
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                Pausada
+                                            </span>
+                                            @break
+                                        @case('cancelada')
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                                Cancelada
+                                            </span>
+                                            @break
+                                        @default
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                Sin definir
+                                            </span>
+                                    @endswitch
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $obra->fecha_inicio ? $obra->fecha_inicio->format('d/m/Y') : '-' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $obra->fecha_fin ? $obra->fecha_fin->format('d/m/Y') : '-' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                            <div class="bg-petroyellow h-2 rounded-full" style="width: {{ $obra->avance ?? 0 }}%"></div>
+                                        </div>
+                                        <span class="text-sm text-gray-900">{{ $obra->avance ?? 0 }}%</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end space-x-2">
+                                        @hasPermission('ver_obras')
+                                        <a href="{{ route('obras.show', $obra) }}" class="text-petrodark hover:text-petroyellow">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                        @endhasPermission
+                                        @hasPermission('editar_obras')
+                                        <a href="{{ route('obras.edit', $obra) }}" class="text-blue-600 hover:text-blue-900">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                            </svg>
+                                        </a>
+                                        @endhasPermission
+                                        @hasPermission('eliminar_obras')
+                                        <form action="{{ route('obras.destroy', $obra) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta obra?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-900">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 012 0v4a1 1 0 11-2 0V7zM12 7a1 1 0 10-2 0v4a1 1 0 102 0V7z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                        @endhasPermission
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <div class="text-center py-12">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No hay obras</h3>
+                <p class="mt-1 text-sm text-gray-500">Comienza creando una nueva obra.</p>
+                @hasPermission('crear_obras')
+                <div class="mt-6">
+                    <a href="{{ route('obras.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-petrodark bg-petroyellow hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                        </svg>
+                        Nueva Obra
+                    </a>
+                </div>
+                @endhasPermission
+            </div>
+        @endif
+    </div>
+
+    <!-- Paginación -->
+    @if($obras->hasPages())
+        <div class="mt-6">
+            {{ $obras->withQueryString()->links() }}
+        </div>
+    @endif
 @endsection
