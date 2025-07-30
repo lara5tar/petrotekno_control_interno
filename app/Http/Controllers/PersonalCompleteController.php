@@ -205,7 +205,8 @@ class PersonalCompleteController extends Controller
                 'url_comprobante_domicilio' => $validated['url_comprobante_domicilio'] ?? null,
             ]);
 
-            // PASO 3: Crear documentos asociados al personal
+            // PASO 3: Crear documentos asociados al personal y actualizar URLs
+            $urlsToUpdate = [];
             foreach ($archivosSubidos as $campo => $archivoData) {
                 $config = $archivoData['config'];
                 $fechaVencimiento = null;
@@ -232,6 +233,26 @@ class PersonalCompleteController extends Controller
                     'fecha_vencimiento' => $fechaVencimiento,
                     'personal_id' => $personal->id,
                 ]);
+                
+                // Mapear al campo correspondiente en la tabla personal (solo ruta relativa)
+                $urlField = match($campo) {
+                    'documento_ine' => 'url_ine',
+                    'documento_curp' => 'url_curp',
+                    'documento_rfc' => 'url_rfc',
+                    'documento_nss' => 'url_nss',
+                    'documento_licencia' => 'url_licencia',
+                    'documento_domicilio' => 'url_comprobante_domicilio',
+                    default => null
+                };
+                
+                if ($urlField) {
+                    $urlsToUpdate[$urlField] = $archivoData['ruta'];
+                }
+            }
+            
+            // Actualizar URLs en la tabla personal
+            if (!empty($urlsToUpdate)) {
+                $personal->update($urlsToUpdate);
             }
 
             // PASO 4: Crear usuario si se seleccionó la opción

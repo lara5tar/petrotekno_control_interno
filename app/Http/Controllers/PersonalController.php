@@ -404,8 +404,8 @@ class PersonalController extends Controller
                 $tipoDocumentoCurp = 9; // ID para documentos tipo CURP
                 $archivo = $request->file('curp_file');
                 $nombreArchivo = time() . '_' . $personal->id . '_' . $archivo->getClientOriginalName();
-                $rutaArchivo = $archivo->storeAs('personal/documentos', $nombreArchivo, 'private');
-
+                $rutaArchivo = $archivo->storeAs('personal/documentos', $nombreArchivo, 'public');
+                
                 // Buscar si ya existe un documento CURP
                 $documentoExistente = $personal->documentos()
                     ->where('tipo_documento_id', $tipoDocumentoCurp)
@@ -413,8 +413,8 @@ class PersonalController extends Controller
 
                 if ($documentoExistente) {
                     // Eliminar archivo anterior
-                    if ($documentoExistente->ruta_archivo && \Storage::disk('private')->exists($documentoExistente->ruta_archivo)) {
-                        \Storage::disk('private')->delete($documentoExistente->ruta_archivo);
+                    if ($documentoExistente->ruta_archivo && \Storage::disk('public')->exists($documentoExistente->ruta_archivo)) {
+                        \Storage::disk('public')->delete($documentoExistente->ruta_archivo);
                     }
                     
                     // Actualizar documento existente
@@ -430,6 +430,9 @@ class PersonalController extends Controller
                         'contenido' => 'CURP'
                     ]);
                 }
+                
+                // Actualizar URL en la tabla personal (solo ruta relativa)
+                $personal->update(['url_curp' => $rutaArchivo]);
             }
 
             $personal->load('categoria');

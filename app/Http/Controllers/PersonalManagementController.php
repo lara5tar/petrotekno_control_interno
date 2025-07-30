@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class PersonalManagementController extends Controller
 {
@@ -26,21 +27,9 @@ class PersonalManagementController extends Controller
         try {
             $validatedData = $request->validated();
 
-            // 1. Crear Personal
-            $personal = $this->createPersonal([
-                'nombre_completo' => $validatedData['nombre_completo'],
-                'estatus' => $validatedData['estatus'],
-                'categoria_id' => $validatedData['categoria_personal_id'],
-                'ine' => $validatedData['ine'] ?? null,
-                'curp_numero' => $validatedData['curp_numero'] ?? null,
-                'rfc' => $validatedData['rfc'] ?? null,
-                'nss' => $validatedData['nss'] ?? null,
-                'no_licencia' => $validatedData['no_licencia'] ?? null,
-                'direccion' => $validatedData['direccion'] ?? null,
-            ]);
-
-            // 2. Procesar y Guardar Documentos
+            // 1. PRIMERO: Procesar y Guardar Archivos (antes de crear el personal)
             $documentosData = [];
+            $urlsPersonal = []; // URLs que se incluirán directamente en la creación del personal
             $tiposDocumento = [
                 'identificacion_file' => 8,    // INE - Identificación Oficial
                 'curp_file' => 9,              // CURP
@@ -51,15 +40,19 @@ class PersonalManagementController extends Controller
                 'cv_file' => 28,               // CV Profesional
             ]; // Mapeo de campos a IDs reales de la BD
 
+            // Crear un ID temporal para el personal (usaremos timestamp + random)
+            $tempPersonalId = time() . '_' . rand(1000, 9999);
+
             foreach ($tiposDocumento as $requestKey => $tipoId) {
                 if ($request->hasFile($requestKey)) {
                     \Log::info("Processing file: {$requestKey}", [
                         'file_name' => $request->file($requestKey)->getClientOriginalName(),
                         'file_size' => $request->file($requestKey)->getSize(),
-                        'personal_id' => $personal->id
+                        'temp_personal_id' => $tempPersonalId
                     ]);
                     
-                    $path = $this->handleDocumentUpload($request->file($requestKey), $personal->id);
+                    // Usar ID temporal para crear la estructura de carpetas
+                    $path = $this->handleDocumentUpload($request->file($requestKey), $tempPersonalId);
                     \Log::info("File uploaded to: {$path}");
                     
                     // Obtener el número de identificación correspondiente según el tipo de documento
@@ -80,17 +73,76 @@ class PersonalManagementController extends Controller
                         'descripcion' => $descripcion,
                     ];
                     
+                    // Mapear URLs para incluir en la creación del personal (solo ruta relativa)
+                    $urlField = match($requestKey) {
+                        'identificacion_file' => 'url_ine',
+                        'curp_file' => 'url_curp',
+                        'rfc_file' => 'url_rfc',
+                        'nss_file' => 'url_nss',
+                        'licencia_file' => 'url_licencia',
+                        'comprobante_file' => 'url_comprobante_domicilio',
+                        default => null
+                    };
+                    
+                    if ($urlField) {
+                        $urlsPersonal[$urlField] = $path;
+                    }
+                    
                     \Log::info("Document data prepared", [
                         'tipo_documento_id' => $tipoId,
                         'ruta_archivo' => $path,
-                        'descripcion' => $descripcion
+                        'descripcion' => $descripcion,
+                        'url_field' => $urlField
                     ]);
                 }
             }
 
+            // 2. SEGUNDO: Crear Personal con las URLs ya incluidas
+            $personalData = [
+                'nombre_completo' => $validatedData['nombre_completo'],
+                'estatus' => $validatedData['estatus'],
+                'categoria_id' => $validatedData['categoria_personal_id'],
+                'ine' => $validatedData['ine'] ?? null,
+                'curp_numero' => $validatedData['curp_numero'] ?? null,
+                'rfc' => $validatedData['rfc'] ?? null,
+                'nss' => $validatedData['nss'] ?? null,
+                'no_licencia' => $validatedData['no_licencia'] ?? null,
+                'direccion' => $validatedData['direccion'] ?? null,
+            ];
+            
+            // Agregar las URLs de los archivos al personal
+            $personalData = array_merge($personalData, $urlsPersonal);
+            
+            $personal = $this->createPersonal($personalData);
+            
+            // 3. TERCERO: Actualizar las rutas de archivos con el ID real del personal
             if (!empty($documentosData)) {
-                \Log::info("Creating documents", ['count' => count($documentosData), 'data' => $documentosData]);
-                $this->createPersonalDocuments($personal, $documentosData);
+                // Renombrar archivos con el ID real del personal
+                $documentosDataUpdated = [];
+                foreach ($documentosData as $docData) {
+                    $oldPath = $docData['ruta_archivo'];
+                    $newPath = str_replace($tempPersonalId, $personal->id, $oldPath);
+                    
+                    // Mover archivo físico
+                    Storage::disk('public')->move($oldPath, $newPath);
+                    
+                    // Actualizar URL en personal (solo ruta relativa)
+                    foreach ($urlsPersonal as $urlField => $oldPath) {
+                        if ($oldPath === $docData['ruta_archivo']) {
+                            $personal->update([$urlField => $newPath]);
+                            break;
+                        }
+                    }
+                    
+                    $documentosDataUpdated[] = [
+                        'tipo_documento_id' => $docData['tipo_documento_id'],
+                        'ruta_archivo' => $newPath,
+                        'descripcion' => $docData['descripcion'],
+                    ];
+                }
+                
+                \Log::info("Creating documents with real personal ID", ['count' => count($documentosDataUpdated), 'personal_id' => $personal->id]);
+                $this->createPersonalDocuments($personal, $documentosDataUpdated);
                 \Log::info("Documents created successfully");
             } else {
                 \Log::info("No documents to create");
@@ -232,7 +284,7 @@ class PersonalManagementController extends Controller
         return $documentos;
     }
 
-    private function handleDocumentUpload(\Illuminate\Http\UploadedFile $file, int $personalId): string
+    private function handleDocumentUpload(\Illuminate\Http\UploadedFile $file, int|string $personalId): string
     {
         $fileName = time() . '_' . $file->getClientOriginalName();
         return $file->storeAs("personal/{$personalId}/documentos", $fileName, 'public');

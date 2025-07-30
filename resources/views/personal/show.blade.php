@@ -57,91 +57,67 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">CURP</label>
-                            @if(isset($documentosPorTipo['curp']))
-                                @php $doc = $documentosPorTipo['curp']; @endphp
-                                <div class="mb-2 p-2 bg-green-50 border border-green-200 rounded-md">
-                                    <p class="text-xs text-green-800">
-                                        <i class="fas fa-check-circle mr-1"></i>
-                                        {{ $doc->tipoDocumento->descripcion }}
-                                    </p>
-                                    @if($doc->numero_documento)
-                                        <p class="text-xs text-green-600 mt-1">
-                                            Número: {{ $doc->numero_documento }}
-                                        </p>
-                                    @endif
-                                    <div class="mt-1">
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            <i class="fas fa-paperclip mr-1"></i>
-                                            Archivo adjunto
-                                        </span>
-                                    </div>
-                                </div>
-                                @else
-                                    <div class="text-sm text-red-600">No registrado</div>
-                                @endif
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    @php
-                                        $documentoCURP = $documentosPorTipo['CURP'] ?? null;
-                                        $tieneDocumentoCURP = !is_null($documentoCURP) && is_object($documentoCURP);
-                                    @endphp
-                                    @if($tieneDocumentoCURP && isset($documentoCURP->descripcion))
-                                        {{ $documentoCURP->descripcion }}
-                                    @else
-                                        {{ $personal->curp ?? 'No registrado' }}
-                                    @endif
+                                    {{ $personal->curp_numero ?? 'No registrado' }}
                                 </div>
+                                @php
+                                    $documentoCURP = $documentosPorTipo['curp'] ?? $documentosPorTipo['CURP'] ?? null;
+                                    $tieneDocumentoCURP = !is_null($documentoCURP) && is_object($documentoCURP);
+                                @endphp
                                 @if($tieneDocumentoCURP)
-                                <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        onclick="viewPersonalDocument('{{ $documentoCURP->url_documento }}')"
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                     </svg>
                                 </button>
+                                @elseif($personal->url_curp)
+                                <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        onclick="viewPersonalDocument('{{ asset('storage/' . $personal->url_curp) }}')"
+                                        title="Ver archivo adjunto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </button>
+                                @else
+                                <span class="bg-red-600 text-white p-2 rounded text-sm text-xs">
+                                    Sin archivo
+                                </span>
                                 @endif
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">RFC</label>
-                            @if(isset($documentosPorTipo['rfc']))
-                                @php $doc = $documentosPorTipo['rfc']; @endphp
-                                <div class="mb-2 p-2 bg-green-50 border border-green-200 rounded-md">
-                                    <p class="text-xs text-green-800">
-                                        <i class="fas fa-check-circle mr-1"></i>
-                                        {{ $doc->tipoDocumento->descripcion }}
-                                    </p>
-                                    @if($doc->numero_documento)
-                                        <p class="text-xs text-green-600 mt-1">
-                                            Número: {{ $doc->numero_documento }}
-                                        </p>
-                                    @endif
-                                    <div class="mt-1">
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            <i class="fas fa-paperclip mr-1"></i>
-                                            Archivo adjunto
-                                        </span>
-                                    </div>
-                                </div>
-                            @endif
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    @php
-                                        $documentoRFC = $documentosPorTipo['RFC'] ?? null;
-                                        $tieneDocumentoRFC = !is_null($documentoRFC) && is_object($documentoRFC);
-                                    @endphp
-                                    @if($tieneDocumentoRFC && isset($documentoRFC->descripcion))
-                                        {{ $documentoRFC->descripcion }}
-                                    @else
-                                        {{ $personal->rfc ?? 'No registrado' }}
-                                    @endif
+                                    {{ $personal->rfc ?? 'No registrado' }}
                                 </div>
+                                @php
+                                    $documentoRFC = $documentosPorTipo['rfc'] ?? $documentosPorTipo['RFC'] ?? null;
+                                    $tieneDocumentoRFC = !is_null($documentoRFC) && is_object($documentoRFC);
+                                @endphp
                                 @if($tieneDocumentoRFC)
-                                <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        onclick="viewPersonalDocument('{{ $documentoRFC->url_documento }}')"
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                     </svg>
                                 </button>
+                                @elseif($personal->url_rfc)
+                                <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        onclick="viewPersonalDocument('{{ asset('storage/' . $personal->url_rfc) }}')"
+                                        title="Ver archivo adjunto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </button>
+                                @else
+                                <span class="bg-red-600 text-white p-2 rounded text-sm text-xs">
+                                    Sin archivo
+                                </span>
                                 @endif
                             </div>
                         </div>
@@ -150,97 +126,67 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Identificación (INE)</label>
-                            @if(isset($documentosPorTipo['identificacion']) || isset($documentosPorTipo['INE']))
-                                @php 
-                                    $doc = $documentosPorTipo['identificacion'] ?? $documentosPorTipo['INE']; 
-                                    // Asegurar que $doc es un objeto y no un array
-                                    if (is_array($doc)) {
-                                        $doc = $doc[0] ?? null;
-                                    }
-                                @endphp
-                                @if($doc && is_object($doc))
-                                <div class="mb-2 p-2 bg-green-50 border border-green-200 rounded-md">
-                                    <p class="text-xs text-green-800">
-                                        <i class="fas fa-check-circle mr-1"></i>
-                                        {{ $doc->tipoDocumento->descripcion }}
-                                    </p>
-                                    @if($doc->numero_documento)
-                                        <p class="text-xs text-green-600 mt-1">
-                                            Número: {{ $doc->numero_documento }}
-                                        </p>
-                                    @endif
-                                    <div class="mt-1">
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            <i class="fas fa-paperclip mr-1"></i>
-                                            Archivo adjunto
-                                        </span>
-                                    </div>
-                                </div>
-                                @endif
-                            @endif
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    @php
-                                        $documentoINE = $documentosPorTipo['INE'] ?? null;
-                                        $tieneDocumentoINE = !is_null($documentoINE) && is_object($documentoINE);
-                                    @endphp
-                                    @if($tieneDocumentoINE && isset($documentoINE->descripcion))
-                                        {{ $documentoINE->descripcion }}
-                                    @else
-                                        No registrado
-                                    @endif
+                                    {{ $personal->ine ?? 'No registrado' }}
                                 </div>
+                                @php
+                                    $documentoINE = $documentosPorTipo['identificacion'] ?? $documentosPorTipo['INE'] ?? null;
+                                    $tieneDocumentoINE = !is_null($documentoINE) && is_object($documentoINE);
+                                @endphp
                                 @if($tieneDocumentoINE)
-                                <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        onclick="viewPersonalDocument('{{ $documentoINE->url_documento }}')"
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                     </svg>
                                 </button>
+                                @elseif($personal->url_ine)
+                                <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        onclick="viewPersonalDocument('{{ asset('storage/' . $personal->url_ine) }}')"
+                                        title="Ver archivo adjunto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </button>
+                                @else
+                                <span class="bg-red-600 text-white p-2 rounded text-sm text-xs">
+                                    Sin archivo
+                                </span>
                                 @endif
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">NSS</label>
-                            @if(isset($documentosPorTipo['nss']) || isset($documentosPorTipo['NSS']))
-                                @php $doc = $documentosPorTipo['nss'] ?? $documentosPorTipo['NSS']; @endphp
-                                <div class="mb-2 p-2 bg-green-50 border border-green-200 rounded-md">
-                                    <p class="text-xs text-green-800">
-                                        <i class="fas fa-check-circle mr-1"></i>
-                                        {{ $doc->tipoDocumento->descripcion }}
-                                    </p>
-                                    @if($doc->numero_documento)
-                                        <p class="text-xs text-green-600 mt-1">
-                                            Número: {{ $doc->numero_documento }}
-                                        </p>
-                                    @endif
-                                    <div class="mt-1">
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            <i class="fas fa-paperclip mr-1"></i>
-                                            Archivo adjunto
-                                        </span>
-                                    </div>
-                                </div>
-                            @endif
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    @php
-                                        $documentoNSS = $documentosPorTipo['NSS'] ?? null;
-                                        $tieneDocumentoNSS = !is_null($documentoNSS) && is_object($documentoNSS);
-                                    @endphp
-                                    @if($tieneDocumentoNSS && isset($documentoNSS->descripcion))
-                                        {{ $documentoNSS->descripcion }}
-                                    @else
-                                        {{ $personal->nss ?? 'No registrado' }}
-                                    @endif
+                                    {{ $personal->nss ?? 'No registrado' }}
                                 </div>
+                                @php
+                                    $documentoNSS = $documentosPorTipo['nss'] ?? $documentosPorTipo['NSS'] ?? null;
+                                    $tieneDocumentoNSS = !is_null($documentoNSS) && is_object($documentoNSS);
+                                @endphp
                                 @if($tieneDocumentoNSS)
-                                <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        onclick="viewPersonalDocument('{{ $documentoNSS->url_documento }}')"
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                     </svg>
                                 </button>
+                                @elseif($personal->url_nss)
+                                <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        onclick="viewPersonalDocument('{{ asset('storage/' . $personal->url_nss) }}')"
+                                        title="Ver archivo adjunto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </button>
+                                @else
+                                <span class="bg-red-600 text-white p-2 rounded text-sm text-xs">
+                                    Sin archivo
+                                </span>
                                 @endif
                             </div>
                         </div>
@@ -249,53 +195,64 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Licencia de Manejo</label>
-                            @if(isset($documentosPorTipo['licencia']) || isset($documentosPorTipo['Licencia de Manejo']))
-                                @php $doc = $documentosPorTipo['licencia'] ?? $documentosPorTipo['Licencia de Manejo']; @endphp
-                                <div class="mb-2 p-2 bg-green-50 border border-green-200 rounded-md">
-                                    <p class="text-xs text-green-800">
-                                        <i class="fas fa-check-circle mr-1"></i>
-                                        {{ $doc->tipoDocumento->descripcion }}
-                                    </p>
-                                    @if($doc->numero_documento)
-                                        <p class="text-xs text-green-600 mt-1">
-                                            Número: {{ $doc->numero_documento }}
-                                        </p>
-                                    @endif
-                                    @if($doc->fecha_vencimiento)
-                                        <p class="text-xs text-green-600 mt-1">
-                                            Vence: {{ \Carbon\Carbon::parse($doc->fecha_vencimiento)->format('d/m/Y') }}
-                                        </p>
-                                    @endif
-                                    <div class="mt-1">
-                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            <i class="fas fa-paperclip mr-1"></i>
-                                            Archivo adjunto
-                                        </span>
-                                    </div>
-                                </div>
-                            @endif
                             <div class="flex items-center space-x-2">
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    @php
-                                        $documentoLicencia = $documentosPorTipo['Licencia de Manejo'] ?? null;
-                                        $tieneDocumentoLicencia = !is_null($documentoLicencia) && is_object($documentoLicencia);
-                                    @endphp
-                                    @if($tieneDocumentoLicencia && isset($documentoLicencia->descripcion))
-                                        {{ $documentoLicencia->descripcion }}
-                                    @else
-                                        No registrado
-                                    @endif
+                                    {{ $personal->no_licencia ?? 'No registrado' }}
                                 </div>
+                                @php
+                                    $documentoLicencia = $documentosPorTipo['licencia'] ?? $documentosPorTipo['Licencia de Manejo'] ?? null;
+                                    $tieneDocumentoLicencia = !is_null($documentoLicencia) && is_object($documentoLicencia);
+                                @endphp
                                 @if($tieneDocumentoLicencia)
-                                <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        onclick="viewPersonalDocument('{{ $documentoLicencia->url_documento }}')"
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                     </svg>
                                 </button>
+                                @elseif($personal->url_licencia)
+                                <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        onclick="viewPersonalDocument('{{ asset('storage/' . $personal->url_licencia) }}')"
+                                        title="Ver archivo adjunto">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </button>
+                                @else
+                                <span class="bg-red-600 text-white p-2 rounded text-sm text-xs">
+                                    Sin archivo
+                                </span>
                                 @endif
                             </div>
                         </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Dirección</label>
+                            <div class="flex items-center space-x-2">
+                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                    {{ $personal->direccion ?? 'No registrado' }}
+                                </div>
+                                @if($personal->url_comprobante_domicilio)
+                                <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        onclick="viewPersonalDocument('{{ asset('storage/' . $personal->url_comprobante_domicilio) }}')"
+                                        title="Ver comprobante de domicilio">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </button>
+                                @else
+                                <span class="bg-red-600 text-white p-2 rounded text-sm text-xs">
+                                    Sin archivo
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">CV Profesional</label>
                             @if(isset($documentosPorTipo['cv']) || isset($documentosPorTipo['CV Profesional']))
@@ -327,6 +284,7 @@
                                 </div>
                                 @if($tieneDocumentoCV)
                                 <button class="bg-gray-600 hover:bg-gray-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                        onclick="viewPersonalDocument('{{ $documentoCV->url_documento }}')"
                                         title="Ver archivo adjunto">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -647,15 +605,20 @@ window.switchTab = function(tabName) {
 
 
 // Funciones para ver y mostrar datos de documentos de personal
-window.viewPersonalDocument = function(documentId) {
-    if (!documentId) {
-        alert('ID de documento no válido');
+window.viewPersonalDocument = function(documentUrl) {
+    if (!documentUrl) {
+        alert('URL de documento no válida');
         return;
     }
 
-    // Abrir el documento en una nueva pestaña
-    const url = `/documentos/${documentId}/file`;
-    window.open(url, '_blank');
+    // Si es un ID numérico, usar la ruta de documentos
+    if (/^\d+$/.test(documentUrl)) {
+        const url = `/documentos/${documentUrl}/file`;
+        window.open(url, '_blank');
+    } else {
+        // Si es una URL directa, abrirla directamente
+        window.open(documentUrl, '_blank');
+    }
 };
 
 window.downloadPersonalDocument = function(documentId) {
