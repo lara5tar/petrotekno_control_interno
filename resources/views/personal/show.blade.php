@@ -268,14 +268,14 @@
                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>
-                                    Agregar Datos
+                                    Agregar Documentos
                                 </button>
                                 @endhasPermission
                             </div>
                             
                             <!-- Documentos Obligatorios -->
                             <h6 class="text-sm font-medium text-gray-700 mb-2">Documentos Obligatorios</h6>
-                            <ul class="divide-y divide-gray-200 mb-6">
+                            <ul class="divide-y divide-gray-200 mb-4">
                                 @php
                                     $documentosObligatorios = ['INE', 'CURP', 'RFC', 'NSS'];
                                 @endphp
@@ -437,7 +437,7 @@
 <div id="uploadPersonalDocumentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
     <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Agregar Datos de Documento</h3>
+            <h3 class="text-lg font-medium text-gray-900">Agregar Documento</h3>
             <button onclick="closeUploadPersonalDocumentModal()" class="text-gray-400 hover:text-gray-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -445,7 +445,7 @@
             </button>
         </div>
         
-        <form id="uploadPersonalDocumentForm" action="{{ route('personal.documents.upload', $personal->id) }}" method="POST">
+        <form id="uploadPersonalDocumentForm" action="{{ route('personal.documents.upload', $personal->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="mb-4">
                 <label for="tipo_documento" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Documento</label>
@@ -462,9 +462,14 @@
             </div>
             
             <div class="mb-4">
-                <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">Número/Datos del Documento</label>
-                <textarea name="descripcion" id="descripcion" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: 123456789012345678 (CURP), RFC123456789, etc."></textarea>
-                <p class="text-xs text-gray-500 mt-1">Ingresa el número o datos principales del documento</p>
+                <label for="archivo" class="block text-sm font-medium text-gray-700 mb-2">Archivo del Documento</label>
+                <input type="file" name="archivo" id="archivo" accept=".pdf,.jpg,.jpeg,.png" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p class="text-xs text-gray-500 mt-1">Formatos permitidos: PDF, JPG, JPEG, PNG (máx. 10MB)</p>
+            </div>
+            
+            <div class="mb-4">
+                <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">Descripción (Opcional)</label>
+                <textarea name="descripcion" id="descripcion" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Descripción adicional del documento..."></textarea>
             </div>
             
             <div class="mb-4">
@@ -477,7 +482,7 @@
                     Cancelar
                 </button>
                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
-                    Guardar Datos
+                    Subir Documento
                 </button>
             </div>
         </form>
@@ -538,17 +543,14 @@ window.closeUploadPersonalDocumentModal = function() {
 
 // Funciones para ver y mostrar datos de documentos de personal
 window.viewPersonalDocument = function(documentId) {
-    // Como no hay archivos, solo mostramos la información disponible
-    const documentRow = document.querySelector(`li[data-document-id="${documentId}"]`);
-    if (documentRow) {
-        const tipo = documentRow.querySelector('.document-type')?.textContent || 'No especificado';
-        const descripcion = documentRow.querySelector('.document-description')?.textContent || 'No especificada';
-        const fecha = documentRow.querySelector('.document-date')?.textContent || 'No especificada';
-        
-        alert(`Información del Documento:\n\nTipo: ${tipo}\nDatos: ${descripcion}\nFecha de Vencimiento: ${fecha}`);
-    } else {
-        alert('No se encontró la información del documento');
+    if (!documentId) {
+        alert('ID de documento no válido');
+        return;
     }
+
+    // Abrir el documento en una nueva pestaña
+    const url = `/documentos/${documentId}/file`;
+    window.open(url, '_blank');
 };
 
 window.downloadPersonalDocument = function(documentId) {
@@ -656,15 +658,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Validación básica
         const tipoDocumento = formData.get('tipo_documento');
-        const descripcion = formData.get('descripcion');
+        const archivo = formData.get('archivo');
         
         if (!tipoDocumento) {
             alert('Por favor selecciona un tipo de documento');
             return;
         }
         
-        if (!descripcion || descripcion.trim() === '') {
-            alert('Por favor ingresa los datos del documento');
+        if (!archivo || archivo.size === 0) {
+            alert('Por favor selecciona un archivo para subir');
             return;
         }
         

@@ -226,7 +226,7 @@
                                                     </a>
                                                 @endif
                                                 <button type="button" 
-                                                        onclick="editarDocumento({{ $documento->id }})"
+                                                        onclick="editarDocumento('{{ $documento->id }}')"
                                                         class="text-green-600 hover:text-green-800 text-sm">
                                                     Editar
                                                 </button>

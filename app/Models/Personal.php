@@ -105,4 +105,12 @@ class Personal extends Model
         return $this->hasMany(Asignacion::class, 'personal_id');
 
     }
+
+    /**
+     * Relación con Documentos
+     */
+    public function documentos(): HasMany
+    {
+        return $this->hasMany(Documento::class, 'personal_id');
+    }
 }

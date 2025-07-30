@@ -195,6 +195,15 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:eliminar_documentos');
     });
 
+    // Rutas específicas para documentos de vehículos
+    Route::prefix('vehiculos/{vehiculo}/documentos')->group(function () {
+        Route::post('/', [DocumentoController::class, 'storeForVehiculo'])
+            ->middleware('permission:crear_documentos');
+        
+        Route::get('/', [DocumentoController::class, 'getByVehiculo'])
+            ->middleware('permission:ver_documentos');
+    });
+
     // Rutas de catálogo de tipos de documento
     Route::prefix('catalogo-tipos-documento')->group(function () {
         Route::get('/', [CatalogoTipoDocumentoController::class, 'index'])

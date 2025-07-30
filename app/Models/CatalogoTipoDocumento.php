@@ -61,4 +61,12 @@ class CatalogoTipoDocumento extends Model
     {
         return $query->where('requiere_vencimiento', false);
     }
+
+    /**
+     * Accessor para compatibilidad con código existente
+     */
+    public function getNombreAttribute()
+    {
+        return $this->nombre_tipo_documento;
+    }
 }

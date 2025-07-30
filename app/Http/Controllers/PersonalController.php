@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePersonalRequest;
 use App\Models\CategoriaPersonal;
 use App\Models\LogAccion;
 use App\Models\Personal;
@@ -121,7 +122,7 @@ class PersonalController extends Controller
      * Store a newly created resource in storage.
      * Patrón Híbrido: API (JSON) + Blade (Redirect)
      */
-    public function store(Request $request)
+    public function store(StorePersonalRequest $request)
     {
         // Verificar permisos
         if (! $request->user()->hasPermission('crear_personal')) {
@@ -135,18 +136,16 @@ class PersonalController extends Controller
             return redirect()->back()->with('error', 'No tienes permisos para acceder a esta sección');
         }
 
-        $request->validate([
-            'nombre_completo' => 'required|string|max:255',
-            'estatus' => ['required', Rule::in(['activo', 'inactivo'])],
-            'categoria_id' => 'required|exists:categorias_personal,id',
-        ]);
-
         try {
-            $personal = Personal::create($request->only([
-                'nombre_completo',
-                'estatus',
-                'categoria_id',
-            ]));
+            // Los datos ya vienen validados desde StorePersonalRequest
+            $validated = $request->validated();
+
+            // Crear el personal con los datos básicos
+            $personal = Personal::create([
+                'nombre_completo' => $validated['nombre_completo'],
+                'estatus' => $validated['estatus'],
+                'categoria_id' => $validated['categoria_personal_id'],
+            ]);
 
             $personal->load('categoria');
 
@@ -208,7 +207,31 @@ class PersonalController extends Controller
         }
 
         try {
-            $personal = Personal::with(['categoria', 'usuario'])->findOrFail($id);
+            $personal = Personal::with([
+                'categoria', 
+                'usuario',
+                'documentos' => function ($query) {
+                    $query->with('tipoDocumento')
+                          ->select('id', 'tipo_documento_id', 'descripcion', 'fecha_vencimiento', 'personal_id', 'contenido', 'created_at', 'updated_at');
+                }
+            ])->findOrFail($id);
+
+            // Organizar documentos por tipo para la vista
+            $documentosPorTipo = [];
+            foreach ($personal->documentos as $documento) {
+                $tipoNombre = $documento->tipoDocumento->nombre_tipo_documento;
+                
+                // Mapear nombres para compatibilidad con la vista
+                $tipoMapeado = $tipoNombre;
+                if ($tipoNombre === 'Identificación Oficial') {
+                    $tipoMapeado = 'INE';
+                }
+                
+                if (!isset($documentosPorTipo[$tipoMapeado])) {
+                    $documentosPorTipo[$tipoMapeado] = [];
+                }
+                $documentosPorTipo[$tipoMapeado][] = $documento->toArray();
+            }
 
             // Respuesta híbrida
             if ($request->expectsJson()) {
@@ -219,7 +242,7 @@ class PersonalController extends Controller
                 ]);
             }
 
-            return view('personal.show', compact('personal'));
+            return view('personal.show', compact('personal', 'documentosPorTipo'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             if ($request->expectsJson()) {
                 return response()->json([

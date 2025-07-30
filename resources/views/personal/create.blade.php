@@ -42,7 +42,19 @@
                     </h3>
                     
                     <div class="grid grid-cols-1 gap-6">
-                        <x-form-input name="nombre_completo" label="Nombre Completo" required />
+                        <div class="form-group">
+                            <label for="nombre_completo" class="block text-sm font-medium text-gray-700 mb-2">
+                                Nombre Completo <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="nombre_completo" 
+                                   id="nombre_completo"
+                                   value="{{ old('nombre_completo') }}"
+                                   placeholder="Nombre completo del empleado" 
+                                   required 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('nombre_completo') border-red-500 @enderror" />
+                            @error('nombre_completo') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                        </div>
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
@@ -112,16 +124,86 @@
 
                     <!-- Campo de email (solo visible si se activa el toggle) -->
                     <div x-show="crearUsuario" x-transition class="space-y-4">
-                        <div>
-                            <x-form-input 
-                                name="email_usuario" 
-                                label="Email del Usuario" 
-                                type="email" 
-                                placeholder="correo@petrotekno.com"
-                                x-bind:required="crearUsuario" />
+                        <div class="form-group">
+                            <label for="email_usuario" class="block text-sm font-medium text-gray-700 mb-2">
+                                Email del Usuario
+                            </label>
+                            <input type="email" 
+                                   name="email_usuario" 
+                                   id="email_usuario"
+                                   value="{{ old('email_usuario') }}"
+                                   placeholder="correo@petrotekno.com"
+                                   x-bind:required="crearUsuario"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('email_usuario') border-red-500 @enderror" />
+                            @error('email_usuario') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             <p class="mt-1 text-xs text-gray-500">
                                 Este será el email para acceder al sistema y donde se enviará la contraseña temporal.
                             </p>
+                        </div>
+
+                        <!-- Campo de contraseña -->
+                        <div class="form-group">
+                            <label for="password_usuario" class="block text-sm font-medium text-gray-700 mb-2">
+                                Contraseña
+                            </label>
+                            <div class="space-y-3">
+                                <!-- Opción de contraseña personalizada -->
+                                <div class="flex items-center">
+                                    <input type="radio" 
+                                           id="password_custom" 
+                                           name="password_type" 
+                                           value="custom"
+                                           x-model="passwordType"
+                                           class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300" />
+                                    <label for="password_custom" class="ml-3 text-sm font-medium text-gray-700">
+                                        Establecer contraseña personalizada
+                                    </label>
+                                </div>
+                                
+                                <!-- Campo de contraseña personalizada -->
+                                <div x-show="passwordType === 'custom'" x-transition class="ml-7">
+                                    <input type="password" 
+                                           name="password_usuario" 
+                                           id="password_usuario"
+                                           value="{{ old('password_usuario') }}"
+                                           placeholder="Ingrese la contraseña"
+                                           x-bind:required="crearUsuario && passwordType === 'custom'"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('password_usuario') border-red-500 @enderror" />
+                                    @error('password_usuario') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                                    <p class="mt-1 text-xs text-gray-500">
+                                        Mínimo 8 caracteres, debe incluir mayúsculas, minúsculas y números.
+                                    </p>
+                                </div>
+
+                                <!-- Opción de contraseña aleatoria -->
+                                <div class="flex items-center">
+                                    <input type="radio" 
+                                           id="password_random" 
+                                           name="password_type" 
+                                           value="random"
+                                           x-model="passwordType"
+                                           checked
+                                           class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300" />
+                                    <label for="password_random" class="ml-3 text-sm font-medium text-gray-700">
+                                        Generar contraseña aleatoria (Recomendado)
+                                    </label>
+                                </div>
+                                
+                                <!-- Información sobre contraseña aleatoria -->
+                                <div x-show="passwordType === 'random'" x-transition class="ml-7">
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                        <div class="flex">
+                                            <svg class="h-5 w-5 text-blue-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                            </svg>
+                                            <div class="text-sm text-blue-800">
+                                                <p class="font-medium">Contraseña Segura Automática</p>
+                                                <p class="mt-1">Se generará una contraseña segura de 12 caracteres que será enviada al email del usuario.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -144,8 +226,9 @@
                             <div class="flex items-center space-x-3">
                                 <input type="text" 
                                        name="no_identificacion" 
+                                       value="{{ old('no_identificacion') }}"
                                        placeholder="Número de INE" 
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('no_identificacion') border-red-500 @enderror" />
                                 <div class="flex-shrink-0">
                                     <input type="file" 
                                            id="identificacion_file" 
@@ -162,6 +245,8 @@
                                     </label>
                                 </div>
                             </div>
+                            @error('no_identificacion') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            @error('identificacion_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             <p class="text-xs text-gray-500" x-text="fileStatus.identificacion || 'PDF, JPG, PNG (máx. 5MB)'"></p>
                         </div>
 
@@ -171,9 +256,10 @@
                             <div class="flex items-center space-x-3">
                                 <input type="text" 
                                        name="curp_numero" 
+                                       value="{{ old('curp_numero') }}"
                                        placeholder="CURP de 18 caracteres" 
                                        maxlength="18"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('curp_numero') border-red-500 @enderror" />
                                 <div class="flex-shrink-0">
                                     <input type="file" 
                                            id="curp_file" 
@@ -190,6 +276,8 @@
                                     </label>
                                 </div>
                             </div>
+                            @error('curp_numero') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            @error('curp_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             <p class="text-xs text-gray-500" x-text="fileStatus.curp || 'PDF, JPG, PNG (máx. 5MB)'"></p>
                         </div>
 
@@ -220,6 +308,7 @@
                                 </div>
                             </div>
                             @error('rfc') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            @error('rfc_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             <p class="text-xs text-gray-500" x-text="fileStatus.rfc || 'PDF, JPG, PNG (máx. 5MB)'"></p>
                         </div>
 
@@ -250,6 +339,7 @@
                                 </div>
                             </div>
                             @error('nss') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            @error('nss_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             <p class="text-xs text-gray-500" x-text="fileStatus.nss || 'PDF, JPG, PNG (máx. 5MB)'"></p>
                         </div>
 
@@ -261,8 +351,9 @@
                             <div class="flex items-center space-x-3">
                                 <input type="text" 
                                        name="no_licencia" 
+                                       value="{{ old('no_licencia') }}"
                                        placeholder="Número de Licencia" 
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('no_licencia') border-red-500 @enderror" />
                                 <div class="flex-shrink-0">
                                     <input type="file" 
                                            id="licencia_file" 
@@ -279,6 +370,8 @@
                                     </label>
                                 </div>
                             </div>
+                            @error('no_licencia') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            @error('licencia_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             <p class="text-xs text-gray-500" x-text="fileStatus.licencia || 'PDF, JPG, PNG (máx. 5MB)'"></p>
                         </div>
                     </div>
@@ -293,6 +386,7 @@
                                 placeholder="Dirección completa" 
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('direccion') border-red-500 @enderror">{{ old('direccion') }}</textarea>
                         @error('direccion') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                        @error('comprobante_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         <div class="flex items-center">
                             <input type="file" 
                                    id="comprobante_file" 
@@ -335,6 +429,7 @@
                             </p>
                             <p class="mt-2 text-sm text-petroyellow font-medium" x-show="fileStatus.cv" x-text="fileStatus.cv">
                             </p>
+                            @error('cv_file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
                     </div>
                 </div>
@@ -365,6 +460,7 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('formController', () => ({
             crearUsuario: false,
+            passwordType: 'random',
             fileStatus: {
                 identificacion: '',
                 curp: '',

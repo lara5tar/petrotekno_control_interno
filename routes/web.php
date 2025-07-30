@@ -4,15 +4,18 @@ use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\KilometrajeController;
 use App\Http\Controllers\MantenimientoController;
 use App\Http\Controllers\PersonalController;
+use App\Http\Controllers\PersonalManagementController;
 use App\Http\Controllers\VehiculoController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Models\Personal;
 use App\Models\User;
 use App\Models\CategoriaPersonal;
 use App\Models\Documento;
 use App\Models\CatalogoTipoDocumento;
+use App\Models\LogAccion;
 
 // Ruta principal redirige al login
 Route::get('/', function () {
@@ -70,6 +73,8 @@ Route::get('/vehiculos/create', function () {
     
     return view('vehiculos.create', compact('estatus'));
 })->name('vehiculos.create')->middleware('permission:crear_vehiculos');
+
+Route::post('/personal', [PersonalManagementController::class, 'storeWeb'])->name('personal.store')->middleware('permission:crear_personal');
 
 Route::post('/vehiculos', function (\Illuminate\Http\Request $request) {
     try {
@@ -313,26 +318,44 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
             }
         ])->findOrFail($id);
         
-        // Organizar documentos por tipo
+        // Organizar documentos por tipo con mapeo para compatibilidad con la vista
         $documentosPorTipo = $personal->documentos->groupBy(function ($documento) {
-            return $documento->tipoDocumento ? $documento->tipoDocumento->nombre_tipo_documento : 'Sin tipo';
+            if (!$documento->tipoDocumento) {
+                return 'Sin tipo';
+            }
+            
+            $tipoNombre = $documento->tipoDocumento->nombre_tipo_documento;
+            
+            // Mapear "Identificación Oficial" a "INE" para compatibilidad con la vista
+            if ($tipoNombre === 'Identificación Oficial') {
+                return 'INE';
+            }
+            
+            return $tipoNombre;
         })->toArray();
         
         return view('personal.show', compact('personal', 'documentosPorTipo'));
     })->name('show')->middleware('permission:ver_personal');
 
-    // Ruta para guardar datos de documentos del personal (sin archivos)
+    // Ruta para guardar documentos del personal (con archivos)
     Route::post('/{id}/documents/upload', function (Request $request, $id) {
         $personal = Personal::findOrFail($id);
         
         $request->validate([
             'tipo_documento' => 'required|string',
-            'descripcion' => 'required|string|max:500',
+            'archivo' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240', // 10MB máximo
+            'descripcion' => 'nullable|string|max:500',
             'fecha_vencimiento' => 'nullable|date'
         ]);
         
+        // Mapear "INE" a "Identificación Oficial" para buscar en la base de datos
+        $tipoDocumentoBuscar = $request->tipo_documento;
+        if ($tipoDocumentoBuscar === 'INE') {
+            $tipoDocumentoBuscar = 'Identificación Oficial';
+        }
+        
         // Buscar el tipo de documento
-        $tipoDocumento = CatalogoTipoDocumento::where('nombre_tipo_documento', $request->tipo_documento)->first();
+        $tipoDocumento = CatalogoTipoDocumento::where('nombre_tipo_documento', $tipoDocumentoBuscar)->first();
         
         if (!$tipoDocumento) {
             return response()->json([
@@ -341,30 +364,42 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
             ], 400);
         }
         
-        // Verificar si ya existe un documento de este tipo para este personal
-        $documentoExistente = Documento::where('personal_id', $personal->id)
-                                       ->where('tipo_documento_id', $tipoDocumento->id)
-                                       ->first();
-        
         try {
+            // Manejar la subida del archivo
+            $archivo = $request->file('archivo');
+            $nombreArchivo = time() . '_' . $personal->id . '_' . $archivo->getClientOriginalName();
+            $rutaArchivo = $archivo->storeAs('personal/documentos', $nombreArchivo, 'private');
+            
+            // Verificar si ya existe un documento de este tipo para este personal
+            $documentoExistente = Documento::where('personal_id', $personal->id)
+                                           ->where('tipo_documento_id', $tipoDocumento->id)
+                                           ->first();
+            
             if ($documentoExistente) {
+                // Eliminar archivo anterior si existe
+                if ($documentoExistente->ruta_archivo && \Storage::disk('private')->exists($documentoExistente->ruta_archivo)) {
+                    \Storage::disk('private')->delete($documentoExistente->ruta_archivo);
+                }
+                
                 // Actualizar documento existente
                 $documentoExistente->update([
-                    'descripcion' => $request->descripcion,
+                    'descripcion' => $request->descripcion ?? $tipoDocumentoBuscar,
                     'fecha_vencimiento' => $request->fecha_vencimiento,
-                    'contenido' => $request->descripcion // Guardar los datos en el campo contenido
+                    'ruta_archivo' => $rutaArchivo,
+                    'contenido' => $request->descripcion ?? $tipoDocumentoBuscar
                 ]);
-                $mensaje = 'Datos del documento actualizados exitosamente.';
+                $mensaje = 'Documento actualizado exitosamente.';
             } else {
                 // Crear nuevo documento
                 Documento::create([
                     'personal_id' => $personal->id,
                     'tipo_documento_id' => $tipoDocumento->id,
-                    'descripcion' => $request->descripcion,
+                    'descripcion' => $request->descripcion ?? $tipoDocumentoBuscar,
                     'fecha_vencimiento' => $request->fecha_vencimiento,
-                    'contenido' => $request->descripcion // Guardar los datos en el campo contenido
+                    'ruta_archivo' => $rutaArchivo,
+                    'contenido' => $request->descripcion ?? $tipoDocumentoBuscar
                 ]);
-                $mensaje = 'Datos del documento guardados exitosamente.';
+                $mensaje = 'Documento guardado exitosamente.';
             }
             
             return response()->json([
@@ -373,9 +408,14 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
             ]);
             
         } catch (\Exception $e) {
+            // Eliminar archivo si se subió pero falló la creación del registro
+            if (isset($rutaArchivo) && \Storage::disk('private')->exists($rutaArchivo)) {
+                \Storage::disk('private')->delete($rutaArchivo);
+            }
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Error al guardar los datos del documento: ' . $e->getMessage()
+                'message' => 'Error al guardar el documento: ' . $e->getMessage()
             ], 500);
         }
     })->name('documents.upload')->middleware('permission:editar_personal');
@@ -445,6 +485,20 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
 // Rutas para Documentos
 Route::middleware('auth')->group(function () {
     Route::resource('documentos', DocumentoController::class);
+    
+    // Ruta para mostrar archivos de documentos en el navegador
+    Route::get('documentos/{documento}/file', [DocumentoController::class, 'showFile'])
+        ->name('documentos.file')
+        ->middleware('permission:ver_documentos');
+    
+    // Rutas específicas para documentos de vehículos
+    Route::post('vehiculos/{vehiculo}/documentos', [DocumentoController::class, 'storeForVehiculo'])
+        ->name('vehiculos.documentos.store')
+        ->middleware('permission:crear_documentos');
+    
+    Route::get('vehiculos/{vehiculo}/documentos', [DocumentoController::class, 'getByVehiculo'])
+        ->name('vehiculos.documentos.index')
+        ->middleware('permission:ver_documentos');
 });
 
 // Rutas web para obtener datos (proxy a los modelos) - CORREGIDO: Agregado middleware de permisos

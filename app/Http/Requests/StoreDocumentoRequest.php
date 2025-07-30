@@ -3,15 +3,27 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreDocumentoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
+     * Patrón Híbrido: Soporta tanto auth como auth:sanctum
      */
     public function authorize(): bool
     {
-        return auth('sanctum')->check();
+        // Para solicitudes web (Blade)
+        if (Auth::check()) {
+            return Auth::user()->hasPermission('crear_documentos');
+        }
+        
+        // Para solicitudes API (Sanctum)
+        if (auth('sanctum')->check()) {
+            return auth('sanctum')->user()->hasPermission('crear_documentos');
+        }
+        
+        return false;
     }
 
     /**
@@ -68,6 +80,10 @@ class StoreDocumentoRequest extends FormRequest
                 'max:10240', // 10MB máximo
                 'mimes:pdf,doc,docx,jpg,jpeg,png,txt,xls,xlsx',
             ],
+            'contenido' => [
+                'nullable',
+                'json',
+            ],
             'multiple_associations' => [
                 'prohibited',
             ],
@@ -93,6 +109,7 @@ class StoreDocumentoRequest extends FormRequest
             'archivo.file' => 'Debe seleccionar un archivo válido.',
             'archivo.max' => 'El archivo no puede ser mayor a 10MB.',
             'archivo.mimes' => 'El archivo debe ser de tipo: PDF, DOC, DOCX, JPG, JPEG, PNG, TXT, XLS, XLSX.',
+            'contenido.json' => 'El contenido debe ser un JSON válido.',
             'multiple_associations.prohibited' => 'Un documento no puede estar asociado a múltiples entidades al mismo tiempo.',
         ];
     }
@@ -135,6 +152,15 @@ class StoreDocumentoRequest extends FormRequest
                 if ($tipoDocumento && $tipoDocumento->requiere_vencimiento && ! $this->filled('fecha_vencimiento')) {
                     $validator->errors()->add('fecha_vencimiento', 'La fecha de vencimiento es obligatoria para este tipo de documento.');
                 }
+            }
+
+            // Validar que al menos una entidad esté asociada
+            $entidades = collect(['vehiculo_id', 'personal_id', 'obra_id', 'mantenimiento_id'])
+                ->filter(fn ($key) => $this->filled($key))
+                ->count();
+
+            if ($entidades === 0) {
+                $validator->errors()->add('vehiculo_id', 'El documento debe estar asociado al menos a una entidad (vehículo, personal, obra o mantenimiento).');
             }
         });
     }

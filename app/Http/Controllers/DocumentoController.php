@@ -698,4 +698,313 @@ class DocumentoController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Crear documento específicamente para un vehículo.
+     * Patrón Híbrido: API (JSON) + Blade (Redirect)
+     */
+    public function storeForVehiculo(Request $request, $vehiculoId): JsonResponse|RedirectResponse
+    {
+        // Verificar permisos
+        if (! $this->hasPermission('crear_documentos')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para crear documentos'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para crear documentos']);
+        }
+
+        try {
+            // Verificar que el vehículo existe
+            $vehiculo = Vehiculo::findOrFail($vehiculoId);
+
+            // Validación específica para documentos de vehículo
+            $validated = $request->validate([
+                'tipo_documento_id' => 'required|exists:catalogo_tipos_documento,id',
+                'descripcion' => 'nullable|string|max:1000',
+                'fecha_vencimiento' => 'nullable|date|after_or_equal:today',
+                'archivo' => 'required|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png,txt,xls,xlsx',
+                'contenido' => 'nullable|json',
+            ]);
+
+            // Forzar la asociación con el vehículo
+            $validated['vehiculo_id'] = $vehiculoId;
+
+            // Validación adicional: si el tipo de documento requiere vencimiento
+            $tipoDocumento = CatalogoTipoDocumento::find($validated['tipo_documento_id']);
+            if ($tipoDocumento && $tipoDocumento->requiere_vencimiento && empty($validated['fecha_vencimiento'])) {
+                throw ValidationException::withMessages([
+                    'fecha_vencimiento' => 'La fecha de vencimiento es requerida para este tipo de documento.',
+                ]);
+            }
+
+            // Manejo de archivo (obligatorio en este método)
+            $archivo = $request->file('archivo');
+            $nombreArchivo = time() . '_' . Str::slug($tipoDocumento->nombre_tipo_documento ?? 'documento', '_') . '_' . $archivo->getClientOriginalName();
+            $rutaArchivo = $archivo->storeAs('vehiculos/documentos', $nombreArchivo, 'public');
+            $validated['ruta_archivo'] = $rutaArchivo;
+
+            // Crear descripción automática si no se proporciona
+            if (empty($validated['descripcion'])) {
+                $validated['descripcion'] = ($tipoDocumento->nombre_tipo_documento ?? 'Documento') . ' del vehículo ' . $vehiculo->marca . ' ' . $vehiculo->modelo . ' - ' . $vehiculo->placas;
+            }
+
+            $documento = Documento::create($validated);
+            $documento->load([
+                'tipoDocumento:id,nombre_tipo_documento,requiere_vencimiento',
+                'vehiculo:id,marca,modelo,placas',
+            ]);
+
+            // Registrar en log de auditoría
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'crear_documento_vehiculo',
+                'tabla_afectada' => 'documentos',
+                'registro_id' => $documento->id,
+                'detalles' => json_encode([
+                    'vehiculo_id' => $vehiculoId,
+                    'tipo_documento' => $documento->tipoDocumento->nombre_tipo_documento ?? 'N/A',
+                    'tiene_archivo' => ! empty($documento->ruta_archivo),
+                ]),
+            ]);
+
+            // Si es solicitud API (AJAX/fetch con JSON)
+            if ($request->expectsJson()) {
+                $docArray = $documento->toArray();
+                $docArray['estado'] = $documento->estado;
+                $docArray['dias_hasta_vencimiento'] = $documento->dias_hasta_vencimiento;
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Documento creado exitosamente para el vehículo',
+                    'data' => $docArray,
+                ], 201);
+            }
+
+            // Si es solicitud web (navegador tradicional)
+            return redirect()->route('vehiculos.show', $vehiculoId)->with('success', 'Documento creado exitosamente para el vehículo');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vehículo no encontrado',
+                ], 404);
+            }
+
+            return redirect()->route('vehiculos.index')->withErrors(['error' => 'Vehículo no encontrado']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Datos de validación incorrectos',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            // Limpiar archivo si se subió y hubo error
+            if (isset($rutaArchivo)) {
+                Storage::disk('public')->delete($rutaArchivo);
+            }
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al crear el documento',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->withErrors(['error' => 'Error al crear el documento: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    /**
+     * Obtener documentos de un vehículo específico.
+     * Patrón Híbrido: API (JSON) + Blade (View)
+     */
+    public function getByVehiculo(Request $request, $vehiculoId): JsonResponse|View|RedirectResponse
+    {
+        // Verificar permisos
+        if (! $this->hasPermission('ver_documentos')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para ver documentos'], 403);
+            }
+
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para ver documentos']);
+        }
+
+        try {
+            // Verificar que el vehículo existe
+            $vehiculo = Vehiculo::findOrFail($vehiculoId);
+
+            $query = Documento::with([
+                'tipoDocumento:id,nombre_tipo_documento,requiere_vencimiento',
+            ])->where('vehiculo_id', $vehiculoId);
+
+            // Filtros adicionales
+            if ($request->filled('tipo_documento_id')) {
+                $query->porTipo($request->tipo_documento_id);
+            }
+
+            if ($request->filled('estado')) {
+                switch ($request->estado) {
+                    case 'vencidos':
+                        $query->vencidos();
+                        break;
+                    case 'proximos_a_vencer':
+                        $dias = $request->get('dias_vencimiento', 30);
+                        $query->proximosAVencer($dias);
+                        break;
+                }
+            }
+
+            // Ordenamiento
+            $sortBy = $request->get('sort_by', 'created_at');
+            $sortOrder = $request->get('sort_order', 'desc');
+            $query->orderBy($sortBy, $sortOrder);
+
+            $documentos = $query->get();
+
+            // Si es solicitud API (AJAX/fetch con JSON)
+            if ($request->expectsJson()) {
+                // Agregar información adicional a cada documento
+                $documentos->transform(function ($documento) {
+                    $docArray = $documento->toArray();
+                    $docArray['estado'] = $documento->estado;
+                    $docArray['dias_hasta_vencimiento'] = $documento->dias_hasta_vencimiento;
+                    $docArray['esta_vencido'] = $documento->esta_vencido;
+
+                    return $docArray;
+                });
+
+                return response()->json([
+                    'success' => true,
+                    'data' => $documentos,
+                    'meta' => [
+                        'vehiculo' => $vehiculo->only(['id', 'marca', 'modelo', 'placas']),
+                        'total_documentos' => $documentos->count(),
+                    ],
+                ]);
+            }
+
+            // Si es solicitud web (navegador tradicional)
+            $tiposDocumento = CatalogoTipoDocumento::all();
+            
+            return view('documentos.vehiculo', compact(
+                'documentos',
+                'vehiculo',
+                'tiposDocumento'
+            ));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vehículo no encontrado',
+                ], 404);
+            }
+
+            return redirect()->route('vehiculos.index')->withErrors(['error' => 'Vehículo no encontrado']);
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al obtener los documentos del vehículo',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->withErrors(['error' => 'Error al obtener los documentos del vehículo: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Mostrar archivo de documento en el navegador
+     */
+    public function showFile(Request $request, $id)
+    {
+        // Verificar permisos
+        if (! $this->hasPermission('ver_documentos')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para ver documentos'], 403);
+            }
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para ver documentos']);
+        }
+
+        try {
+            $documento = Documento::findOrFail($id);
+
+            // Verificar si el documento tiene archivo
+            if (!$documento->ruta_archivo) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Este documento no tiene archivo asociado'
+                    ], 404);
+                }
+                return redirect()->back()->withErrors(['error' => 'Este documento no tiene archivo asociado']);
+            }
+
+            // Determinar el disco de almacenamiento
+            $disk = 'public';
+            if (str_contains($documento->ruta_archivo, 'personal/')) {
+                $disk = 'private'; // Los documentos de personal se guardan en disco privado
+            }
+
+            // Verificar si el archivo existe
+            if (!Storage::disk($disk)->exists($documento->ruta_archivo)) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'El archivo del documento no se encontró en el servidor'
+                    ], 404);
+                }
+                return redirect()->back()->withErrors(['error' => 'El archivo del documento no se encontró en el servidor']);
+            }
+
+            // Obtener el archivo
+            $file = Storage::disk($disk)->get($documento->ruta_archivo);
+            $mimeType = Storage::disk($disk)->mimeType($documento->ruta_archivo);
+            $fileName = basename($documento->ruta_archivo);
+
+            // Registrar acceso al archivo en log de auditoría
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'ver_archivo_documento',
+                'tabla_afectada' => 'documentos',
+                'registro_id' => $documento->id,
+                'detalles' => json_encode([
+                    'archivo' => $fileName,
+                    'tipo_documento' => $documento->tipoDocumento->nombre_tipo_documento ?? 'N/A',
+                ]),
+            ]);
+
+            // Retornar el archivo para mostrar en el navegador
+            return response($file)
+                ->header('Content-Type', $mimeType)
+                ->header('Content-Disposition', 'inline; filename="' . $fileName . '"')
+                ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                ->header('Pragma', 'no-cache')
+                ->header('Expires', '0');
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Documento no encontrado'
+                ], 404);
+            }
+            return redirect()->back()->withErrors(['error' => 'Documento no encontrado']);
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al mostrar el archivo del documento',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+            return redirect()->back()->withErrors(['error' => 'Error al mostrar el archivo del documento: ' . $e->getMessage()]);
+        }
+    }
 }

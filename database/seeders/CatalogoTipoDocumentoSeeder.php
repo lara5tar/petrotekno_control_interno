@@ -67,6 +67,11 @@ class CatalogoTipoDocumentoSeeder extends Seeder
                 'requiere_vencimiento' => false,
             ],
             [
+                'nombre_tipo_documento' => 'NSS',
+                'descripcion' => 'Número de Seguro Social',
+                'requiere_vencimiento' => false,
+            ],
+            [
                 'nombre_tipo_documento' => 'Comprobante de Estudios',
                 'descripcion' => 'Certificado, diploma o título de estudios',
                 'requiere_vencimiento' => false,

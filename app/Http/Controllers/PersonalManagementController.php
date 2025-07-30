@@ -25,48 +25,70 @@ class PersonalManagementController extends Controller
 
         try {
             $validatedData = $request->validated();
-            
-            // Mapear campos del formulario web a los esperados por el controlador
-            $personalData = [
+
+            // 1. Crear Personal
+            $personal = $this->createPersonal([
                 'nombre_completo' => $validatedData['nombre_completo'],
                 'estatus' => $validatedData['estatus'],
-                'categoria_id' => $validatedData['categoria_personal_id'], // El formulario usa categoria_personal_id
-            ];
+                'categoria_id' => $validatedData['categoria_personal_id'],
+            ]);
 
-            // Crear el registro de personal
-            $personal = $this->createPersonal($personalData);
+            // 2. Procesar y Guardar Documentos
+            $documentosData = [];
+            $tiposDocumento = [
+                'identificacion_file' => 8,    // INE - Identificación Oficial
+                'curp_file' => 9,              // CURP
+                'rfc_file' => 10,              // RFC
+                'nss_file' => 28,              // NSS - Número de Seguro Social
+                'licencia_file' => 7,          // Licencia de Conducir
+                'cv_file' => 31                // CV Profesional
+            ]; // Mapeo de campos a IDs reales de la BD
 
-            // Crear usuario si se solicita
+            foreach ($tiposDocumento as $requestKey => $tipoId) {
+                if ($request->hasFile($requestKey)) {
+                    $path = $this->handleDocumentUpload($request->file($requestKey), $personal->id);
+                    $documentosData[] = [
+                        'tipo_documento_id' => $tipoId,
+                        'ruta_archivo' => $path,
+                        'descripcion' => "Documento de {$requestKey}",
+                    ];
+                }
+            }
+
+            if (!empty($documentosData)) {
+                $this->createPersonalDocuments($personal, $documentosData);
+            }
+
+            // 3. Crear Usuario (si se solicita)
             $usuario = null;
-            if (isset($validatedData['crear_usuario']) && $validatedData['crear_usuario']) {
-                // Mapear datos del usuario
+            if (!empty($validatedData['crear_usuario'])) {
                 $userData = [
-                    'email' => $validatedData['email_usuario'], // El formulario usa email_usuario
-                    'rol_id' => 3, // Rol Operador por defecto para personal nuevo
-                    'crear_usuario' => true
+                    'email' => $validatedData['email_usuario'],
+                    'rol_id' => 3, // Rol por defecto
+                    'nombre_completo' => $personal->nombre_completo,
                 ];
+
+                // Agregar contraseña personalizada si se especifica
+                if (isset($validatedData['password_type']) && $validatedData['password_type'] === 'custom' && !empty($validatedData['password'])) {
+                    $userData['password'] = $validatedData['password'];
+                }
+
                 $usuario = $this->createPersonalUser($personal, $userData);
             }
 
             DB::commit();
 
-            // Redirigir con mensaje de éxito
             $mensaje = 'Personal creado exitosamente';
             if ($usuario) {
                 $mensaje .= '. Usuario creado con email: ' . $usuario->email;
-                // Mostrar contraseña temporal en el mensaje (solo para desarrollo)
                 $mensaje .= '. Contraseña temporal: ' . $usuario->getAttribute('password_temp');
             }
 
-            return redirect()->route('personal.show', $personal->id)
-                ->with('success', $mensaje);
+            return redirect()->route('personal.show', $personal->id)->with('success', $mensaje);
 
         } catch (\Exception $e) {
             DB::rollBack();
-
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Error al crear el personal: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Error al crear el personal: ' . $e->getMessage());
         }
     }
 
@@ -152,12 +174,21 @@ class PersonalManagementController extends Controller
         return $documentos;
     }
 
+    private function handleDocumentUpload(\Illuminate\Http\UploadedFile $file, int $personalId): string
+    {
+        $fileName = time() . '_' . $file->getClientOriginalName();
+        return $file->storeAs("personal/{$personalId}/documentos", $fileName, 'private');
+    }
+
     /**
      * Crear usuario asociado al personal
      */
     private function createPersonalUser(Personal $personal, array $data): User
     {
-        $password = $this->generateRandomPassword();
+        // Determinar la contraseña a usar
+        $password = isset($data['password']) && !empty($data['password']) 
+            ? $data['password'] 
+            : $this->generateRandomPassword();
 
         $usuario = User::create([
             'personal_id' => $personal->id,

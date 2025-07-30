@@ -172,7 +172,7 @@ class VehiculoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreVehiculoRequest $request): JsonResponse|RedirectResponse
+    public function store(StoreVehiculoRequest $request): JsonResponse|RedirectResponse|View
     {
         // Verificar permisos
         if (! Auth::user()->hasPermission('crear_vehiculos')) {
@@ -270,10 +270,15 @@ class VehiculoController extends Controller
                 ], 422);
             }
 
-            // Para Blade
-            return redirect()->back()
-                ->withErrors(['error' => $errorMessage])
-                ->withInput();
+            // Para Blade - retornar vista directamente con datos necesarios
+            $estatusOptions = CatalogoEstatus::select('id', 'nombre_estatus')->get();
+            $tiposDocumento = CatalogoTipoDocumento::select('id', 'nombre_tipo_documento')
+                ->orderBy('nombre_tipo_documento')
+                ->get();
+            
+            return view('vehiculos.create', compact('estatusOptions', 'tiposDocumento'))
+                ->with('errors', collect(['error' => $errorMessage]))
+                ->with('_old', $request->input());
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
 
@@ -286,10 +291,15 @@ class VehiculoController extends Controller
                 ], 422);
             }
 
-            // Para Blade - Laravel maneja esto automáticamente, pero agregamos mensaje adicional
-            return redirect()->back()
-                ->withErrors($e->errors())
-                ->withInput()
+            // Para Blade - retornar vista directamente con datos necesarios
+            $estatusOptions = CatalogoEstatus::select('id', 'nombre_estatus')->get();
+            $tiposDocumento = CatalogoTipoDocumento::select('id', 'nombre_tipo_documento')
+                ->orderBy('nombre_tipo_documento')
+                ->get();
+            
+            return view('vehiculos.create', compact('estatusOptions', 'tiposDocumento'))
+                ->with('errors', $e->errors())
+                ->with('_old', $request->input())
                 ->with('error', 'Por favor revise los datos ingresados y corrija los errores señalados');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -310,10 +320,15 @@ class VehiculoController extends Controller
                 ], 500);
             }
 
-            // Para Blade
-            return redirect()->back()
-                ->withErrors(['error' => 'Ocurrió un error inesperado al crear el vehículo. Por favor intente nuevamente.'])
-                ->withInput();
+            // Para Blade - retornar vista directamente con datos necesarios
+            $estatusOptions = CatalogoEstatus::select('id', 'nombre_estatus')->get();
+            $tiposDocumento = CatalogoTipoDocumento::select('id', 'nombre_tipo_documento')
+                ->orderBy('nombre_tipo_documento')
+                ->get();
+            
+            return view('vehiculos.create', compact('estatusOptions', 'tiposDocumento'))
+                ->with('errors', collect(['error' => 'Ocurrió un error inesperado al crear el vehículo. Por favor intente nuevamente.']))
+                ->with('_old', $request->input());
         }
     }
 
@@ -395,6 +410,9 @@ class VehiculoController extends Controller
         try {
             $vehiculo = Vehiculo::with('estatus')->findOrFail($id);
             $estatusOptions = CatalogoEstatus::select('id', 'nombre_estatus')->get();
+            $tiposDocumento = CatalogoTipoDocumento::select('id', 'nombre_tipo_documento', 'requiere_vencimiento')
+                ->orderBy('nombre_tipo_documento')
+                ->get();
 
             // Para solicitudes API - devolver datos del formulario
             if ($request->expectsJson()) {
@@ -404,12 +422,13 @@ class VehiculoController extends Controller
                     'data' => [
                         'vehiculo' => $vehiculo,
                         'estatus_options' => $estatusOptions,
+                        'tipos_documento' => $tiposDocumento,
                     ],
                 ]);
             }
 
             // Para solicitudes Web (Blade)
-            return view('vehiculos.edit', compact('vehiculo', 'estatusOptions'));
+            return view('vehiculos.edit', compact('vehiculo', 'estatusOptions', 'tiposDocumento'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             // Para API
             if ($request->expectsJson()) {
@@ -535,7 +554,7 @@ class VehiculoController extends Controller
             }
 
             // Para Blade
-            return redirect()->back()
+            return redirect()->route('vehiculos.edit', $id)
                 ->withErrors(['error' => 'Error al actualizar vehículo'])
                 ->withInput();
         }
@@ -753,6 +772,38 @@ class VehiculoController extends Controller
     }
 
     /**
+     * Manejar la subida de un archivo de documento
+     */
+    private function handleVehicleDocumentUpload(\Illuminate\Http\UploadedFile $file, int $vehiculoId): string
+    {
+        $fileName = time() . '_' . $file->getClientOriginalName();
+        return $file->storeAs("vehiculos/{$vehiculoId}/documentos", $fileName, 'public');
+    }
+
+    /**
+     * Crear documentos asociados al vehículo
+     */
+    private function createVehicleDocuments(Vehiculo $vehiculo, array $documentosData): array
+    {
+        $documentos = [];
+
+        foreach ($documentosData as $docData) {
+            $documento = \App\Models\Documento::create([
+                'vehiculo_id' => $vehiculo->id,
+                'tipo_documento_id' => $docData['tipo_documento_id'],
+                'descripcion' => $docData['descripcion'] ?? null,
+                'fecha_vencimiento' => $docData['fecha_vencimiento'] ?? null,
+                'ruta_archivo' => $docData['ruta_archivo'] ?? null,
+                'contenido' => $docData['contenido'] ?? null,
+            ]);
+
+            $documentos[] = $documento;
+        }
+
+        return $documentos;
+    }
+
+    /**
      * Procesar documentos estructurados del vehículo
      */
     private function procesarDocumentosEstructurados($request, $vehiculoId)
@@ -792,16 +843,18 @@ class VehiculoController extends Controller
             ]
         ];
 
+        $documentosData = [];
+        $vehiculo = Vehiculo::find($vehiculoId);
+
         foreach ($documentosEstructurados as $campoArchivo => $config) {
             if ($request->hasFile($campoArchivo)) {
                 // Obtener el tipo de documento
                 $tipoDocumento = \App\Models\CatalogoTipoDocumento::where('nombre_tipo_documento', $config['tipo'])->first();
                 
                 if ($tipoDocumento) {
-                    // Subir archivo
+                    // Usar el método auxiliar para subir el archivo
                     $archivo = $request->file($campoArchivo);
-                    $nombreArchivo = time() . '_' . str_replace(' ', '_', strtolower($config['tipo'])) . '_' . $archivo->getClientOriginalName();
-                    $rutaArchivo = $archivo->storeAs('vehiculos/documentos', $nombreArchivo, 'public');
+                    $rutaArchivo = $this->handleVehicleDocumentUpload($archivo, $vehiculoId);
 
                     // Preparar contenido adicional
                     $contenido = [];
@@ -812,19 +865,23 @@ class VehiculoController extends Controller
                         $contenido['aseguradora'] = $request->input($config['extra_campo']);
                     }
 
-                    // Crear documento
-                    \App\Models\Documento::create([
+                    // Preparar datos del documento
+                    $documentosData[] = [
                         'tipo_documento_id' => $tipoDocumento->id,
                         'descripcion' => $config['tipo'] . ' del vehículo',
                         'ruta_archivo' => $rutaArchivo,
                         'fecha_vencimiento' => $config['fecha_campo'] && $request->filled($config['fecha_campo']) 
                             ? $request->input($config['fecha_campo']) 
                             : null,
-                        'vehiculo_id' => $vehiculoId,
                         'contenido' => !empty($contenido) ? $contenido : null,
-                    ]);
+                    ];
                 }
             }
+        }
+
+        // Crear todos los documentos usando el método auxiliar
+        if (!empty($documentosData)) {
+            $this->createVehicleDocuments($vehiculo, $documentosData);
         }
     }
 
@@ -841,23 +898,28 @@ class VehiculoController extends Controller
         // Procesar archivos de documentos adicionales
         if ($request->hasFile('documentos_adicionales_archivos')) {
             $archivos = $request->file('documentos_adicionales_archivos');
+            $documentosData = [];
             
             foreach ($archivos as $index => $archivo) {
                 if ($archivo && isset($tiposDocumento[$index])) {
-                    // Subir archivo
-                    $nombreArchivo = time() . '_doc_adicional_' . $index . '_' . $archivo->getClientOriginalName();
-                    $rutaArchivo = $archivo->storeAs('vehiculos/documentos', $nombreArchivo, 'public');
+                    // Usar el método auxiliar para subir el archivo
+                    $rutaArchivo = $this->handleVehicleDocumentUpload($archivo, $vehiculoId);
 
-                    // Crear documento
-                    \App\Models\Documento::create([
+                    // Preparar datos del documento
+                    $documentosData[] = [
                         'tipo_documento_id' => $tiposDocumento[$index],
                         'descripcion' => $descripciones[$index] ?? 'Documento adicional del vehículo',
-                        'ruta_archivo' => $rutaArchivo,
                         'fecha_vencimiento' => !empty($fechasVencimiento[$index]) ? $fechasVencimiento[$index] : null,
-                        'vehiculo_id' => $vehiculoId,
+                        'ruta_archivo' => $rutaArchivo,
                         'contenido' => null,
-                    ]);
+                    ];
                 }
+            }
+            
+            // Crear todos los documentos usando el método auxiliar
+            if (!empty($documentosData)) {
+                $vehiculo = Vehiculo::find($vehiculoId);
+                $this->createVehicleDocuments($vehiculo, $documentosData);
             }
         }
     }
