@@ -13,17 +13,28 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            // Seeders de catálogos base
             CategoriaPersonalSeeder::class,
             CatalogoEstatusSeeder::class,
+            CatalogoTipoDocumentoSeeder::class,
+            
+            // Seeders de permisos y roles
             PermissionSeeder::class,
-            KilometrajePermissionSeeder::class, // Agregado aquí para que esté antes del RoleSeeder
+            KilometrajePermissionSeeder::class,
             RoleSeeder::class,
             AdminUserSeeder::class,
-            CatalogoTipoDocumentoSeeder::class,
+            
+            // Seeders de entidades principales
             PersonalSeeder::class,
             VehiculoSeeder::class,
             ObraSeeder::class,
-            // AsignacionSeeder::class, // Comentado temporalmente ya que las asignaciones ahora van en obras
+            
+            // Seeders de registros operacionales
+            MantenimientoSeeder::class,
+            KilometrajeSeeder::class,
+            DocumentoSeeder::class,
+            
+            // AsignacionSeeder::class, // Comentado - las asignaciones ahora van en obras
         ]);
     }
 }

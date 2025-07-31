@@ -290,125 +290,108 @@
             </div>
 
             <!-- Documentos Principales -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header">
-                    <h5 class="text-primary mb-0">
-                        <i class="fas fa-file-alt me-2"></i>
-                        Documentos Principales
-                    </h5>
+            <div class="bg-white border border-gray-300 rounded-lg">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
+                    <h3 class="font-semibold text-gray-800">Documentos Principales</h3>
                 </div>
-                <div class="card-body">
-                    <div class="row">
+                <div class="p-4">
+                    <!-- Lista de documentos -->
+                    <div class="space-y-3 mb-4">
                         <!-- Contrato -->
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-file-contract me-1"></i>
-                                Contrato
-                            </label>
+                        <div class="flex items-center justify-between py-2 border-b border-gray-200 last:border-b-0">
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 mr-2 text-{{ $obra->tieneContrato() ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <div>
+                                    <span class="text-sm font-medium text-gray-800">Contrato</span>
+                                    <p class="text-xs text-gray-500">
+                                        @if($obra->tieneContrato())
+                                            Documento principal disponible
+                                        @else
+                                            No disponible
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
                             @if($obra->tieneContrato())
-                                <div class="alert alert-info mb-0" role="alert">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-file-pdf me-2"></i>
-                                            <span class="small">Archivo disponible</span>
-                                        </div>
-                                        <a href="{{ $obra->getUrlContrato() }}" target="_blank" class="btn btn-sm btn-outline-info">
-                                            <i class="fas fa-eye me-1"></i>Ver archivo
-                                        </a>
-                                    </div>
-                                    <small class="text-muted">Subido: {{ $obra->fecha_subida_contrato?->format('d/m/Y H:i') }}</small>
-                                </div>
+                                <a href="{{ $obra->getUrlContrato() }}" target="_blank" 
+                                   class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Ver
+                                </a>
                             @else
-                                <div class="alert alert-secondary mb-0 text-center" role="alert">
-                                    <i class="fas fa-file-pdf text-muted mb-2" style="font-size: 2rem;"></i>
-                                    <p class="small text-muted mb-0">No hay contrato subido</p>
-                                </div>
+                                <span class="text-xs text-red-500 font-medium">Faltante</span>
                             @endif
                         </div>
 
                         <!-- Fianza -->
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-file-invoice-dollar me-1"></i>
-                                Fianza
-                            </label>
+                        <div class="flex items-center justify-between py-2 border-b border-gray-200 last:border-b-0">
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 mr-2 text-{{ $obra->tieneFianza() ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                </svg>
+                                <div>
+                                    <span class="text-sm font-medium text-gray-800">Fianza</span>
+                                    <p class="text-xs text-gray-500">
+                                        @if($obra->tieneFianza())
+                                            Garantía del proyecto disponible
+                                        @else
+                                            No disponible
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
                             @if($obra->tieneFianza())
-                                <div class="alert alert-success mb-0" role="alert">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-file-pdf me-2"></i>
-                                            <span class="small">Archivo disponible</span>
-                                        </div>
-                                        <a href="{{ $obra->getUrlFianza() }}" target="_blank" class="btn btn-sm btn-outline-success">
-                                            <i class="fas fa-eye me-1"></i>Ver archivo
-                                        </a>
-                                    </div>
-                                    <small class="text-muted">Subido: {{ $obra->fecha_subida_fianza?->format('d/m/Y H:i') }}</small>
-                                </div>
+                                <a href="{{ $obra->getUrlFianza() }}" target="_blank" 
+                                   class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Ver
+                                </a>
                             @else
-                                <div class="alert alert-secondary mb-0 text-center" role="alert">
-                                    <i class="fas fa-file-pdf text-muted mb-2" style="font-size: 2rem;"></i>
-                                    <p class="small text-muted mb-0">No hay fianza subida</p>
-                                </div>
+                                <span class="text-xs text-red-500 font-medium">Faltante</span>
                             @endif
                         </div>
 
                         <!-- Acta Entrega-Recepción -->
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-file-signature me-1"></i>
-                                Acta Entrega-Recepción
-                            </label>
+                        <div class="flex items-center justify-between py-2 border-b border-gray-200 last:border-b-0">
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 mr-2 text-{{ $obra->tieneActaEntregaRecepcion() ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                <div>
+                                    <span class="text-sm font-medium text-gray-800">Acta Entrega-Recepción</span>
+                                    <p class="text-xs text-gray-500">
+                                        @if($obra->tieneActaEntregaRecepcion())
+                                            Finalización del proyecto disponible
+                                        @else
+                                            No disponible
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
                             @if($obra->tieneActaEntregaRecepcion())
-                                <div class="alert alert-warning mb-0" role="alert">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-file-pdf me-2"></i>
-                                            <span class="small">Archivo disponible</span>
-                                        </div>
-                                        <a href="{{ $obra->getUrlActaEntregaRecepcion() }}" target="_blank" class="btn btn-sm btn-outline-warning">
-                                            <i class="fas fa-eye me-1"></i>Ver archivo
-                                        </a>
-                                    </div>
-                                    <small class="text-muted">Subido: {{ $obra->fecha_subida_acta?->format('d/m/Y H:i') }}</small>
-                                </div>
+                                <a href="{{ $obra->getUrlActaEntregaRecepcion() }}" target="_blank" 
+                                   class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Ver
+                                </a>
                             @else
-                                <div class="alert alert-secondary mb-0 text-center" role="alert">
-                                    <i class="fas fa-file-pdf text-muted mb-2" style="font-size: 2rem;"></i>
-                                    <p class="small text-muted mb-0">No hay acta subida</p>
-                                </div>
+                                <span class="text-xs text-red-500 font-medium">Faltante</span>
                             @endif
                         </div>
                     </div>
 
-                    <!-- Estadísticas de documentos -->
-                    <div class="mt-4 p-3 bg-light border rounded">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-primary mb-1">Progreso de Documentación</h6>
-                                <p class="small text-muted mb-2">{{ $obra->getPorcentajeDocumentosCompletados() }}% de documentos principales completados</p>
-                            </div>
-                            <div class="d-flex gap-2">
-                                @if($obra->tieneContrato())
-                                    <span class="badge bg-info text-dark">Contrato ✓</span>
-                                @endif
-                                @if($obra->tieneFianza())
-                                    <span class="badge bg-success">Fianza ✓</span>
-                                @endif
-                                @if($obra->tieneActaEntregaRecepcion())
-                                    <span class="badge bg-warning text-dark">Acta ✓</span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-gradient-primary" role="progressbar" 
-                                 style="width: {{ $obra->getPorcentajeDocumentosCompletados() }}%" 
-                                 aria-valuenow="{{ $obra->getPorcentajeDocumentosCompletados() }}" 
-                                 aria-valuemin="0" 
-                                 aria-valuemax="100">
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
 

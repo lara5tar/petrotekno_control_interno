@@ -27,7 +27,7 @@ class KilometrajeFactory extends Factory
     {
         return [
             'vehiculo_id' => function () {
-                $estatus = CatalogoEstatus::factory()->create();
+                $estatus = CatalogoEstatus::first() ?? CatalogoEstatus::factory()->create();
 
                 return Vehiculo::factory()->create(['estatus_id' => $estatus->id])->id;
             },
