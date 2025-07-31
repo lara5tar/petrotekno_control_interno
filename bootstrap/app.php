@@ -16,12 +16,16 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'sanitize' => \App\Http\Middleware\SanitizeInput::class,
+            'handle.post.too.large' => \App\Http\Middleware\HandlePostTooLarge::class,
         ]);
 
         // Aplicar sanitización a las rutas API donde se recibe input de usuario
         $middleware->group('api', [
             'sanitize',
         ]);
+
+        // Agregar middleware global para manejar PostTooLargeException
+        $middleware->append(\App\Http\Middleware\HandlePostTooLarge::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

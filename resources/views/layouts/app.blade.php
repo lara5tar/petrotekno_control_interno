@@ -23,11 +23,11 @@
         window.formController = function() {
             return {
                 crearUsuario: false,
-                passwordType: 'random',
+                passwordType: 'aleatoria',
                 fileStatus: {},
                 init() {
                     this.crearUsuario = false;
-                    this.passwordType = 'random';
+                    this.passwordType = 'aleatoria';
                     this.fileStatus = {};
                 },
                 handleFileInput(event, type) {
@@ -120,16 +120,44 @@
         <div class="p-6">
             <!-- Alertas globales -->
             @if(session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert" id="success-alert">
-                    <strong class="font-bold">¡Éxito!</strong>
-                    <span class="block sm:inline">{{ session('success') }}</span>
-                    <span class="absolute top-0 bottom-0 right-0 px-4 py-3 cursor-pointer" onclick="document.getElementById('success-alert').style.display='none'">
-                        <svg class="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                            <title>Cerrar</title>
-                            <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
-                        </svg>
-                    </span>
-                </div>
+                @php
+                    $containsPassword = str_contains(session('success'), 'Contraseña generada');
+                @endphp
+                
+                @if($containsPassword)
+                    {{-- Alert especial para contraseñas generadas --}}
+                    <div class="mb-6 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-400 text-green-800 px-6 py-4 rounded-lg shadow-lg relative" role="alert" id="password-alert">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <svg class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3 flex-1">
+                                <h3 class="text-lg font-bold text-green-800 mb-2">¡Usuario Creado Exitosamente!</h3>
+                                <div class="text-sm">{!! session('success') !!}</div>
+                            </div>
+                            <button type="button" class="ml-4 flex-shrink-0 text-green-400 hover:text-green-600" onclick="document.getElementById('password-alert').style.display='none'">
+                                <span class="sr-only">Cerrar</span>
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                @else
+                    {{-- Alert normal para otros mensajes de éxito --}}
+                    <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert" id="success-alert">
+                        <strong class="font-bold">¡Éxito!</strong>
+                        <span class="block sm:inline">{!! session('success') !!}</span>
+                        <span class="absolute top-0 bottom-0 right-0 px-4 py-3 cursor-pointer" onclick="document.getElementById('success-alert').style.display='none'">
+                            <svg class="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <title>Cerrar</title>
+                                <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                            </svg>
+                        </span>
+                    </div>
+                @endif
             @endif
 
             @if(session('error'))

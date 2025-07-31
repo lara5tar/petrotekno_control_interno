@@ -47,8 +47,16 @@ class CreatePersonalRequest extends FormRequest
                 'max:255',
                 Rule::unique('users', 'email')->whereNull('deleted_at'),
             ],
-            'password_type' => 'required_if:crear_usuario,1|in:random,custom',
-            'password' => 'required_if:password_type,custom|nullable|string|min:8|max:255',
+            'rol_usuario' => [
+                'required_if:crear_usuario,1',
+                'nullable',
+                'integer',
+                'exists:roles,id'
+            ],
+            'tipo_password' => [
+                'required_if:crear_usuario,1',
+                Rule::in(['aleatoria'])  // Solo contraseña aleatoria
+            ],
 
             // Documentos - números
             'curp_numero' => [
@@ -74,14 +82,14 @@ class CreatePersonalRequest extends FormRequest
                 'string',
                 'max:20'
             ],
-            
+
             // Dirección
             'direccion' => [
                 'nullable',
                 'string',
                 'max:500'
             ],
-            
+
             // INE
             'ine' => [
                 'nullable',
@@ -89,7 +97,7 @@ class CreatePersonalRequest extends FormRequest
                 'max:20',
                 'regex:/^[A-Z0-9]+$/'
             ],
-            
+
             // URLs de documentos
             'url_ine' => [
                 'nullable',
@@ -127,7 +135,7 @@ class CreatePersonalRequest extends FormRequest
                 'max:500',
                 'url'
             ],
-            
+
             // Archivos de documentos
             'identificacion_file' => [
                 'nullable',
@@ -201,17 +209,16 @@ class CreatePersonalRequest extends FormRequest
             'estatus.in' => 'El estatus debe ser activo o inactivo',
             'categoria_personal_id.required' => 'La categoría es obligatoria',
             'categoria_personal_id.exists' => 'La categoría seleccionada no existe',
-            
+
             // Usuario del sistema
             'email_usuario.required_if' => 'El email es obligatorio cuando se crea un usuario',
             'email_usuario.email' => 'El formato del email no es válido',
             'email_usuario.unique' => 'El email ya está registrado',
-            'password_type.required_if' => 'Debe seleccionar el tipo de contraseña cuando se crea un usuario',
-            'password_type.in' => 'El tipo de contraseña debe ser aleatoria o personalizada',
-            'password.required_if' => 'La contraseña es obligatoria cuando se selecciona contraseña personalizada',
-            'password.min' => 'La contraseña debe tener al menos 8 caracteres',
-            'password.max' => 'La contraseña no debe exceder 255 caracteres',
-            
+            'rol_usuario.required_if' => 'Debe seleccionar un rol cuando se crea un usuario',
+            'rol_usuario.exists' => 'El rol seleccionado no es válido',
+            'tipo_password.required_if' => 'Debe seleccionar el tipo de contraseña cuando se crea un usuario',
+            'tipo_password.in' => 'Solo se permite contraseña aleatoria',
+
             // Documentos - números
             'curp_numero.size' => 'El CURP debe tener exactamente 18 caracteres',
             'rfc.min' => 'El RFC debe tener al menos 10 caracteres',
@@ -220,10 +227,10 @@ class CreatePersonalRequest extends FormRequest
             'nss.size' => 'El NSS debe tener exactamente 11 dígitos',
             'nss.regex' => 'El NSS solo puede contener números',
             'no_licencia.max' => 'El número de licencia no puede exceder 20 caracteres',
-            
+
             // Dirección
             'direccion.max' => 'La dirección no puede exceder 500 caracteres',
-            
+
             // Archivos
             'identificacion_file.file' => 'Debe seleccionar un archivo válido para la identificación',
             'identificacion_file.mimes' => 'El archivo de identificación debe ser PDF, JPG, JPEG o PNG',
@@ -246,7 +253,7 @@ class CreatePersonalRequest extends FormRequest
             'cv_file.file' => 'Debe seleccionar un archivo válido para el CV',
             'cv_file.mimes' => 'El archivo del CV debe ser PDF, DOC o DOCX',
             'cv_file.max' => 'El archivo del CV no puede exceder 10MB',
-            
+
             // Documentos API
             'documentos.*.tipo_documento_id.required_with' => 'El tipo de documento es obligatorio',
             'documentos.*.tipo_documento_id.exists' => 'El tipo de documento no existe',
@@ -263,8 +270,9 @@ class CreatePersonalRequest extends FormRequest
             'nombre_completo' => 'nombre completo',
             'categoria_personal_id' => 'categoría',
             'email_usuario' => 'email del usuario',
-            'password_type' => 'tipo de contraseña',
-            'password' => 'contraseña',
+            'rol_usuario' => 'rol del usuario',
+            'tipo_password' => 'tipo de contraseña',
+            'password_manual' => 'contraseña manual',
             'documentos.*.tipo_documento_id' => 'tipo de documento',
             'documentos.*.descripcion' => 'descripción del documento',
             'documentos.*.fecha_vencimiento' => 'fecha de vencimiento',

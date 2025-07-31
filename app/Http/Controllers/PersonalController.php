@@ -7,8 +7,10 @@ use App\Http\Requests\UpdatePersonalRequest;
 use App\Models\CategoriaPersonal;
 use App\Models\LogAccion;
 use App\Models\Personal;
+use App\Services\UsuarioService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -107,17 +109,22 @@ class PersonalController extends Controller
             ->orderBy('nombre_categoria')
             ->get();
 
+        $roles = \App\Models\Role::select('id', 'nombre_rol')
+            ->orderBy('nombre_rol')
+            ->get();
+
         // Respuesta híbrida
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
                 'data' => [
                     'categorias' => $categorias,
+                    'roles' => $roles,
                 ],
             ]);
         }
 
-        return view('personal.create', compact('categorias'));
+        return view('personal.create', compact('categorias', 'roles'));
     }
 
     /**
@@ -139,8 +146,20 @@ class PersonalController extends Controller
         }
 
         try {
+            DB::beginTransaction();
+
+            // Log temporal para debugging - datos del request antes de validación
+            \Log::info('Datos raw del request:', [
+                'all_data' => $request->all(),
+                'has_crear_usuario' => $request->has('crear_usuario'),
+                'crear_usuario_value' => $request->get('crear_usuario'),
+            ]);
+
             // Los datos ya vienen validados desde StorePersonalRequest
             $validated = $request->validated();
+
+            // Log para debugging
+            \Log::info('Datos validados recibidos:', ['validated' => $validated]);
 
             // Crear el personal con los datos básicos y documentos
             $personal = Personal::create([
@@ -163,7 +182,52 @@ class PersonalController extends Controller
 
             $personal->load('categoria');
 
-            // Log de auditoría
+            // Crear usuario del sistema si se solicitó
+            $usuario = null;
+            $mensajeUsuario = '';
+
+            if (!empty($validated['crear_usuario']) && $validated['crear_usuario']) {
+                \Log::info('Intentando crear usuario para personal', [
+                    'crear_usuario' => $validated['crear_usuario'],
+                    'email_usuario' => $validated['email_usuario'] ?? 'No proporcionado',
+                    'rol_usuario' => $validated['rol_usuario'] ?? 'No proporcionado',
+                    'tipo_password' => $validated['tipo_password'] ?? 'No proporcionado'
+                ]);
+
+                $usuarioService = new UsuarioService();
+
+                try {
+                    $datosUsuario = [
+                        'email' => $validated['email_usuario'],
+                        'rol_id' => $validated['rol_usuario'],
+                        'tipo_password' => $validated['tipo_password'], // Siempre será 'aleatoria'
+                    ];
+
+                    $resultado = $usuarioService->crearUsuarioParaPersonal($personal, $datosUsuario);
+                    $usuario = $resultado['usuario'];
+                    $passwordGenerada = $resultado['password'];
+
+                    // Log para debugging
+                    \Log::info('Password generada:', ['password' => $passwordGenerada]);
+
+                    // SIEMPRE mostrar la contraseña generada
+                    $mensajeUsuario = " Usuario creado exitosamente.<br><div class='bg-yellow-50 border border-yellow-200 rounded p-3 mt-2'><strong>🔑 Contraseña generada:</strong> <span class='font-mono text-lg font-bold text-red-600'>{$passwordGenerada}</span><br><small class='text-gray-600'>⚠️ Guarde esta contraseña en un lugar seguro. También se ha enviado por email.</small></div>";
+
+                    // Log adicional para creación de usuario
+                    LogAccion::create([
+                        'usuario_id' => Auth::id(),
+                        'accion' => 'crear_usuario_personal',
+                        'tabla_afectada' => 'users',
+                        'registro_id' => $usuario->id,
+                        'detalles' => "Usuario creado para personal: {$personal->nombre_completo} - Email: {$usuario->email}",
+                    ]);
+                } catch (\Exception $e) {
+                    // Si falla la creación del usuario, continuar pero informar
+                    $mensajeUsuario = ' Advertencia: ' . $e->getMessage();
+                }
+            }
+
+            // Log de auditoría para personal
             LogAccion::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'crear_personal',
@@ -172,19 +236,26 @@ class PersonalController extends Controller
                 'detalles' => "Personal creado: {$personal->nombre_completo} - {$personal->categoria->nombre_categoria}",
             ]);
 
+            DB::commit();
+
             // Respuesta híbrida
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Personal creado exitosamente',
-                    'data' => $personal,
+                    'message' => 'Personal creado exitosamente' . $mensajeUsuario,
+                    'data' => [
+                        'personal' => $personal,
+                        'usuario' => $usuario,
+                    ],
                 ], 201);
             }
 
             return redirect()
                 ->route('personal.show', $personal)
-                ->with('success', 'Personal creado exitosamente');
+                ->with('success', 'Personal creado exitosamente' . $mensajeUsuario);
         } catch (\Exception $e) {
+            DB::rollBack();
+
             // Respuesta de error híbrida
             if ($request->expectsJson()) {
                 return response()->json([
@@ -222,11 +293,11 @@ class PersonalController extends Controller
 
         try {
             $personal = Personal::with([
-                'categoria', 
+                'categoria',
                 'usuario',
                 'documentos' => function ($query) {
                     $query->with('tipoDocumento')
-                          ->select('id', 'tipo_documento_id', 'descripcion', 'fecha_vencimiento', 'personal_id', 'contenido', 'created_at', 'updated_at');
+                        ->select('id', 'tipo_documento_id', 'descripcion', 'fecha_vencimiento', 'personal_id', 'contenido', 'created_at', 'updated_at');
                 }
             ])->findOrFail($id);
 
@@ -241,14 +312,14 @@ class PersonalController extends Controller
                 15 => 'cv',            // CV Profesional
                 16 => 'domicilio'      // Comprobante de Domicilio
             ];
-            
+
             foreach ($personal->documentos as $documento) {
                 $tipoId = $documento->tipo_documento_id;
                 if (isset($tiposDocumentoMap[$tipoId])) {
                     $campo = $tiposDocumentoMap[$tipoId];
                     $documentosPorTipo[$campo] = $documento;
                 }
-                
+
                 // Mantener compatibilidad con nombres antiguos para la vista
                 $tipoNombre = $documento->tipoDocumento->nombre_tipo_documento;
                 if ($tipoNombre === 'Identificación Oficial') {
@@ -321,7 +392,7 @@ class PersonalController extends Controller
                 15 => 'cv',            // CV Profesional
                 16 => 'domicilio'      // Comprobante de Domicilio
             ];
-            
+
             foreach ($personal->documentos as $documento) {
                 $tipoId = $documento->tipo_documento_id;
                 if (isset($tiposDocumentoMap[$tipoId])) {
@@ -405,7 +476,7 @@ class PersonalController extends Controller
                 $archivo = $request->file('curp_file');
                 $nombreArchivo = time() . '_' . $personal->id . '_' . $archivo->getClientOriginalName();
                 $rutaArchivo = $archivo->storeAs('personal/documentos', $nombreArchivo, 'public');
-                
+
                 // Buscar si ya existe un documento CURP
                 $documentoExistente = $personal->documentos()
                     ->where('tipo_documento_id', $tipoDocumentoCurp)
@@ -416,7 +487,7 @@ class PersonalController extends Controller
                     if ($documentoExistente->ruta_archivo && \Storage::disk('public')->exists($documentoExistente->ruta_archivo)) {
                         \Storage::disk('public')->delete($documentoExistente->ruta_archivo);
                     }
-                    
+
                     // Actualizar documento existente
                     $documentoExistente->update([
                         'ruta_archivo' => $rutaArchivo,
@@ -430,7 +501,7 @@ class PersonalController extends Controller
                         'contenido' => 'CURP'
                     ]);
                 }
-                
+
                 // Actualizar URL en la tabla personal (solo ruta relativa)
                 $personal->update(['url_curp' => $rutaArchivo]);
             }

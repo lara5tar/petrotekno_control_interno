@@ -9,6 +9,7 @@ use App\Models\Documento;
 use App\Models\Personal;
 use App\Models\User;
 use App\Notifications\NuevoUsuarioCredenciales;
+use App\Services\UsuarioService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -50,13 +51,13 @@ class PersonalManagementController extends Controller
                         'file_size' => $request->file($requestKey)->getSize(),
                         'temp_personal_id' => $tempPersonalId
                     ]);
-                    
+
                     // Usar ID temporal para crear la estructura de carpetas
                     $path = $this->handleDocumentUpload($request->file($requestKey), $tempPersonalId);
                     \Log::info("File uploaded to: {$path}");
-                    
+
                     // Obtener el número de identificación correspondiente según el tipo de documento
-                    $descripcion = match($requestKey) {
+                    $descripcion = match ($requestKey) {
                         'identificacion_file' => $request->input('ine'),
                         'curp_file' => $request->input('curp_numero'),
                         'rfc_file' => $request->input('rfc'),
@@ -72,9 +73,9 @@ class PersonalManagementController extends Controller
                         'ruta_archivo' => $path,
                         'descripcion' => $descripcion,
                     ];
-                    
+
                     // Mapear URLs para incluir en la creación del personal (solo ruta relativa)
-                    $urlField = match($requestKey) {
+                    $urlField = match ($requestKey) {
                         'identificacion_file' => 'url_ine',
                         'curp_file' => 'url_curp',
                         'rfc_file' => 'url_rfc',
@@ -83,11 +84,11 @@ class PersonalManagementController extends Controller
                         'comprobante_file' => 'url_comprobante_domicilio',
                         default => null
                     };
-                    
+
                     if ($urlField) {
                         $urlsPersonal[$urlField] = $path;
                     }
-                    
+
                     \Log::info("Document data prepared", [
                         'tipo_documento_id' => $tipoId,
                         'ruta_archivo' => $path,
@@ -109,12 +110,12 @@ class PersonalManagementController extends Controller
                 'no_licencia' => $validatedData['no_licencia'] ?? null,
                 'direccion' => $validatedData['direccion'] ?? null,
             ];
-            
+
             // Agregar las URLs de los archivos al personal
             $personalData = array_merge($personalData, $urlsPersonal);
-            
+
             $personal = $this->createPersonal($personalData);
-            
+
             // 3. TERCERO: Actualizar las rutas de archivos con el ID real del personal
             if (!empty($documentosData)) {
                 // Renombrar archivos con el ID real del personal
@@ -122,10 +123,10 @@ class PersonalManagementController extends Controller
                 foreach ($documentosData as $docData) {
                     $oldPath = $docData['ruta_archivo'];
                     $newPath = str_replace($tempPersonalId, $personal->id, $oldPath);
-                    
+
                     // Mover archivo físico
                     Storage::disk('public')->move($oldPath, $newPath);
-                    
+
                     // Actualizar URL en personal (solo ruta relativa)
                     foreach ($urlsPersonal as $urlField => $oldPath) {
                         if ($oldPath === $docData['ruta_archivo']) {
@@ -133,14 +134,14 @@ class PersonalManagementController extends Controller
                             break;
                         }
                     }
-                    
+
                     $documentosDataUpdated[] = [
                         'tipo_documento_id' => $docData['tipo_documento_id'],
                         'ruta_archivo' => $newPath,
                         'descripcion' => $docData['descripcion'],
                     ];
                 }
-                
+
                 \Log::info("Creating documents with real personal ID", ['count' => count($documentosDataUpdated), 'personal_id' => $personal->id]);
                 $this->createPersonalDocuments($personal, $documentosDataUpdated);
                 \Log::info("Documents created successfully");
@@ -150,31 +151,56 @@ class PersonalManagementController extends Controller
 
             // 3. Crear Usuario (si se solicita)
             $usuario = null;
-            if (!empty($validatedData['crear_usuario'])) {
-                $userData = [
-                    'email' => $validatedData['email_usuario'],
-                    'rol_id' => 3, // Rol por defecto
-                    'nombre_completo' => $personal->nombre_completo,
-                ];
+            $mensajeUsuario = '';
 
-                // Agregar contraseña personalizada si se especifica
-                if (isset($validatedData['password_type']) && $validatedData['password_type'] === 'custom' && !empty($validatedData['password'])) {
-                    $userData['password'] = $validatedData['password'];
+            // Añadir logs para debugging
+            \Log::info('Datos raw del request (PersonalManagementController):', [
+                'all_data' => $request->all(),
+                'has_crear_usuario' => $request->has('crear_usuario'),
+                'crear_usuario_value' => $request->get('crear_usuario'),
+            ]);
+            \Log::info('Datos validados (PersonalManagementController):', ['validated' => $validatedData]);
+
+            if (!empty($validatedData['crear_usuario']) && $validatedData['crear_usuario']) {
+                \Log::info('Creando usuario para personal', [
+                    'personal_id' => $personal->id,
+                    'email_usuario' => $validatedData['email_usuario'] ?? 'No proporcionado',
+                    'rol_usuario' => $validatedData['rol_usuario'] ?? 'No proporcionado',
+                    'tipo_password' => $validatedData['tipo_password'] ?? 'No proporcionado'
+                ]);
+
+                $usuarioService = new UsuarioService();
+
+                try {
+                    $datosUsuario = [
+                        'email' => $validatedData['email_usuario'],
+                        'rol_id' => $validatedData['rol_usuario'],
+                        'tipo_password' => $validatedData['tipo_password'], // Siempre será 'aleatoria'
+                    ];
+
+                    $resultado = $usuarioService->crearUsuarioParaPersonal($personal, $datosUsuario);
+                    $usuario = $resultado['usuario'];
+                    $passwordGenerada = $resultado['password'];
+
+                    \Log::info('Usuario creado exitosamente', [
+                        'usuario_id' => $usuario->id,
+                        'password_generated' => $passwordGenerada
+                    ]);
+
+                    // Incluir la contraseña en el mensaje, independientemente del email
+                    $mensajeUsuario = '. Usuario creado exitosamente. <div class="mt-3 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-md"><div class="flex items-center"><div class="flex-shrink-0"><svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg></div><div class="ml-3"><h3 class="text-sm font-medium text-blue-800">Contraseña generada:</h3><p class="mt-1 text-sm text-blue-700 font-mono"><strong>' . $passwordGenerada . '</strong></p><p class="mt-1 text-xs text-blue-600">Guarde esta contraseña, también se ha enviado por email.</p></div></div></div>';
+                } catch (\Exception $e) {
+                    // Si falla la creación del usuario, continuar pero informar
+                    \Log::error('Error al crear usuario', ['error' => $e->getMessage()]);
+                    $mensajeUsuario = '. Advertencia: ' . $e->getMessage();
                 }
-
-                $usuario = $this->createPersonalUser($personal, $userData);
             }
 
             DB::commit();
 
-            $mensaje = 'Personal creado exitosamente';
-            if ($usuario) {
-                $mensaje .= '. Usuario creado con email: ' . $usuario->email;
-                $mensaje .= '. Contraseña temporal: ' . $usuario->getAttribute('password_temp');
-            }
+            $mensaje = 'Personal creado exitosamente' . $mensajeUsuario;
 
             return redirect()->route('personal.show', $personal->id)->with('success', $mensaje);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->withInput()->with('error', 'Error al crear el personal: ' . $e->getMessage());
@@ -266,7 +292,7 @@ class PersonalManagementController extends Controller
                 'descripcion' => $docData['descripcion'] ?? null,
                 'ruta_archivo' => $docData['ruta_archivo'] ?? null
             ]);
-            
+
             $documento = Documento::create([
                 'personal_id' => $personal->id,
                 'tipo_documento_id' => $docData['tipo_documento_id'],
@@ -275,7 +301,7 @@ class PersonalManagementController extends Controller
                 'ruta_archivo' => $docData['ruta_archivo'] ?? null,
                 'contenido' => $docData['contenido'] ?? null,
             ]);
-            
+
             \Log::info("Document created with ID: {$documento->id}");
 
             $documentos[] = $this->formatDocumentResponse($documento);
@@ -296,8 +322,8 @@ class PersonalManagementController extends Controller
     private function createPersonalUser(Personal $personal, array $data): User
     {
         // Determinar la contraseña a usar
-        $password = isset($data['password']) && !empty($data['password']) 
-            ? $data['password'] 
+        $password = isset($data['password']) && !empty($data['password'])
+            ? $data['password']
             : $this->generateRandomPassword();
 
         $usuario = User::create([

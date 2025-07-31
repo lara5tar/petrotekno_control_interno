@@ -40,7 +40,7 @@ class StorePersonalRequest extends FormRequest
                 'required',
                 Rule::in(['activo', 'inactivo'])
             ],
-            
+
             // Usuario del sistema (opcional)
             'crear_usuario' => 'nullable|boolean',
             'email_usuario' => [
@@ -50,7 +50,17 @@ class StorePersonalRequest extends FormRequest
                 'max:255',
                 'unique:users,email'
             ],
-            
+            'rol_usuario' => [
+                'required_if:crear_usuario,1',
+                'nullable',
+                'integer',
+                'exists:roles,id'
+            ],
+            'tipo_password' => [
+                'required_if:crear_usuario,1',
+                Rule::in(['aleatoria'])  // Solo contraseña aleatoria
+            ],
+
             // Documentos - números (todos opcionales)
             'curp_numero' => [
                 'nullable',
@@ -71,14 +81,14 @@ class StorePersonalRequest extends FormRequest
                 'string',
                 'max:20'
             ],
-            
+
             // Dirección
             'direccion' => [
                 'nullable',
                 'string',
                 'max:500'
             ],
-            
+
             // Archivos de documentos
             'identificacion_file' => [
                 'nullable',
@@ -136,59 +146,65 @@ class StorePersonalRequest extends FormRequest
             'nombre_completo.min' => 'El nombre completo debe tener al menos 3 caracteres.',
             'nombre_completo.max' => 'El nombre completo no puede exceder 255 caracteres.',
             'nombre_completo.regex' => 'El nombre completo solo puede contener letras y espacios.',
-            
+
             'categoria_personal_id.required' => 'Debe seleccionar una categoría.',
             'categoria_personal_id.exists' => 'La categoría seleccionada no es válida.',
-            
+
             'estatus.required' => 'Debe seleccionar un estatus.',
             'estatus.in' => 'El estatus debe ser activo o inactivo.',
-            
+
             // Usuario del sistema
             'email_usuario.required_if' => 'El email es obligatorio cuando se crea un usuario del sistema.',
             'email_usuario.email' => 'Debe ingresar un email válido.',
             'email_usuario.unique' => 'Este email ya está registrado en el sistema.',
-            
+
+            'rol_usuario.required_if' => 'Debe seleccionar un rol cuando se crea un usuario del sistema.',
+            'rol_usuario.exists' => 'El rol seleccionado no es válido.',
+
+            'tipo_password.required_if' => 'Debe seleccionar el tipo de contraseña.',
+            'tipo_password.in' => 'El tipo de contraseña debe ser aleatoria.',
+
             // Documentos - números
-            
+
             'curp_numero.size' => 'El CURP debe tener exactamente 18 caracteres.',
-            
+
             'rfc.min' => 'El RFC debe tener al menos 10 caracteres.',
             'rfc.max' => 'El RFC no puede exceder 13 caracteres.',
             'rfc.regex' => 'El formato del RFC no es válido.',
-            
+
             'nss.size' => 'El NSS debe tener exactamente 11 dígitos.',
             'nss.regex' => 'El NSS solo puede contener números.',
-            
+
             'no_licencia.max' => 'El número de licencia no puede exceder 20 caracteres.',
-            
+
             // Dirección
             'direccion.max' => 'La dirección no puede exceder 500 caracteres.',
-            
+
             // Archivos
             'identificacion_file.file' => 'Debe seleccionar un archivo válido para la identificación.',
             'identificacion_file.mimes' => 'El archivo de identificación debe ser PDF, JPG, JPEG o PNG.',
             'identificacion_file.max' => 'El archivo de identificación no puede exceder 5MB.',
-            
+
             'curp_file.file' => 'Debe seleccionar un archivo válido para el CURP.',
             'curp_file.mimes' => 'El archivo del CURP debe ser PDF, JPG, JPEG o PNG.',
             'curp_file.max' => 'El archivo del CURP no puede exceder 5MB.',
-            
+
             'rfc_file.file' => 'Debe seleccionar un archivo válido para el RFC.',
             'rfc_file.mimes' => 'El archivo del RFC debe ser PDF, JPG, JPEG o PNG.',
             'rfc_file.max' => 'El archivo del RFC no puede exceder 5MB.',
-            
+
             'nss_file.file' => 'Debe seleccionar un archivo válido para el NSS.',
             'nss_file.mimes' => 'El archivo del NSS debe ser PDF, JPG, JPEG o PNG.',
             'nss_file.max' => 'El archivo del NSS no puede exceder 5MB.',
-            
+
             'licencia_file.file' => 'Debe seleccionar un archivo válido para la licencia.',
             'licencia_file.mimes' => 'El archivo de la licencia debe ser PDF, JPG, JPEG o PNG.',
             'licencia_file.max' => 'El archivo de la licencia no puede exceder 5MB.',
-            
+
             'comprobante_file.file' => 'Debe seleccionar un archivo válido para el comprobante.',
             'comprobante_file.mimes' => 'El archivo del comprobante debe ser PDF, JPG, JPEG o PNG.',
             'comprobante_file.max' => 'El archivo del comprobante no puede exceder 5MB.',
-            
+
             'cv_file.file' => 'Debe seleccionar un archivo válido para el CV.',
             'cv_file.mimes' => 'El archivo del CV debe ser PDF, DOC o DOCX.',
             'cv_file.max' => 'El archivo del CV no puede exceder 10MB.',
@@ -205,7 +221,9 @@ class StorePersonalRequest extends FormRequest
             'categoria_personal_id' => 'categoría',
             'estatus' => 'estatus',
             'email_usuario' => 'email del usuario',
-            'curp_numero' => 'CURP'
+            'rol_usuario' => 'rol del usuario',
+            'tipo_password' => 'tipo de contraseña',
+            'curp_numero' => 'CURP',
             'rfc' => 'RFC',
             'nss' => 'NSS',
             'no_licencia' => 'número de licencia',

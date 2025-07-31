@@ -73,17 +73,17 @@
                 </div>
 
                 <div>
-                    <label for="categoria_personal_id" class="block text-sm font-medium text-gray-700 mb-1">Categoría *</label>
-                    <select id="categoria_personal_id" name="categoria_personal_id" required 
-                            class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('categoria_personal_id') border-red-500 @enderror">
+                    <label for="categoria_id" class="block text-sm font-medium text-gray-700 mb-1">Categoría *</label>
+                    <select id="categoria_id" name="categoria_id" required 
+                            class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('categoria_id') border-red-500 @enderror">
                         <option value="">Seleccione una categoría</option>
                         @foreach($categorias as $categoria)
-                            <option value="{{ $categoria->id }}" {{ old('categoria_personal_id') == $categoria->id ? 'selected' : '' }}>
+                            <option value="{{ $categoria->id }}" {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>
                                 {{ $categoria->nombre_categoria }}
                             </option>
                         @endforeach
                     </select>
-                    @error('categoria_personal_id')
+                    @error('categoria_id')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -321,15 +321,15 @@
                 </div>
 
                 <div x-show="crearUsuario" x-transition class="space-y-4 pl-6 border-l-2 border-gray-200">
-                    <div class="bg-gray-50 border border-gray-200 rounded-md p-3">
+                    <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
                         <div class="flex">
                             <div class="flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
                             </div>
                             <div class="ml-3">
-                                <p class="text-sm text-gray-700">
+                                <p class="text-sm text-blue-700">
                                     Al marcar esta opción se creará que el personal tenga acceso al sistema. 
                                     Se generarán credenciales de acceso automáticamente.
                                 </p>
@@ -339,8 +339,8 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="email_usuario" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico *</label>
-                            <input type="email" id="email_usuario" name="email_usuario" 
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico *</label>
+                            <input type="email" id="email" name="email" 
                                    x-bind:value="crearUsuario ? ($refs.nombreCompleto?.value || '').toLowerCase().replace(/\s+/g, '.').replace(/[áéíóúü]/g, char => ({'á':'a','é':'e','í':'i','ó':'o','ú':'u','ü':'u'}[char])) + '@petrotekno.com' : ''"
                                    x-bind:readonly="!crearUsuario"
                                    placeholder="usuario@petrotekno.com"
@@ -351,8 +351,8 @@
                         </div>
 
                         <div>
-                            <label for="rol_usuario" class="block text-sm font-medium text-gray-700 mb-1">Rol en el Sistema *</label>
-                            <select id="rol_usuario" name="rol_usuario" 
+                            <label for="rol_id" class="block text-sm font-medium text-gray-700 mb-1">Rol en el Sistema *</label>
+                            <select id="rol_id" name="rol_id" 
                                     x-bind:required="crearUsuario"
                                     class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">
                                 <option value="">Seleccione un rol</option>
@@ -363,25 +363,65 @@
                         </div>
                     </div>
 
-                    {{-- Campo oculto para especificar que siempre será contraseña aleatoria --}}
-                    <input type="hidden" name="tipo_password" value="aleatoria">
-
-                    <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" />
-                                </svg>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Configuración de Contraseña</label>
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <input type="radio" id="password_random" name="password_type" value="random" 
+                                       x-model="passwordType" checked
+                                       class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300">
+                                <label for="password_random" class="ml-2 block text-sm text-gray-900">
+                                    <span class="font-medium">Generar contraseña aleatoria</span>
+                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded ml-2">Recomendado</span>
+                                </label>
                             </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-blue-800">Generación automática de contraseña</h3>
-                                <div class="mt-2 text-sm text-blue-700">
-                                    <ul class="list-disc pl-5 space-y-1">
-                                        <li>Se generará automáticamente una contraseña segura</li>
-                                        <li>La contraseña se mostrará después de crear el usuario</li>
-                                        <li>Se enviará un correo con las credenciales de acceso</li>
-                                        <li>El usuario puede cambiar su contraseña desde el perfil</li>
-                                    </ul>
+
+                            <div class="flex items-center">
+                                <input type="radio" id="password_manual" name="password_type" value="manual" 
+                                       x-model="passwordType"
+                                       class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300">
+                                <label for="password_manual" class="ml-2 block text-sm text-gray-900">
+                                    Crear contraseña manualmente
+                                </label>
+                            </div>
+
+                            <div x-show="passwordType === 'manual'" x-transition class="pl-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                                        <input type="password" id="password" name="password" 
+                                               placeholder="Contraseña segura"
+                                               class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">
+                                    </div>
+                                    <div>
+                                        <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
+                                        <input type="password" id="password_confirmation" name="password_confirmation" 
+                                               placeholder="Confirmar contraseña"
+                                               class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div x-show="passwordType === 'random'" x-transition class="pl-6">
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3 class="text-sm font-medium text-yellow-800">Información importante sobre el acceso</h3>
+                                            <div class="mt-2 text-sm text-yellow-700">
+                                                <ul class="list-disc pl-5 space-y-1">
+                                                    <li>El usuario podrá acceder al sistema con las credenciales creadas</li>
+                                                    <li>Las primeras dependeencias del rol asignado</li>
+                                                    <li>Se enviará un correo con las credenciales de acceso</li>
+                                                    <li>El usuario puede cambiar su contraseña desde el perfil</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -402,29 +442,4 @@
             </button>
         </div>
     </form>
-
-    <script>
-        function formController() {
-            return {
-                crearUsuario: false,
-                fileStatus: {
-                    ine: false,
-                    curp: false,
-                    rfc: false,
-                    nss: false,
-                    licencia: false,
-                    cv: false,
-                    comprobante: false
-                },
-                
-                init() {
-                    // Inicialización del componente
-                },
-                
-                toggleUsuario() {
-                    this.crearUsuario = !this.crearUsuario;
-                }
-            }
-        }
-    </script>
 @endsection
