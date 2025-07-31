@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
+            'permission.web' => \App\Http\Middleware\CheckPermissionWeb::class,
             'sanitize' => \App\Http\Middleware\SanitizeInput::class,
             'handle.post.too.large' => \App\Http\Middleware\HandlePostTooLarge::class,
         ]);

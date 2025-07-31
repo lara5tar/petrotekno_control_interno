@@ -121,6 +121,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Relación con Obras (como encargado)
+     */
+    public function obrasComoEncargado(): HasMany
+    {
+        return $this->hasMany(Obra::class, 'encargado_id');
+    }
+
+    /**
      * Verificar si el usuario tiene un permiso específico
      */
     public function hasPermission(string $permission): bool

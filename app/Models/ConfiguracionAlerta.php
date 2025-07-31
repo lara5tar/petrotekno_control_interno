@@ -13,13 +13,13 @@ class ConfiguracionAlerta extends Model
         'clave',
         'valor',
         'descripcion',
-        'activo'
+        'activo',
     ];
 
     protected $casts = [
         'activo' => 'boolean',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
     ];
 
     /**
@@ -48,12 +48,17 @@ class ConfiguracionAlerta extends Model
         // Si el valor parece ser JSON, decodificarlo
         if (is_string($value) && (str_starts_with($value, '[') || str_starts_with($value, '{'))) {
             $decoded = json_decode($value, true);
+
             return $decoded !== null ? $decoded : $value;
         }
 
         // Convertir strings boolean
-        if ($value === 'true') return true;
-        if ($value === 'false') return false;
+        if ($value === 'true') {
+            return true;
+        }
+        if ($value === 'false') {
+            return false;
+        }
 
         return $value;
     }

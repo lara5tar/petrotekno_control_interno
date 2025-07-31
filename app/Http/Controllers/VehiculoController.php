@@ -64,7 +64,7 @@ class VehiculoController extends Controller
             // Ordenamiento
             $sortBy = $request->get('sort_by', 'id');
             $sortDirection = $request->get('sort_direction', 'asc');
-            
+
             // Asegurar que el ordenamiento por ID sea numérico
             if ($sortBy === 'id') {
                 $query->orderBy('id', $sortDirection);
@@ -191,7 +191,7 @@ class VehiculoController extends Controller
             DB::beginTransaction();
 
             $datosVehiculo = $request->validated();
-            
+
             // Manejar fotografía del vehículo
             if ($request->hasFile('fotografia_file')) {
                 $archivo = $request->file('fotografia_file');
@@ -199,7 +199,7 @@ class VehiculoController extends Controller
                 $rutaArchivo = $archivo->storeAs('vehiculos/fotos', $nombreArchivo, 'public');
                 $datosVehiculo['foto_frontal'] = $rutaArchivo;
             }
-            
+
             // Manejar documentos adicionales
             if ($request->hasFile('documentos_adicionales')) {
                 $documentosRutas = [];
@@ -249,7 +249,7 @@ class VehiculoController extends Controller
 
             // Manejar errores específicos de base de datos
             $errorMessage = 'Error al crear vehículo';
-            
+
             // Detectar errores de duplicados
             if (str_contains($e->getMessage(), 'Duplicate entry')) {
                 if (str_contains($e->getMessage(), 'placas')) {
@@ -275,7 +275,7 @@ class VehiculoController extends Controller
             $tiposDocumento = CatalogoTipoDocumento::select('id', 'nombre_tipo_documento')
                 ->orderBy('nombre_tipo_documento')
                 ->get();
-            
+
             return view('vehiculos.create', compact('estatusOptions', 'tiposDocumento'))
                 ->with('errors', collect(['error' => $errorMessage]))
                 ->with('_old', $request->input());
@@ -296,7 +296,7 @@ class VehiculoController extends Controller
             $tiposDocumento = CatalogoTipoDocumento::select('id', 'nombre_tipo_documento')
                 ->orderBy('nombre_tipo_documento')
                 ->get();
-            
+
             return view('vehiculos.create', compact('estatusOptions', 'tiposDocumento'))
                 ->with('errors', $e->errors())
                 ->with('_old', $request->input())
@@ -325,7 +325,7 @@ class VehiculoController extends Controller
             $tiposDocumento = CatalogoTipoDocumento::select('id', 'nombre_tipo_documento')
                 ->orderBy('nombre_tipo_documento')
                 ->get();
-            
+
             return view('vehiculos.create', compact('estatusOptions', 'tiposDocumento'))
                 ->with('errors', collect(['error' => 'Ocurrió un error inesperado al crear el vehículo. Por favor intente nuevamente.']))
                 ->with('_old', $request->input());
@@ -477,9 +477,9 @@ class VehiculoController extends Controller
 
             $vehiculo = Vehiculo::findOrFail($id);
             $datosOriginales = $vehiculo->toArray();
-            
+
             $datosVehiculo = $request->validated();
-            
+
             // Manejar documentos adicionales (solo si se envían nuevos)
             if ($request->hasFile('documentos_adicionales')) {
                 // Eliminar documentos anteriores si existen
@@ -490,7 +490,7 @@ class VehiculoController extends Controller
                         }
                     }
                 }
-                
+
                 // Subir nuevos documentos
                 $documentosRutas = [];
                 foreach ($request->file('documentos_adicionales') as $archivo) {
@@ -583,12 +583,12 @@ class VehiculoController extends Controller
 
             $vehiculo = Vehiculo::findOrFail($id);
 
-            // Verificar si el vehículo está en uso (tiene asignaciones activas)
-            $asignacionesActivas = $vehiculo->asignaciones()->where('fecha_liberacion', null)->count();
+            // Verificar si el vehículo está en uso (tiene obras activas)
+            $asignacionesActivas = $vehiculo->obras()->whereNull('fecha_liberacion')->count();
 
             if ($asignacionesActivas > 0) {
                 DB::rollBack();
-                $message = 'No se puede eliminar el vehículo porque tiene asignaciones activas.';
+                $message = 'No se puede eliminar el vehículo porque tiene obras activas.';
 
                 if ($request->expectsJson()) {
                     return response()->json([
@@ -850,7 +850,7 @@ class VehiculoController extends Controller
             if ($request->hasFile($campoArchivo)) {
                 // Obtener el tipo de documento
                 $tipoDocumento = \App\Models\CatalogoTipoDocumento::where('nombre_tipo_documento', $config['tipo'])->first();
-                
+
                 if ($tipoDocumento) {
                     // Usar el método auxiliar para subir el archivo
                     $archivo = $request->file($campoArchivo);
@@ -870,8 +870,8 @@ class VehiculoController extends Controller
                         'tipo_documento_id' => $tipoDocumento->id,
                         'descripcion' => $config['tipo'] . ' del vehículo',
                         'ruta_archivo' => $rutaArchivo,
-                        'fecha_vencimiento' => $config['fecha_campo'] && $request->filled($config['fecha_campo']) 
-                            ? $request->input($config['fecha_campo']) 
+                        'fecha_vencimiento' => $config['fecha_campo'] && $request->filled($config['fecha_campo'])
+                            ? $request->input($config['fecha_campo'])
                             : null,
                         'contenido' => !empty($contenido) ? $contenido : null,
                     ];
@@ -894,12 +894,12 @@ class VehiculoController extends Controller
         $tiposDocumento = $request->input('documentos_adicionales_tipos', []);
         $descripciones = $request->input('documentos_adicionales_descripciones', []);
         $fechasVencimiento = $request->input('documentos_adicionales_fechas_vencimiento', []);
-        
+
         // Procesar archivos de documentos adicionales
         if ($request->hasFile('documentos_adicionales_archivos')) {
             $archivos = $request->file('documentos_adicionales_archivos');
             $documentosData = [];
-            
+
             foreach ($archivos as $index => $archivo) {
                 if ($archivo && isset($tiposDocumento[$index])) {
                     // Usar el método auxiliar para subir el archivo
@@ -915,7 +915,7 @@ class VehiculoController extends Controller
                     ];
                 }
             }
-            
+
             // Crear todos los documentos usando el método auxiliar
             if (!empty($documentosData)) {
                 $vehiculo = Vehiculo::find($vehiculoId);

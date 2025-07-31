@@ -109,13 +109,19 @@ class Personal extends Model
     }
 
     /**
-
-     * Relación con Asignaciones
+     * Relación con Obras (como operador)
      */
-    public function asignaciones(): HasMany
+    public function obras(): HasMany
     {
-        return $this->hasMany(Asignacion::class, 'personal_id');
+        return $this->hasMany(Obra::class, 'operador_id');
+    }
 
+    /**
+     * Relación con obras activas (no liberadas)
+     */
+    public function obrasActivas(): HasMany
+    {
+        return $this->obras()->whereNull('fecha_liberacion');
     }
 
     /**
@@ -124,5 +130,39 @@ class Personal extends Model
     public function documentos(): HasMany
     {
         return $this->hasMany(Documento::class, 'personal_id');
+    }
+
+    /**
+     * Scopes
+     */
+    public function scopeActivos($query)
+    {
+        return $query->where('estatus', 'activo');
+    }
+
+    public function scopeOperadores($query)
+    {
+        return $query->whereHas('categoria', function ($q) {
+            $q->where('nombre_categoria', 'like', '%operador%')
+                ->orWhere('nombre_categoria', 'like', '%conductor%')
+                ->orWhere('nombre_categoria', 'like', '%chofer%');
+        });
+    }
+
+    public function scopeEncargados($query)
+    {
+        return $query->whereHas('categoria', function ($q) {
+            $q->where('nombre_categoria', 'like', '%encargado%')
+                ->orWhere('nombre_categoria', 'like', '%supervisor%')
+                ->orWhere('nombre_categoria', 'like', '%jefe%')
+                ->orWhere('nombre_categoria', 'like', '%coordinador%');
+        });
+    }
+
+    public function scopeDisponibles($query)
+    {
+        return $query->activos()->whereDoesntHave('obras', function ($q) {
+            $q->whereNull('fecha_liberacion');
+        });
     }
 }

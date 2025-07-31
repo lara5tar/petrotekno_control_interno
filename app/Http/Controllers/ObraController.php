@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\LogAccion;
 use App\Models\Obra;
+use App\Models\Personal;
+use App\Models\Vehiculo;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -99,16 +101,29 @@ class ObraController extends Controller
 
             $estatusOptions = $this->getEstatusOptions();
 
+            // Datos para asignaciones
+            $vehiculosDisponibles = Vehiculo::disponibles()->get();
+            $operadoresDisponibles = Personal::operadores()->get();
+            $encargadosDisponibles = Personal::encargados()->get();
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Formulario de creación de obra',
                     'data' => [
                         'estatus_options' => $estatusOptions,
+                        'vehiculos_disponibles' => $vehiculosDisponibles,
+                        'operadores_disponibles' => $operadoresDisponibles,
+                        'encargados_disponibles' => $encargadosDisponibles,
                     ],
                 ]);
             }
 
-            return view('obras.create', compact('estatusOptions'));
+            return view('obras.create', compact(
+                'estatusOptions',
+                'vehiculosDisponibles',
+                'operadoresDisponibles',
+                'encargadosDisponibles'
+            ));
         } catch (Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Error al cargar el formulario.'], 500);
@@ -139,7 +154,32 @@ class ObraController extends Controller
                 'avance' => 'nullable|integer|min:0|max:100',
                 'fecha_inicio' => 'required|date',
                 'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
+                // Campos de asignación (opcionales)
+                'vehiculo_id' => 'nullable|exists:vehiculos,id',
+                'operador_id' => 'nullable|exists:personal,id',
+                'encargado_id' => 'nullable|exists:personal,id',
+                'fecha_asignacion' => 'nullable|date',
+                'fecha_liberacion' => 'nullable|date|after_or_equal:fecha_asignacion',
+                // Campos de kilometraje
+                'kilometraje_inicial' => 'nullable|integer|min:0',
+                'kilometraje_final' => 'nullable|integer|min:0|gte:kilometraje_inicial',
+                // Campos de combustible
+                'combustible_inicial' => 'nullable|numeric|min:0',
+                'combustible_final' => 'nullable|numeric|min:0',
+                'combustible_suministrado' => 'nullable|numeric|min:0',
+                'costo_combustible' => 'nullable|numeric|min:0',
+                // Observaciones
+                'observaciones' => 'nullable|string|max:1000',
             ]);
+
+            // Validaciones de negocio para asignaciones
+            if (!empty($validatedData['vehiculo_id']) && empty($validatedData['operador_id'])) {
+                throw new \InvalidArgumentException('Si asignas un vehículo, debes asignar un operador.');
+            }
+
+            if (!empty($validatedData['operador_id']) && empty($validatedData['vehiculo_id'])) {
+                throw new \InvalidArgumentException('Si asignas un operador, debes asignar un vehículo.');
+            }
 
             $obra = Obra::create($validatedData);
 
@@ -202,7 +242,7 @@ class ObraController extends Controller
                 return redirect()->back()->with('error', $message);
             }
 
-            $obra = Obra::with(['asignaciones.vehiculo', 'asignaciones.personal', 'asignaciones.encargado'])->find($id);
+            $obra = Obra::with(['vehiculo', 'operador', 'encargado'])->find($id);
 
             if (! $obra) {
                 if ($request->expectsJson()) {

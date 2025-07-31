@@ -116,11 +116,19 @@ class Vehiculo extends Model
     }
 
     /**
-     * Relación: Un vehículo tiene muchas asignaciones
+     * Relación: Un vehículo tiene muchas obras (antes asignaciones)
      */
-    public function asignaciones(): HasMany
+    public function obras(): HasMany
     {
-        return $this->hasMany(Asignacion::class, 'vehiculo_id');
+        return $this->hasMany(Obra::class, 'vehiculo_id');
+    }
+
+    /**
+     * Relación: Un vehículo puede tener asignaciones activas (obras no liberadas)
+     */
+    public function asignacionesActivas(): HasMany
+    {
+        return $this->obras()->whereNull('fecha_liberacion');
     }
 
     /**
@@ -133,14 +141,6 @@ class Vehiculo extends Model
     {
         return $this->hasMany(Kilometraje::class);
     }
-
-    /**
-     * Preparado para futuras relaciones con asignaciones
-     */
-    // public function asignaciones(): HasMany
-    // {
-    //     return $this->hasMany(Asignacion::class);
-    // }
 
     /**
      * Relación con mantenimientos
@@ -205,6 +205,32 @@ class Vehiculo extends Model
                 ->orWhere('placas', 'like', "%{$termino}%")
                 ->orWhere('n_serie', 'like', "%{$termino}%");
         });
+    }
+
+    /**
+     * Scope para filtrar vehículos activos
+     */
+    public function scopeActivos($query)
+    {
+        return $query->where('estatus_id', 1); // Asumiendo que 1 es 'Activo'
+    }
+
+    /**
+     * Scope para filtrar vehículos disponibles (activos y sin asignación actual)
+     */
+    public function scopeDisponibles($query)
+    {
+        return $query->whereHas('estatus', function ($q) {
+            $q->where('nombre_estatus', 'Disponible')
+                ->orWhere('nombre_estatus', 'Activo');
+        })
+            ->whereNotExists(function ($subQuery) {
+                $subQuery->select(\DB::raw(1))
+                    ->from('obras')
+                    ->whereColumn('obras.vehiculo_id', 'vehiculos.id')
+                    ->whereNull('obras.fecha_liberacion')
+                    ->whereIn('obras.estatus', ['en_progreso', 'planificada']);
+            });
     }
 
     /**

@@ -170,7 +170,10 @@ class CatalogoTipoDocumentoSeeder extends Seeder
         ];
 
         foreach ($tiposDocumento as $tipo) {
-            CatalogoTipoDocumento::create($tipo);
+            CatalogoTipoDocumento::updateOrCreate(
+                ['nombre_tipo_documento' => $tipo['nombre_tipo_documento']],
+                $tipo
+            );
         }
     }
 }

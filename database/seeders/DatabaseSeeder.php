@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             PersonalSeeder::class,
             VehiculoSeeder::class,
             ObraSeeder::class,
-            AsignacionSeeder::class, // Debe ir después de las tablas relacionadas
+            // AsignacionSeeder::class, // Comentado temporalmente ya que las asignaciones ahora van en obras
         ]);
     }
 }

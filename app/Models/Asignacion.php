@@ -17,7 +17,7 @@ class Asignacion extends Model
     protected $fillable = [
         'vehiculo_id',
         'obra_id',
-        'personal_id',
+        'operador_id',
         'encargado_id',
         'fecha_asignacion',
         'fecha_liberacion',
@@ -71,7 +71,12 @@ class Asignacion extends Model
 
     public function personal(): BelongsTo
     {
-        return $this->belongsTo(Personal::class);
+        return $this->belongsTo(Personal::class, 'operador_id');
+    }
+
+    public function operador(): BelongsTo
+    {
+        return $this->belongsTo(Personal::class, 'operador_id');
     }
 
     public function encargado(): BelongsTo
@@ -112,9 +117,9 @@ class Asignacion extends Model
         return $query->where('obra_id', $obraId);
     }
 
-    public function scopePorOperador($query, $personalId)
+    public function scopePorOperador($query, $operadorId)
     {
-        return $query->where('personal_id', $personalId);
+        return $query->where('operador_id', $operadorId);
     }
 
     /**
@@ -153,9 +158,9 @@ class Asignacion extends Model
             ->exists();
     }
 
-    public static function operadorTieneAsignacionActiva($personalId): bool
+    public static function operadorTieneAsignacionActiva($operadorId): bool
     {
-        return self::where('personal_id', $personalId)
+        return self::where('operador_id', $operadorId)
             ->activas()
             ->exists();
     }

@@ -72,7 +72,10 @@ Route::middleware('auth')->group(function () {
             ->orderBy('nombre_estatus')
             ->get();
 
-        return view('vehiculos.create', compact('estatus'));
+        // Obtener tipos de documento reales de la base de datos
+        $tiposDocumento = \App\Models\CatalogoTipoDocumento::orderBy('nombre_tipo_documento')->get();
+
+        return view('vehiculos.create', compact('estatus', 'tiposDocumento'));
     })->name('vehiculos.create')->middleware('permission:crear_vehiculos');
 
     Route::post('/personal', [PersonalManagementController::class, 'storeWeb'])->name('personal.store')->middleware('permission:crear_personal');
@@ -603,6 +606,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/obras/{id}/restore', [\App\Http\Controllers\ObraController::class, 'restore'])
         ->name('obras.restore')
         ->middleware('permission:restaurar_obras');
+
+    // Rutas para asignaciones dentro de obras
+    Route::post('/obras/{id}/asignar', [\App\Http\Controllers\ObraController::class, 'asignar'])
+        ->name('obras.asignar')
+        ->middleware('permission:crear_asignaciones');
+
+    Route::put('/obras/{id}/liberar', [\App\Http\Controllers\ObraController::class, 'liberar'])
+        ->name('obras.liberar')
+        ->middleware('permission:actualizar_asignaciones');
 });
 
 // Rutas para Asignaciones
@@ -638,6 +650,37 @@ Route::middleware('auth')->group(function () {
     Route::delete('/asignaciones/{asignacion}', [\App\Http\Controllers\AsignacionController::class, 'destroy'])
         ->name('asignaciones.destroy')
         ->middleware('permission:eliminar_asignaciones');
+});
+
+// Rutas para Asignaciones de Obra (Nuevo sistema moderno)
+Route::middleware('auth')->prefix('asignaciones-obra')->name('asignaciones-obra.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\AsignacionObraController::class, 'index'])
+        ->name('index')
+        ->middleware('permission.web:ver_asignaciones');
+
+    Route::get('/create', [\App\Http\Controllers\AsignacionObraController::class, 'create'])
+        ->name('create')
+        ->middleware('permission.web:crear_asignaciones');
+
+    Route::post('/', [\App\Http\Controllers\AsignacionObraController::class, 'store'])
+        ->name('store')
+        ->middleware('permission.web:crear_asignaciones');
+
+    Route::get('/{id}', [\App\Http\Controllers\AsignacionObraController::class, 'show'])
+        ->name('show')
+        ->middleware('permission.web:ver_asignaciones');
+
+    Route::post('/{id}/liberar', [\App\Http\Controllers\AsignacionObraController::class, 'liberar'])
+        ->name('liberar')
+        ->middleware('permission.web:editar_asignaciones');
+
+    Route::post('/{id}/transferir', [\App\Http\Controllers\AsignacionObraController::class, 'transferir'])
+        ->name('transferir')
+        ->middleware('permission.web:editar_asignaciones');
+
+    Route::get('/estadisticas/general', [\App\Http\Controllers\AsignacionObraController::class, 'estadisticas'])
+        ->name('estadisticas')
+        ->middleware('permission.web:ver_asignaciones');
 });
 
 // Ruta para vista de usuario (datos estáticos)

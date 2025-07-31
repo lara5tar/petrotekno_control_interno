@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -14,12 +15,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  * @property string $nombre_obra
  * @property string $estatus
- * @property int|null $avance
- * @property \Carbon\Carbon $fecha_inicio
- * @property \Carbon\Carbon|null $fecha_fin
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * @property \Carbon\Carbon|null $deleted_at
  * @property int|null $avance
  * @property \Carbon\Carbon $fecha_inicio
  * @property \Carbon\Carbon|null $fecha_fin
@@ -74,6 +69,19 @@ class Obra extends Model
         'avance',
         'fecha_inicio',
         'fecha_fin',
+        'vehiculo_id',
+        'operador_id',
+        'encargado_id',
+        'fecha_asignacion',
+        'fecha_liberacion',
+        'kilometraje_inicial',
+        'kilometraje_final',
+        'combustible_inicial',
+        'combustible_final',
+        'combustible_suministrado',
+        'costo_combustible',
+        'historial_combustible',
+        'observaciones',
     ];
 
     /**
@@ -82,7 +90,16 @@ class Obra extends Model
     protected $casts = [
         'fecha_inicio' => 'date',
         'fecha_fin' => 'date',
+        'fecha_asignacion' => 'datetime',
+        'fecha_liberacion' => 'datetime',
         'avance' => 'integer',
+        'kilometraje_inicial' => 'integer',
+        'kilometraje_final' => 'integer',
+        'combustible_inicial' => 'decimal:2',
+        'combustible_final' => 'decimal:2',
+        'combustible_suministrado' => 'decimal:2',
+        'costo_combustible' => 'decimal:2',
+        'historial_combustible' => 'json',
         'fecha_eliminacion' => 'datetime',
     ];
 
@@ -107,20 +124,52 @@ class Obra extends Model
     }
 
     /**
-     * Preparado para futuras relaciones con kilometrajes
+     * Relación con documentos asociados a la obra
      */
-    // public function kilometrajes(): HasMany
-    // {
-    //     return $this->hasMany(Kilometraje::class);
-    // }
+    public function documentos(): HasMany
+    {
+        return $this->hasMany(Documento::class);
+    }
 
     /**
-     * Preparado para futuras relaciones con documentos
+     * Relación con el vehículo asignado
      */
-    // public function documentos(): HasMany
-    // {
-    //     return $this->hasMany(Documento::class);
-    // }
+    public function vehiculo(): BelongsTo
+    {
+        return $this->belongsTo(Vehiculo::class);
+    }
+
+    /**
+     * Relación con el operador asignado
+     */
+    public function operador(): BelongsTo
+    {
+        return $this->belongsTo(Personal::class, 'operador_id');
+    }
+
+    /**
+     * Relación con el personal (alias para operador)
+     */
+    public function personal(): BelongsTo
+    {
+        return $this->belongsTo(Personal::class, 'operador_id');
+    }
+
+    /**
+     * Relación con el usuario encargado
+     */
+    public function encargado(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'encargado_id');
+    }
+
+    /**
+     * Relación con el usuario que creó la asignación (alias para encargado)
+     */
+    public function creadoPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'encargado_id');
+    }
 
     /**
      * Scope para filtrar por estatus
