@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\LogAccion;
 use App\Models\Obra;
 use App\Models\Personal;
+use App\Models\User;
 use App\Models\Vehiculo;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
@@ -170,6 +172,10 @@ class ObraController extends Controller
                 'costo_combustible' => 'nullable|numeric|min:0',
                 // Observaciones
                 'observaciones' => 'nullable|string|max:1000',
+                // Campos de archivos
+                'archivo_contrato' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB máximo
+                'archivo_fianza' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+                'archivo_acta_entrega_recepcion' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
             ]);
 
             // Validaciones de negocio para asignaciones
@@ -181,7 +187,22 @@ class ObraController extends Controller
                 throw new \InvalidArgumentException('Si asignas un operador, debes asignar un vehículo.');
             }
 
-            $obra = Obra::create($validatedData);
+            // Crear la obra primero sin archivos
+            $obraData = Arr::except($validatedData, ['archivo_contrato', 'archivo_fianza', 'archivo_acta_entrega_recepcion']);
+            $obra = Obra::create($obraData);
+
+            // Manejar subida de archivos después de crear la obra
+            if ($request->hasFile('archivo_contrato')) {
+                $obra->subirContrato($request->file('archivo_contrato'));
+            }
+
+            if ($request->hasFile('archivo_fianza')) {
+                $obra->subirFianza($request->file('archivo_fianza'));
+            }
+
+            if ($request->hasFile('archivo_acta_entrega_recepcion')) {
+                $obra->subirActaEntregaRecepcion($request->file('archivo_acta_entrega_recepcion'));
+            }
 
             // Log de acción
             LogAccion::create([
@@ -293,7 +314,7 @@ class ObraController extends Controller
                 return redirect()->back()->with('error', $message);
             }
 
-            $obra = Obra::find($id);
+            $obra = Obra::with(['vehiculo', 'operador', 'encargado'])->find($id);
 
             if (! $obra) {
                 if ($request->expectsJson()) {
@@ -303,7 +324,44 @@ class ObraController extends Controller
                 return redirect()->back()->with('error', 'Obra no encontrada.');
             }
 
+            // Obtener datos para los formularios
             $estatusOptions = $this->getEstatusOptions();
+            
+            // Obtener vehículos disponibles (incluir el actual si está asignado)
+            $vehiculos = Vehiculo::disponibles()->get();
+            if ($obra->vehiculo_id && !$vehiculos->contains('id', $obra->vehiculo_id)) {
+                $vehiculoActual = Vehiculo::find($obra->vehiculo_id);
+                if ($vehiculoActual) {
+                    $vehiculos->prepend($vehiculoActual);
+                }
+            }
+
+            // Obtener operadores disponibles (incluir el actual si está asignado)
+            $operadores = Personal::operadores()->disponibles()->get();
+            if ($obra->operador_id && !$operadores->contains('id', $obra->operador_id)) {
+                $operadorActual = Personal::find($obra->operador_id);
+                if ($operadorActual) {
+                    $operadores->prepend($operadorActual);
+                }
+            }
+
+            // Obtener encargados disponibles (incluir el actual si está asignado)
+            $encargados = User::with('personal')->get();
+            if ($obra->encargado_id && !$encargados->contains('id', $obra->encargado_id)) {
+                $encargadoActual = User::find($obra->encargado_id);
+                if ($encargadoActual) {
+                    $encargados->prepend($encargadoActual);
+                }
+            }
+
+            // Log de acción
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'editar_obra_formulario',
+                'tabla_afectada' => 'obras',
+                'registro_id' => $obra->id,
+                'detalles' => "Usuario accedió al formulario de edición de la obra: {$obra->nombre_obra}",
+            ]);
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -311,12 +369,27 @@ class ObraController extends Controller
                     'data' => [
                         'obra' => $obra,
                         'estatus_options' => $estatusOptions,
+                        'vehiculos' => $vehiculos,
+                        'operadores' => $operadores,
+                        'encargados' => $encargados,
                     ],
                 ]);
             }
 
-            return view('obras.edit', compact('obra', 'estatusOptions'));
+            return view('obras.edit', compact(
+                'obra', 
+                'estatusOptions', 
+                'vehiculos', 
+                'operadores', 
+                'encargados'
+            ));
         } catch (Exception $e) {
+            \Log::error('Error al cargar formulario de edición de obra: ' . $e->getMessage(), [
+                'obra_id' => $id,
+                'usuario_id' => Auth::id(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Error al cargar el formulario.'], 500);
             }
@@ -382,28 +455,93 @@ class ObraController extends Controller
                 'avance' => 'sometimes|nullable|integer|min:0|max:100',
                 'fecha_inicio' => 'sometimes|required|date',
                 'fecha_fin' => 'sometimes|nullable|date|after_or_equal:fecha_inicio',
+                // Campos de asignación (opcionales)
+                'vehiculo_id' => 'sometimes|nullable|exists:vehiculos,id',
+                'operador_id' => 'sometimes|nullable|exists:personal,id',
+                'encargado_id' => 'sometimes|nullable|exists:users,id',
+                'fecha_asignacion' => 'sometimes|nullable|date',
+                'fecha_liberacion' => 'sometimes|nullable|date|after_or_equal:fecha_asignacion',
+                // Campos de kilometraje
+                'kilometraje_inicial' => 'sometimes|nullable|integer|min:0',
+                'kilometraje_final' => 'sometimes|nullable|integer|min:0|gte:kilometraje_inicial',
+                // Campos de combustible
+                'combustible_inicial' => 'sometimes|nullable|numeric|min:0',
+                'combustible_final' => 'sometimes|nullable|numeric|min:0',
+                'combustible_suministrado' => 'sometimes|nullable|numeric|min:0',
+                'costo_combustible' => 'sometimes|nullable|numeric|min:0',
+                // Observaciones
+                'observaciones' => 'sometimes|nullable|string|max:1000',
+                // Campos de archivos
+                'archivo_contrato' => 'nullable|file|mimes:pdf,doc,docx|max:10240', // 10MB máximo
+                'archivo_fianza' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+                'archivo_acta_entrega_recepcion' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
             ]);
 
-            $obraAnterior = $obra->toArray();
-            $obra->update($validatedData);
+            // Validaciones de negocio para asignaciones
+            if (!empty($validatedData['vehiculo_id']) && empty($validatedData['operador_id'])) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'error' => 'Error de validación.',
+                        'errors' => ['operador_id' => ['Si asignas un vehículo, debes asignar un operador.']],
+                    ], 422);
+                }
+                return redirect()->back()->with('error', 'Si asignas un vehículo, debes asignar un operador.')->withInput();
+            }
 
-            // Log de acción
+            if (!empty($validatedData['operador_id']) && empty($validatedData['vehiculo_id'])) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'error' => 'Error de validación.',
+                        'errors' => ['vehiculo_id' => ['Si asignas un operador, debes asignar un vehículo.']],
+                    ], 422);
+                }
+                return redirect()->back()->with('error', 'Si asignas un operador, debes asignar un vehículo.')->withInput();
+            }
+
+            $obraAnterior = $obra->toArray();
+            
+            // Actualizar datos básicos de la obra sin archivos
+            $obraData = Arr::except($validatedData, ['archivo_contrato', 'archivo_fianza', 'archivo_acta_entrega_recepcion']);
+            $obra->update($obraData);
+
+            // Manejar subida de archivos si se proporcionaron nuevos
+            if ($request->hasFile('archivo_contrato')) {
+                $obra->subirContrato($request->file('archivo_contrato'));
+            }
+
+            if ($request->hasFile('archivo_fianza')) {
+                $obra->subirFianza($request->file('archivo_fianza'));
+            }
+
+            if ($request->hasFile('archivo_acta_entrega_recepcion')) {
+                $obra->subirActaEntregaRecepcion($request->file('archivo_acta_entrega_recepcion'));
+            }
+
+            // Log de acción detallado
+            $cambios = [];
+            foreach ($validatedData as $campo => $nuevoValor) {
+                $valorAnterior = $obra->getOriginal($campo);
+                if ($valorAnterior != $nuevoValor) {
+                    $cambios[] = "{$campo}: '{$valorAnterior}' → '{$nuevoValor}'";
+                }
+            }
+
             LogAccion::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'actualizar_obra',
                 'tabla_afectada' => 'obras',
                 'registro_id' => $obra->id,
-                'detalles' => "Se actualizó la obra: {$obra->nombre_obra}",
+                'detalles' => "Se actualizó la obra: {$obra->nombre_obra}" . (count($cambios) > 0 ? ". Cambios: " . implode(', ', $cambios) : ''),
             ]);
 
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Obra actualizada exitosamente.',
-                    'data' => $obra,
+                    'data' => $obra->fresh(),
                 ]);
             }
 
-            return redirect()->route('obras.index')->with('success', 'Obra actualizada exitosamente.');
+            return redirect()->route('obras.show', $obra->id)->with('success', 'Obra actualizada exitosamente.');
         } catch (ValidationException $e) {
             if ($request->expectsJson()) {
                 return response()->json([

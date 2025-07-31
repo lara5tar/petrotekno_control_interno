@@ -82,6 +82,13 @@ class Obra extends Model
         'costo_combustible',
         'historial_combustible',
         'observaciones',
+        // Campos para archivos
+        'archivo_contrato',
+        'archivo_fianza',
+        'archivo_acta_entrega_recepcion',
+        'fecha_subida_contrato',
+        'fecha_subida_fianza',
+        'fecha_subida_acta',
     ];
 
     /**
@@ -101,6 +108,10 @@ class Obra extends Model
         'costo_combustible' => 'decimal:2',
         'historial_combustible' => 'json',
         'fecha_eliminacion' => 'datetime',
+        // Campos de fechas de archivos
+        'fecha_subida_contrato' => 'datetime',
+        'fecha_subida_fianza' => 'datetime',
+        'fecha_subida_acta' => 'datetime',
     ];
 
     /**
@@ -369,5 +380,110 @@ class Obra extends Model
         }
 
         return $this->save();
+    }
+
+    /**
+     * Método para subir archivo de contrato
+     */
+    public function subirContrato($archivo)
+    {
+        if ($archivo && $archivo->isValid()) {
+            $ruta = $archivo->store('obras/contratos', 'public');
+            $this->archivo_contrato = $ruta;
+            $this->fecha_subida_contrato = now();
+            return $this->save();
+        }
+        return false;
+    }
+
+    /**
+     * Método para subir archivo de fianza
+     */
+    public function subirFianza($archivo)
+    {
+        if ($archivo && $archivo->isValid()) {
+            $ruta = $archivo->store('obras/fianzas', 'public');
+            $this->archivo_fianza = $ruta;
+            $this->fecha_subida_fianza = now();
+            return $this->save();
+        }
+        return false;
+    }
+
+    /**
+     * Método para subir archivo de acta entrega-recepción
+     */
+    public function subirActaEntregaRecepcion($archivo)
+    {
+        if ($archivo && $archivo->isValid()) {
+            $ruta = $archivo->store('obras/actas', 'public');
+            $this->archivo_acta_entrega_recepcion = $ruta;
+            $this->fecha_subida_acta = now();
+            return $this->save();
+        }
+        return false;
+    }
+
+    /**
+     * Verificar si tiene contrato subido
+     */
+    public function tieneContrato()
+    {
+        return !empty($this->archivo_contrato);
+    }
+
+    /**
+     * Verificar si tiene fianza subida
+     */
+    public function tieneFianza()
+    {
+        return !empty($this->archivo_fianza);
+    }
+
+    /**
+     * Verificar si tiene acta entrega-recepción subida
+     */
+    public function tieneActaEntregaRecepcion()
+    {
+        return !empty($this->archivo_acta_entrega_recepcion);
+    }
+
+    /**
+     * Obtener URL completa del contrato
+     */
+    public function getUrlContrato()
+    {
+        return $this->archivo_contrato ? asset('storage/' . $this->archivo_contrato) : null;
+    }
+
+    /**
+     * Obtener URL completa de la fianza
+     */
+    public function getUrlFianza()
+    {
+        return $this->archivo_fianza ? asset('storage/' . $this->archivo_fianza) : null;
+    }
+
+    /**
+     * Obtener URL completa del acta entrega-recepción
+     */
+    public function getUrlActaEntregaRecepcion()
+    {
+        return $this->archivo_acta_entrega_recepcion ? asset('storage/' . $this->archivo_acta_entrega_recepcion) : null;
+    }
+
+    /**
+     * Obtener porcentaje de documentos completados
+     */
+    public function getPorcentajeDocumentosCompletados()
+    {
+        $total = 3; // contrato, fianza, acta
+        $completados = 0;
+        
+        if ($this->tieneContrato()) $completados++;
+        if ($this->tieneFianza()) $completados++;
+        if ($this->tieneActaEntregaRecepcion()) $completados++;
+        
+        return round(($completados / $total) * 100, 1);
     }
 }

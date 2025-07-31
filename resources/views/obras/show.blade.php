@@ -2,406 +2,554 @@
 
 @section('title', 'Detalles de la Obra')
 
+@section('header', 'Detalles de la Obra')
+
 @section('content')
-<!-- Breadcrumb -->
+{{-- Breadcrumb --}}
 <x-breadcrumb :items="[
     ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
     ['label' => 'Obras', 'url' => route('obras.index')],
     ['label' => 'Detalle de la Obra']
 ]" />
 
-<div class="h-[calc(100vh-120px)] flex flex-col gap-4">
-    <!-- Header -->
-    <div class="bg-white border border-gray-300 rounded-lg p-4">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-lg font-bold text-gray-900">
-                    {{ $obra->nombre_obra }}
-                </h1>
-                <p class="text-sm text-gray-600">ID: <span class="font-medium">#{{ $obra->id }}</span></p>
-            </div>
-            
-            <div class="flex space-x-2">
-                <a href="{{ route('asignaciones-obra.index') }}?obra_id={{ $obra->id }}" 
-                   class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-2 rounded text-sm transition duration-200 flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    Asignaciones
-                </a>
-
-                <a href="{{ route('asignaciones-obra.create') }}?obra_id={{ $obra->id }}" 
-                   class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2 rounded text-sm transition duration-200 flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    Nueva Asignación
-                </a>
-                
-                @hasPermission('editar_obras')
-                <a href="{{ route('obras.edit', $obra) }}" 
-                   class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm transition duration-200 flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    Editar
-                </a>
-                @endhasPermission
-                
-                <a href="{{ route('obras.index') }}" 
-                   class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm transition duration-200 flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    Volver
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mensajes de éxito y error -->
-    @if(session('success'))
-        <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if($errors->any())
-        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            <ul class="list-disc list-inside">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <!-- Contenido Principal en Grid 50/50 -->
-    <div class="flex-1 grid grid-cols-2 gap-4">
-        <!-- Panel Izquierdo -->
-                <!-- Panel Izquierdo -->
-        <div class="flex flex-col gap-4">
-
-            <!-- Información General de la Obra -->
+<!-- Contenido Principal -->
+<div class="p-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Panel Izquierdo - Datos Generales -->
+        <div class="space-y-6">
+            <!-- Datos Generales -->
             <div class="bg-white border border-gray-300 rounded-lg">
                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800">Información General</h3>
+                    <h3 class="font-semibold text-gray-800">Datos Generales</h3>
                 </div>
                 <div class="p-4 space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Obra</label>
-                        <p class="text-lg font-medium text-gray-900">{{ $obra->nombre_obra }}</p>
-                    </div>
-
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                            <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full 
-                                @if($obra->estatus === 'activo') bg-green-100 text-green-800
-                                @elseif($obra->estatus === 'en_proceso') bg-blue-100 text-blue-800
-                                @elseif($obra->estatus === 'pausado') bg-yellow-100 text-yellow-800
-                                @elseif($obra->estatus === 'completado') bg-purple-100 text-purple-800
-                                @else bg-gray-100 text-gray-800 @endif">
+                            <label class="block text-sm font-medium text-gray-600">Nombre de la Obra</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->nombre_obra }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">ID de Obra</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ str_pad($obra->id, 6, '0', STR_PAD_LEFT) }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Estado</label>
+                            <div class="bg-{{ $obra->estatus === 'en_progreso' ? 'green' : ($obra->estatus === 'completada' ? 'blue' : 'orange') }}-600 text-white px-3 py-2 rounded text-sm font-medium flex items-center">
+                                <span class="w-2 h-2 bg-{{ $obra->estatus === 'en_progreso' ? 'green' : ($obra->estatus === 'completada' ? 'blue' : 'orange') }}-300 rounded-full mr-2"></span>
                                 {{ ucfirst(str_replace('_', ' ', $obra->estatus)) }}
-                            </span>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1 italic">
+                                {{ $obra->estatus_descripcion }}
+                            </div>
                         </div>
-
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Avance</label>
-                            <div class="flex items-center space-x-2">
-                                <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $obra->avance ?? 0 }}%"></div>
+                            <label class="block text-sm font-medium text-gray-600">Avance (%)</label>
+                            <div class="space-y-2">
+                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                    {{ $obra->avance ?? 0 }}%
                                 </div>
-                                <span class="text-sm font-medium text-gray-900">{{ $obra->avance ?? 0 }}%</span>
+                                <!-- Barra de progreso -->
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-{{ $obra->avance >= 100 ? 'green' : ($obra->avance >= 75 ? 'blue' : ($obra->avance >= 50 ? 'yellow' : 'orange')) }}-600 h-2 rounded-full transition-all duration-300" 
+                                         style="width: {{ min(100, $obra->avance ?? 0) }}%"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Inicio</label>
-                            <p class="text-gray-900">
-                                @if($obra->fecha_inicio)
-                                    {{ \Carbon\Carbon::parse($obra->fecha_inicio)->format('d/m/Y') }}
-                                @else
-                                    <span class="text-gray-400">No definida</span>
-                                @endif
-                            </p>
+                            <label class="block text-sm font-medium text-gray-600">Fecha Inicio</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->fecha_inicio ? \Carbon\Carbon::parse($obra->fecha_inicio)->format('d/m/Y') : 'No definida' }}
+                            </div>
                         </div>
-
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Fin</label>
-                            <p class="text-gray-900">
-                                @if($obra->fecha_fin)
-                                    {{ \Carbon\Carbon::parse($obra->fecha_fin)->format('d/m/Y') }}
-                                @else
-                                    <span class="text-gray-400">No definida</span>
-                                @endif
-                            </p>
+                            <label class="block text-sm font-medium text-gray-600">Fecha Fin</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->fecha_fin ? \Carbon\Carbon::parse($obra->fecha_fin)->format('d/m/Y') : 'No definida' }}
+                            </div>
                         </div>
-                    </div>
-
-                    @if($obra->fecha_inicio && $obra->fecha_fin)
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Duración Estimada</label>
-                            <p class="text-gray-900">
-                                {{ \Carbon\Carbon::parse($obra->fecha_inicio)->diffInDays(\Carbon\Carbon::parse($obra->fecha_fin)) }} días
-                            </p>
-                        </div>
-                    @endif
-
-                    <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                        <div>
-                            <label class="block font-medium">Creado</label>
-                            <p>{{ $obra->fecha_creacion ? \Carbon\Carbon::parse($obra->fecha_creacion)->format('d/m/Y H:i') : 'N/A' }}</p>
-                        </div>
-                        @if($obra->fecha_actualizacion)
-                        <div>
-                            <label class="block font-medium">Actualizado</label>
-                            <p>{{ \Carbon\Carbon::parse($obra->fecha_actualizacion)->format('d/m/Y H:i') }}</p>
-                        </div>
-                        @endif
                     </div>
                 </div>
             </div>
 
-            <!-- Estadísticas y Métricas -->
-            @if($obra->vehiculo_id || $obra->kilometraje_inicial || $obra->kilometraje_final)
-            <div class="bg-white border border-gray-300 rounded-lg">
-                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800">Estadísticas de Operación</h3>
-                </div>
-                <div class="p-4">
-                    <div class="grid grid-cols-1 gap-4">
-                        @if($obra->kilometraje_inicial && $obra->kilometraje_final)
-                            <div class="bg-blue-50 p-3 rounded-lg">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-blue-800">Kilometraje Recorrido</span>
-                                    <span class="text-lg font-bold text-blue-900">
-                                        {{ number_format($obra->kilometraje_final - $obra->kilometraje_inicial) }} km
-                                    </span>
-                                </div>
-                            </div>
-                        @endif
-
-                        @if($obra->fecha_inicio && $obra->fecha_fin && $obra->estatus === 'completado')
-                            <div class="bg-green-50 p-3 rounded-lg">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-green-800">Duración Real</span>
-                                    <span class="text-lg font-bold text-green-900">
-                                        {{ \Carbon\Carbon::parse($obra->fecha_inicio)->diffInDays(\Carbon\Carbon::parse($obra->fecha_fin)) }} días
-                                    </span>
-                                </div>
-                            </div>
-                        @elseif($obra->fecha_inicio)
-                            <div class="bg-yellow-50 p-3 rounded-lg">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-medium text-yellow-800">Días Transcurridos</span>
-                                    <span class="text-lg font-bold text-yellow-900">
-                                        {{ \Carbon\Carbon::parse($obra->fecha_inicio)->diffInDays(now()) }} días
-                                    </span>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-            @endif
-
-        </div>
-
-        <!-- Panel Derecho -->
-        <div class="flex flex-col gap-4">
-
-            <!-- Información de Asignación -->
+            <!-- Asignación de Recursos -->
             <div class="bg-white border border-gray-300 rounded-lg">
                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
                     <h3 class="font-semibold text-gray-800">Asignación de Recursos</h3>
                 </div>
-                <div class="p-4">
-                    @if($obra->vehiculo_id || $obra->operador_id || $obra->encargado_id)
-                        <div class="space-y-4">
-                            <!-- Vehículo Asignado -->
-                            @if($obra->vehiculo_id && $obra->vehiculo)
-                                <div class="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
-                                    <div class="flex-shrink-0">
-                                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0M15 17a2 2 0 104 0"/>
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-medium text-gray-900">Vehículo Asignado</h4>
-                                        <p class="text-sm text-gray-600">{{ $obra->vehiculo->marca }} {{ $obra->vehiculo->modelo }}</p>
-                                        <p class="text-sm text-gray-600">Placas: <span class="font-medium">{{ $obra->vehiculo->placas }}</span></p>
-                                        @if($obra->kilometraje_inicial)
-                                            <p class="text-sm text-gray-600">Km Inicial: <span class="font-medium">{{ number_format($obra->kilometraje_inicial) }} km</span></p>
-                                        @endif
-                                        @if($obra->kilometraje_final)
-                                            <p class="text-sm text-gray-600">Km Final: <span class="font-medium">{{ number_format($obra->kilometraje_final) }} km</span></p>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endif
-
-                            <!-- Operador Asignado -->
-                            @if($obra->operador_id && $obra->operador)
-                                <div class="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
-                                    <div class="flex-shrink-0">
-                                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-medium text-gray-900">Operador Asignado</h4>
-                                        <p class="text-sm text-gray-600">{{ $obra->operador->nombre_completo }}</p>
-                                        <p class="text-sm text-gray-600">
-                                            Estado: 
-                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                                                @if($obra->operador->estatus === 'activo') bg-green-100 text-green-800 
-                                                @else bg-gray-100 text-gray-800 @endif">
-                                                {{ ucfirst($obra->operador->estatus) }}
-                                            </span>
-                                        </p>
-                                    </div>
-                                </div>
-                            @endif
-
-                            <!-- Encargado Asignado -->
-                            @if($obra->encargado_id && $obra->encargado)
-                                <div class="flex items-start space-x-3 p-3 bg-purple-50 rounded-lg">
-                                    <div class="flex-shrink-0">
-                                        <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-medium text-gray-900">Encargado de Obra</h4>
-                                        <p class="text-sm text-gray-600">{{ $obra->encargado->nombre_completo }}</p>
-                                        <p class="text-sm text-gray-600">
-                                            Estado: 
-                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                                                @if($obra->encargado->estatus === 'activo') bg-green-100 text-green-800 
-                                                @else bg-gray-100 text-gray-800 @endif">
-                                                {{ ucfirst($obra->encargado->estatus) }}
-                                            </span>
-                                        </p>
-                                    </div>
-                                </div>
-                            @endif
-
-                            <!-- Fechas de Asignación -->
-                            @if($obra->fecha_asignacion || $obra->fecha_liberacion)
-                                <div class="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg">
-                                    <div class="flex-shrink-0">
-                                        <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-medium text-gray-900">Fechas de Asignación</h4>
-                                        @if($obra->fecha_asignacion)
-                                            <p class="text-sm text-gray-600">
-                                                Fecha de asignación: 
-                                                <span class="font-medium">{{ \Carbon\Carbon::parse($obra->fecha_asignacion)->format('d/m/Y') }}</span>
-                                            </p>
-                                        @endif
-                                        @if($obra->fecha_liberacion)
-                                            <p class="text-sm text-gray-600">
-                                                Fecha de liberación: 
-                                                <span class="font-medium">{{ \Carbon\Carbon::parse($obra->fecha_liberacion)->format('d/m/Y') }}</span>
-                                            </p>
-                                        @else
-                                            <p class="text-sm text-gray-600">
-                                                Estado: 
-                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                                    Activa
-                                                </span>
-                                            </p>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endif
-
-                            <!-- Observaciones -->
-                            @if($obra->observaciones)
-                                <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                                    <div class="flex-shrink-0">
-                                        <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-medium text-gray-900">Observaciones</h4>
-                                        <p class="text-sm text-gray-600">{{ $obra->observaciones }}</p>
-                                    </div>
-                                </div>
+                <div class="p-4 space-y-4">
+                    <!-- Vehículo Asignado -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Vehículo Asignado</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->vehiculo ? $obra->vehiculo->marca . ' ' . $obra->vehiculo->modelo . ' - ' . $obra->vehiculo->placas : 'Sin asignar' }}
+                            </div>
+                            @if($obra->vehiculo)
+                            <div class="text-xs text-gray-500 mt-1">
+                                Año: {{ $obra->vehiculo->anio ?? 'N/A' }} | 
+                                Serie: {{ $obra->vehiculo->n_serie ?? 'N/A' }} |
+                                KM Actual: {{ $obra->vehiculo->kilometraje_actual ? number_format($obra->vehiculo->kilometraje_actual) . ' km' : 'N/A' }}
+                            </div>
                             @endif
                         </div>
-                    @else
-                        <div class="text-center py-8">
-                            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                            <h5 class="text-lg font-medium text-gray-900 mb-2">Sin asignación de recursos</h5>
-                            <p class="text-gray-500 mb-4">Esta obra no tiene vehículos, operadores o encargados asignados.</p>
-                            @hasPermission('editar_obras')
-                            <a href="{{ route('obras.edit', $obra) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium transition-colors">
-                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                                Editar y Asignar Recursos
-                            </a>
-                            @endhasPermission
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Fecha Asignación</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->fecha_asignacion ? \Carbon\Carbon::parse($obra->fecha_asignacion)->format('d/m/Y') : 'No definida' }}
+                            </div>
+                            @if($obra->fecha_asignacion)
+                            <div class="text-xs text-gray-500 mt-1">
+                                {{ \Carbon\Carbon::parse($obra->fecha_asignacion)->format('H:i') }} hrs |
+                                {{ \Carbon\Carbon::parse($obra->fecha_asignacion)->diffForHumans() }}
+                            </div>
+                            @endif
                         </div>
+                    </div>
+
+                    <!-- Personal Asignado -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Operador</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->operador ? $obra->operador->nombre_completo : 'Sin asignar' }}
+                            </div>
+                            @if($obra->operador && $obra->operador->categoria)
+                            <div class="text-xs text-gray-500 mt-1">
+                                Categoría: {{ $obra->operador->categoria->nombre_categoria ?? 'N/A' }}
+                            </div>
+                            @endif
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Encargado</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->encargado ? $obra->encargado->email : 'Sin asignar' }}
+                            </div>
+                            @if($obra->encargado && $obra->encargado->personal)
+                            <div class="text-xs text-gray-500 mt-1">
+                                {{ $obra->encargado->personal->nombre_completo ?? 'Usuario del sistema' }}
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Fecha de Liberación -->
+                    @if($obra->fecha_liberacion)
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Fecha de Liberación</label>
+                            <div class="bg-red-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ \Carbon\Carbon::parse($obra->fecha_liberacion)->format('d/m/Y H:i') }}
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">
+                                Recursos liberados | {{ \Carbon\Carbon::parse($obra->fecha_liberacion)->diffForHumans() }}
+                            </div>
+                        </div>
+                    </div>
                     @endif
                 </div>
             </div>
 
-            <!-- Acciones -->
+            <!-- Kilometrajes -->
             <div class="bg-white border border-gray-300 rounded-lg">
                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800">Acciones</h3>
+                    <h3 class="font-semibold text-gray-800">Control de Kilometrajes</h3>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Kilometraje Inicial</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->kilometraje_inicial ? number_format($obra->kilometraje_inicial) . ' km' : 'No registrado' }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Kilometraje Final</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->kilometraje_final ? number_format($obra->kilometraje_final) . ' km' : 'No registrado' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    @if($obra->kilometraje_inicial && $obra->kilometraje_final && $obra->kilometraje_final > $obra->kilometraje_inicial)
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Kilometraje Recorrido</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ number_format($obra->kilometraje_final - $obra->kilometraje_inicial) }} km
+                            </div>
+                        </div>
+                        @if($obra->combustible_suministrado && $obra->combustible_suministrado > 0)
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Consumo Promedio</label>
+                            <div class="bg-green-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ number_format(($obra->kilometraje_final - $obra->kilometraje_inicial) / $obra->combustible_suministrado, 2) }} km/L
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Derecho - Información Adicional -->
+        <div class="space-y-6">
+            <!-- Control de Combustible -->
+            <div class="bg-white border border-gray-300 rounded-lg">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
+                    <h3 class="font-semibold text-gray-800">Control de Combustible</h3>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Combustible Inicial</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->combustible_inicial ? $obra->combustible_inicial . ' L' : 'No registrado' }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Combustible Final</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->combustible_final ? $obra->combustible_final . ' L' : 'No registrado' }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Combustible Suministrado</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->combustible_suministrado ? $obra->combustible_suministrado . ' L' : 'No registrado' }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Costo Combustible</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->costo_combustible ? '$' . number_format($obra->costo_combustible, 2) : 'No registrado' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Historial de Combustible -->
+                    @if($obra->historial_combustible && count($obra->historial_combustible) > 0)
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2">Historial de Combustible</label>
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 max-h-40 overflow-y-auto">
+                            @foreach($obra->historial_combustible as $registro)
+                            <div class="bg-white border border-gray-200 rounded p-2 mb-2 last:mb-0">
+                                <div class="flex justify-between items-start text-xs">
+                                    <div class="flex-1">
+                                        <span class="font-medium text-gray-700">
+                                            {{ $registro['fecha'] ?? 'Fecha no especificada' }}
+                                        </span>
+                                        <div class="text-gray-600 mt-1">
+                                            @if(isset($registro['cantidad']))
+                                                Cantidad: {{ $registro['cantidad'] }} L
+                                            @endif
+                                            @if(isset($registro['costo']))
+                                                | Costo: ${{ number_format($registro['costo'], 2) }}
+                                            @endif
+                                            @if(isset($registro['estacion']))
+                                                | Estación: {{ $registro['estacion'] }}
+                                            @endif
+                                        </div>
+                                        @if(isset($registro['observaciones']))
+                                        <div class="text-gray-500 mt-1 italic">
+                                            {{ $registro['observaciones'] }}
+                                        </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="bg-white border border-gray-300 rounded-lg">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
+                    <h3 class="font-semibold text-gray-800">Observaciones</h3>
                 </div>
                 <div class="p-4">
-                    <div class="flex flex-wrap gap-2">
-                        @hasPermission('editar_obras')
-                        <a href="{{ route('obras.edit', $obra) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            Editar Obra
-                        </a>
-                        @endhasPermission
-                        
-                        @hasPermission('eliminar_obras')
-                        @if($obra->trashed())
-                            <form action="{{ route('obras.restore', $obra->id) }}" method="POST" class="inline">
-                                @csrf
-                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center" onclick="return confirm('¿Restaurar esta obra?')">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                                    </svg>
-                                    Restaurar
-                                </button>
-                            </form>
-                        @else
-                            <form action="{{ route('obras.destroy', $obra) }}" method="POST" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors flex items-center" onclick="return confirm('¿Estás seguro de eliminar esta obra?')">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                    Eliminar
-                                </button>
-                            </form>
-                        @endif
-                        @endhasPermission
+                    <div class="bg-gray-100 px-3 py-3 rounded text-sm border border-gray-300">
+                        {{ $obra->observaciones ?: 'No hay observaciones registradas para esta obra.' }}
                     </div>
+                </div>
+            </div>
+
+            <!-- Documentos Principales -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="text-primary mb-0">
+                        <i class="fas fa-file-alt me-2"></i>
+                        Documentos Principales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Contrato -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-file-contract me-1"></i>
+                                Contrato
+                            </label>
+                            @if($obra->tieneContrato())
+                                <div class="alert alert-info mb-0" role="alert">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-file-pdf me-2"></i>
+                                            <span class="small">Archivo disponible</span>
+                                        </div>
+                                        <a href="{{ $obra->getUrlContrato() }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-eye me-1"></i>Ver archivo
+                                        </a>
+                                    </div>
+                                    <small class="text-muted">Subido: {{ $obra->fecha_subida_contrato?->format('d/m/Y H:i') }}</small>
+                                </div>
+                            @else
+                                <div class="alert alert-secondary mb-0 text-center" role="alert">
+                                    <i class="fas fa-file-pdf text-muted mb-2" style="font-size: 2rem;"></i>
+                                    <p class="small text-muted mb-0">No hay contrato subido</p>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Fianza -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-file-invoice-dollar me-1"></i>
+                                Fianza
+                            </label>
+                            @if($obra->tieneFianza())
+                                <div class="alert alert-success mb-0" role="alert">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-file-pdf me-2"></i>
+                                            <span class="small">Archivo disponible</span>
+                                        </div>
+                                        <a href="{{ $obra->getUrlFianza() }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-eye me-1"></i>Ver archivo
+                                        </a>
+                                    </div>
+                                    <small class="text-muted">Subido: {{ $obra->fecha_subida_fianza?->format('d/m/Y H:i') }}</small>
+                                </div>
+                            @else
+                                <div class="alert alert-secondary mb-0 text-center" role="alert">
+                                    <i class="fas fa-file-pdf text-muted mb-2" style="font-size: 2rem;"></i>
+                                    <p class="small text-muted mb-0">No hay fianza subida</p>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Acta Entrega-Recepción -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-file-signature me-1"></i>
+                                Acta Entrega-Recepción
+                            </label>
+                            @if($obra->tieneActaEntregaRecepcion())
+                                <div class="alert alert-warning mb-0" role="alert">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-file-pdf me-2"></i>
+                                            <span class="small">Archivo disponible</span>
+                                        </div>
+                                        <a href="{{ $obra->getUrlActaEntregaRecepcion() }}" target="_blank" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-eye me-1"></i>Ver archivo
+                                        </a>
+                                    </div>
+                                    <small class="text-muted">Subido: {{ $obra->fecha_subida_acta?->format('d/m/Y H:i') }}</small>
+                                </div>
+                            @else
+                                <div class="alert alert-secondary mb-0 text-center" role="alert">
+                                    <i class="fas fa-file-pdf text-muted mb-2" style="font-size: 2rem;"></i>
+                                    <p class="small text-muted mb-0">No hay acta subida</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas de documentos -->
+                    <div class="mt-4 p-3 bg-light border rounded">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-primary mb-1">Progreso de Documentación</h6>
+                                <p class="small text-muted mb-2">{{ $obra->getPorcentajeDocumentosCompletados() }}% de documentos principales completados</p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                @if($obra->tieneContrato())
+                                    <span class="badge bg-info text-dark">Contrato ✓</span>
+                                @endif
+                                @if($obra->tieneFianza())
+                                    <span class="badge bg-success">Fianza ✓</span>
+                                @endif
+                                @if($obra->tieneActaEntregaRecepcion())
+                                    <span class="badge bg-warning text-dark">Acta ✓</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-gradient-primary" role="progressbar" 
+                                 style="width: {{ $obra->getPorcentajeDocumentosCompletados() }}%" 
+                                 aria-valuenow="{{ $obra->getPorcentajeDocumentosCompletados() }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas y Progreso -->
+            <div class="bg-white border border-gray-300 rounded-lg">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
+                    <h3 class="font-semibold text-gray-800">Estadísticas del Proyecto</h3>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Días Transcurridos</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->dias_transcurridos }} días
+                            </div>
+                        </div>
+                        @if($obra->dias_restantes !== null)
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Días Restantes</label>
+                            <div class="bg-{{ $obra->dias_restantes > 0 ? 'green' : 'red' }}-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->dias_restantes }} días
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                    
+                    @if($obra->duracion_total)
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Duración Total</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->duracion_total }} días
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Progreso de Tiempo</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->porcentaje_tiempo_transcurrido }}%
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($obra->esta_atrasada)
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-red-800 font-medium">¡Obra Atrasada!</span>
+                        </div>
+                        <p class="text-red-700 text-sm mt-1">La fecha de finalización prevista ya ha pasado.</p>
+                    </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Fechas de Control -->
+            <div class="bg-white border border-gray-300 rounded-lg">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
+                    <h3 class="font-semibold text-gray-800">Fechas de Control</h3>
+                </div>
+                <div class="p-4 space-y-4">
+                    @if($obra->fecha_liberacion)
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Fecha de Liberación</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ \Carbon\Carbon::parse($obra->fecha_liberacion)->format('d/m/Y H:i') }}
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Fecha de Creación</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ \Carbon\Carbon::parse($obra->created_at)->format('d/m/Y H:i') }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Última Actualización</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ \Carbon\Carbon::parse($obra->updated_at)->format('d/m/Y H:i') }}
+                            </div>
+                        </div>
+                    </div>
+                    @if($obra->fecha_eliminacion)
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h4a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-red-800 font-medium">Obra Eliminada</span>
+                        </div>
+                        <div class="mt-1">
+                            <label class="block text-sm font-medium text-red-600">Fecha de Eliminación</label>
+                            <div class="bg-red-600 text-white px-3 py-2 rounded text-sm font-medium mt-1">
+                                {{ \Carbon\Carbon::parse($obra->fecha_eliminacion)->format('d/m/Y H:i') }}
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Botones de Acción Flotantes -->
+<div class="fixed bottom-6 right-6 flex space-x-3 z-50">
+    @hasPermission('actualizar_obras')
+    <!-- Botón Editar -->
+    <a href="{{ route('obras.edit', $obra->id) }}" 
+       class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 flex items-center space-x-2 shadow-lg"
+       title="Editar Obra">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+        </svg>
+        <span>Editar</span>
+    </a>
+    @endhasPermission
+
+    @hasPermission('eliminar_obras')
+    <!-- Botón Eliminar -->
+    <form action="{{ route('obras.destroy', $obra->id) }}" 
+          method="POST" 
+          class="inline" 
+          onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta obra? Esta acción no se puede deshacer.')">
+        @csrf
+        @method('DELETE')
+        <button type="submit" 
+                class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 flex items-center space-x-2 shadow-lg"
+                title="Eliminar Obra">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm2.5 4a.5.5 0 01.5-.5h4a.5.5 0 01.5.5v2a.5.5 0 01-.5.5H7a.5.5 0 01-.5-.5V9z" clip-rule="evenodd" />
+            </svg>
+            <span>Eliminar</span>
+        </button>
+    </form>
+    @endhasPermission
+</div>
+
 @endsection

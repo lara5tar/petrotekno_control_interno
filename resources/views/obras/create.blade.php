@@ -74,7 +74,7 @@
     </div>
 
     {{-- Formulario principal --}}
-    <form action="{{ route('obras.store') }}" method="POST" class="space-y-6">
+    <form action="{{ route('obras.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
 
         {{-- 1. INFORMACIÓN BÁSICA DE LA OBRA --}}
@@ -415,7 +415,7 @@
         </div>
 
         {{-- 5. CONTROL DE COMBUSTIBLE --}}
-            <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="bg-white p-6 rounded-lg shadow-md">
             <div class="flex items-center mb-6">
                 <div class="flex-shrink-0">
                     <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
@@ -517,6 +517,22 @@
                 </div>
             </div>
 
+            {{-- Historial de Combustible --}}
+            <div class="mt-6">
+                <label for="historial_combustible" class="block text-sm font-medium text-gray-700 mb-2">
+                    Historial y Notas de Combustible
+                    <span class="text-gray-400">(Opcional)</span>
+                </label>
+                <textarea id="historial_combustible" 
+                          name="historial_combustible" 
+                          rows="3"
+                          placeholder="Registre aquí notas sobre el combustible: fechas de suministro, proveedores, observaciones especiales..."
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('historial_combustible') border-red-500 @enderror">{{ old('historial_combustible') }}</textarea>
+                @error('historial_combustible')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
             {{-- Información de ayuda --}}
             <div class="mt-6 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-md">
                 <div class="flex">
@@ -532,7 +548,185 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        {{-- 6. GESTIÓN DE DOCUMENTOS --}}
+        <div class="card mb-4 border-primary shadow-sm">
+            <div class="card-header bg-gradient-primary text-white">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-file-alt me-3 fa-lg"></i>
+                    <div>
+                        <h3 class="mb-1 h4">6. Documentos de la Obra</h3>
+                        <p class="mb-0 small opacity-90">Gestión de archivos y documentación legal del proyecto</p>
+                    </div>
+                </div>
             </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <!-- Contrato -->
+                        <div class="mb-3">
+                            <label for="archivo_contrato" class="form-label fw-semibold">
+                                <i class="fas fa-file-contract me-1"></i>
+                                Contrato
+                            </label>
+                            <input type="file" 
+                                   class="form-control @error('archivo_contrato') is-invalid @enderror" 
+                                   id="archivo_contrato" 
+                                   name="archivo_contrato" 
+                                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                Formato: PDF, JPG, PNG, DOC (máx. 10MB)
+                            </div>
+                            @error('archivo_contrato')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Fianza -->
+                        <div class="mb-3">
+                            <label for="archivo_fianza" class="form-label fw-semibold">
+                                <i class="fas fa-file-invoice-dollar me-1"></i>
+                                Fianza
+                            </label>
+                            <input type="file" 
+                                   class="form-control @error('archivo_fianza') is-invalid @enderror" 
+                                   id="archivo_fianza" 
+                                   name="archivo_fianza" 
+                                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                Formato: PDF, JPG, PNG, DOC (máx. 10MB)
+                            </div>
+                            @error('archivo_fianza')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <!-- Acta Entrega-Recepción -->
+                        <div class="mb-3">
+                            <label for="archivo_acta_entrega_recepcion" class="form-label fw-semibold">
+                                <i class="fas fa-file-signature me-1"></i>
+                                Acta Entrega-Recepción
+                            </label>
+                            <input type="file" 
+                                   class="form-control @error('archivo_acta_entrega_recepcion') is-invalid @enderror" 
+                                   id="archivo_acta_entrega_recepcion" 
+                                   name="archivo_acta_entrega_recepcion" 
+                                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                Formato: PDF, JPG, PNG, DOC (máx. 10MB)
+                            </div>
+                            @error('archivo_acta_entrega_recepcion')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Alert informativo -->
+                        <div class="alert alert-info border-0 shadow-sm">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-lightbulb text-info me-2 mt-1"></i>
+                                <div class="flex-grow-1">
+                                    <strong class="d-block mb-1">Información:</strong>
+                                    <small class="mb-0">
+                                        Los documentos son opcionales en la creación. Puedes subirlos ahora o editarlos posteriormente desde la vista de detalles de la obra.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- 7. REGISTRO ADICIONAL DE KILOMETRAJES --}}
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="flex items-center mb-6">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-900">7. Registro Adicional de Kilometrajes</h3>
+                    <p class="text-sm text-gray-600">Configuración inicial para el seguimiento detallado de kilometrajes durante la obra</p>
+                </div>
+            </div>
+
+            {{-- Información sobre el registro de kilometrajes --}}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {{-- Panel informativo --}}
+                <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-green-800">Seguimiento Automático</h4>
+                            <div class="mt-2 text-sm text-green-700">
+                                <p>El sistema registrará automáticamente:</p>
+                                <ul class="mt-1 list-disc list-inside space-y-1">
+                                    <li>Kilometraje inicial al crear la obra</li>
+                                    <li>Kilometrajes intermedios durante el desarrollo</li>
+                                    <li>Kilometraje final al completar la obra</li>
+                                    <li>Cálculo automático de distancias recorridas</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Panel de configuración --}}
+                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-blue-800">Configuración de Alertas</h4>
+                            <div class="mt-2 text-sm text-blue-700">
+                                <p>El sistema puede configurarse para:</p>
+                                <ul class="mt-1 list-disc list-inside space-y-1">
+                                    <li>Alertas de mantenimiento por kilometraje</li>
+                                    <li>Reportes automáticos de uso</li>
+                                    <li>Validación de kilometrajes inconsistentes</li>
+                                    <li>Integración con GPS (próximamente)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Opciones de configuración inicial --}}
+            <div class="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-md">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="text-sm font-medium text-yellow-800">Registro de Kilometrajes Adicionales</h4>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p>
+                                <strong>Importante:</strong> Los registros adicionales de kilometraje se realizarán desde el módulo específico de kilometrajes 
+                                una vez que la obra esté creada y el vehículo asignado. El sistema creará automáticamente el primer registro 
+                                con el kilometraje inicial especificado en la sección de control de kilometraje.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         </template>
 
         {{-- Información general de ayuda --}}
@@ -551,7 +745,10 @@
                             <li>La asignación de recursos es opcional y puede realizarse posteriormente</li>
                             <li>Si asigna un vehículo, debe también asignar un operador</li>
                             <li>Los datos de finalización (kilometraje final, combustible final) se pueden registrar al completar la obra</li>
-                            <li>El historial de combustible se genera automáticamente cuando se realizan suministros</li>
+                            <li>El historial de combustible se actualiza automáticamente con los suministros realizados</li>
+                            <li><strong>Documentos:</strong> Se gestionan desde el módulo específico una vez creada la obra</li>
+                            <li><strong>Kilometrajes adicionales:</strong> Se registran automáticamente durante el desarrollo de la obra</li>
+                            <li>El sistema validará la consistencia entre fechas y asignaciones de recursos</li>
                         </ul>
                     </div>
                 </div>

@@ -15,13 +15,6 @@
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-800">Listado de Obras</h2>
         <div class="flex space-x-3">
-            <a href="{{ route('asignaciones-obra.index') }}" 
-               class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" clip-rule="evenodd" />
-                </svg>
-                Gestionar Asignaciones
-            </a>
             @hasPermission('crear_obras')
             <a href="{{ route('obras.create') }}" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -105,40 +98,8 @@
                     </div>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-500">Con Asignación</p>
-                    <p class="text-lg font-semibold text-gray-900">{{ $estadisticas['con_asignacion'] }}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-4">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-yellow-100 rounded-md flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-500">Asign. Activas</p>
-                    <p class="text-lg font-semibold text-gray-900">{{ $estadisticas['asignaciones_activas'] }}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-4">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-500">Liberadas</p>
-                    <p class="text-lg font-semibold text-gray-900">{{ $estadisticas['asignaciones_liberadas'] }}</p>
+                    <p class="text-sm font-medium text-gray-500">En Progreso</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ $estadisticas['en_progreso'] }}</p>
                 </div>
             </div>
         </div>
@@ -286,11 +247,6 @@
                                         <div class="text-xs">
                                             <span class="font-medium">Fin:</span> {{ $obra->fecha_fin ? $obra->fecha_fin->format('d/m/Y') : '-' }}
                                         </div>
-                                        @if($obra->fecha_asignacion)
-                                            <div class="text-xs text-blue-600">
-                                                <span class="font-medium">Asig:</span> {{ $obra->fecha_asignacion->format('d/m/Y') }}
-                                            </div>
-                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
