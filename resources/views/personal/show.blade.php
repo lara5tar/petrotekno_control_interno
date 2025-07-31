@@ -241,6 +241,84 @@
 
                 </div>
             </div>
+
+            <!-- Datos de Usuario del Sistema -->
+            @if($personal->usuario)
+            <div class="bg-white border border-gray-300 rounded-lg">
+                <div class="bg-blue-50 px-4 py-3 border-b border-gray-300">
+                    <h3 class="font-semibold text-gray-800 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Datos de Usuario del Sistema
+                    </h3>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Correo Electrónico</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $personal->usuario->email }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Rol en el Sistema</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $personal->usuario->rol->nombre_rol ?? 'Sin rol asignado' }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">ID de Usuario</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                #{{ str_pad($personal->usuario->id, 4, '0', STR_PAD_LEFT) }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Fecha de Creación</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $personal->usuario->created_at->format('d/m/Y H:i') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Último Acceso</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $personal->usuario->last_login_at ? $personal->usuario->last_login_at->format('d/m/Y H:i') : 'Nunca ha iniciado sesión' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @else
+            <div class="bg-white border border-gray-300 rounded-lg">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
+                    <h3 class="font-semibold text-gray-800 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Usuario del Sistema
+                    </h3>
+                </div>
+                <div class="p-4">
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.232 13.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                            <p class="text-yellow-800 font-medium">Este personal no tiene usuario del sistema</p>
+                        </div>
+                        <p class="text-yellow-700 text-sm mt-2">
+                            Para crear un usuario, edite este registro y marque la opción "Crear usuario para acceso al sistema".
+                        </p>
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- Panel Derecho - Información Adicional -->

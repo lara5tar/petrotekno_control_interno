@@ -326,7 +326,7 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         // Obtener personal real de la base de datos con relaciones
         $personal = \App\Models\Personal::with([
             'categoria',
-            'usuario',
+            'usuario.rol',  // Incluir la relación del rol del usuario
             'documentos' => function ($query) {
                 $query->with('tipoDocumento')
                     ->select('id', 'tipo_documento_id', 'descripcion', 'fecha_vencimiento', 'personal_id', 'contenido', 'created_at', 'updated_at');
