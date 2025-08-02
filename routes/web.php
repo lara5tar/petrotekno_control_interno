@@ -78,7 +78,7 @@ Route::middleware('auth')->group(function () {
         return view('vehiculos.create', compact('estatus', 'tiposDocumento'));
     })->name('vehiculos.create')->middleware('permission:crear_vehiculos');
 
-    Route::post('/personal', [PersonalManagementController::class, 'storeWeb'])->name('personal.store')->middleware('permission:crear_personal');
+    // Ruta movida al grupo de personal para evitar conflictos
 
     Route::post('/vehiculos', function (\Illuminate\Http\Request $request) {
         try {
@@ -248,6 +248,11 @@ Route::middleware('auth')->group(function () {
     })->name('vehiculos.destroy')->middleware('permission:eliminar_vehiculos');
 });
 
+// Ruta para crear personal (fuera del grupo para evitar conflictos con PUT personal/{id})
+Route::post('/personal', [App\Http\Controllers\PersonalManagementController::class, 'storeWeb'])
+    ->name('personal.store')
+    ->middleware(['auth', 'permission:crear_personal']);
+
 // Rutas para Personal CRUD
 Route::middleware('auth')->prefix('personal')->name('personal.')->group(function () {
     // Ruta para listar personal (datos reales de la base de datos)
@@ -310,10 +315,10 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         return view('personal.create', compact('categorias', 'usuarios', 'roles'));
     })->name('create')->middleware('permission:crear_personal');
 
-    // Ruta para guardar nuevo personal
-    Route::post('/', [App\Http\Controllers\PersonalManagementController::class, 'storeWeb'])
-        ->name('store')
-        ->middleware('permission:crear_personal');
+    // Ruta para guardar nuevo personal (movida fuera del grupo para evitar conflictos)
+    // Route::post('/', [App\Http\Controllers\PersonalManagementController::class, 'storeWeb'])
+    //     ->name('store')
+    //     ->middleware('permission:crear_personal');
 
     // Rutas para creación completa de personal con documentos y usuario
     Route::get('/complete/create', [PersonalCompleteController::class, 'create'])
@@ -461,31 +466,10 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         return view('personal.edit', compact('personal', 'categorias', 'usuarios'));
     })->name('edit')->middleware('permission:editar_personal');
 
-    // Ruta para actualizar personal - CORREGIDO: Agregado middleware de permisos
-    Route::put('/{id}', function (\Illuminate\Http\Request $request, $id) {
-        $personal = \App\Models\Personal::findOrFail($id);
-
-        $request->validate([
-            'nombre_completo' => 'required|string|max:255',
-            'curp' => 'nullable|string|size:18|unique:personal,curp,' . $personal->id,
-            'categoria_personal_id' => 'required|exists:categorias_personal,id',
-            'estatus' => 'required|in:activo,inactivo',
-            'rfc' => 'nullable|string|max:13|unique:personal,rfc,' . $personal->id,
-            'nss' => 'nullable|string|max:11',
-            'direccion' => 'nullable|string|max:500',
-            'puesto' => 'nullable|string|max:255',
-            'telefono' => 'nullable|string|max:15',
-            'email' => 'nullable|email|max:255',
-            'fecha_ingreso' => 'nullable|date',
-            'user_id' => 'nullable|exists:users,id',
-            'notas' => 'nullable|string|max:1000'
-        ]);
-
-        $personal->update($request->all());
-
-        return redirect()->route('personal.show', $personal->id)
-            ->with('success', 'Personal actualizado exitosamente.');
-    })->name('update')->middleware('permission:editar_personal');
+    // Ruta para actualizar personal - Usando PersonalController para manejar archivos
+    Route::put('/{id}', [\App\Http\Controllers\PersonalController::class, 'update'])
+        ->name('update')
+        ->middleware('permission:editar_personal');
 
     // Ruta para eliminar personal - CORREGIDO: Agregado middleware de permisos
     Route::delete('/{id}', function ($id) {

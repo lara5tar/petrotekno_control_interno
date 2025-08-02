@@ -44,20 +44,14 @@
         @csrf
 
         {{-- Información Personal --}}
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <div class="flex items-center mb-4">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-medium text-gray-900">Información Personal</h3>
-                    <p class="text-sm text-gray-500">Datos básicos del empleado</p>
-                </div>
-            </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                </svg>
+                Información Personal
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">Datos básicos del empleado</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -88,40 +82,20 @@
                     @enderror
                 </div>
 
-                <div>
-                    <label for="estatus" class="block text-sm font-medium text-gray-700 mb-1">Estatus *</label>
-                    <select id="estatus" name="estatus" required 
-                            class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('estatus') border-red-500 @enderror">
-                        <option value="">Seleccione un estatus</option>
-                        <option value="activo" {{ old('estatus') == 'activo' ? 'selected' : '' }}>Activo</option>
-                        <option value="inactivo" {{ old('estatus') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
-                    </select>
-                    @error('estatus')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
+
             </div>
         </div>
 
         {{-- Documentos del Personal --}}
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <div class="flex items-center mb-4">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-medium text-gray-900">Documentos del Personal</h3>
-                    <p class="text-sm text-gray-500">Documentación oficial (opcional)</p>
-                </div>
-            </div>
-
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                </svg>
+                Documentos del Personal
+            </h3>
             {{-- Documentos de Identificación --}}
-            <div class="mb-6">
-                <h4 class="text-md font-medium text-gray-800 mb-3">Documentos de Identificación</h4>
+            <div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Identificación (INE)</label>
@@ -133,14 +107,13 @@
                                 <input type="file" name="archivo_ine" accept=".pdf,.jpg,.jpeg,.png" 
                                        class="hidden" id="archivo_ine" x-on:change="handleFileInput($event, 'ine')">
                                 <label for="archivo_ine" 
-                                       class="w-full p-2 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer hover:border-petroyellow transition duration-200 flex flex-col items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                       class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
+                                    <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
-                                    <span class="text-sm text-gray-500">Clic para subir o arrastrar y soltar</span>
-                                    <span class="text-xs text-gray-400">PDF, PNG, JPG (MAX. 10MB)</span>
+                                    <span class="text-base">Subir Identificación (INE)</span>
                                 </label>
-                                <div x-show="fileStatus.ine" x-text="fileStatus.ine" class="mt-1 text-sm text-green-600"></div>
+                                <p class="text-xs text-gray-500 text-center mt-2" x-text="fileStatus.ine || 'PDF, PNG, JPG (máx. 10MB)'"></p>
                             </div>
                         </div>
                     </div>
@@ -155,14 +128,13 @@
                                 <input type="file" name="archivo_curp" accept=".pdf,.jpg,.jpeg,.png" 
                                        class="hidden" id="archivo_curp" x-on:change="handleFileInput($event, 'curp')">
                                 <label for="archivo_curp" 
-                                       class="w-full p-2 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer hover:border-petroyellow transition duration-200 flex flex-col items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                       class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
+                                    <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
-                                    <span class="text-sm text-gray-500">Clic para subir o arrastrar y soltar</span>
-                                    <span class="text-xs text-gray-400">PDF, PNG, JPG (MAX. 10MB)</span>
+                                    <span class="text-base">Subir CURP</span>
                                 </label>
-                                <div x-show="fileStatus.curp" x-text="fileStatus.curp" class="mt-1 text-sm text-green-600"></div>
+                                <p class="text-xs text-gray-500 text-center mt-2" x-text="fileStatus.curp || 'PDF, PNG, JPG (máx. 10MB)'"></p>
                             </div>
                         </div>
                     </div>
@@ -170,8 +142,7 @@
             </div>
 
             {{-- Documentos Fiscales y Laborales --}}
-            <div class="mb-6">
-                <h4 class="text-md font-medium text-gray-800 mb-3">Documentos Fiscales y Laborales</h4>
+            <div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">RFC</label>
@@ -183,14 +154,13 @@
                                 <input type="file" name="archivo_rfc" accept=".pdf,.jpg,.jpeg,.png" 
                                        class="hidden" id="archivo_rfc" x-on:change="handleFileInput($event, 'rfc')">
                                 <label for="archivo_rfc" 
-                                       class="w-full p-2 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer hover:border-petroyellow transition duration-200 flex flex-col items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                       class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
+                                    <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
-                                    <span class="text-sm text-gray-500">Clic para subir o arrastrar y soltar</span>
-                                    <span class="text-xs text-gray-400">PDF, PNG, JPG (MAX. 10MB)</span>
+                                    <span class="text-base">Subir RFC</span>
                                 </label>
-                                <div x-show="fileStatus.rfc" x-text="fileStatus.rfc" class="mt-1 text-sm text-green-600"></div>
+                                <p class="text-xs text-gray-500 text-center mt-2" x-text="fileStatus.rfc || 'PDF, PNG, JPG (máx. 10MB)'"></p>
                             </div>
                         </div>
                     </div>
@@ -205,14 +175,13 @@
                                 <input type="file" name="archivo_nss" accept=".pdf,.jpg,.jpeg,.png" 
                                        class="hidden" id="archivo_nss" x-on:change="handleFileInput($event, 'nss')">
                                 <label for="archivo_nss" 
-                                       class="w-full p-2 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer hover:border-petroyellow transition duration-200 flex flex-col items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                       class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
+                                    <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
-                                    <span class="text-sm text-gray-500">Clic para subir o arrastrar y soltar</span>
-                                    <span class="text-xs text-gray-400">PDF, PNG, JPG (MAX. 10MB)</span>
+                                    <span class="text-base">Subir NSS</span>
                                 </label>
-                                <div x-show="fileStatus.nss" x-text="fileStatus.nss" class="mt-1 text-sm text-green-600"></div>
+                                <p class="text-xs text-gray-500 text-center mt-2" x-text="fileStatus.nss || 'PDF, PNG, JPG (máx. 10MB)'"></p>
                             </div>
                         </div>
                     </div>
@@ -221,7 +190,6 @@
 
             {{-- Documentos Adicionales --}}
             <div>
-                <h4 class="text-md font-medium text-gray-800 mb-3">Documentos Adicionales</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Licencia de Manejo</label>
@@ -233,14 +201,13 @@
                                 <input type="file" name="archivo_licencia" accept=".pdf,.jpg,.jpeg,.png" 
                                        class="hidden" id="archivo_licencia" x-on:change="handleFileInput($event, 'licencia')">
                                 <label for="archivo_licencia" 
-                                       class="w-full p-2 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer hover:border-petroyellow transition duration-200 flex flex-col items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                       class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
+                                    <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
-                                    <span class="text-sm text-gray-500">Clic para subir o arrastrar y soltar</span>
-                                    <span class="text-xs text-gray-400">PDF, PNG, JPG (MAX. 10MB)</span>
+                                    <span class="text-base">Subir Licencia</span>
                                 </label>
-                                <div x-show="fileStatus.licencia" x-text="fileStatus.licencia" class="mt-1 text-sm text-green-600"></div>
+                                <p class="text-xs text-gray-500 text-center mt-2" x-text="fileStatus.licencia || 'PDF, PNG, JPG (máx. 10MB)'"></p>
                             </div>
                         </div>
                     </div>
@@ -251,14 +218,13 @@
                             <input type="file" name="archivo_cv" accept=".pdf,.doc,.docx" 
                                    class="hidden" id="archivo_cv" x-on:change="handleFileInput($event, 'cv')">
                             <label for="archivo_cv" 
-                                   class="w-full p-2 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer hover:border-petroyellow transition duration-200 flex flex-col items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                   class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
+                                <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
-                                <span class="text-sm text-gray-500">Clic para subir o arrastrar y soltar</span>
-                                <span class="text-xs text-gray-400">PDF, DOC, DOCX (MAX. 10MB)</span>
+                                <span class="text-base">Subir CV</span>
                             </label>
-                            <div x-show="fileStatus.cv" x-text="fileStatus.cv" class="mt-1 text-sm text-green-600"></div>
+                            <p class="text-xs text-gray-500 text-center mt-2" x-text="fileStatus.cv || 'PDF, DOC, DOCX (máx. 10MB)'"></p>
                         </div>
                     </div>
                 </div>
@@ -266,7 +232,6 @@
 
             {{-- Comprobante de Domicilio --}}
             <div>
-                <h4 class="text-md font-medium text-gray-800 mb-3">Comprobante de Domicilio</h4>
                 <div class="space-y-4">
                     <div>
                         <label for="direccion_completa" class="block text-sm font-medium text-gray-700 mb-1">Dirección completa</label>
@@ -275,19 +240,18 @@
                                   class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">{{ old('direccion_completa') }}</textarea>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Archivo del comprobante</label>
+
                         <div class="relative">
                             <input type="file" name="archivo_comprobante_domicilio" accept=".pdf,.jpg,.jpeg,.png" 
                                    class="hidden" id="archivo_comprobante_domicilio" x-on:change="handleFileInput($event, 'comprobante')">
                             <label for="archivo_comprobante_domicilio" 
-                                   class="w-full p-2 border-2 border-dashed border-gray-300 rounded-md text-center cursor-pointer hover:border-petroyellow transition duration-200 flex flex-col items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                   class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
+                                <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
-                                <span class="text-sm text-gray-500">Clic para subir comprobante de domicilio</span>
-                                <span class="text-xs text-gray-400">PDF, PNG, JPG (MAX. 10MB)</span>
+                                <span class="text-base">Subir Comprobante</span>
                             </label>
-                            <div x-show="fileStatus.comprobante" x-text="fileStatus.comprobante" class="mt-1 text-sm text-green-600"></div>
+                            <p class="text-xs text-gray-500 text-center mt-2" x-text="fileStatus.comprobante || 'PDF, PNG, JPG (máx. 10MB)'"></p>
                         </div>
                     </div>
                 </div>
@@ -295,20 +259,14 @@
         </div>
 
         {{-- Acceso al Sistema --}}
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <div class="flex items-center mb-4">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-medium text-gray-900">Acceso al Sistema</h3>
-                    <p class="text-sm text-gray-500">Configurar cuenta de usuario (opcional)</p>
-                </div>
-            </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" />
+                </svg>
+                Acceso al Sistema
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">Configurar cuenta de usuario (opcional)</p>
 
             <div class="space-y-4">
                 <div class="flex items-center">
@@ -341,12 +299,10 @@
                         <div>
                             <label for="email_usuario" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico *</label>
                             <input type="email" id="email_usuario" name="email_usuario" 
-                                   x-bind:value="crearUsuario ? ($refs.nombreCompleto?.value || '').toLowerCase().replace(/\s+/g, '.').replace(/[áéíóúü]/g, char => ({'á':'a','é':'e','í':'i','ó':'o','ú':'u','ü':'u'}[char])) + '@petrotekno.com' : ''"
-                                   x-bind:readonly="!crearUsuario"
-                                   placeholder="usuario@petrotekno.com"
-                                   class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow bg-gray-50">
+                                   placeholder="correo@ejemplo.com"
+                                   class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">
                             <p class="mt-1 text-xs text-gray-500">
-                                Se generará automáticamente basado en el nombre del empleado
+                                Ingrese el correo electrónico personal del empleado
                             </p>
                         </div>
 
@@ -366,16 +322,16 @@
                     {{-- Campo oculto para especificar que siempre será contraseña aleatoria --}}
                     <input type="hidden" name="tipo_password" value="aleatoria">
 
-                    <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                    <div class="bg-gray-50 border border-gray-200 rounded-md p-4">
                         <div class="flex">
                             <div class="flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" />
                                 </svg>
                             </div>
                             <div class="ml-3">
-                                <h3 class="text-sm font-medium text-blue-800">Generación automática de contraseña</h3>
-                                <div class="mt-2 text-sm text-blue-700">
+                                <h3 class="text-sm font-medium text-gray-800">Generación automática de contraseña</h3>
+                                <div class="mt-2 text-sm text-gray-700">
                                     <ul class="list-disc pl-5 space-y-1">
                                         <li>Se generará automáticamente una contraseña segura</li>
                                         <li>La contraseña se mostrará después de crear el usuario</li>

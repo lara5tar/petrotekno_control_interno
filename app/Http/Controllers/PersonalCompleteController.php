@@ -113,7 +113,6 @@ class PersonalCompleteController extends Controller
             $validated = $request->validate([
                 // Datos del personal
                 'nombre_completo' => 'required|string|max:255',
-                'estatus' => ['required', Rule::in(Personal::ESTATUS_VALIDOS)],
                 'categoria_personal_id' => 'required|exists:categorias_personal,id',
                 
                 // Documentos (archivos)
@@ -189,7 +188,7 @@ class PersonalCompleteController extends Controller
             // PASO 2: Crear el personal
             $personal = Personal::create([
                 'nombre_completo' => $validated['nombre_completo'],
-                'estatus' => $validated['estatus'],
+                'estatus' => 'activo',
                 'categoria_id' => $validated['categoria_personal_id'],
                 'ine' => $validated['ine'] ?? null,
                 'url_ine' => $validated['url_ine'] ?? null,

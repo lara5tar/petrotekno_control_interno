@@ -530,8 +530,8 @@
                                                 </button>
                                             </div>
                                         @else
-                                            <div class="text-xs text-orange-500">
-                                                Opcional
+                                            <div class="text-xs text-gray-500">
+                                                No disponible
                                             </div>
                                         @endif
                                     </li>
@@ -583,8 +583,8 @@
                                                 </button>
                                             </div>
                                         @else
-                                            <div class="text-xs text-orange-500">
-                                                Opcional
+                                            <div class="text-xs text-gray-500">
+                                                No disponible
                                             </div>
                                         @endif
                                     </li>
@@ -627,8 +627,8 @@
                                                 </button>
                                             </div>
                                         @else
-                                            <div class="text-xs text-orange-500">
-                                                Opcional
+                                            <div class="text-xs text-gray-500">
+                                                No disponible
                                             </div>
                                         @endif
                                     </li>

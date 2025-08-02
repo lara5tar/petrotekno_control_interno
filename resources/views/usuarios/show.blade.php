@@ -123,7 +123,7 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-600">Email</label>
                                     <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                        marco.delgado@petrotekno.com
+                                        marco.delgado@empresa.com
                                     </div>
                                 </div>
                             </div>

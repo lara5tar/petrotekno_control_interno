@@ -41,8 +41,8 @@ class UsuarioService
             'rol_id' => $datosUsuario['rol_id'],
         ]);
 
-        // Enviar por email
-        $this->enviarPasswordPorEmail($usuario, $password, $personal);
+        // Envío de email automático deshabilitado por solicitud del usuario
+        // $this->enviarPasswordPorEmail($usuario, $password, $personal);
 
         return [
             'usuario' => $usuario,

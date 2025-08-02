@@ -36,10 +36,7 @@ class StorePersonalRequest extends FormRequest
                 'integer',
                 'exists:categorias_personal,id'
             ],
-            'estatus' => [
-                'required',
-                Rule::in(['activo', 'inactivo'])
-            ],
+
 
             // Usuario del sistema (opcional)
             'crear_usuario' => 'nullable|boolean',
@@ -150,8 +147,7 @@ class StorePersonalRequest extends FormRequest
             'categoria_personal_id.required' => 'Debe seleccionar una categoría.',
             'categoria_personal_id.exists' => 'La categoría seleccionada no es válida.',
 
-            'estatus.required' => 'Debe seleccionar un estatus.',
-            'estatus.in' => 'El estatus debe ser activo o inactivo.',
+
 
             // Usuario del sistema
             'email_usuario.required_if' => 'El email es obligatorio cuando se crea un usuario del sistema.',
@@ -219,7 +215,7 @@ class StorePersonalRequest extends FormRequest
         return [
             'nombre_completo' => 'nombre completo',
             'categoria_personal_id' => 'categoría',
-            'estatus' => 'estatus',
+
             'email_usuario' => 'email del usuario',
             'rol_usuario' => 'rol del usuario',
             'tipo_password' => 'tipo de contraseña',

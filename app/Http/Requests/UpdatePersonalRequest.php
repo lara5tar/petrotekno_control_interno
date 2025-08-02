@@ -111,25 +111,109 @@ class UpdatePersonalRequest extends FormRequest
                 'url'
             ],
             'curp_file' => [
-                'nullable'
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:5120' // 5MB
             ],
             'identificacion_file' => [
-                'nullable'
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:5120' // 5MB
             ],
             'rfc_file' => [
-                'nullable'
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:5120' // 5MB
             ],
             'nss_file' => [
-                'nullable'
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:5120' // 5MB
             ],
             'licencia_file' => [
-                'nullable'
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:5120' // 5MB
             ],
             'comprobante_file' => [
-                'nullable'
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:5120' // 5MB
             ],
             'cv_file' => [
-                'nullable'
+                'nullable',
+                'file',
+                'mimes:pdf,doc,docx',
+                'max:10240' // 10MB
+            ],
+            // Archivos con nombres alternativos del formulario
+            'archivo_identificacion' => [
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:5120' // 5MB
+            ],
+            'archivo_curp' => [
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:5120' // 5MB
+            ],
+            'archivo_rfc' => [
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:5120' // 5MB
+            ],
+            'archivo_nss' => [
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:5120' // 5MB
+            ],
+            'archivo_licencia' => [
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:5120' // 5MB
+            ],
+            'archivo_comprobante_domicilio' => [
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:5120' // 5MB
+            ],
+            'archivo_cv' => [
+                'nullable',
+                'file',
+                'mimes:pdf,doc,docx',
+                'max:10240' // 10MB
+            ],
+            // Campos de usuario (opcionales)
+            'crear_usuario' => [
+                'nullable',
+                'boolean'
+            ],
+            'email_usuario' => [
+                'nullable',
+                'required_if:crear_usuario,1',
+                'email',
+                'max:255'
+            ],
+            'rol_usuario' => [
+                'nullable',
+                'required_if:crear_usuario,1',
+                'exists:roles,id'
+            ],
+            'tipo_password' => [
+                'nullable',
+                'string'
             ]
         ];
     }

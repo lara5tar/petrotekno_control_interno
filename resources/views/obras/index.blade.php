@@ -103,12 +103,28 @@
                 </div>
             </div>
         </div>
+
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-emerald-100 rounded-md flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-500">Finalizadas</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ $estadisticas['finalizadas'] }}</p>
+                </div>
+            </div>
+        </div>
     </div>
     @endif
 
     <!-- Filtros y búsqueda -->
     <div class="bg-white p-4 rounded-lg shadow-md mb-6">
-        <form method="GET" action="{{ route('obras.index') }}" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <form method="GET" action="{{ route('obras.index') }}" id="filtrosForm" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div class="flex-1">
                 <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
                 <div class="relative">
@@ -121,8 +137,8 @@
                 </div>
             </div>
             <div class="flex-1 md:flex-none md:w-48">
-                <label for="estatus" class="block text-sm font-medium text-gray-700 mb-1">Estatus</label>
-                <select id="estatus" name="estatus" class="p-2 border border-gray-300 rounded-md w-full">
+                <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estatus</label>
+                <select id="estado" name="estatus" class="p-2 border border-gray-300 rounded-md w-full">
                     <option value="">Todos los estatus</option>
                     <option value="completada" {{ request('estatus') == 'completada' ? 'selected' : '' }}>Completada</option>
                     <option value="en_progreso" {{ request('estatus') == 'en_progreso' ? 'selected' : '' }}>En Progreso</option>
@@ -138,9 +154,11 @@
                 <button type="submit" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md transition duration-200">
                     Filtrar
                 </button>
-                <a href="{{ route('obras.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-200">
-                    Limpiar
-                </a>
+                @if(request()->hasAny(['search', 'estatus', 'fecha_inicio']))
+                    <a href="{{ route('obras.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-200">
+                        Limpiar
+                    </a>
+                @endif
             </div>
         </form>
     </div>
@@ -260,15 +278,15 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end space-x-2">
                                         @hasPermission('ver_obras')
-                                        <a href="{{ route('obras.show', $obra) }}" class="text-petrodark hover:text-petroyellow">
+                                        <a href="{{ route('obras.show', $obra) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                 <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                                 <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
                                             </svg>
                                         </a>
                                         @endhasPermission
-                                        @hasPermission('editar_obras')
-                                        <a href="{{ route('obras.edit', $obra) }}" class="text-blue-600 hover:text-blue-900">
+                                        @hasPermission('actualizar_obras')
+                                        <a href="{{ route('obras.edit', $obra) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                             </svg>
@@ -278,10 +296,9 @@
                                         <form action="{{ route('obras.destroy', $obra) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta obra?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">
+                                            <button type="submit" class="text-red-600 hover:text-red-900" title="Eliminar">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 012 0v4a1 1 0 11-2 0V7zM12 7a1 1 0 10-2 0v4a1 1 0 102 0V7z" clip-rule="evenodd" />
+                                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                                                 </svg>
                                             </button>
                                         </form>
@@ -321,3 +338,76 @@
         </div>
     @endif
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos del formulario de filtros
+    const searchInput = document.getElementById('search');
+    const estadoSelect = document.getElementById('estado');
+    const fechaInput = document.getElementById('fecha_inicio');
+    const form = document.getElementById('filtrosForm');
+    
+    // Verificar que todos los elementos existen
+    if (!searchInput || !estadoSelect || !fechaInput || !form) {
+        console.error('Algunos elementos del formulario no se encontraron:', {
+            searchInput: !!searchInput,
+            estadoSelect: !!estadoSelect,
+            fechaInput: !!fechaInput,
+            form: !!form
+        });
+        return;
+    }
+    
+    // Variable para prevenir envíos múltiples
+    let isSubmitting = false;
+    
+    // Función para enviar el formulario automáticamente
+    function autoSubmit() {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        
+        // Mostrar indicador de carga
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Filtrando...';
+        }
+        
+        form.submit();
+    }
+    
+    // Event listeners para filtros automáticos
+    if (estadoSelect) {
+        estadoSelect.addEventListener('change', autoSubmit);
+    }
+    
+    if (fechaInput) {
+        fechaInput.addEventListener('change', autoSubmit);
+    }
+    
+    // Event listener para búsqueda con delay
+    let searchTimeout;
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
+                autoSubmit();
+            }, 500); // Esperar 500ms después de que el usuario deje de escribir
+        });
+    }
+    
+    // Prevenir envío múltiple del formulario
+    form.addEventListener('submit', function() {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Filtrando...';
+        }
+    });
+});
+</script>
+@endpush

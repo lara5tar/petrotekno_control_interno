@@ -56,7 +56,7 @@ class PersonalController extends Controller
         }
 
         // Orden
-        $query->orderBy('nombre_completo');
+        $query->orderBy('id');
 
         // Paginación
         $perPage = $request->get('per_page', 15);
@@ -164,7 +164,7 @@ class PersonalController extends Controller
             // Crear el personal con los datos básicos y documentos
             $personal = Personal::create([
                 'nombre_completo' => $validated['nombre_completo'],
-                'estatus' => $validated['estatus'],
+                'estatus' => 'activo',
                 'categoria_id' => $validated['categoria_personal_id'],
                 'ine' => $validated['ine'] ?? null,
                 'url_ine' => $validated['url_ine'] ?? null,
@@ -433,6 +433,8 @@ class PersonalController extends Controller
      */
     public function update(UpdatePersonalRequest $request, $id)
     {
+        \Log::info('PersonalController::update - Petición recibida', ['id' => $id, 'method' => $request->method()]);
+        
         // Verificar permisos
         if (! $request->user()->hasPermission('editar_personal')) {
             if ($request->expectsJson()) {
@@ -470,40 +472,67 @@ class PersonalController extends Controller
                 'url_comprobante_domicilio' => $validated['url_comprobante_domicilio'] ?? $personal->url_comprobante_domicilio,
             ]);
 
-            // Manejar archivo CURP si se proporciona
-            if ($request->hasFile('curp_file')) {
-                $tipoDocumentoCurp = 9; // ID para documentos tipo CURP
-                $archivo = $request->file('curp_file');
-                $nombreArchivo = time() . '_' . $personal->id . '_' . $archivo->getClientOriginalName();
-                $rutaArchivo = $archivo->storeAs('personal/documentos', $nombreArchivo, 'public');
+            // Manejar archivos de documentos
+            $archivosConfig = [
+                'curp_file' => ['tipo_id' => 9, 'campo_url' => 'url_curp', 'contenido' => 'CURP'],
+                'archivo_curp' => ['tipo_id' => 9, 'campo_url' => 'url_curp', 'contenido' => 'CURP'],
+                'identificacion_file' => ['tipo_id' => 1, 'campo_url' => 'url_ine', 'contenido' => 'Identificación'],
+                'archivo_identificacion' => ['tipo_id' => 1, 'campo_url' => 'url_ine', 'contenido' => 'Identificación'],
+                'rfc_file' => ['tipo_id' => 2, 'campo_url' => 'url_rfc', 'contenido' => 'RFC'],
+                'archivo_rfc' => ['tipo_id' => 2, 'campo_url' => 'url_rfc', 'contenido' => 'RFC'],
+                'nss_file' => ['tipo_id' => 3, 'campo_url' => 'url_nss', 'contenido' => 'NSS'],
+                'archivo_nss' => ['tipo_id' => 3, 'campo_url' => 'url_nss', 'contenido' => 'NSS'],
+                'licencia_file' => ['tipo_id' => 4, 'campo_url' => 'url_licencia', 'contenido' => 'Licencia'],
+                'archivo_licencia' => ['tipo_id' => 4, 'campo_url' => 'url_licencia', 'contenido' => 'Licencia'],
+                'comprobante_file' => ['tipo_id' => 5, 'campo_url' => 'url_comprobante_domicilio', 'contenido' => 'Comprobante Domicilio'],
+                'archivo_comprobante_domicilio' => ['tipo_id' => 5, 'campo_url' => 'url_comprobante_domicilio', 'contenido' => 'Comprobante Domicilio'],
+                'cv_file' => ['tipo_id' => 28, 'campo_url' => null, 'contenido' => 'CV'],
+                'archivo_cv' => ['tipo_id' => 28, 'campo_url' => null, 'contenido' => 'CV']
+            ];
 
-                // Buscar si ya existe un documento CURP
-                $documentoExistente = $personal->documentos()
-                    ->where('tipo_documento_id', $tipoDocumentoCurp)
-                    ->first();
+            // Log para depuración
+            \Log::info('Archivos en request:', $request->allFiles());
+            
+            foreach ($archivosConfig as $campoArchivo => $config) {
+                \Log::info("Verificando archivo: {$campoArchivo}", ['hasFile' => $request->hasFile($campoArchivo)]);
+                
+                if ($request->hasFile($campoArchivo)) {
+                    \Log::info("Procesando archivo: {$campoArchivo}");
+                    $archivo = $request->file($campoArchivo);
+                    $nombreArchivo = time() . '_' . $personal->id . '_' . $archivo->getClientOriginalName();
+                    $rutaArchivo = $archivo->storeAs('personal/documentos', $nombreArchivo, 'public');
+                    \Log::info("Archivo guardado en: {$rutaArchivo}");
 
-                if ($documentoExistente) {
-                    // Eliminar archivo anterior
-                    if ($documentoExistente->ruta_archivo && \Storage::disk('public')->exists($documentoExistente->ruta_archivo)) {
-                        \Storage::disk('public')->delete($documentoExistente->ruta_archivo);
+                    // Buscar si ya existe un documento de este tipo
+                    $documentoExistente = $personal->documentos()
+                        ->where('tipo_documento_id', $config['tipo_id'])
+                        ->first();
+
+                    if ($documentoExistente) {
+                        // Eliminar archivo anterior
+                        if ($documentoExistente->ruta_archivo && \Storage::disk('public')->exists($documentoExistente->ruta_archivo)) {
+                            \Storage::disk('public')->delete($documentoExistente->ruta_archivo);
+                        }
+
+                        // Actualizar documento existente
+                        $documentoExistente->update([
+                            'ruta_archivo' => $rutaArchivo,
+                            'contenido' => $config['contenido']
+                        ]);
+                    } else {
+                        // Crear nuevo documento
+                        $personal->documentos()->create([
+                            'tipo_documento_id' => $config['tipo_id'],
+                            'ruta_archivo' => $rutaArchivo,
+                            'contenido' => $config['contenido']
+                        ]);
                     }
 
-                    // Actualizar documento existente
-                    $documentoExistente->update([
-                        'ruta_archivo' => $rutaArchivo,
-                        'contenido' => 'CURP'
-                    ]);
-                } else {
-                    // Crear nuevo documento
-                    $personal->documentos()->create([
-                        'tipo_documento_id' => $tipoDocumentoCurp,
-                        'ruta_archivo' => $rutaArchivo,
-                        'contenido' => 'CURP'
-                    ]);
+                    // Actualizar URL en la tabla personal (solo si el campo existe)
+                    if ($config['campo_url']) {
+                        $personal->update([$config['campo_url'] => $rutaArchivo]);
+                    }
                 }
-
-                // Actualizar URL en la tabla personal (solo ruta relativa)
-                $personal->update(['url_curp' => $rutaArchivo]);
             }
 
             $personal->load('categoria');

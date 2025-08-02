@@ -101,7 +101,7 @@ class PersonalManagementController extends Controller
             // 2. SEGUNDO: Crear Personal con las URLs ya incluidas
             $personalData = [
                 'nombre_completo' => $validatedData['nombre_completo'],
-                'estatus' => $validatedData['estatus'],
+                'estatus' => 'activo',
                 'categoria_id' => $validatedData['categoria_personal_id'],
                 'ine' => $validatedData['ine'] ?? null,
                 'curp_numero' => $validatedData['curp_numero'] ?? null,
@@ -261,7 +261,7 @@ class PersonalManagementController extends Controller
     {
         return Personal::create([
             'nombre_completo' => $data['nombre_completo'],
-            'estatus' => $data['estatus'],
+            'estatus' => 'activo',
             'categoria_id' => $data['categoria_id'],
             'ine' => $data['ine'] ?? null,
             'url_ine' => $data['url_ine'] ?? null,
@@ -333,17 +333,17 @@ class PersonalManagementController extends Controller
             'rol_id' => $data['rol_id'],
         ]);
 
-        // Enviar email con credenciales al usuario
-        try {
-            $usuario->notify(new NuevoUsuarioCredenciales($password, $data['nombre_completo']));
-        } catch (\Exception $e) {
-            // Log del error pero no fallar la creación
-            \Log::warning('Error al enviar email de credenciales', [
-                'usuario_id' => $usuario->id,
-                'email' => $usuario->email,
-                'error' => $e->getMessage(),
-            ]);
-        }
+        // Envío de email automático deshabilitado por solicitud del usuario
+        // try {
+        //     $usuario->notify(new NuevoUsuarioCredenciales($password, $data['nombre_completo']));
+        // } catch (\Exception $e) {
+        //     // Log del error pero no fallar la creación
+        //     \Log::warning('Error al enviar email de credenciales', [
+        //         'usuario_id' => $usuario->id,
+        //         'email' => $usuario->email,
+        //         'error' => $e->getMessage(),
+        //     ]);
+        // }
 
         // Agregar la contraseña temporal para retornar al frontend
         // Usamos setAttribute para evitar warnings de PHPStan sobre propiedades dinámicas

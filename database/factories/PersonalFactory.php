@@ -15,7 +15,7 @@ class PersonalFactory extends Factory
         return [
             'nombre_completo' => $this->faker->name(),
             'estatus' => $this->faker->randomElement(['activo', 'inactivo']),
-            'categoria_id' => CategoriaPersonal::factory(),
+            'categoria_id' => CategoriaPersonal::inRandomOrder()->first()?->id ?? CategoriaPersonal::factory(),
         ];
     }
 }

@@ -104,24 +104,15 @@
         </div>
 
         {{-- Documentos del Personal --}}
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <div class="flex items-center mb-4">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-medium text-gray-900">Documentos del Personal</h3>
-                    <p class="text-sm text-gray-500">Documentación oficial (opcional)</p>
-                </div>
-            </div>
-
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                </svg>
+                Documentos del Personal
+            </h3>
             {{-- Documentos de Identificación --}}
             <div class="mb-6">
-                <h4 class="text-md font-medium text-gray-800 mb-3">Documentos de Identificación</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Identificación (INE)</label>
@@ -171,7 +162,6 @@
 
             {{-- Documentos Fiscales y Laborales --}}
             <div class="mb-6">
-                <h4 class="text-md font-medium text-gray-800 mb-3">Documentos Fiscales y Laborales</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">RFC</label>
@@ -221,7 +211,6 @@
 
             {{-- Documentos Adicionales --}}
             <div>
-                <h4 class="text-md font-medium text-gray-800 mb-3">Documentos Adicionales</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Licencia de Manejo</label>
@@ -266,7 +255,6 @@
 
             {{-- Comprobante de Domicilio --}}
             <div>
-                <h4 class="text-md font-medium text-gray-800 mb-3">Comprobante de Domicilio</h4>
                 <div class="space-y-4">
                     <div>
                         <label for="direccion_completa" class="block text-sm font-medium text-gray-700 mb-1">Dirección completa</label>
@@ -275,7 +263,7 @@
                                   class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">{{ old('direccion_completa') }}</textarea>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Archivo del comprobante</label>
+
                         <div class="relative">
                             <input type="file" name="archivo_comprobante_domicilio" accept=".pdf,.jpg,.jpeg,.png" 
                                    class="hidden" id="archivo_comprobante_domicilio" x-on:change="handleFileInput($event, 'comprobante')">
@@ -295,20 +283,14 @@
         </div>
 
         {{-- Acceso al Sistema --}}
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <div class="flex items-center mb-4">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-medium text-gray-900">Acceso al Sistema</h3>
-                    <p class="text-sm text-gray-500">Configurar cuenta de usuario (opcional)</p>
-                </div>
-            </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" />
+                </svg>
+                Acceso al Sistema
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">Configurar cuenta de usuario (opcional)</p>
 
             <div class="space-y-4">
                 <div class="flex items-center">
@@ -321,10 +303,10 @@
                 </div>
 
                 <div x-show="crearUsuario" x-transition class="space-y-4 pl-6 border-l-2 border-gray-200">
-                    <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
+                    <div class="bg-gray-50 border border-gray-200 rounded-md p-3">
                         <div class="flex">
                             <div class="flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                                 </svg>
                             </div>
@@ -341,9 +323,8 @@
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico *</label>
                             <input type="email" id="email" name="email" 
-                                   x-bind:value="crearUsuario ? ($refs.nombreCompleto?.value || '').toLowerCase().replace(/\s+/g, '.').replace(/[áéíóúü]/g, char => ({'á':'a','é':'e','í':'i','ó':'o','ú':'u','ü':'u'}[char])) + '@petrotekno.com' : ''"
                                    x-bind:readonly="!crearUsuario"
-                                   placeholder="usuario@petrotekno.com"
+                                   placeholder="correo@ejemplo.com"
                                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow bg-gray-50">
                             <p class="mt-1 text-xs text-gray-500">
                                 Se generará automáticamente basado en el nombre del empleado

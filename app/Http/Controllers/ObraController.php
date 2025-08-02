@@ -34,8 +34,8 @@ class ObraController extends Controller
             // Aplicar filtros de búsqueda
             $query = Obra::query();
 
-            if ($request->filled('buscar')) {
-                $searchTerm = $request->buscar;
+            if ($request->filled('buscar') || $request->filled('search')) {
+                $searchTerm = $request->buscar ?? $request->search;
                 $query->where(function ($q) use ($searchTerm) {
                     $q->where('nombre_obra', 'like', "%{$searchTerm}%")
                         ->orWhere('estatus', 'like', "%{$searchTerm}%");
@@ -44,6 +44,10 @@ class ObraController extends Controller
 
             if ($request->filled('estatus')) {
                 $query->where('estatus', $request->estatus);
+            }
+
+            if ($request->filled('fecha_inicio')) {
+                $query->whereDate('fecha_inicio', '>=', $request->fecha_inicio);
             }
 
             if ($request->filled('solo_activas') && $request->solo_activas === 'true') {
@@ -75,9 +79,23 @@ class ObraController extends Controller
             }
 
             $estatusOptions = $this->getEstatusOptions();
+            
+            // Calcular estadísticas
+        $estadisticas = [
+            'total' => Obra::count(),
+            'activas' => Obra::where('estatus', 'activa')->count(),
+            'en_progreso' => Obra::where('estatus', 'en_progreso')->count(),
+            'finalizadas' => Obra::where('estatus', 'completada')->count(),
+        ];
 
-            return view('obras.index', compact('obras', 'estatusOptions'));
+            return view('obras.index', compact('obras', 'estatusOptions', 'estadisticas'));
         } catch (Exception $e) {
+            \Log::error('Error en ObraController@index: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Error al obtener las obras.'], 500);
             }
@@ -152,7 +170,6 @@ class ObraController extends Controller
 
             $validatedData = $request->validate([
                 'nombre_obra' => 'required|string|min:3|max:255|unique:obras,nombre_obra',
-                'estatus' => 'required|string|in:' . implode(',', array_keys($this->getEstatusOptions())),
                 'avance' => 'nullable|integer|min:0|max:100',
                 'fecha_inicio' => 'required|date',
                 'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
@@ -189,6 +206,8 @@ class ObraController extends Controller
 
             // Crear la obra primero sin archivos
             $obraData = Arr::except($validatedData, ['archivo_contrato', 'archivo_fianza', 'archivo_acta_entrega_recepcion']);
+            // Establecer automáticamente el estatus como en progreso
+            $obraData['estatus'] = 'en_progreso';
             $obra = Obra::create($obraData);
 
             // Manejar subida de archivos después de crear la obra

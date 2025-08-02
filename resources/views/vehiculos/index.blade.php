@@ -46,7 +46,7 @@
     
     <!-- Filtros y búsqueda -->
     <div class="bg-white p-4 rounded-lg shadow-md mb-6">
-        <form method="GET" action="{{ route('vehiculos.index') }}" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <form method="GET" action="{{ route('vehiculos.index') }}" id="filtrosForm" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div class="flex-1">
                 <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
                 <div class="relative">
@@ -59,8 +59,8 @@
                 </div>
             </div>
             <div class="flex-1 md:flex-none md:w-48">
-                <label for="estatus_id" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                <select id="estatus_id" name="estatus_id" class="p-2 border border-gray-300 rounded-md w-full">
+                <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                <select id="estado" name="estatus_id" class="p-2 border border-gray-300 rounded-md w-full">
                     <option value="">Todos los estados</option>
                     @foreach($estatus as $estado)
                         <option value="{{ $estado->id }}" {{ request('estatus_id') == $estado->id ? 'selected' : '' }}>
@@ -77,9 +77,11 @@
                 <button type="submit" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md transition duration-200">
                     Filtrar
                 </button>
-                <a href="{{ route('vehiculos.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-200">
-                    Limpiar
-                </a>
+                @if(request()->hasAny(['search', 'estatus_id', 'marca']))
+                    <a href="{{ route('vehiculos.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-200">
+                        Limpiar
+                    </a>
+                @endif
             </div>
 
         </form>
@@ -216,6 +218,51 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Elementos del formulario de filtros
+        const searchInput = document.getElementById('search');
+        const estadoSelect = document.getElementById('estado');
+        const marcaInput = document.getElementById('marca');
+        const form = document.getElementById('filtrosForm');
+        
+        // Función para enviar el formulario automáticamente
+        function autoSubmit() {
+            form.submit();
+        }
+        
+        // Event listeners para filtros automáticos
+        estadoSelect.addEventListener('change', autoSubmit);
+        
+        // Event listener para búsqueda con delay
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
+                autoSubmit();
+            }, 500); // Esperar 500ms después de que el usuario deje de escribir
+        });
+        
+        // Event listener para marca con delay
+        let marcaTimeout;
+        marcaInput.addEventListener('input', function() {
+            clearTimeout(marcaTimeout);
+            marcaTimeout = setTimeout(function() {
+                autoSubmit();
+            }, 500);
+        });
+        
+        // Prevenir envío múltiple del formulario
+        form.addEventListener('submit', function() {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Filtrando...';
+                setTimeout(function() {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Filtrar';
+                }, 2000);
+            }
+        });
+
         // Agregar event listeners a todos los botones de eliminar
         const botonesEliminar = document.querySelectorAll('.btn-eliminar');
         

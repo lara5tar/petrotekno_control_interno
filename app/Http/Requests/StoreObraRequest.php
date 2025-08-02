@@ -31,11 +31,7 @@ class StoreObraRequest extends FormRequest
                 'unique:obras,nombre_obra',
                 'regex:/^[a-zA-ZÀ-ÿ\s\d\-\.\,\(\)]+$/',
             ],
-            'estatus' => [
-                'required',
-                'string',
-                'in:' . implode(',', Obra::ESTADOS_VALIDOS),
-            ],
+
             'avance' => [
                 'nullable',
                 'integer',
@@ -67,8 +63,7 @@ class StoreObraRequest extends FormRequest
             'nombre_obra.unique' => 'Ya existe una obra con este nombre.',
             'nombre_obra.regex' => 'El nombre de la obra contiene caracteres no permitidos.',
 
-            'estatus.required' => 'El estatus de la obra es obligatorio.',
-            'estatus.in' => 'El estatus seleccionado no es válido.',
+
 
             'avance.integer' => 'El avance debe ser un número entero.',
             'avance.min' => 'El avance no puede ser menor a 0%.',
@@ -90,7 +85,7 @@ class StoreObraRequest extends FormRequest
     {
         return [
             'nombre_obra' => 'nombre de la obra',
-            'estatus' => 'estatus',
+
             'avance' => 'avance',
             'fecha_inicio' => 'fecha de inicio',
             'fecha_fin' => 'fecha de fin',
@@ -109,17 +104,9 @@ class StoreObraRequest extends FormRequest
             ]);
         }
 
-        // Establecer avance por defecto según estatus
-        if ($this->has('estatus') && ! $this->has('avance')) {
-            $avanceDefecto = match ($this->estatus) {
-                Obra::ESTATUS_PLANIFICADA => 0,
-                Obra::ESTATUS_COMPLETADA => 100,
-                default => null
-            };
-
-            if ($avanceDefecto !== null) {
-                $this->merge(['avance' => $avanceDefecto]);
-            }
+        // Avance por defecto para nuevas obras
+        if (! $this->has('avance')) {
+            $this->merge(['avance' => 0]);
         }
     }
 
@@ -129,20 +116,7 @@ class StoreObraRequest extends FormRequest
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
-            // Validación personalizada: Si está completada, avance debe ser 100
-            if ($this->estatus === Obra::ESTATUS_COMPLETADA && $this->avance !== 100) {
-                $validator->errors()->add('avance', 'Una obra completada debe tener 100% de avance.');
-            }
-
-            // Validación personalizada: Si está planificada, avance debe ser 0
-            if ($this->estatus === Obra::ESTATUS_PLANIFICADA && $this->avance > 0) {
-                $validator->errors()->add('avance', 'Una obra planificada no puede tener avance mayor a 0%.');
-            }
-
-            // Validación personalizada: Fecha fin requerida para obras completadas
-            if ($this->estatus === Obra::ESTATUS_COMPLETADA && ! $this->fecha_fin) {
-                $validator->errors()->add('fecha_fin', 'Una obra completada debe tener fecha de finalización.');
-            }
+            // Validaciones personalizadas removidas ya que el estatus se establece automáticamente
         });
     }
 }

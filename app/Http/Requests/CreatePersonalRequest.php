@@ -31,7 +31,6 @@ class CreatePersonalRequest extends FormRequest
                 'min:3',
                 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/'
             ],
-            'estatus' => 'required|string|in:activo,inactivo',
             'categoria_personal_id' => [ // El formulario web usa este nombre
                 'required',
                 'integer',
@@ -205,8 +204,6 @@ class CreatePersonalRequest extends FormRequest
             'nombre_completo.min' => 'El nombre completo debe tener al menos 3 caracteres',
             'nombre_completo.max' => 'El nombre completo no debe exceder 255 caracteres',
             'nombre_completo.regex' => 'El nombre completo solo puede contener letras y espacios',
-            'estatus.required' => 'El estatus es obligatorio',
-            'estatus.in' => 'El estatus debe ser activo o inactivo',
             'categoria_personal_id.required' => 'La categoría es obligatoria',
             'categoria_personal_id.exists' => 'La categoría seleccionada no existe',
 

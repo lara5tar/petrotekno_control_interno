@@ -50,15 +50,12 @@
 
     {{-- Header principal --}}
     <div class="flex justify-between items-center mb-6">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-800">Agregar Nueva Obra</h2>
-            <p class="text-sm text-gray-600 mt-1">Complete todos los campos requeridos para crear una nueva obra en el sistema</p>
-        </div>
+        <h2 class="text-2xl font-bold text-gray-800">Agregar Nueva Obra</h2>
         <a href="{{ route('obras.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
             </svg>
-            Volver al listado
+            Volver al Listado
         </a>
     </div>
 
@@ -66,21 +63,15 @@
     <form action="{{ route('obras.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
 
-        {{-- 1. INFORMACIÓN BÁSICA DE LA OBRA --}}
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <div class="flex items-center mb-6">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-petroyellow rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Información Básica de la Obra</h3>
-                    <p class="text-sm text-gray-600">Datos principales y estado del proyecto</p>
-                </div>
-            </div>
+        {{-- Información Básica de la Obra --}}
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                </svg>
+                Información Básica de la Obra
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">Datos principales y estado del proyecto</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {{-- Nombre de la Obra --}}
@@ -101,27 +92,7 @@
                     @enderror
                 </div>
 
-                {{-- Estatus --}}
-                <div>
-                    <label for="estatus" class="block text-sm font-medium text-gray-700 mb-2">
-                        Estatus del Proyecto
-                        <span class="text-gray-500">*</span>
-                    </label>
-                    <select id="estatus" 
-                            name="estatus" 
-                            required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('estatus') border-gray-400 @enderror">
-                        <option value="">Seleccione el estatus</option>
-                        <option value="planificada" {{ old('estatus') == 'planificada' ? 'selected' : '' }}>Planificada</option>
-                        <option value="en_progreso" {{ old('estatus') == 'en_progreso' ? 'selected' : '' }}>En Progreso</option>
-                        <option value="pausada" {{ old('estatus') == 'pausada' ? 'selected' : '' }}>Pausada</option>
-                        <option value="completada" {{ old('estatus') == 'completada' ? 'selected' : '' }}>Completada</option>
-                        <option value="cancelada" {{ old('estatus') == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
-                    </select>
-                    @error('estatus')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
+
 
                 {{-- Avance --}}
                 <div>
@@ -162,21 +133,15 @@
             </div>
         </div>
 
-        {{-- 2. CRONOGRAMA DEL PROYECTO --}}
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <div class="flex items-center mb-6">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-petroyellow rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Cronograma del Proyecto</h3>
-                    <p class="text-sm text-gray-600">Fechas de planificación y ejecución de la obra</p>
-                </div>
-            </div>
+        {{-- Cronograma del Proyecto --}}
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                </svg>
+                Cronograma del Proyecto
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">Fechas de planificación y ejecución de la obra</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {{-- Fecha de Inicio --}}
@@ -215,21 +180,15 @@
             </div>
         </div>
 
-        {{-- ASIGNACIÓN DE RECURSOS --}}
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <div class="flex items-center mb-6">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-petroyellow rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Asignación de Recursos</h3>
-                    <p class="text-sm text-gray-600">Personal y equipo asignado para la ejecución del proyecto</p>
-                </div>
-            </div>
+        {{-- Asignación de Recursos --}}
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+                Asignación de Recursos
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">Personal y equipo asignado para la ejecución del proyecto</p>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 {{-- Vehículo --}}
@@ -337,21 +296,15 @@
             {{-- Las alertas de asignación se mostrarán aquí --}}
         </div>
 
-        {{-- 4. CONTROL DE KILOMETRAJE --}}
-            <div class="bg-white p-6 rounded-lg shadow-md">
-            <div class="flex items-center mb-6">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-petroyellow rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Control de Kilometraje</h3>
-                    <p class="text-sm text-gray-600">Registro de kilometraje inicial y final del vehículo asignado</p>
-                </div>
-            </div>
+        {{-- Control de Kilometraje --}}
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd" />
+                </svg>
+                Control de Kilometraje
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">Registro de kilometraje inicial y final del vehículo asignado</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {{-- Kilometraje Inicial --}}
@@ -402,21 +355,15 @@
         </div>
 
 
-        {{-- 5. GESTIÓN DE DOCUMENTOS --}}
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <div class="flex items-center mb-6">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-petroyellow rounded-lg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Documentos de la Obra</h3>
-                    <p class="text-gray-400 text-sm">Gestión de archivos y documentación legal del proyecto</p>
-                </div>
-            </div>
+        {{-- Documentos de la Obra --}}
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                </svg>
+                Documentos de la Obra
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">Gestión de archivos y documentación legal del proyecto</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-6">
                         <!-- Contrato -->
@@ -512,7 +459,7 @@
 
 
         {{-- Botones de acción --}}
-        <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
             <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3">
                 <a href="{{ route('obras.index') }}" 
                    class="w-full sm:w-auto px-6 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petroyellow transition duration-200 text-center">
@@ -536,7 +483,6 @@
     function obraController() {
         return {
             // Estados básicos
-            estatus: '{{ old('estatus') }}',
             avance: {{ old('avance', 0) }},
             
             // Fechas
@@ -561,16 +507,8 @@
             },
 
             updateAvanceBasedOnStatus() {
-                // Actualizar avance según el estatus seleccionado
-                if (this.estatus === 'completada') {
-                    this.avance = 100;
-                } else if (this.estatus === 'planificada') {
-                    this.avance = 0;
-                } else if (this.estatus === 'en_progreso' && this.avance === 0) {
-                    this.avance = 10;
-                } else if (this.estatus === 'cancelada') {
-                    // Mantener el avance actual para obras canceladas
-                }
+                // Función mantenida para compatibilidad pero sin lógica de estatus
+                // El avance se maneja manualmente
             },
 
             toggleAssignmentFields() {

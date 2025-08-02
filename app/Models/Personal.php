@@ -76,6 +76,12 @@ class Personal extends Model
      */
     public function setEstatusAttribute($value): void
     {
+        // Si el valor es null o vacío, establecer 'activo' por defecto
+        if (is_null($value) || $value === '') {
+            $this->attributes['estatus'] = 'activo';
+            return;
+        }
+
         if (! in_array($value, self::ESTATUS_VALIDOS)) {
             throw new \InvalidArgumentException("Estatus inválido: {$value}. Los valores válidos son: " . implode(', ', self::ESTATUS_VALIDOS));
         }
