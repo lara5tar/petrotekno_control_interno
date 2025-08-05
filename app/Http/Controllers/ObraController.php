@@ -61,7 +61,7 @@ class ObraController extends Controller
             $page = $request->get('page', 1);
             $page = max(1, (int) $page); // Asegurar que sea al menos 1
 
-            $obras = $query->orderBy('fecha_inicio', 'desc')->paginate($perPage, ['*'], 'page', $page);
+            $obras = $query->orderBy('id', 'asc')->paginate($perPage, ['*'], 'page', $page);
 
             // Log de acción
             LogAccion::create([

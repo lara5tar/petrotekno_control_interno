@@ -284,8 +284,8 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
             $query->where('estatus', $request->input('estatus'));
         }
 
-        // Paginar resultados
-        $personal = $query->orderBy('created_at', 'desc')->paginate(15);
+        // Paginar resultados - ordenar por ID descendente
+        $personal = $query->reorder('personal.id', 'asc')->paginate(15);
 
         return view('personal.index', compact('personal', 'categorias'));
     })->name('index')->middleware('permission:ver_personal');

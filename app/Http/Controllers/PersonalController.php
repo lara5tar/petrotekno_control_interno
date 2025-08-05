@@ -55,8 +55,8 @@ class PersonalController extends Controller
             $query->where('estatus', $request->estatus);
         }
 
-        // Orden
-        $query->orderBy('id');
+        // Orden - Los registros más recientes primero
+        $query->reorder('personal.id', 'desc');
 
         // Paginación
         $perPage = $request->get('per_page', 15);

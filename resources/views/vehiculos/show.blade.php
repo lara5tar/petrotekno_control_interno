@@ -677,7 +677,7 @@
         @endhasPermission
         
         @hasPermission('eliminar_vehiculos')
-        <button onclick="confirmarEliminacion({{ $vehiculo->id ?? 1 }})" 
+        <button onclick="confirmarEliminacion('{{ $vehiculo->id ?? 1 }}')" 
                 class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 shadow-lg">
             Eliminar
         </button>
