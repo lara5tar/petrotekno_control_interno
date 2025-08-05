@@ -1,3 +1,0 @@
-Este es un archivo de prueba para RFC
-Contenido de ejemplo para testing
-Fecha: 2025-08-01
