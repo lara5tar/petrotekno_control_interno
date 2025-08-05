@@ -118,8 +118,8 @@ Route::middleware('auth')->group(function () {
     })->name('vehiculos.store')->middleware('permission:crear_vehiculos');
 
     Route::get('/vehiculos/{id}', function ($id) {
-        // Obtener datos reales del vehículo de la base de datos
-        $vehiculoReal = \App\Models\Vehiculo::with('estatus')->find($id);
+        // Obtener datos reales del vehículo de la base de datos con todas las relaciones necesarias
+        $vehiculoReal = \App\Models\Vehiculo::with(['estatus', 'kilometrajes.usuarioCaptura', 'documentos.tipoDocumento'])->find($id);
 
         if (!$vehiculoReal) {
             abort(404, 'Vehículo no encontrado');
@@ -135,6 +135,8 @@ Route::middleware('auth')->group(function () {
             'n_serie' => $vehiculoReal->n_serie,
             'kilometraje_actual' => $vehiculoReal->kilometraje_actual,
             'estatus' => $vehiculoReal->estatus,
+            'kilometrajes' => $vehiculoReal->kilometrajes,
+            'documentos' => $vehiculoReal->documentos,
             // Campos estáticos para documentos y otros datos
             'derecho_vehicular' => 'DV-2025-001234',
             'poliza_seguro' => 'PS-2025-567890',

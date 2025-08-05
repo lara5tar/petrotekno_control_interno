@@ -11,47 +11,6 @@
 ]" />
 
 <div class="h-[calc(100vh-120px)] flex flex-col gap-4">
-    <!-- Header -->
-    <div class="bg-white border border-gray-300 rounded-lg p-4">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-lg font-bold text-gray-900">
-                    {{ $vehiculo->marca ?? 'Nissan' }} {{ $vehiculo->modelo ?? 'NP300' }}
-                </h1>
-                <p class="text-sm text-gray-600">Placas: <span class="font-medium">{{ $vehiculo->placas ?? 'NL-ABC-1234' }}</span></p>
-            </div>
-            
-            <div class="flex space-x-2">
-                @hasPermission('imprimir_vehiculos')
-                <button onclick="imprimirDetalles()" 
-                        class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm transition duration-200 flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-1a2 2 0 00-2-2H9a2 2 0 00-2 2v1a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    Imprimir
-                </button>
-                @endhasPermission
-                
-                @hasPermission('editar_vehiculos')
-                <a href="{{ route('vehiculos.edit', $vehiculo->id ?? 1) }}" 
-                   class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm transition duration-200 flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    Editar
-                </a>
-                @endhasPermission
-                
-                <a href="{{ route('vehiculos.index') }}" 
-                   class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm transition duration-200 flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    Volver
-                </a>
-            </div>
-        </div>
-    </div>
 
     <!-- Contenido Principal en Grid 50/50 -->
     <div class="flex-1 grid grid-cols-2 gap-4">
@@ -106,7 +65,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Año</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $vehiculo->año ?? '2023' }}
+                                {{ $vehiculo->anio ?? '2023' }}
                             </div>
                         </div>
                     </div>
@@ -121,7 +80,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Serie</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $vehiculo->serie ?? 'NS123456789' }}
+                                {{ $vehiculo->n_serie ?? 'NS123456789' }}
                             </div>
                         </div>
                     </div>
@@ -402,10 +361,10 @@
                                             @if($vehiculo->kilometrajes && $vehiculo->kilometrajes->count() > 0)
                                                 @foreach($vehiculo->kilometrajes->take(5) as $kilometraje)
                                                 <tr>
-                                                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{{ number_format($kilometraje->kilometraje_actual) }}</td>
-                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">{{ $kilometraje->fecha_registro->format('d/m/Y') }}</td>
-                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">{{ $kilometraje->ubicacion ?? 'No especificada' }}</td>
-                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">{{ $kilometraje->personal->nombre_completo ?? 'No asignado' }}</td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{{ number_format($kilometraje->kilometraje) }}</td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">{{ $kilometraje->fecha_captura?->format('d/m/Y') ?? 'Sin fecha' }}</td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">{{ $kilometraje->observaciones ?? 'No especificada' }}</td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">{{ $kilometraje->usuarioCaptura->nombre_completo ?? 'No asignado' }}</td>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                                         <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
                                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -696,6 +655,33 @@
             </div>
 
         </div>
+    </div>
+    
+    <!-- Botones de acción flotantes -->
+    <div class="fixed bottom-6 right-6 flex space-x-4 z-50">
+        @hasPermission('imprimir_vehiculos')
+        <button onclick="imprimirDetalles()" 
+                class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 flex items-center shadow-lg">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-1a2 2 0 00-2-2H9a2 2 0 00-2 2v1a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Imprimir
+        </button>
+        @endhasPermission
+        
+        @hasPermission('editar_vehiculos')
+        <a href="{{ route('vehiculos.edit', $vehiculo->id ?? 1) }}" 
+           class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 shadow-lg">
+            Editar
+        </a>
+        @endhasPermission
+        
+        @hasPermission('eliminar_vehiculos')
+        <button onclick="confirmarEliminacion({{ $vehiculo->id ?? 1 }})" 
+                class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 shadow-lg">
+            Eliminar
+        </button>
+        @endhasPermission
     </div>
 </div>
 
@@ -1044,6 +1030,39 @@ function submitKilometraje() {
         // Mostrar mensaje de éxito
         alert('Kilometraje registrado con éxito');
     }, 500);
+}
+
+// Función para confirmar eliminación
+function confirmarEliminacion(vehiculoId) {
+    if (confirm('¿Estás seguro de que deseas eliminar este vehículo? Esta acción no se puede deshacer.')) {
+        // Crear un formulario para enviar la petición DELETE
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/vehiculos/${vehiculoId}`;
+        
+        // Agregar token CSRF
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        form.appendChild(csrfToken);
+        
+        // Agregar método DELETE
+        const methodField = document.createElement('input');
+        methodField.type = 'hidden';
+        methodField.name = '_method';
+        methodField.value = 'DELETE';
+        form.appendChild(methodField);
+        
+        // Agregar al DOM y enviar
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Función para imprimir
+function imprimirDetalles() {
+    window.print();
 }
 
 // Cerrar modal con tecla Escape
