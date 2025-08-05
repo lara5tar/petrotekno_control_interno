@@ -265,7 +265,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                                            <div class="bg-petroyellow h-2 rounded-full" style="width: {{ $obra->avance ?? 0 }}%"></div>
+                                            @php $avance = $obra->avance ?? 0; @endphp
+                                            <div class="bg-petroyellow h-2 rounded-full progress-bar" data-progress="{{ $avance }}"></div>
                                         </div>
                                         <span class="text-sm text-gray-900">{{ $obra->avance ?? 0 }}%</span>
                                     </div>
@@ -402,6 +403,12 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.disabled = true;
             submitBtn.textContent = 'Filtrando...';
         }
+    });
+    
+    // Initialize progress bars
+    document.querySelectorAll('.progress-bar').forEach(function(progressBar) {
+        const progress = progressBar.getAttribute('data-progress');
+        progressBar.style.width = progress + '%';
     });
 });
 </script>
