@@ -68,6 +68,11 @@ class StoreKilometrajeRequest extends FormRequest
                 'string',
                 'max:1000',
             ],
+            'usuario_captura_id' => [
+                'required',
+                'integer',
+                'exists:users,id',
+            ],
         ];
     }
 

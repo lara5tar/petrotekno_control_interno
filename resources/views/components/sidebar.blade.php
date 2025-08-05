@@ -1,4 +1,8 @@
-<!-- resources/views/components/sidebar.blade.php -->
+<!-- resources/            <x-sidebar-item 
+                route="{{ route('vehiculos.index') }}" 
+                :active="request()->routeIs('vehiculos.*')" 
+                icon='<path d="M8 16.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM15 16.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M3 4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h1.05a2.5 2.5 0 1 1 4.9 0H11a1 1 0 0 0 1-1v-1h3.05a2.5 2.5 0 1 1 4.9 0H20a1 1 0 0 0 1-1V8a1 1 0 0 0-.293-.707l-2-2A1 1 0 0 0 18 5h-3.05a2.5 2.5 0 0 1-4.9 0H7a1 1 0 0 0-1 1v1.05a2.5 2.5 0 1 1 0 4.9V11a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h1.05a2.5 2.5 0 1 1 4.9 0H11a1 1 0 0 0 1-1v-1h3.05a2.5 2.5 0 1 1 4.9 0H20a1 1 0 0 0 1-1V8a1 1 0 0 0-.293-.707l-2-2A1 1 0 0 0 18 5h-3.05a2.5 2.5 0 0 1-4.9 0H7a1 1 0 0 0-1 1z"/>'
+                label="Vehículos" />/components/sidebar.blade.php -->
 <div class="w-full h-full flex flex-col">
     <div class="text-center px-5 p-10">
         <img src="{{ asset('logo-petro2.png') }}" alt="Petrotekno" class="w-48 h-auto mx-auto">
@@ -10,37 +14,43 @@
             <x-sidebar-item 
                 route="{{ route('home') }}" 
                 :active="request()->routeIs('home')" 
-                icon='<path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />'
+                icon='<path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>'
                 label="Inicio" />
 
             <x-sidebar-item 
                 route="{{ route('vehiculos.index') }}" 
                 :active="request()->routeIs('vehiculos.*')" 
-                icon='<path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" /><path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H11a1 1 0 001-1v-1h3.05a2.5 2.5 0 014.9 0H20a1 1 0 001-1V8a1 1 0 00-.293-.707l-2-2A1 1 0 0018 5h-3.05a2.5 2.5 0 01-4.9 0H7a1 1 0 00-1 1v1.05a2.5 2.5 0 010 4.9V11a1 1 0 00-1-1H4a1 1 0 00-1 1v5a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H11a1 1 0 001-1v-1h3.05a2.5 2.5 0 014.9 0H20a1 1 0 001-1V8a1 1 0 00-.293-.707l-2-2A1 1 0 0018 5h-3.05a2.5 2.5 0 01-4.9 0H7a1 1 0 00-1 1z" />'
-                label="Gestionar Vehículos" />
+                icon='<path fill="currentColor" d="M19 7h-3V6a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v8a1 1 0 0 0 1 1h1.5a2.5 2.5 0 0 1 5 0h3a2.5 2.5 0 0 1 5 0H19a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zM7 16.5A1.5 1.5 0 1 1 7 14a1.5 1.5 0 0 1 0 2.5zm10 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>'
+                label="Vehículos" />
+
+            <x-sidebar-item 
+                route="{{ route('kilometrajes.index') }}" 
+                :active="request()->routeIs('kilometrajes.*')" 
+                icon='<path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/>'
+                label="Kilometrajes" />
 
             <x-sidebar-item 
                 route="{{ route('personal.index') }}" 
                 :active="request()->routeIs('personal.*')" 
-                icon='<path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />'
+                icon='<path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>'
                 label="Personal" />
 
             <x-sidebar-item 
                 route="{{ route('obras.index') }}" 
                 :active="request()->routeIs('obras.*')" 
-                icon='<path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM7 5h10v2H7V5zm0 4h10v2H7V9zm0 4h10v2H7v-2z" />'
+                icon='<path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>'
                 label="Obras" />
 
             <x-sidebar-item 
                 route="#" 
                 :active="request()->routeIs('reportes.*')" 
-                icon='<path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v7a1 1 0 102 0V8z" clip-rule="evenodd" />'
+                icon='<path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>'
                 label="Reportes" />
 
             <x-sidebar-item 
                 route="#" 
                 :active="request()->routeIs('configuracion.*')" 
-                icon='<path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />'
+                icon='<path fill="currentColor" d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>'
                 label="Configuración" />
         </nav>
     </div>
@@ -48,8 +58,8 @@
     <div class="mt-auto mb-4">
         <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="block py-2.5 px-4 transition duration-200 text-gray-700 font-medium">
             <div class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-700" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-6 0a1 1 0 10-2 0v4a1 1 0 102 0V7zm3 1a1 1 0 10-2 0v3a1 1 0 102 0V8z" clip-rule="evenodd" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-3 text-gray-700" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill="currentColor" d="M16 13v-2H7V9l-5 4 5 4v-2h9M20 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16z"/>
                 </svg>
                 <span class="sidebar-label">Cerrar Sesión</span>
             </div>

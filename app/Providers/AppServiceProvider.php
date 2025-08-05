@@ -33,5 +33,22 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('endhasPermission', function () {
             return "<?php endif; ?>";
         });
+
+        // Definir gate para autorización adicional
+        \Illuminate\Support\Facades\Gate::define('ver_kilometrajes', function ($user) {
+            return $user->hasPermission('ver_kilometrajes');
+        });
+
+        \Illuminate\Support\Facades\Gate::define('crear_kilometrajes', function ($user) {
+            return $user->hasPermission('crear_kilometrajes');
+        });
+
+        \Illuminate\Support\Facades\Gate::define('editar_kilometrajes', function ($user) {
+            return $user->hasPermission('editar_kilometrajes');
+        });
+
+        \Illuminate\Support\Facades\Gate::define('eliminar_kilometrajes', function ($user) {
+            return $user->hasPermission('eliminar_kilometrajes');
+        });
     }
 }

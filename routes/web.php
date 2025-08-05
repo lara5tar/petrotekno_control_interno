@@ -669,6 +669,37 @@ Route::middleware('auth')->prefix('asignaciones-obra')->name('asignaciones-obra.
         ->middleware('permission.web:ver_asignaciones');
 });
 
+// Rutas para Kilometrajes (CRUD completo)
+Route::middleware('auth')->prefix('kilometrajes')->name('kilometrajes.')->group(function () {
+    Route::get('/', [KilometrajeController::class, 'index'])
+        ->name('index');
+
+    Route::get('/create', [KilometrajeController::class, 'create'])
+        ->name('create');
+
+    Route::post('/', [KilometrajeController::class, 'store'])
+        ->name('store');
+
+    Route::get('/{kilometraje}', [KilometrajeController::class, 'show'])
+        ->name('show');
+
+    Route::get('/{kilometraje}/edit', [KilometrajeController::class, 'edit'])
+        ->name('edit');
+
+    Route::put('/{kilometraje}', [KilometrajeController::class, 'update'])
+        ->name('update');
+
+    Route::delete('/{kilometraje}', [KilometrajeController::class, 'destroy'])
+        ->name('destroy');
+
+    // Rutas adicionales específicas
+    Route::get('/vehiculo/{vehiculoId}/historial', [KilometrajeController::class, 'historialPorVehiculo'])
+        ->name('historial');
+
+    Route::get('/alertas/mantenimiento', [KilometrajeController::class, 'alertasMantenimiento'])
+        ->name('alertas');
+});
+
 // Ruta para vista de usuario (datos estáticos)
 Route::get('/usuarios/{id}', function ($id) {
     return view('usuarios.show');
