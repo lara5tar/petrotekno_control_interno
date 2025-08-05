@@ -38,7 +38,7 @@
         <!-- Sidebar -->
         <div class="w-64 bg-petroyellow p-4">
             <div class="mb-8">
-                <img src="/images/petrotekno-logo.png" alt="Petrotekno" class="w-32 mx-auto">
+                <img src="{{ asset('logo-petro2.png') }}" alt="Petrotekno" class="w-48 mx-auto">
             </div>
             
             <div class="text-center mb-8">

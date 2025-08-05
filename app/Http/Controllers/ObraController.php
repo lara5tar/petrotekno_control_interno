@@ -177,8 +177,6 @@ class ObraController extends Controller
                 'vehiculo_id' => 'nullable|exists:vehiculos,id',
                 'operador_id' => 'nullable|exists:personal,id',
                 'encargado_id' => 'nullable|exists:personal,id',
-                'fecha_asignacion' => 'nullable|date',
-                'fecha_liberacion' => 'nullable|date|after_or_equal:fecha_asignacion',
                 // Campos de kilometraje
                 'kilometraje_inicial' => 'nullable|integer|min:0',
                 'kilometraje_final' => 'nullable|integer|min:0|gte:kilometraje_inicial',
@@ -478,8 +476,6 @@ class ObraController extends Controller
                 'vehiculo_id' => 'sometimes|nullable|exists:vehiculos,id',
                 'operador_id' => 'sometimes|nullable|exists:personal,id',
                 'encargado_id' => 'sometimes|nullable|exists:users,id',
-                'fecha_asignacion' => 'sometimes|nullable|date',
-                'fecha_liberacion' => 'sometimes|nullable|date|after_or_equal:fecha_asignacion',
                 // Campos de kilometraje
                 'kilometraje_inicial' => 'sometimes|nullable|integer|min:0',
                 'kilometraje_final' => 'sometimes|nullable|integer|min:0|gte:kilometraje_inicial',

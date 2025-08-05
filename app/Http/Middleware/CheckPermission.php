@@ -16,10 +16,13 @@ class CheckPermission
     public function handle(Request $request, Closure $next, string ...$permissions): Response
     {
         if (! $request->user()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No autenticado',
-            ], 401);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No autenticado',
+                ], 401);
+            }
+            return redirect()->route('login');
         }
 
         $user = $request->user();
@@ -27,10 +30,15 @@ class CheckPermission
 
         foreach ($permissions as $permission) {
             if (! $user->hasPermission($permission)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "No tienes el permiso '{$permission}' necesario para acceder a este recurso",
-                ], 403);
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "No tienes el permiso '{$permission}' necesario para acceder a este recurso",
+                    ], 403);
+                }
+                
+                // Para requests web, redirigir al home con mensaje de error
+                return redirect()->route('home')->with('error', "No tienes permisos suficientes para acceder a esta sección. Permiso requerido: {$permission}");
             }
         }
 

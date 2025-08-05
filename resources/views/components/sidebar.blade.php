@@ -1,7 +1,7 @@
 <!-- resources/views/components/sidebar.blade.php -->
 <div class="w-full h-full flex flex-col">
     <div class="text-center px-5 p-10">
-        <img src="{{ asset('logo.jpeg') }}" alt="Petrotekno" class="w-32 h-auto mx-auto">
+        <img src="{{ asset('logo-petro2.png') }}" alt="Petrotekno" class="w-48 h-auto mx-auto">
     </div>
     
     <div class="">

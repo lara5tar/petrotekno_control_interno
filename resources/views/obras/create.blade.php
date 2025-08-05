@@ -60,7 +60,7 @@
     </div>
 
     {{-- Formulario principal --}}
-    <form action="{{ route('obras.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+    <form action="{{ route('obras.store') }}" method="POST" enctype="multipart/form-data" x-data="obraFormController()" class="space-y-6">
         @csrf
 
         {{-- Información Básica de la Obra --}}
@@ -73,59 +73,34 @@
             </h3>
             <p class="text-sm text-gray-500 mb-6">Datos principales y estado del proyecto</p>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {{-- Nombre de la Obra --}}
-                <div class="md:col-span-2 lg:col-span-3">
-                    <label for="nombre_obra" class="block text-sm font-medium text-gray-700 mb-2">
-                        Nombre de la Obra
-                        <span class="text-gray-500">*</span>
-                    </label>
-                    <input type="text" 
-                           id="nombre_obra" 
-                           name="nombre_obra" 
-                           value="{{ old('nombre_obra') }}" 
-                           required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('nombre_obra') border-gray-400 @enderror"
-                           placeholder="Ejemplo: Construcción de Puente Vehicular Principal">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                    <label for="nombre_obra" class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Obra *</label>
+                    <input type="text" id="nombre_obra" name="nombre_obra" required 
+                           value="{{ old('nombre_obra') }}"
+                           placeholder="Ej: Construcción de Puente Vehicular Principal"
+                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('nombre_obra') border-red-500 @enderror">
                     @error('nombre_obra')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
-
-
-                {{-- Avance --}}
                 <div>
-                    <label for="avance" class="block text-sm font-medium text-gray-700 mb-2">
-                        Avance del Proyecto (%)
-                    </label>
-                    <div class="relative">
-                        <input type="number" 
-                               id="avance" 
-                               name="avance" 
-                               value="{{ old('avance', 0) }}" 
-                               min="0" 
-                               max="100"
-                               class="w-full px-3 py-2 pr-8 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('avance') border-gray-400 @enderror"
-                               placeholder="0">
-                        <span class="absolute right-3 top-2 text-gray-500">%</span>
-                    </div>
-
+                    <label for="avance" class="block text-sm font-medium text-gray-700 mb-1">Avance del Proyecto (%)</label>
+                    <input type="number" id="avance" name="avance" min="0" max="100"
+                           value="{{ old('avance', 0) }}"
+                           placeholder="0"
+                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('avance') border-red-500 @enderror">
                     @error('avance')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
-                {{-- Observaciones Generales --}}
-                <div class="md:col-span-2 lg:col-span-1">
-                    <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-2">
-                        Observaciones Generales
-                    </label>
-                    <textarea id="observaciones" 
-                              name="observaciones" 
-                              rows="3"
+                <div>
+                    <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-1">Observaciones Generales</label>
+                    <textarea id="observaciones" name="observaciones" rows="3"
                               placeholder="Observaciones adicionales sobre el proyecto..."
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('observaciones') border-gray-400 @enderror">{{ old('observaciones') }}</textarea>
+                              class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('observaciones') border-red-500 @enderror">{{ old('observaciones') }}</textarea>
                     @error('observaciones')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -144,38 +119,24 @@
             <p class="text-sm text-gray-500 mb-6">Fechas de planificación y ejecución de la obra</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {{-- Fecha de Inicio --}}
                 <div>
-                    <label for="fecha_inicio" class="block text-sm font-medium text-gray-700 mb-2">
-                        Fecha de Inicio
-                        <span class="text-gray-500">*</span>
-                    </label>
-                    <input type="date" 
-                           id="fecha_inicio" 
-                           name="fecha_inicio" 
+                    <label for="fecha_inicio" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Inicio *</label>
+                    <input type="date" id="fecha_inicio" name="fecha_inicio" required 
                            value="{{ old('fecha_inicio') }}"
-                           required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('fecha_inicio') border-gray-400 @enderror">
+                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('fecha_inicio') border-red-500 @enderror">
                     @error('fecha_inicio')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
-                {{-- Fecha de Fin --}}
                 <div>
-                    <label for="fecha_fin" class="block text-sm font-medium text-gray-700 mb-2">
-                        Fecha de Finalización Prevista
-                    </label>
-                    <input type="date" 
-                           id="fecha_fin" 
-                           name="fecha_fin" 
+                    <label for="fecha_fin" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Finalización Prevista</label>
+                    <input type="date" id="fecha_fin" name="fecha_fin" 
                            value="{{ old('fecha_fin') }}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('fecha_fin') border-gray-400 @enderror">
+                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('fecha_fin') border-red-500 @enderror">
                     @error('fecha_fin')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                    {{-- Error de fechas será mostrado aquí --}}
-                    {{-- Duración del proyecto será mostrada aquí --}}
                 </div>
             </div>
         </div>
@@ -190,110 +151,104 @@
             </h3>
             <p class="text-sm text-gray-500 mb-6">Personal y equipo asignado para la ejecución del proyecto</p>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                {{-- Vehículo --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                    <label for="vehiculo_id" class="block text-sm font-medium text-gray-700 mb-2">
-                        Vehículo Asignado
-                    </label>
-                    <select id="vehiculo_id" 
-                            name="vehiculo_id"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('vehiculo_id') border-gray-400 @enderror">
-                        <option value="">Sin vehículo asignado</option>
-                        @if(isset($vehiculosDisponibles))
-                            @foreach($vehiculosDisponibles as $vehiculo)
-                                <option value="{{ $vehiculo->id }}" {{ old('vehiculo_id') == $vehiculo->id ? 'selected' : '' }}>
-                                    {{ $vehiculo->placas }} - {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
+                    <label for="vehiculo_search" class="block text-sm font-medium text-gray-700 mb-1">Vehículo Asignado</label>
+                    <div class="relative" x-data="vehiculoSearch()">
+                        <input type="text" 
+                               x-model="search"
+                               @focus="open = true"
+                               @click.away="open = false"
+                               placeholder="Buscar por placas, marca o modelo..."
+                               class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('vehiculo_id') border-red-500 @enderror">
+                        <input type="hidden" id="vehiculo_id" name="vehiculo_id" value="{{ old('vehiculo_id') }}">
+                        
+                        <div x-show="open && filteredVehiculos.length > 0" 
+                             x-transition
+                             class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                            <template x-for="vehiculo in filteredVehiculos" :key="vehiculo.id">
+                                <div @click="selectVehiculo(vehiculo)"
+                                     class="px-3 py-2 cursor-pointer hover:bg-gray-100 border-b border-gray-100">
+                                    <div class="font-medium text-gray-900" x-text="vehiculo.placas"></div>
+                                    <div class="text-sm text-gray-500" x-text="vehiculo.marca + ' ' + vehiculo.modelo + ' (' + vehiculo.anio + ')'"></div>
+                                </div>
+                            </template>
+                        </div>
+                        
+                        <div x-show="open && search && filteredVehiculos.length === 0"
+                             class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+                            <div class="text-gray-500 text-sm">No se encontraron vehículos</div>
+                        </div>
+                    </div>
                     @error('vehiculo_id')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
-                {{-- Operador --}}
                 <div>
-                    <label for="operador_id" class="block text-sm font-medium text-gray-700 mb-2">
-                        Operador Asignado
-                    </label>
-                    <select id="operador_id" 
-                            name="operador_id" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('operador_id') border-gray-400 @enderror">
-                        <option value="">Sin operador asignado</option>
-                        @if(isset($operadoresDisponibles))
-                            @foreach($operadoresDisponibles as $operador)
-                                <option value="{{ $operador->id }}" {{ old('operador_id') == $operador->id ? 'selected' : '' }}>
-                                    {{ $operador->nombre_completo }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
+                    <label for="operador_search" class="block text-sm font-medium text-gray-700 mb-1">Operador Asignado</label>
+                    <div class="relative" x-data="operadorSearch()">
+                        <input type="text" 
+                               x-model="search"
+                               @focus="open = true"
+                               @click.away="open = false"
+                               placeholder="Buscar operador por nombre..."
+                               class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('operador_id') border-red-500 @enderror">
+                        <input type="hidden" id="operador_id" name="operador_id" value="{{ old('operador_id') }}">
+                        
+                        <div x-show="open && filteredOperadores.length > 0" 
+                             x-transition
+                             class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                            <template x-for="operador in filteredOperadores" :key="operador.id">
+                                <div @click="selectOperador(operador)"
+                                     class="px-3 py-2 cursor-pointer hover:bg-gray-100 border-b border-gray-100">
+                                    <div class="font-medium text-gray-900" x-text="operador.nombre_completo"></div>
+                                </div>
+                            </template>
+                        </div>
+                        
+                        <div x-show="open && search && filteredOperadores.length === 0"
+                             class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+                            <div class="text-gray-500 text-sm">No se encontraron operadores</div>
+                        </div>
+                    </div>
                     @error('operador_id')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
-                {{-- Encargado --}}
                 <div>
-                    <label for="encargado_id" class="block text-sm font-medium text-gray-700 mb-2">
-                        Encargado de Obra
-                    </label>
-                    <select id="encargado_id" 
-                            name="encargado_id" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('encargado_id') border-gray-400 @enderror">
-                        <option value="">Sin encargado asignado</option>
-                        @if(isset($encargadosDisponibles))
-                            @foreach($encargadosDisponibles as $encargado)
-                                <option value="{{ $encargado->id }}" {{ old('encargado_id') == $encargado->id ? 'selected' : '' }}>
-                                    {{ $encargado->nombre_completo }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
+                    <label for="encargado_search" class="block text-sm font-medium text-gray-700 mb-1">Encargado de Obra</label>
+                    <div class="relative" x-data="encargadoSearch()">
+                        <input type="text" 
+                               x-model="search"
+                               @focus="open = true"
+                               @click.away="open = false"
+                               placeholder="Buscar encargado por nombre..."
+                               class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('encargado_id') border-red-500 @enderror">
+                        <input type="hidden" id="encargado_id" name="encargado_id" value="{{ old('encargado_id') }}">
+                        
+                        <div x-show="open && filteredEncargados.length > 0" 
+                             x-transition
+                             class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                            <template x-for="encargado in filteredEncargados" :key="encargado.id">
+                                <div @click="selectEncargado(encargado)"
+                                     class="px-3 py-2 cursor-pointer hover:bg-gray-100 border-b border-gray-100">
+                                    <div class="font-medium text-gray-900" x-text="encargado.nombre_completo"></div>
+                                </div>
+                            </template>
+                        </div>
+                        
+                        <div x-show="open && search && filteredEncargados.length === 0"
+                             class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+                            <div class="text-gray-500 text-sm">No se encontraron encargados</div>
+                        </div>
+                    </div>
                     @error('encargado_id')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
-
-            {{-- Fechas de Asignación --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                {{-- Fecha de Asignación --}}
-                <div>
-                    <label for="fecha_asignacion" class="block text-sm font-medium text-gray-700 mb-2">
-                        Fecha de Asignación
-                    </label>
-                    <input type="datetime-local" 
-                           id="fecha_asignacion" 
-                           name="fecha_asignacion" 
-                           value="{{ old('fecha_asignacion', date('Y-m-d\TH:i')) }}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('fecha_asignacion') border-gray-400 @enderror">
-                    @error('fecha_asignacion')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                {{-- Fecha de Liberación --}}
-                <div>
-                    <label for="fecha_liberacion" class="block text-sm font-medium text-gray-700 mb-2">
-                        Fecha de Liberación Prevista
-                        <span class="text-gray-400">(Opcional)</span>
-                    </label>
-                    <input type="datetime-local" 
-                           id="fecha_liberacion" 
-                           name="fecha_liberacion" 
-                           value="{{ old('fecha_liberacion') }}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('fecha_liberacion') border-gray-400 @enderror">
-                    @error('fecha_liberacion')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-
-            {{-- Alerta de validación de asignación --}}
-            {{-- Las alertas de asignación se mostrarán aquí --}}
         </div>
 
         {{-- Control de Kilometraje --}}
@@ -307,46 +262,25 @@
             <p class="text-sm text-gray-500 mb-6">Registro de kilometraje inicial y final del vehículo asignado</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {{-- Kilometraje Inicial --}}
                 <div>
-                    <label for="kilometraje_inicial" class="block text-sm font-medium text-gray-700 mb-2">
-                        Kilometraje Inicial
-                        <span class="text-gray-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <input type="number" 
-                               id="kilometraje_inicial" 
-                               name="kilometraje_inicial" 
-                               value="{{ old('kilometraje_inicial') }}"
-                               min="0"
-                               step="1"
-                               required
-                               placeholder="Ejemplo: 45000"
-                               class="w-full px-3 py-2 pr-12 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('kilometraje_inicial') border-gray-400 @enderror">
-                        <span class="absolute right-3 top-2 text-gray-500 text-sm">km</span>
-                    </div>
+                    <label for="kilometraje_inicial" class="block text-sm font-medium text-gray-700 mb-1">Kilometraje Inicial *</label>
+                    <input type="number" id="kilometraje_inicial" name="kilometraje_inicial" 
+                           value="{{ old('kilometraje_inicial') }}"
+                           min="0" step="1" required
+                           placeholder="Ejemplo: 45000"
+                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('kilometraje_inicial') border-red-500 @enderror">
                     @error('kilometraje_inicial')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
-                {{-- Kilometraje Final --}}
                 <div>
-                    <label for="kilometraje_final" class="block text-sm font-medium text-gray-700 mb-2">
-                        Kilometraje Final
-                        <span class="text-gray-400">(Se registra al finalizar)</span>
-                    </label>
-                    <div class="relative">
-                        <input type="number" 
-                               id="kilometraje_final" 
-                               name="kilometraje_final" 
-                               value="{{ old('kilometraje_final') }}"
-                               min="0"
-                               step="1"
-                               placeholder="Se llenará al finalizar la obra"
-                               class="w-full px-3 py-2 pr-12 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('kilometraje_final') border-gray-400 @enderror">
-                        <span class="absolute right-3 top-2 text-gray-500 text-sm">km</span>
-                    </div>
+                    <label for="kilometraje_final" class="block text-sm font-medium text-gray-700 mb-1">Kilometraje Final (Se registra al finalizar)</label>
+                    <input type="number" id="kilometraje_final" name="kilometraje_final" 
+                           value="{{ old('kilometraje_final') }}"
+                           min="0" step="1"
+                           placeholder="Se llenará al finalizar la obra"
+                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('kilometraje_final') border-red-500 @enderror">
                     @error('kilometraje_final')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -364,256 +298,187 @@
                 Documentos de la Obra
             </h3>
             <p class="text-sm text-gray-500 mb-6">Gestión de archivos y documentación legal del proyecto</p>
+            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-6">
-                        <!-- Contrato -->
-                        <div>
-                            <label for="archivo_contrato" class="block text-sm font-medium text-gray-700 mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-                                </svg>
-                                Contrato
-                            </label>
-                            <input type="file" 
-                                   class="w-full px-3 py-2 border-2 border-dashed border-petroyellow rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('archivo_contrato') border-red-400 @enderror" 
-                                   id="archivo_contrato" 
-                                   name="archivo_contrato" 
-                                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
-                            <p class="mt-1 text-xs text-gray-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                                </svg>
-                                Formato: PDF, JPG, PNG, DOC (máx. 10MB)
-                            </p>
-                            @error('archivo_contrato')
-                                <p class="mt-1 text-sm text-gray-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Fianza -->
-                        <div>
-                            <label for="archivo_fianza" class="block text-sm font-medium text-gray-700 mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" />
-                                </svg>
-                                Fianza
-                            </label>
-                            <input type="file" 
-                                   class="w-full px-3 py-2 border-2 border-dashed border-petroyellow rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('archivo_fianza') border-red-400 @enderror" 
-                                   id="archivo_fianza" 
-                                   name="archivo_fianza" 
-                                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
-                            <p class="mt-1 text-xs text-gray-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                                </svg>
-                                Formato: PDF, JPG, PNG, DOC (máx. 10MB)
-                            </p>
-                            @error('archivo_fianza')
-                                <p class="mt-1 text-sm text-gray-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Contrato</label>
+                    <div class="relative">
+                        <input type="file" name="archivo_contrato" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" 
+                               class="hidden" id="archivo_contrato" x-on:change="handleFileInput($event, 'contrato')">
+                        <label for="archivo_contrato" 
+                               class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
+                            <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <span class="text-base">Subir Contrato</span>
+                        </label>
+                        <p class="text-xs text-gray-500 text-center mt-2" x-text="fileStatus.contrato || 'PDF, JPG, PNG, DOC (máx. 10MB)'"></p>
+                    </div>
                 </div>
-                <div class="space-y-6">
-                        <!-- Acta Entrega-Recepción -->
-                        <div>
-                            <label for="archivo_acta_entrega_recepcion" class="block text-sm font-medium text-gray-700 mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
-                                </svg>
-                                Acta Entrega-Recepción
-                            </label>
-                            <input type="file" 
-                                   class="w-full px-3 py-2 border-2 border-dashed border-petroyellow rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('archivo_acta_entrega_recepcion') border-red-400 @enderror" 
-                                   id="archivo_acta_entrega_recepcion" 
-                                   name="archivo_acta_entrega_recepcion" 
-                                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
-                            <p class="mt-1 text-xs text-gray-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                                </svg>
-                                Formato: PDF, JPG, PNG, DOC (máx. 10MB)
-                            </p>
-                            @error('archivo_acta_entrega_recepcion')
-                                <p class="mt-1 text-sm text-gray-600">{{ $message }}</p>
-                            @enderror
-                        </div>
 
-                        <!-- Alert informativo -->
-                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                            <div class="flex items-start">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-3 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900 mb-1">Información:</p>
-                                    <p class="text-sm text-gray-600">
-                                        Los documentos son opcionales en la creación. Puedes subirlos ahora o editarlos posteriormente desde la vista de detalles de la obra.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Fianza</label>
+                    <div class="relative">
+                        <input type="file" name="archivo_fianza" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" 
+                               class="hidden" id="archivo_fianza" x-on:change="handleFileInput($event, 'fianza')">
+                        <label for="archivo_fianza" 
+                               class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
+                            <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <span class="text-base">Subir Fianza</span>
+                        </label>
+                        <p class="text-xs text-gray-500 text-center mt-2" x-text="fileStatus.fianza || 'PDF, JPG, PNG, DOC (máx. 10MB)'"></p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Acta Entrega-Recepción</label>
+                    <div class="relative">
+                        <input type="file" name="archivo_acta_entrega_recepcion" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" 
+                               class="hidden" id="archivo_acta_entrega_recepcion" x-on:change="handleFileInput($event, 'acta')">
+                        <label for="archivo_acta_entrega_recepcion" 
+                               class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
+                            <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <span class="text-base">Subir Acta</span>
+                        </label>
+                        <p class="text-xs text-gray-500 text-center mt-2" x-text="fileStatus.acta || 'PDF, JPG, PNG, DOC (máx. 10MB)'"></p>
+                    </div>
                 </div>
             </div>
         </div>
 
 
         {{-- Botones de acción --}}
-        <div class="bg-white border border-gray-200 rounded-lg p-6">
-            <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3">
-                <a href="{{ route('obras.index') }}" 
-                   class="w-full sm:w-auto px-6 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petroyellow transition duration-200 text-center">
-                    Cancelar
-                </a>
-                <button type="submit" 
-                        class="w-full sm:w-auto px-6 py-3 border border-transparent rounded-md shadow-sm bg-petroyellow text-white font-medium hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-petroyellow transition duration-200 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                    Crear Obra Completa
-                </button>
-            </div>
+        <div class="flex justify-end space-x-4">
+            <a href="{{ route('obras.index') }}" 
+               class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-200">
+                Cancelar
+            </a>
+            <button type="submit" 
+                    class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md transition duration-200">
+                Crear Obra Completa
+            </button>
         </div>
     </form>
 @endsection
 
 @push('scripts')
-{{-- Alpine.js script comentado temporalmente para debug
+<script src="//unpkg.com/alpinejs" defer></script>
 <script>
-    function obraController() {
-        return {
-            // Estados básicos
-            avance: {{ old('avance', 0) }},
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('obraFormController', () => ({
+            fileStatus: {
+                contrato: '',
+                fianza: '',
+                acta: ''
+            },
             
-            // Fechas
-            fechaInicio: '{{ old('fecha_inicio') }}',
-            fechaFin: '{{ old('fecha_fin') }}',
-            
-            // Asignación
-            vehiculoId: '{{ old('vehiculo_id') }}',
-            operadorId: '{{ old('operador_id') }}',
-            showAssignmentFields: false,
-            
-            // Validaciones
-            dateError: false,
-            dateErrorMessage: '',
-            assignmentError: false,
-            assignmentErrorMessage: '',
-
-            init() {
-                // Inicializar campos de asignación si hay datos
-                this.toggleAssignmentFields();
-                this.checkAssignmentConsistency();
-            },
-
-            updateAvanceBasedOnStatus() {
-                // Función mantenida para compatibilidad pero sin lógica de estatus
-                // El avance se maneja manualmente
-            },
-
-            toggleAssignmentFields() {
-                // Mostrar campos de asignación si hay vehículo u operador seleccionado
-                this.showAssignmentFields = this.vehiculoId || this.operadorId;
-            },
-
-            checkAssignmentConsistency() {
-                this.assignmentError = false;
-                this.assignmentErrorMessage = '';
-
-                // Validar consistencia en la asignación
-                if (this.vehiculoId && !this.operadorId) {
-                    this.assignmentError = true;
-                    this.assignmentErrorMessage = '⚠️ Si asigna un vehículo, debe también asignar un operador para garantizar su uso adecuado.';
-                } else if (this.operadorId && !this.vehiculoId) {
-                    this.assignmentError = true;
-                    this.assignmentErrorMessage = '⚠️ Si asigna un operador, debe también asignar un vehículo para que pueda trabajar.';
+            handleFileInput(event, type) {
+                const file = event.target.files[0];
+                if (!file) {
+                    this.fileStatus[type] = '';
+                    return;
                 }
-            },
 
-            validateDates() {
-                this.dateError = false;
-                this.dateErrorMessage = '';
-
-                if (this.fechaInicio && this.fechaFin) {
-                    const inicio = new Date(this.fechaInicio);
-                    const fin = new Date(this.fechaFin);
-                    const hoy = new Date();
-                    hoy.setHours(0, 0, 0, 0);
-
-                    if (fin <= inicio) {
-                        this.dateError = true;
-                        this.dateErrorMessage = '❌ La fecha de finalización debe ser posterior a la fecha de inicio';
-                    } else if (inicio < hoy) {
-                        // Advertencia si la fecha de inicio es en el pasado
-                        this.dateError = false;
-                        this.dateErrorMessage = '';
-                    }
+                // Validar tamaño (10MB)
+                const maxSize = 10 * 1024 * 1024;
+                if (file.size > maxSize) {
+                    alert('El archivo es demasiado grande. Máximo 10MB');
+                    event.target.value = '';
+                    this.fileStatus[type] = '';
+                    return;
                 }
-            },
 
-            calculateDuration() {
-                if (this.fechaInicio && this.fechaFin) {
-                    const inicio = new Date(this.fechaInicio);
-                    const fin = new Date(this.fechaFin);
-                    const diferencia = fin - inicio;
-                    const dias = Math.ceil(diferencia / (1000 * 60 * 60 * 24));
-                    
-                    if (dias === 1) {
-                        return '1 día';
-                    } else if (dias < 7) {
-                        return `${dias} días`;
-                    } else if (dias < 30) {
-                        const semanas = Math.floor(dias / 7);
-                        const diasRestantes = dias % 7;
-                        let resultado = `${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`;
-                        if (diasRestantes > 0) {
-                            resultado += ` y ${diasRestantes} ${diasRestantes === 1 ? 'día' : 'días'}`;
-                        }
-                        return resultado;
-                    } else if (dias < 365) {
-                        const meses = Math.floor(dias / 30);
-                        const diasRestantes = dias % 30;
-                        let resultado = `${meses} ${meses === 1 ? 'mes' : 'meses'}`;
-                        if (diasRestantes > 0) {
-                            const semanas = Math.floor(diasRestantes / 7);
-                            if (semanas > 0) {
-                                resultado += ` y ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`;
-                            } else if (diasRestantes > 0) {
-                                resultado += ` y ${diasRestantes} ${diasRestantes === 1 ? 'día' : 'días'}`;
-                            }
-                        }
-                        return resultado;
-                    } else {
-                        const años = Math.floor(dias / 365);
-                        const diasRestantes = dias % 365;
-                        let resultado = `${años} ${años === 1 ? 'año' : 'años'}`;
-                        if (diasRestantes > 0) {
-                            const meses = Math.floor(diasRestantes / 30);
-                            if (meses > 0) {
-                                resultado += ` y ${meses} ${meses === 1 ? 'mes' : 'meses'}`;
-                            }
-                        }
-                        return resultado;
-                    }
+                // Validar tipo de archivo
+                const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Formato de archivo no permitido. Solo se permiten: PDF, JPG, PNG, DOC, DOCX');
+                    event.target.value = '';
+                    this.fileStatus[type] = '';
+                    return;
                 }
-                return '';
-            },
 
-            // Formatear números para campos de combustible y costo
-            formatCurrency(value) {
-                if (!value) return '';
-                return new Intl.NumberFormat('es-MX', {
-                    style: 'currency',
-                    currency: 'MXN'
-                }).format(value);
-            },
-
-            formatNumber(value) {
-                if (!value) return '';
-                return new Intl.NumberFormat('es-MX').format(value);
+                this.fileStatus[type] = `✅ ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
             }
-        };
-    }
+        }));
+
+        // Función para búsqueda de vehículos
+        Alpine.data('vehiculoSearch', () => ({
+            open: false,
+            search: '',
+            selectedVehiculo: null,
+            vehiculos: @json($vehiculosDisponibles ?? []),
+            
+            get filteredVehiculos() {
+                if (!this.search) return this.vehiculos;
+                return this.vehiculos.filter(vehiculo => 
+                    vehiculo.placas.toLowerCase().includes(this.search.toLowerCase()) ||
+                    vehiculo.marca.toLowerCase().includes(this.search.toLowerCase()) ||
+                    vehiculo.modelo.toLowerCase().includes(this.search.toLowerCase())
+                );
+            },
+            
+            selectVehiculo(vehiculo) {
+                this.selectedVehiculo = vehiculo;
+                this.search = vehiculo.placas + ' - ' + vehiculo.marca + ' ' + vehiculo.modelo;
+                this.open = false;
+                document.getElementById('vehiculo_id').value = vehiculo.id;
+                
+                // Llenar automáticamente el kilometraje inicial con el kilometraje actual del vehículo
+                if (vehiculo.kilometraje_actual) {
+                    document.getElementById('kilometraje_inicial').value = vehiculo.kilometraje_actual;
+                }
+            }
+        }));
+
+        // Función para búsqueda de operadores
+        Alpine.data('operadorSearch', () => ({
+            open: false,
+            search: '',
+            selectedOperador: null,
+            operadores: @json($operadoresDisponibles ?? []),
+            
+            get filteredOperadores() {
+                if (!this.search) return this.operadores;
+                return this.operadores.filter(operador => 
+                    operador.nombre_completo.toLowerCase().includes(this.search.toLowerCase())
+                );
+            },
+            
+            selectOperador(operador) {
+                this.selectedOperador = operador;
+                this.search = operador.nombre_completo;
+                this.open = false;
+                document.getElementById('operador_id').value = operador.id;
+            }
+        }));
+
+        // Función para búsqueda de encargados
+        Alpine.data('encargadoSearch', () => ({
+            open: false,
+            search: '',
+            selectedEncargado: null,
+            encargados: @json($encargadosDisponibles ?? []),
+            
+            get filteredEncargados() {
+                if (!this.search) return this.encargados;
+                return this.encargados.filter(encargado => 
+                    encargado.nombre_completo.toLowerCase().includes(this.search.toLowerCase())
+                );
+            },
+            
+            selectEncargado(encargado) {
+                this.selectedEncargado = encargado;
+                this.search = encargado.nombre_completo;
+                this.open = false;
+                document.getElementById('encargado_id').value = encargado.id;
+            }
+        }));
+    });
 
     // Validación del formulario antes del envío
     document.addEventListener('DOMContentLoaded', function() {
@@ -669,5 +534,4 @@
         }
     });
 </script>
---}}
 @endpush
