@@ -303,5 +303,3 @@
         </div>
     </div>
 @endsection
-
-@endsection
