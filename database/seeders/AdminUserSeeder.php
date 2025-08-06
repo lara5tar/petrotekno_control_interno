@@ -16,53 +16,59 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Crear personal administrador
-        $categoriaAdmin = CategoriaPersonal::where('nombre_categoria', 'Administrador')->first();
-        $personal = Personal::create([
-            'nombre_completo' => 'Administrador del Sistema',
-            'estatus' => 'activo',
-            'categoria_id' => $categoriaAdmin->id,
-        ]);
+        // Crear personal administrador solo si no existe el usuario
+        if (!User::where('email', 'admin@petrotekno.com')->exists()) {
+            $categoriaAdmin = CategoriaPersonal::where('nombre_categoria', 'Administrador')->first();
+            $personal = Personal::create([
+                'nombre_completo' => 'Administrador del Sistema',
+                'estatus' => 'activo',
+                'categoria_id' => $categoriaAdmin->id,
+            ]);
 
-        // Crear usuario administrador
-        $adminRole = Role::where('nombre_rol', 'Admin')->first();
-        User::create([
-            'email' => 'admin@petrotekno.com',
-            'password' => Hash::make('password123'),
-            'rol_id' => $adminRole->id,
-            'personal_id' => $personal->id,
-        ]);
+            // Crear usuario administrador
+            $adminRole = Role::where('nombre_rol', 'Admin')->first();
+            User::create([
+                'email' => 'admin@petrotekno.com',
+                'password' => Hash::make('password123'),
+                'rol_id' => $adminRole->id,
+                'personal_id' => $personal->id,
+            ]);
+        }
 
         // Crear usuario supervisor de ejemplo
-        $categoriaSuper = CategoriaPersonal::where('nombre_categoria', 'Supervisor')->first();
-        $personalSuper = Personal::create([
-            'nombre_completo' => 'Juan Pérez Supervisor',
-            'estatus' => 'activo',
-            'categoria_id' => $categoriaSuper->id,
-        ]);
+        if (!User::where('email', 'supervisor@petrotekno.com')->exists()) {
+            $categoriaSuper = CategoriaPersonal::where('nombre_categoria', 'Supervisor')->first();
+            $personalSuper = Personal::create([
+                'nombre_completo' => 'Juan Pérez Supervisor',
+                'estatus' => 'activo',
+                'categoria_id' => $categoriaSuper->id,
+            ]);
 
-        $supervisorRole = Role::where('nombre_rol', 'Supervisor')->first();
-        User::create([
-            'email' => 'supervisor@petrotekno.com',
-            'password' => Hash::make('password123'),
-            'rol_id' => $supervisorRole->id,
-            'personal_id' => $personalSuper->id,
-        ]);
+            $supervisorRole = Role::where('nombre_rol', 'Supervisor')->first();
+            User::create([
+                'email' => 'supervisor@petrotekno.com',
+                'password' => Hash::make('password123'),
+                'rol_id' => $supervisorRole->id,
+                'personal_id' => $personalSuper->id,
+            ]);
+        }
 
         // Crear usuario operador de ejemplo
-        $categoriaOper = CategoriaPersonal::where('nombre_categoria', 'Operador')->first();
-        $personalOper = Personal::create([
-            'nombre_completo' => 'Carlos García Operador',
-            'estatus' => 'activo',
-            'categoria_id' => $categoriaOper->id,
-        ]);
+        if (!User::where('email', 'operador@petrotekno.com')->exists()) {
+            $categoriaOper = CategoriaPersonal::where('nombre_categoria', 'Operador')->first();
+            $personalOper = Personal::create([
+                'nombre_completo' => 'Carlos García Operador',
+                'estatus' => 'activo',
+                'categoria_id' => $categoriaOper->id,
+            ]);
 
-        $operadorRole = Role::where('nombre_rol', 'Operador')->first();
-        User::create([
-            'email' => 'operador@petrotekno.com',
-            'password' => Hash::make('password123'),
-            'rol_id' => $operadorRole->id,
-            'personal_id' => $personalOper->id,
-        ]);
+            $operadorRole = Role::where('nombre_rol', 'Operador')->first();
+            User::create([
+                'email' => 'operador@petrotekno.com',
+                'password' => Hash::make('password123'),
+                'rol_id' => $operadorRole->id,
+                'personal_id' => $personalOper->id,
+            ]);
+        }
     }
 }

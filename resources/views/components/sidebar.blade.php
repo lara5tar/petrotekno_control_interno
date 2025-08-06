@@ -1,8 +1,4 @@
-<!-- resources/            <x-sidebar-item 
-                route="{{ route('vehiculos.index') }}" 
-                :active="request()->routeIs('vehiculos.*')" 
-                icon='<path d="M8 16.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM15 16.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M3 4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h1.05a2.5 2.5 0 1 1 4.9 0H11a1 1 0 0 0 1-1v-1h3.05a2.5 2.5 0 1 1 4.9 0H20a1 1 0 0 0 1-1V8a1 1 0 0 0-.293-.707l-2-2A1 1 0 0 0 18 5h-3.05a2.5 2.5 0 0 1-4.9 0H7a1 1 0 0 0-1 1v1.05a2.5 2.5 0 1 1 0 4.9V11a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h1.05a2.5 2.5 0 1 1 4.9 0H11a1 1 0 0 0 1-1v-1h3.05a2.5 2.5 0 1 1 4.9 0H20a1 1 0 0 0 1-1V8a1 1 0 0 0-.293-.707l-2-2A1 1 0 0 0 18 5h-3.05a2.5 2.5 0 0 1-4.9 0H7a1 1 0 0 0-1 1z"/>'
-                label="Vehículos" />/components/sidebar.blade.php -->
+<!-- resources/views/components/sidebar.blade.php -->
 <div class="w-full h-full flex flex-col">
     <div class="text-center px-5 p-10">
         <img src="{{ asset('logo-petro2.png') }}" alt="Petrotekno" class="w-48 h-auto mx-auto">
@@ -25,7 +21,7 @@
 
             <x-sidebar-item 
                 route="{{ route('kilometrajes.index') }}" 
-                :active="request()->routeIs('kilometrajes.*')" 
+                :active="request()->routeIs('kilometrajes.index') || request()->routeIs('kilometrajes.create') || request()->routeIs('kilometrajes.edit') || request()->routeIs('kilometrajes.show') || request()->routeIs('kilometrajes.historial')" 
                 icon='<path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/>'
                 label="Kilometrajes" />
 

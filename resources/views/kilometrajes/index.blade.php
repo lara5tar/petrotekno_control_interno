@@ -148,13 +148,6 @@
                             <tr class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-8 w-8">
-                                            <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
-                                        </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-gray-900">{{ $kilometraje->vehiculo->placas }}</div>
                                             <div class="text-sm text-gray-500">{{ $kilometraje->vehiculo->marca }} {{ $kilometraje->vehiculo->modelo }}</div>
