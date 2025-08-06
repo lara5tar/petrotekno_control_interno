@@ -700,6 +700,50 @@ Route::middleware('auth')->prefix('kilometrajes')->name('kilometrajes.')->group(
         ->name('alertas');
 });
 
+// Rutas para Mantenimientos (CRUD completo)
+Route::middleware('auth')->prefix('mantenimientos')->name('mantenimientos.')->group(function () {
+    Route::get('/', [MantenimientoController::class, 'index'])
+        ->name('index')
+        ->middleware('permission:ver_mantenimientos');
+
+    Route::get('/create', [MantenimientoController::class, 'create'])
+        ->name('create')
+        ->middleware('permission:crear_mantenimientos');
+
+    Route::post('/', [MantenimientoController::class, 'store'])
+        ->name('store')
+        ->middleware('permission:crear_mantenimientos');
+
+    Route::get('/{id}', [MantenimientoController::class, 'show'])
+        ->name('show')
+        ->middleware('permission:ver_mantenimientos');
+
+    Route::get('/{id}/edit', [MantenimientoController::class, 'edit'])
+        ->name('edit')
+        ->middleware('permission:actualizar_mantenimientos');
+
+    Route::put('/{id}', [MantenimientoController::class, 'update'])
+        ->name('update')
+        ->middleware('permission:actualizar_mantenimientos');
+
+    Route::delete('/{id}', [MantenimientoController::class, 'destroy'])
+        ->name('destroy')
+        ->middleware('permission:eliminar_mantenimientos');
+
+    Route::post('/{id}/restore', [MantenimientoController::class, 'restore'])
+        ->name('restore')
+        ->middleware('permission:restaurar_mantenimientos');
+
+    // Rutas adicionales específicas
+    Route::get('/proximos/kilometraje', [MantenimientoController::class, 'proximosPorKilometraje'])
+        ->name('proximos.kilometraje')
+        ->middleware('permission:ver_mantenimientos');
+
+    Route::get('/estadisticas/general', [MantenimientoController::class, 'estadisticas'])
+        ->name('estadisticas')
+        ->middleware('permission:ver_mantenimientos');
+});
+
 // Ruta para vista de usuario (datos estáticos)
 Route::get('/usuarios/{id}', function ($id) {
     return view('usuarios.show');

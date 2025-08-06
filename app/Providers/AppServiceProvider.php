@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Models\Mantenimiento;
 use App\Observers\MantenimientoObserver;
+use App\View\Composers\AlertasComposer;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
     {
         // Registrar observers
         Mantenimiento::observe(MantenimientoObserver::class);
+
+        // Registrar View Composers
+        View::composer('layouts.app', AlertasComposer::class);
 
         // Registrar directivas Blade personalizadas
         Blade::directive('hasPermission', function ($permission) {

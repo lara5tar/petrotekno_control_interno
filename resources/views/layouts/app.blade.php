@@ -112,15 +112,6 @@
             </div>
             <div class="flex items-center space-x-4">
                 <!-- Botón de Alertas -->
-                @php
-                    // Aquí podrías obtener el número real de alertas desde un servicio o consulta
-                    // Por ahora uso un ejemplo, pero deberías reemplazarlo con la lógica real
-                    $alertasCount = 3; // Ejemplo temporal
-                    
-                    // Ejemplo de cómo podrías obtener las alertas reales:
-                    // $alertasCount = \App\Services\AlertasService::getAlertasCount();
-                @endphp
-                
                 <a href="{{ route('kilometrajes.alertas') }}" 
                    class="relative p-2 rounded-full hover:bg-gray-700 transition-colors duration-200 group"
                    title="Ver alertas de mantenimiento">
@@ -131,7 +122,7 @@
                     
                     <!-- Badge con número de alertas -->
                     @if($alertasCount > 0)
-                        <span class="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                        <span class="absolute -top-1 -right-1 h-5 w-5 {{ $tieneAlertasUrgentes ? 'bg-red-500' : 'bg-yellow-500' }} text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
                             {{ $alertasCount > 99 ? '99+' : $alertasCount }}
                         </span>
                     @endif
