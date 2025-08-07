@@ -234,6 +234,91 @@ class Vehiculo extends Model
     }
 
     /**
+     * Obtener la obra actual del vehículo (obra activa sin liberar)
+     */
+    public function obraActual()
+    {
+        return $this->hasOne(Obra::class, 'vehiculo_id')
+            ->whereNull('fecha_liberacion')
+            ->whereIn('estatus', ['en_progreso', 'planificada'])
+            ->latest('fecha_asignacion');
+    }
+
+    /**
+     * Verificar si el vehículo tiene una obra actual activa
+     */
+    public function tieneObraActual(): bool
+    {
+        return $this->obraActual()->exists();
+    }
+
+    /**
+     * Verificar si el vehículo está disponible para asignación
+     */
+    public function estaDisponible(): bool
+    {
+        // Verificar que el estatus sea disponible/activo y no tenga obra actual
+        $estatusDisponible = $this->estatus && in_array(
+            strtolower($this->estatus->nombre_estatus), 
+            ['disponible', 'activo']
+        );
+        
+        return $estatusDisponible && !$this->tieneObraActual();
+    }
+
+    /**
+     * Obtener el operador actual del vehículo (si tiene obra activa)
+     */
+    public function operadorActual()
+    {
+        $obraActual = $this->obraActual;
+        return $obraActual ? $obraActual->operador : null;
+    }
+
+    /**
+     * Obtener información resumida del estado actual del vehículo
+     */
+    public function getEstadoActualAttribute(): array
+    {
+        $obraActual = $this->obraActual;
+        
+        return [
+            'tiene_obra_activa' => $this->tieneObraActual(),
+            'obra_actual' => $obraActual ? [
+                'id' => $obraActual->id,
+                'nombre' => $obraActual->nombre_obra,
+                'estatus' => $obraActual->estatus,
+                'fecha_asignacion' => $obraActual->fecha_asignacion,
+                'operador' => $obraActual->operador ? $obraActual->operador->nombre_completo : null,
+            ] : null,
+            'esta_disponible' => $this->estaDisponible(),
+            'estatus_vehiculo' => $this->estatus ? $this->estatus->nombre_estatus : 'Sin estatus',
+        ];
+    }
+
+    /**
+     * Scope para filtrar vehículos con obra actual
+     */
+    public function scopeConObraActual($query)
+    {
+        return $query->whereHas('obras', function ($q) {
+            $q->whereNull('fecha_liberacion')
+              ->whereIn('estatus', ['en_progreso', 'planificada']);
+        });
+    }
+
+    /**
+     * Scope para filtrar vehículos sin obra actual
+     */
+    public function scopeSinObraActual($query)
+    {
+        return $query->whereDoesntHave('obras', function ($q) {
+            $q->whereNull('fecha_liberacion')
+              ->whereIn('estatus', ['en_progreso', 'planificada']);
+        });
+    }
+
+    /**
      * Accessor para nombre completo del vehículo
      */
     public function getNombreCompletoAttribute()

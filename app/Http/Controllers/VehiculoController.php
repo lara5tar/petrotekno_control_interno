@@ -351,7 +351,15 @@ class VehiculoController extends Controller
         }
 
         try {
-            $vehiculo = Vehiculo::with('estatus')->findOrFail($id);
+            $vehiculo = Vehiculo::with([
+                'estatus',
+                'obraActual.operador',
+                'obraActual.encargado.personal',
+                'kilometrajes' => function($query) {
+                    $query->latest('fecha_captura')->take(10);
+                },
+                'kilometrajes.usuarioCaptura'
+            ])->findOrFail($id);
 
             // Para solicitudes API (JSON)
             if ($request->expectsJson()) {

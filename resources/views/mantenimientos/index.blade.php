@@ -1,109 +1,134 @@
 @extends('layouts.app')
 
 @section('title', 'Mantenimientos')
+
 @section('header', 'Gestión de Mantenimientos')
 
 @section('content')
-<div class="max-w-7xl mx-auto">
-    <!-- Header con botón de crear -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h2 class="text-xl font-semibold text-gray-800">Listado de Mantenimientos</h2>
+    {{-- Breadcrumb --}}
+    <x-breadcrumb :items="[
+        ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
+        ['label' => 'Mantenimientos']
+    ]" />
+
+    <!-- Encabezado con botones de agregar -->
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Listado de Mantenimientos</h2>
+        <div>
             <a href="{{ route('mantenimientos.create') }}" 
-               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-200">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+               class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded flex items-center transition duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                 </svg>
-                Nuevo Mantenimiento
+                Agregar Mantenimiento
             </a>
         </div>
+    </div>
 
-        <!-- Filtros -->
-        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
-            <form method="GET" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
-                    <div class="md:col-span-2">
-                        <input type="text" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                               name="buscar" 
-                               placeholder="Buscar por proveedor o descripción" 
-                               value="{{ request('buscar') }}">
-                    </div>
-                    <div>
-                        <select name="vehiculo_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="">Todos los vehículos</option>
-                            @foreach($vehiculosOptions as $vehiculo)
-                                <option value="{{ $vehiculo->id }}" 
-                                        {{ request('vehiculo_id') == $vehiculo->id ? 'selected' : '' }}>
-                                    {{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->placas }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <select name="tipo_servicio" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="">Todos los tipos</option>
-                            @foreach($tiposServicioOptions as $tipo)
-                                <option value="{{ $tipo->id }}" 
-                                        {{ request('tipo_servicio') == $tipo->id ? 'selected' : '' }}>
-                                    {{ $tipo->nombre_tipo_servicio }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <input type="date" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                               name="fecha_desde" 
-                               value="{{ request('fecha_desde') }}"
-                               title="Fecha desde">
-                    </div>
-                    <div>
-                        <button type="submit" class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md transition-colors duration-200">
-                            <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+    <!-- Alertas de sesión -->
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6" role="alert">
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
+            <span class="block sm:inline">{{ session('error') }}</span>
+        </div>
+    @endif
+
+    <!-- Filtros y búsqueda -->
+    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <form method="GET" action="{{ route('mantenimientos.index') }}" id="filtrosForm">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                <div class="flex-1">
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                             </svg>
-                        </button>
+                        </div>
+                        <input type="text" 
+                               id="search" 
+                               name="buscar" 
+                               value="{{ request('buscar') }}"
+                               placeholder="Buscar por proveedor o descripción" 
+                               class="pl-10 p-2 border border-gray-300 rounded-md w-full">
                     </div>
                 </div>
-                
-                @if(request()->hasAny(['buscar', 'vehiculo_id', 'tipo_servicio', 'fecha_desde']))
-                    <div class="flex justify-start">
-                        <a href="{{ route('mantenimientos.index') }}" class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                            Limpiar filtros
+                <div class="flex-1 md:flex-none md:w-48">
+                    <label for="vehiculo" class="block text-sm font-medium text-gray-700 mb-1">Vehículo</label>
+                    <select id="vehiculo" 
+                            name="vehiculo_id"
+                            class="p-2 border border-gray-300 rounded-md w-full">
+                        <option value="">Todos los vehículos</option>
+                        @foreach($vehiculosOptions as $vehiculo)
+                            <option value="{{ $vehiculo->id }}" {{ request('vehiculo_id') == $vehiculo->id ? 'selected' : '' }}>
+                                {{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->placas }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex-1 md:flex-none md:w-48">
+                    <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Servicio</label>
+                    <select id="tipo" 
+                            name="tipo_servicio"
+                            class="p-2 border border-gray-300 rounded-md w-full">
+                        <option value="">Todos los tipos</option>
+                        @foreach($tiposServicioOptions as $tipo)
+                            <option value="{{ $tipo->id }}" {{ request('tipo_servicio') == $tipo->id ? 'selected' : '' }}>
+                                {{ $tipo->nombre_tipo_servicio }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex-1 md:flex-none md:w-48">
+                    <label for="fecha" class="block text-sm font-medium text-gray-700 mb-1">Fecha desde</label>
+                    <input type="date" 
+                           id="fecha"
+                           name="fecha_desde" 
+                           value="{{ request('fecha_desde') }}"
+                           class="p-2 border border-gray-300 rounded-md w-full">
+                </div>
+                <div class="flex gap-2">
+                    <button type="submit" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded transition duration-200">
+                        Filtrar
+                    </button>
+                    @if(request()->hasAny(['buscar', 'vehiculo_id', 'tipo_servicio', 'fecha_desde']))
+                        <a href="{{ route('mantenimientos.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition duration-200">
+                            Limpiar
                         </a>
-                    </div>
-                @endif
-            </form>
-        </div>
+                    @endif
+                </div>
+            </div>
+        </form>
+    </div>
 
-        <!-- Tabla de mantenimientos -->
+    <!-- Tabla de mantenimientos -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
         <div class="overflow-x-auto">
             @if($mantenimientos->count() > 0)
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sistema</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proveedor</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Costo</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sistema</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proveedor</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Costo</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($mantenimientos as $mantenimiento)
                             <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    #{{ $mantenimiento->id }}
-                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ str_pad($mantenimiento->id, 4, '0', STR_PAD_LEFT) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if($mantenimiento->vehiculo)
                                         <div class="text-sm font-medium text-gray-900">
@@ -115,24 +140,27 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
-                                        {{ $mantenimiento->tipo_servicio === 'PREVENTIVO' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                        {{ $mantenimiento->tipo_servicio }}
-                                    </span>
+                                    @if($mantenimiento->tipo_servicio === 'PREVENTIVO')
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Preventivo</span>
+                                    @elseif($mantenimiento->tipo_servicio === 'CORRECTIVO')
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Correctivo</span>
+                                    @else
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">{{ ucfirst($mantenimiento->tipo_servicio) }}</span>
+                                    @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <span class="capitalize">{{ $mantenimiento->sistema_vehiculo ?: 'General' }}</span>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $mantenimiento->sistema_vehiculo ?: 'General' }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $mantenimiento->proveedor ?: 'No especificado' }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $mantenimiento->fecha_inicio ? \Carbon\Carbon::parse($mantenimiento->fecha_inicio)->format('d/m/Y') : 'N/A' }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ number_format($mantenimiento->kilometraje_servicio) }} km
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     @if($mantenimiento->costo)
                                         ${{ number_format($mantenimiento->costo, 2) }}
                                     @else
@@ -141,30 +169,22 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if($mantenimiento->fecha_fin)
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                            Completado
-                                        </span>
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Completado</span>
                                     @else
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            En Proceso
-                                        </span>
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">En Proceso</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-2">
-                                        <a href="{{ route('mantenimientos.show', $mantenimiento->id) }}" 
-                                           class="text-blue-600 hover:text-blue-900 transition-colors duration-200"
-                                           title="Ver detalles">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end space-x-2">
+                                        <a href="{{ route('mantenimientos.show', $mantenimiento->id) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
                                             </svg>
                                         </a>
-                                        <a href="{{ route('mantenimientos.edit', $mantenimiento->id) }}" 
-                                           class="text-yellow-600 hover:text-yellow-900 transition-colors duration-200"
-                                           title="Editar">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        <a href="{{ route('mantenimientos.edit', $mantenimiento->id) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                             </svg>
                                         </a>
                                         <form method="POST" 
@@ -174,10 +194,10 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" 
-                                                    class="text-red-600 hover:text-red-900 transition-colors duration-200"
+                                                    class="text-red-600 hover:text-red-900"
                                                     title="Eliminar">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                                                 </svg>
                                             </button>
                                         </form>
@@ -187,20 +207,6 @@
                         @endforeach
                     </tbody>
                 </table>
-
-                <!-- Paginación -->
-                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                    <div class="flex items-center justify-between">
-                        <div class="text-sm text-gray-700">
-                            Mostrando {{ $mantenimientos->firstItem() ?: 0 }} - {{ $mantenimientos->lastItem() ?: 0 }} 
-                            de {{ $mantenimientos->total() }} mantenimientos
-                        </div>
-                        <div>
-                            {{ $mantenimientos->appends(request()->query())->links() }}
-                        </div>
-                    </div>
-                </div>
-
             @else
                 <div class="text-center py-12">
                     <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -215,9 +221,9 @@
                         @endif
                     </p>
                     <a href="{{ route('mantenimientos.create') }}" 
-                       class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg inline-flex items-center transition-colors duration-200">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                       class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded inline-flex items-center transition duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                         </svg>
                         Registrar Mantenimiento
                     </a>
@@ -225,5 +231,12 @@
             @endif
         </div>
     </div>
-</div>
+
+    @if($mantenimientos->count() > 0)
+    <!-- Paginación -->
+    <div class="mt-6">
+        {{ $mantenimientos->appends(request()->query())->links() }}
+    </div>
+    @endif
+
 @endsection

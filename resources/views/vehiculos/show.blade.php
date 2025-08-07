@@ -190,67 +190,85 @@
                                         </svg>
                                         Obra Actual
                                     </h5>
-                                    <button class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                        </svg>
-                                        Cambiar Obra
-                                    </button>
+                                    @if($vehiculo->obraActual)
+                                        <button class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            Cambiar Obra
+                                        </button>
+                                    @endif
                                 </div>
                                 
-                                <div class="space-y-2">
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Nombre de Obra</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                Libramiento Monterrey
+                                @if($vehiculo->obraActual)
+                                    <div class="space-y-2">
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Nombre de Obra</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $vehiculo->obraActual->nombre_obra }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Estatus</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ ucfirst(str_replace('_', ' ', $vehiculo->obraActual->estatus)) }}
+                                                </div>
                                             </div>
                                         </div>
+                                        
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Fecha Asignación</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $vehiculo->obraActual->fecha_asignacion ? $vehiculo->obraActual->fecha_asignacion->format('d/m/Y') : 'Sin fecha' }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Avance</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $vehiculo->obraActual->avance ?? 0 }}%
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Km. Inicial</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $vehiculo->obraActual->kilometraje_inicial ? number_format($vehiculo->obraActual->kilometraje_inicial) : 'Sin registrar' }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Días Activa</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $vehiculo->obraActual->fecha_asignacion ? $vehiculo->obraActual->fecha_asignacion->diffInDays(now()) : 0 }} días
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
                                         <div>
-                                            <label class="block text-sm text-gray-600">Ubicación</label>
+                                            <label class="block text-sm text-gray-600">Responsable de Obra</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                Monterrey, N.L.
+                                                {{ $vehiculo->obraActual->encargado->personal->nombre_completo ?? 'Sin asignar' }}
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Fecha Inicio</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                1/02/2025
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Fecha Finalización</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                15/07/2025
-                                            </div>
-                                        </div>
+                                @else
+                                    <div class="text-center py-8">
+                                        <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                        <p class="text-gray-500 text-sm mb-2">Sin obra asignada</p>
+                                        <p class="text-gray-400 text-xs">El vehículo está disponible para asignación</p>
+                                        <button class="mt-3 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition-colors duration-200 flex items-center mx-auto text-sm">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                            </svg>
+                                            Asignar a Obra
+                                        </button>
                                     </div>
-                                    
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Km. Inicial</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                124,500
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Km. Final</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                200
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-sm text-gray-600">Responsable de Obra</label>
-                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                            Delgado Reyes
-                                        </div>
-                                    </div>
-                                </div>
+                                @endif
                             </div>
                             
                             <!-- Sección: Operador Actual -->
@@ -382,10 +400,6 @@
                                                     </td>
                                                 </tr>
                                             @endif
-                                                        </svg>
-                                                    </button>
-                                                </td>
-                                            </tr>
                                             <tr>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">120,574</td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">15/05/2023</td>
@@ -638,441 +652,127 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                
-                                <!-- Botones de acción -->
-                                <div class="flex justify-end items-center pt-4 border-t border-gray-200 mt-4">
-                                    <button class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                                        </svg>
-                                        Ver Historial Completo
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
-    
-    <!-- Botones de acción flotantes -->
-    <div class="fixed bottom-6 right-6 flex space-x-4 z-50">
-        @hasPermission('imprimir_vehiculos')
-        <button onclick="imprimirDetalles()" 
-                class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 flex items-center shadow-lg">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-1a2 2 0 00-2-2H9a2 2 0 00-2 2v1a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            Imprimir
-        </button>
-        @endhasPermission
-        
-        @hasPermission('editar_vehiculos')
-        <a href="{{ route('vehiculos.edit', $vehiculo->id ?? 1) }}" 
-           class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 shadow-lg">
-            Editar
-        </a>
-        @endhasPermission
-        
-        @hasPermission('eliminar_vehiculos')
-        <button onclick="confirmarEliminacion('{{ $vehiculo->id ?? 1 }}')" 
-                class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 shadow-lg">
-            Eliminar
-        </button>
-        @endhasPermission
+</div>
+
+<!-- Modales -->
+<!-- Modal para agregar kilometraje -->
+<div id="add-kilometraje-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="bg-black bg-opacity-50 absolute inset-0"></div>
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden w-full max-w-md z-10">
+        <div class="px-4 py-3 border-b">
+            <h3 class="text-lg font-semibold text-gray-800" id="modal-title">Agregar Kilometraje</h3>
+        </div>
+        <div class="p-4">
+            <form id="add-kilometraje-form">
+                @csrf
+                <div class="mb-4">
+                    <label for="kilometraje" class="block text-sm font-medium text-gray-700">Kilometraje</label>
+                    <input type="number" name="kilometraje" id="kilometraje" required
+                           class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label for="fecha_captura" class="block text-sm font-medium text-gray-700">Fecha</label>
+                    <input type="date" name="fecha_captura" id="fecha_captura" required
+                           class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label for="ubicacion" class="block text-sm font-medium text-gray-700">Ubicación</label>
+                    <input type="text" name="ubicacion" id="ubicacion" required
+                           class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label for="observaciones" class="block text-sm font-medium text-gray-700">Observaciones</label>
+                    <textarea name="observaciones" id="observaciones" rows="3"
+                              class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('add-kilometraje-modal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-200">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200">
+                        Guardar Kilometraje
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 <!-- Modal para subir documentos -->
-<div id="uploadDocumentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Subir Documento</h3>
-            <button onclick="closeUploadDocumentModal()" class="text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
+<div id="upload-document-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="bg-black bg-opacity-50 absolute inset-0"></div>
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden w-full max-w-md z-10">
+        <div class="px-4 py-3 border-b">
+            <h3 class="text-lg font-semibold text-gray-800" id="modal-title">Subir Documento</h3>
         </div>
-        <form id="uploadDocumentForm" enctype="multipart/form-data">
-            <div class="mb-4">
-                <label for="document_name" class="block text-sm font-medium text-gray-700 mb-1">Nombre del Documento</label>
-                <input type="text" id="document_name" name="document_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
-            </div>
-            <div class="mb-4">
-                <label for="document_file" class="block text-sm font-medium text-gray-700 mb-1">Archivo</label>
-                <input type="file" id="document_file" name="document_file" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
-
-            </div>
-            <div class="mb-4">
-                <label for="expiration_date" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Vencimiento (opcional)</label>
-                <input type="date" id="expiration_date" name="expiration_date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-            </div>
-            <div class="flex justify-end space-x-3">
-                <button type="button" onclick="closeUploadDocumentModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded text-sm">
-                    Cancelar
-                </button>
-                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
-                    Subir
-                </button>
-            </div>
-        </form>
+        <div class="p-4">
+            <form id="upload-document-form">
+                @csrf
+                <div class="mb-4">
+                    <label for="documento" class="block text-sm font-medium text-gray-700">Seleccionar Documento</label>
+                    <input type="file" name="documento" id="documento" accept=".pdf,.jpg,.jpeg,.png" required
+                           class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label for="tipo_documento" class="block text-sm font-medium text-gray-700">Tipo de Documento</label>
+                    <select name="tipo_documento" id="tipo_documento" required
+                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Seleccione un tipo</option>
+                        <option value="tarjeta_circulacion">Tarjeta de Circulación</option>
+                        <option value="poliza_seguro">Póliza de Seguro</option>
+                        <option value="verificacion_vehicular">Verificación Vehicular</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('upload-document-modal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-200">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200">
+                        Subir Documento
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<!-- Modal para capturar kilometraje -->
-<div id="addKilometrajeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Registrar Nuevo Kilometraje</h3>
-            <button onclick="closeAddKilometrajeModal()" class="text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
-        <form id="addKilometrajeForm">
-            <div class="mb-4">
-                <label for="kilometraje" class="block text-sm font-medium text-gray-700 mb-1">Kilometraje</label>
-                <input type="number" id="kilometraje" name="kilometraje" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
-            </div>
-            <div class="mb-4">
-                <label for="fecha" class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
-                <input type="date" id="fecha" name="fecha" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
-            </div>
-            <div class="flex justify-end space-x-3">
-                <button type="button" onclick="closeAddKilometrajeModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded text-sm">
-                    Cancelar
-                </button>
-                <button type="button" onclick="submitKilometraje()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
-                    Guardar
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
 @endsection
 
-@push('scripts')
-<script src="//unpkg.com/alpinejs" defer></script>
+@section('scripts')
 <script>
-// Función para visualizar documentos
-function viewDocument(fileName) {
-    const documentUrl = `/storage/vehiculos/documentos/${fileName}`;
-    
-    if (fileName.toLowerCase().endsWith('.pdf')) {
-        window.open(documentUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
-    } else {
-        showDocumentModal(documentUrl, fileName);
+    // Función para mostrar el modal de agregar kilometraje
+    function showAddKilometrajeModal() {
+        document.getElementById('add-kilometraje-modal').classList.remove('hidden');
     }
-}
 
-// Función para visualizar imágenes
-function viewImage(imageUrl, imageName) {
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50';
-    modal.id = 'imageModal';
-    
-    modal.innerHTML = `
-        <div class="relative top-10 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-medium text-gray-900">${imageName}</h3>
-                <button onclick="closeImageModal()" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            <div class="mb-4 flex justify-center">
-                <img src="${imageUrl}" alt="${imageName}" class="max-w-full max-h-96 object-contain rounded">
-            </div>
-            <div class="flex justify-end space-x-3">
-                <button onclick="downloadImage('${imageUrl}', '${imageName}')" 
-                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
-                    Descargar
-                </button>
-                <button onclick="closeImageModal()" 
-                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded text-sm">
-                    Cerrar
-                </button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-}
-
-// Función para cerrar modal de imagen
-function closeImageModal() {
-    const modal = document.getElementById('imageModal');
-    if (modal) {
-        modal.remove();
+    // Función para cerrar modales
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
     }
-}
 
-// Función para descargar imagen
-function downloadImage(imageUrl, imageName) {
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = imageName.toLowerCase().replace(/\s+/g, '_') + '.jpg';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-// Función para mostrar modal de documento
-function showDocumentModal(url, fileName) {
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50';
-    modal.id = 'documentModal';
-    
-    modal.innerHTML = `
-        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-medium text-gray-900">${fileName}</h3>
-                <button onclick="closeDocumentModal()" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            <div class="mb-4">
-                <div class="flex justify-center bg-gray-100 p-4 rounded">
-                    <div class="text-center">
-                        <svg class="w-16 h-16 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        <p class="text-gray-600">Vista previa del documento</p>
-                        <p class="text-sm text-gray-500">${fileName}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="flex justify-end space-x-3">
-                <button onclick="downloadDocument('${url}', '${fileName}')" 
-                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
-                    Descargar
-                </button>
-                <button onclick="closeDocumentModal()" 
-                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded text-sm">
-                    Cerrar
-                </button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-}
-
-// Función para cerrar modal
-function closeDocumentModal() {
-    const modal = document.getElementById('documentModal');
-    if (modal) {
-        modal.remove();
-    }
-}
-
-// Función para descargar documento
-function downloadDocument(url, fileName) {
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-// Funciones para el modal de subir documentos
-function showUploadDocumentModal() {
-    const modal = document.getElementById('uploadDocumentModal');
-    modal.classList.remove('hidden');
-}
-
-function closeUploadDocumentModal() {
-    const modal = document.getElementById('uploadDocumentModal');
-    modal.classList.add('hidden');
-    document.getElementById('uploadDocumentForm').reset();
-}
-
-// Manejar el envío del formulario de documentos
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('uploadDocumentForm').addEventListener('submit', function(e) {
+    // Manejar el envío del formulario de agregar kilometraje
+    document.getElementById('add-kilometraje-form').addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        // Aquí iría la lógica para enviar el documento al servidor
-        const formData = new FormData(this);
-        formData.append('vehicle_id', '{{ $vehiculo->id }}'); // Agregar el ID del vehículo
-        
-        // Simulación de subida exitosa (en producción, aquí iría una llamada AJAX)
-        console.log('Subiendo documento:', formData.get('document_name'));
-        
-        // Después de subir, agregar el documento a la lista
-        addDocumentToList({
-            name: formData.get('document_name'),
-            expiration_date: formData.get('expiration_date') ? formatDate(formData.get('expiration_date')) : 'Sin fecha de vencimiento'
-        });
-        
-        closeUploadDocumentModal();
+        // Aquí puedes agregar la lógica para guardar el kilometraje, como una llamada AJAX
+        // Por ahora, solo cerraremos el modal y mostraremos un mensaje
+        closeModal('add-kilometraje-modal');
+        alert('Kilometraje agregado exitosamente');
     });
-});
 
-// Función para agregar un documento a la lista
-function addDocumentToList(document) {
-    // Ocultar el mensaje de "No hay documentos"
-    const noDocumentos = document.getElementById('no-documentos');
-    if (noDocumentos) {
-        noDocumentos.style.display = 'none';
-    }
-    
-    // Crear el elemento de lista para el nuevo documento
-    const li = document.createElement('li');
-    li.className = 'py-2 flex items-center justify-between';
-    li.innerHTML = `
-        <div class="flex items-center">
-            <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <div>
-                <span class="text-sm font-medium text-gray-800">${document.name}</span>
-                <p class="text-xs text-gray-500">Vence: ${document.expiration_date}</p>
-            </div>
-        </div>
-        <div class="flex space-x-2">
-            <button onclick="viewDocument('custom')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Ver
-            </button>
-            <button onclick="downloadDocument('custom')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Descargar
-            </button>
-        </div>
-    `;
-    
-    // Agregar el nuevo documento a la lista
-    document.getElementById('lista-documentos-adicionales').appendChild(li);
-}
-
-// Función para formatear fecha (YYYY-MM-DD a DD/MM/YYYY)
-function formatDate(dateString) {
-    const parts = dateString.split('-');
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-}
-
-// Función para imprimir
-function imprimirDetalles() {
-    window.print();
-}
-
-// Funciones para el modal de kilometraje
-function showAddKilometrajeModal() {
-    const modal = document.getElementById('addKilometrajeModal');
-    modal.classList.remove('hidden');
-}
-
-function closeAddKilometrajeModal() {
-    const modal = document.getElementById('addKilometrajeModal');
-    modal.classList.add('hidden');
-    document.getElementById('addKilometrajeForm').reset();
-}
-
-function submitKilometraje() {
-    // Obtener los valores del formulario
-    const kilometraje = document.getElementById('kilometraje').value;
-    const fecha = document.getElementById('fecha').value;
-    const ubicacion = document.getElementById('ubicacion').value;
-    
-    // Validar que los campos no estén vacíos
-    if (!kilometraje || !fecha || !ubicacion) {
-        alert('Por favor complete todos los campos');
-        return;
-    }
-    
-    // Aquí iría la lógica para enviar los datos al servidor
-    console.log('Enviando datos de kilometraje:', { kilometraje, fecha, ubicacion });
-    
-    // Simulamos una respuesta exitosa
-    setTimeout(() => {
-        // Agregar el nuevo kilometraje a la tabla (simulado)
-        const tbody = document.querySelector('#kilometraje-table tbody');
-        if (tbody) {
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">${kilometraje}</td>
-                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">${formatDate(fecha)}</td>
-                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">${ubicacion}</td>
-                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Usuario Actual</td>
-                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                    <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                    </button>
-                </td>
-            `;
-            tbody.insertBefore(newRow, tbody.firstChild);
-        }
-        
-        // Limpiar el formulario
-        document.getElementById('kilometraje').value = '';
-        document.getElementById('fecha').value = '';
-        document.getElementById('ubicacion').value = '';
-        
-        // Cerrar el modal
-        closeAddKilometrajeModal();
-        
-        // Mostrar mensaje de éxito
-        alert('Kilometraje registrado con éxito');
-    }, 500);
-}
-
-// Función para confirmar eliminación
-function confirmarEliminacion(vehiculoId) {
-    if (confirm('¿Estás seguro de que deseas eliminar este vehículo? Esta acción no se puede deshacer.')) {
-        // Crear un formulario para enviar la petición DELETE
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/vehiculos/${vehiculoId}`;
-        
-        // Agregar token CSRF
-        const csrfToken = document.createElement('input');
-        csrfToken.type = 'hidden';
-        csrfToken.name = '_token';
-        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        form.appendChild(csrfToken);
-        
-        // Agregar método DELETE
-        const methodField = document.createElement('input');
-        methodField.type = 'hidden';
-        methodField.name = '_method';
-        methodField.value = 'DELETE';
-        form.appendChild(methodField);
-        
-        // Agregar al DOM y enviar
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-
-// Función para imprimir
-function imprimirDetalles() {
-    window.print();
-}
-
-// Cerrar modal con tecla Escape
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeDocumentModal();
-        closeImageModal();
-        closeUploadDocumentModal();
-        closeAddKilometrajeModal();
-    }
-});
+    // Manejar el envío del formulario de subir documento
+    document.getElementById('upload-document-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Aquí puedes agregar la lógica para subir el documento, como una llamada AJAX
+        // Por ahora, solo cerraremos el modal y mostraremos un mensaje
+        closeModal('upload-document-modal');
+        alert('Documento subido exitosamente');
+    });
 </script>
-@endpush
+@endsection
