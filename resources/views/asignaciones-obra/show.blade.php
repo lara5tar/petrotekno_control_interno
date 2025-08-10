@@ -9,7 +9,7 @@
     <x-breadcrumb :items="[
         ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
         ['label' => 'Asignaciones', 'url' => route('asignaciones-obra.index')],
-        ['label' => 'Detalles de Asignación']
+        ['label' => 'Detalles de Asignación'
     ]" />
 
     {{-- Mensajes de estado --}}
@@ -115,13 +115,6 @@
                     <dt class="text-sm font-medium text-gray-500">Asignado por:</dt>
                     <dd class="text-sm text-gray-900 font-medium">
                         {{ $asignacion->encargado->personal->nombre_completo ?? 'N/A' }}
-                    </dd>
-                </div>
-                
-                <div class="flex justify-between py-2 border-b border-gray-100">
-                    <dt class="text-sm font-medium text-gray-500">Fecha de asignación:</dt>
-                    <dd class="text-sm text-gray-900 font-medium">
-                        {{ $asignacion->fecha_asignacion->format('d/m/Y H:i') }}
                     </dd>
                 </div>
                 

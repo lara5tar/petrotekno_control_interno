@@ -351,49 +351,58 @@ class VehiculoController extends Controller
         }
 
         try {
+            // Cargar el vehículo con todas las relaciones necesarias
             $vehiculo = Vehiculo::with([
                 'estatus',
-                'obraActual.operador',
-                'obraActual.encargado.personal',
-                'kilometrajes' => function($query) {
-                    $query->latest('fecha_captura')->take(10);
+                'obraActual' => function($query) {
+                    $query->with(['operador', 'encargado.personal']);
                 },
-                'kilometrajes.usuarioCaptura'
-            ])->findOrFail($id);
+                'operadorActual',
+                'kilometrajes' => function($query) {
+                    $query->with('usuarioCaptura')->orderBy('fecha_captura', 'desc')->limit(10);
+                },
+                'mantenimientos' => function($query) {
+                    $query->with('proveedor')->orderBy('fecha_programada', 'desc')->limit(5);
+                }
+            ])->find($id);
 
-            // Para solicitudes API (JSON)
+            if (! $vehiculo) {
+                if ($request->expectsJson()) {
+                    return response()->json(['error' => 'Vehículo no encontrado.'], 404);
+                }
+
+                return redirect()->back()->with('error', 'Vehículo no encontrado.');
+            }
+
+            // Log de acción
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'ver_vehiculo',
+                'tabla_afectada' => 'vehiculos',
+                'registro_id' => $vehiculo->id,
+                'detalles' => "Usuario consultó el vehículo: {$vehiculo->nombre_completo}",
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Vehículo obtenido correctamente',
+                    'message' => 'Vehículo obtenido exitosamente.',
                     'data' => $vehiculo,
                 ]);
             }
 
-            // Para solicitudes Web (Blade)
             return view('vehiculos.show', compact('vehiculo'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            // Para API
+        } catch (Exception $e) {
+            \Log::error('Error en VehiculoController@show: ' . $e->getMessage(), [
+                'vehiculo_id' => $id,
+                'usuario_id' => Auth::id(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Vehículo no encontrado',
-                ], 404);
+                return response()->json(['error' => 'Error al obtener el vehículo.'], 500);
             }
 
-            // Para Blade
-            return redirect()->route('vehiculos.index')->withErrors(['error' => 'Vehículo no encontrado']);
-        } catch (\Exception $e) {
-            // Para API
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error al obtener vehículo: ' . $e->getMessage(),
-                ], 500);
-            }
-
-            // Para Blade
-            return redirect()->route('vehiculos.index')->withErrors(['error' => 'Error al obtener vehículo']);
+            return redirect()->back()->with('error', 'Error al obtener el vehículo.');
         }
     }
 

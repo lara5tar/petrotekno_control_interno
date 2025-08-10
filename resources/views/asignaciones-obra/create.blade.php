@@ -105,9 +105,7 @@
                     <select id="obra_id" 
                             name="obra_id" 
                             required
-                            x-model="obraSeleccionada"
-                            @change="actualizarObraInfo()"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('obra_id') border-red-500 @enderror">
+                            class="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('obra_id') border-red-500 @else border-gray-300 @enderror">
                         <option value="">Seleccione una obra</option>
                         @foreach($obras as $obra)
                             <option value="{{ $obra->id }}" 
@@ -137,7 +135,7 @@
                             required
                             x-model="vehiculoSeleccionado"
                             @change="actualizarVehiculoInfo()"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('vehiculo_id') border-red-500 @enderror">
+                            class="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('vehiculo_id') border-red-500 @else border-gray-300 @enderror">
                         <option value="">Seleccione un vehículo</option>
                         @foreach($vehiculos as $vehiculo)
                             <option value="{{ $vehiculo->id }}" {{ old('vehiculo_id') == $vehiculo->id ? 'selected' : '' }}
@@ -167,8 +165,7 @@
                     <select id="personal_id" 
                             name="personal_id" 
                             required
-                            x-model="operadorSeleccionado"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('personal_id') border-red-500 @enderror">
+                            class="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('personal_id') border-red-500 @else border-gray-300 @enderror">
                         <option value="">Seleccione un operador</option>
                         @foreach($operadores as $operador)
                             <option value="{{ $operador->id }}" {{ old('personal_id') == $operador->id ? 'selected' : '' }}>
@@ -177,24 +174,6 @@
                         @endforeach
                     </select>
                     @error('personal_id')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                {{-- Fecha de Asignación --}}
-                <div>
-                    <label for="fecha_asignacion" class="block text-sm font-medium text-gray-700 mb-2">
-                        Fecha de Asignación
-                        <span class="text-red-500">*</span>
-                    </label>
-                    <input type="datetime-local" 
-                           id="fecha_asignacion" 
-                           name="fecha_asignacion" 
-                           value="{{ old('fecha_asignacion', now()->format('Y-m-d\TH:i')) }}" 
-                           required
-                           min="{{ now()->format('Y-m-d\TH:i') }}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('fecha_asignacion') border-red-500 @enderror">
-                    @error('fecha_asignacion')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -232,7 +211,7 @@
                                required
                                min="0"
                                x-model="kilometrajeInicial"
-                               class="w-full px-3 py-2 pr-12 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('kilometraje_inicial') border-red-500 @enderror"
+                               class="w-full px-3 py-2 pr-12 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('kilometraje_inicial') border-red-500 @else border-gray-300 @enderror"
                                placeholder="0">
                         <span class="absolute right-3 top-2 text-gray-500">km</span>
                     </div>
@@ -261,7 +240,7 @@
                                min="0"
                                max="1000"
                                step="0.01"
-                               class="w-full px-3 py-2 pr-12 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('combustible_inicial') border-red-500 @enderror"
+                               class="w-full px-3 py-2 pr-12 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('combustible_inicial') border-red-500 @else border-gray-300 @enderror"
                                placeholder="0.00">
                         <span class="absolute right-3 top-2 text-gray-500">L</span>
                     </div>
@@ -297,7 +276,7 @@
                           name="observaciones" 
                           rows="4"
                           maxlength="1000"
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('observaciones') border-red-500 @enderror"
+                          class="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('observaciones') border-red-500 @else border-gray-300 @enderror"
                           placeholder="Ingrese cualquier observación relevante sobre esta asignación...">{{ old('observaciones') }}</textarea>
                 @error('observaciones')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

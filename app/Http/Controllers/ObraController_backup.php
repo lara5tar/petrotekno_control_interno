@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class ObraController extends Controller
@@ -23,14 +22,15 @@ class ObraController extends Controller
     public function index(Request $request)
     {
         try {
-            Log::info('=== INICIO ObraController@index ===', [
+            // Log inicial para debug
+            \Log::info('=== INICIO ObraController@index ===', [
                 'user_id' => Auth::id(),
                 'request_data' => $request->all(),
                 'url' => $request->fullUrl()
             ]);
 
             if (! $this->hasPermission('ver_obras')) {
-                Log::warning('Usuario sin permisos para ver obras', [
+                \Log::warning('Usuario sin permisos para ver obras', [
                     'user_id' => Auth::id(),
                     'permissions' => Auth::user()?->permissions ?? 'No user'
                 ]);
@@ -42,13 +42,15 @@ class ObraController extends Controller
                 return redirect()->back()->with('error', $message);
             }
 
-            Log::info('Construyendo query de obras');
+            // Log antes de query
+            \Log::info('Construyendo query de obras');
             
+            // Aplicar filtros de búsqueda
             $query = Obra::query();
 
             if ($request->filled('buscar') || $request->filled('search')) {
                 $searchTerm = $request->buscar ?? $request->search;
-                Log::info('Aplicando filtro de búsqueda', ['search_term' => $searchTerm]);
+                \Log::info('Aplicando filtro de búsqueda', ['search_term' => $searchTerm]);
                 $query->where(function ($q) use ($searchTerm) {
                     $q->where('nombre_obra', 'like', "%{$searchTerm}%")
                         ->orWhere('estatus', 'like', "%{$searchTerm}%");
@@ -56,32 +58,34 @@ class ObraController extends Controller
             }
 
             if ($request->filled('estatus')) {
-                Log::info('Aplicando filtro de estatus', ['estatus' => $request->estatus]);
+                \Log::info('Aplicando filtro de estatus', ['estatus' => $request->estatus]);
                 $query->where('estatus', $request->estatus);
             }
 
             if ($request->filled('fecha_inicio')) {
-                Log::info('Aplicando filtro de fecha', ['fecha_inicio' => $request->fecha_inicio]);
+                \Log::info('Aplicando filtro de fecha', ['fecha_inicio' => $request->fecha_inicio]);
                 $query->whereDate('fecha_inicio', '>=', $request->fecha_inicio);
             }
 
             if ($request->filled('solo_activas') && $request->solo_activas === 'true') {
-                Log::info('Aplicando filtro solo activas');
+                \Log::info('Aplicando filtro solo activas');
                 $query->activas();
             }
 
+            // Paginación con validación
             $perPage = $request->get('per_page', 15);
-            $perPage = max(1, min((int) $perPage, 100));
+            $perPage = max(1, min((int) $perPage, 100)); // Asegurar que esté entre 1 y 100
 
             $page = $request->get('page', 1);
-            $page = max(1, (int) $page);
+            $page = max(1, (int) $page); // Asegurar que sea al menos 1
 
-            Log::info('Ejecutando paginación', ['per_page' => $perPage, 'page' => $page]);
+            \Log::info('Ejecutando paginación', ['per_page' => $perPage, 'page' => $page]);
 
             $obras = $query->orderBy('id', 'asc')->paginate($perPage, ['*'], 'page', $page);
 
-            Log::info('Query ejecutada exitosamente', ['total_obras' => $obras->total()]);
+            \Log::info('Query ejecutada exitosamente', ['total_obras' => $obras->total()]);
 
+            // Log de acción
             LogAccion::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'ver_obras',
@@ -90,17 +94,18 @@ class ObraController extends Controller
             ]);
 
             if ($request->expectsJson()) {
-                Log::info('Retornando respuesta JSON');
+                \Log::info('Retornando respuesta JSON');
                 return response()->json([
                     'message' => 'Obras obtenidas exitosamente.',
                     'data' => $obras,
                 ]);
             }
 
-            Log::info('Obteniendo opciones de estatus');
+            \Log::info('Obteniendo opciones de estatus');
             $estatusOptions = $this->getEstatusOptions();
             
-            Log::info('Calculando estadísticas');
+            \Log::info('Calculando estadísticas');
+            // Calcular estadísticas
             $estadisticas = [
                 'total' => Obra::count(),
                 'activas' => Obra::where('estatus', 'activa')->count(),
@@ -108,14 +113,14 @@ class ObraController extends Controller
                 'finalizadas' => Obra::where('estatus', 'completada')->count(),
             ];
 
-            Log::info('Renderizando vista obras.index', [
+            \Log::info('Renderizando vista obras.index', [
                 'total_obras' => $obras->total(),
                 'estadisticas' => $estadisticas
             ]);
 
             return view('obras.index', compact('obras', 'estatusOptions', 'estadisticas'));
         } catch (Exception $e) {
-            Log::error('=== ERROR EN ObraController@index ===', [
+            \Log::error('=== ERROR EN ObraController@index ===', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -124,6 +129,7 @@ class ObraController extends Controller
                 'request_data' => $request->all()
             ]);
             
+            // Imprimir también en consola con dd() para debug inmediato
             if (app()->environment('local')) {
                 dump([
                     'ERROR_OBRAS_INDEX' => [
@@ -149,13 +155,14 @@ class ObraController extends Controller
     public function create(Request $request)
     {
         try {
-            Log::info('=== INICIO ObraController@create ===', [
+            // Log inicial para debug
+            \Log::info('=== INICIO ObraController@create ===', [
                 'user_id' => Auth::id(),
                 'url' => request()->fullUrl()
             ]);
 
             if (! $this->hasPermission('crear_obras')) {
-                Log::warning('Usuario sin permisos para crear obras', [
+                \Log::warning('Usuario sin permisos para crear obras', [
                     'user_id' => Auth::id()
                 ]);
                 $message = 'No tienes permisos para crear obras.';
@@ -166,117 +173,17 @@ class ObraController extends Controller
                 return redirect()->back()->with('error', $message);
             }
 
-            Log::info('Obteniendo datos para formulario de creación');
-            
-            // Obtener estados disponibles para obras
+            \Log::info('Obteniendo datos para formulario de creación');
+            // Remover la referencia a Cliente::all() que no existe
             $estados = ['planificada', 'en_progreso', 'suspendida', 'completada', 'cancelada'];
-            
-            // Obtener encargados (usuarios con rol de encargado o administrador + personal encargado)
-            Log::info('=== OBTENIENDO ENCARGADOS ===');
-            try {
-                // Obtener usuarios con roles administrativos (con su personal relacionado)
-                $usuariosEncargados = User::whereHas('rol', function($query) {
-                    $query->whereIn('nombre_rol', ['Admin', 'Supervisor']);
-                })->with('personal:id,nombre_completo')
-                ->get()
-                ->map(function($user) {
-                    return [
-                        'id' => $user->id,
-                        'nombre_usuario' => $user->personal ? $user->personal->nombre_completo : $user->email,
-                        'tipo' => 'usuario',
-                        'rol' => $user->rol ? $user->rol->nombre_rol : 'Sin rol'
-                    ];
-                });
 
-                // Obtener personal encargado (que no sean usuarios del sistema)
-                $personalEncargados = collect();
-                if (class_exists(Personal::class)) {
-                    $personalEncargados = Personal::encargados()
-                        ->activos()
-                        ->whereDoesntHave('usuario') // Excluir personal que ya es usuario
-                        ->with('categoria:id,nombre_categoria')
-                        ->orderBy('nombre_completo')
-                        ->get(['id', 'nombre_completo', 'categoria_id'])
-                        ->map(function($personal) {
-                            return [
-                                'id' => $personal->id,
-                                'nombre_usuario' => $personal->nombre_completo,
-                                'tipo' => 'personal',
-                                'categoria' => $personal->categoria ? $personal->categoria->nombre_categoria : 'Sin categoría'
-                            ];
-                        });
-                }
-
-                // Combinar ambos tipos de encargados
-                $encargados = $usuariosEncargados->concat($personalEncargados);
-                
-                Log::info('Encargados obtenidos exitosamente', [
-                    'usuarios_count' => $usuariosEncargados->count(),
-                    'personal_count' => $personalEncargados->count(),
-                    'total_count' => $encargados->count(),
-                    'encargados' => $encargados->toArray()
-                ]);
-                
-                if ($encargados->isEmpty()) {
-                    Log::warning('No se encontraron encargados disponibles');
-                }
-                
-            } catch (Exception $e) {
-                Log::error('Error al obtener encargados: ' . $e->getMessage());
-                $encargados = collect();
-            }
-            
-            // Obtener vehículos disponibles
-            Log::info('=== OBTENIENDO VEHICULOS PARA OBRA ===');
-            $vehiculos = collect();
-            if (class_exists(Vehiculo::class)) {
-                try {
-                    Log::info('Iniciando carga de vehículos disponibles');
-                    $vehiculos = Vehiculo::disponibles()
-                        ->with('estatus:id,nombre_estatus')
-                        ->orderBy('marca')
-                        ->orderBy('modelo')
-                        ->get(['id', 'marca', 'modelo', 'placas', 'kilometraje_actual', 'estatus_id']);
-                    
-                    Log::info('Vehículos cargados exitosamente', [
-                        'count' => $vehiculos->count(),
-                        'vehiculos' => $vehiculos->map(function($vehiculo) {
-                            return [
-                                'id' => $vehiculo->id,
-                                'placas' => $vehiculo->placas,
-                                'marca' => $vehiculo->marca ?? 'N/A',
-                                'modelo' => $vehiculo->modelo ?? 'N/A',
-                                'estatus' => $vehiculo->estatus->nombre_estatus ?? 'Sin estatus'
-                            ];
-                        })->toArray()
-                    ]);
-                    
-                    if ($vehiculos->isEmpty()) {
-                        Log::warning('No se encontraron vehículos disponibles para asignación');
-                    }
-                    
-                } catch (Exception $e) {
-                    Log::error('=== ERROR AL OBTENER VEHICULOS ===', [
-                        'message' => $e->getMessage(),
-                        'file' => $e->getFile(),
-                        'line' => $e->getLine(),
-                        'trace' => $e->getTraceAsString()
-                    ]);
-                    $vehiculos = collect();
-                }
-            } else {
-                Log::warning('La clase Vehiculo no existe en el sistema');
-            }
-
-            Log::info('Renderizando vista obras.create', [
-                'estados_count' => count($estados),
-                'encargados_count' => $encargados->count(),
-                'vehiculos_count' => $vehiculos->count()
+            \Log::info('Renderizando vista obras.create', [
+                'estados_count' => count($estados)
             ]);
 
-            return view('obras.create', compact('estados', 'encargados', 'vehiculos'));
+            return view('obras.create', compact('estados'));
         } catch (Exception $e) {
-            Log::error('=== ERROR EN ObraController@create ===', [
+            \Log::error('=== ERROR EN ObraController@create ===', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -284,6 +191,7 @@ class ObraController extends Controller
                 'user_id' => Auth::id()
             ]);
             
+            // Imprimir también en consola con dd() para debug inmediato
             if (app()->environment('local')) {
                 dump([
                     'ERROR_OBRAS_CREATE' => [
@@ -309,13 +217,14 @@ class ObraController extends Controller
     public function store(Request $request)
     {
         try {
-            Log::info('=== INICIO ObraController@store ===', [
+            // Log inicial para debug
+            \Log::info('=== INICIO ObraController@store ===', [
                 'user_id' => Auth::id(),
                 'request_data' => $request->all()
             ]);
 
             if (! $this->hasPermission('crear_obras')) {
-                Log::warning('Usuario sin permisos para crear obras en store', [
+                \Log::warning('Usuario sin permisos para crear obras en store', [
                     'user_id' => Auth::id()
                 ]);
                 $message = 'No tienes permisos para crear obras.';
@@ -326,7 +235,7 @@ class ObraController extends Controller
                 return redirect()->back()->with('error', $message)->withInput();
             }
 
-            Log::info('Validando datos de entrada para nueva obra');
+            \Log::info('Validando datos de entrada para nueva obra');
             $validatedData = $request->validate([
                 'nombre_obra' => 'required|string|max:200|unique:obras,nombre_obra',
                 'estatus' => 'required|in:planificada,en_progreso,suspendida,completada,cancelada',
@@ -336,15 +245,16 @@ class ObraController extends Controller
                 'observaciones' => 'nullable|string',
             ]);
 
-            Log::info('Datos validados correctamente', ['validated_data' => $validatedData]);
+            \Log::info('Datos validados correctamente', ['validated_data' => $validatedData]);
 
             $obra = Obra::create($validatedData);
             
-            Log::info('Obra creada exitosamente', [
+            \Log::info('Obra creada exitosamente', [
                 'obra_id' => $obra->id,
                 'obra_nombre' => $obra->nombre_obra
             ]);
 
+            // Log de acción
             LogAccion::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'crear_obra',
@@ -362,7 +272,7 @@ class ObraController extends Controller
 
             return redirect()->route('obras.index')->with('success', 'Obra creada exitosamente.');
         } catch (ValidationException $e) {
-            Log::warning('Error de validación en store', [
+            \Log::warning('Error de validación en store', [
                 'errors' => $e->errors(),
                 'user_id' => Auth::id()
             ]);
@@ -378,7 +288,7 @@ class ObraController extends Controller
             
             throw $e;
         } catch (Exception $e) {
-            Log::error('=== ERROR EN ObraController@store ===', [
+            \Log::error('=== ERROR EN ObraController@store ===', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -387,6 +297,7 @@ class ObraController extends Controller
                 'request_data' => $request->all()
             ]);
             
+            // Imprimir también en consola con dd() para debug inmediato
             if (app()->environment('local')) {
                 dump([
                     'ERROR_OBRAS_STORE' => [
@@ -413,14 +324,15 @@ class ObraController extends Controller
     public function show(Request $request, $id)
     {
         try {
-            Log::info('=== INICIO ObraController@show ===', [
+            // Log inicial para debug
+            \Log::info('=== INICIO ObraController@show ===', [
                 'obra_id' => $id,
                 'user_id' => Auth::id(),
                 'url' => request()->fullUrl()
             ]);
 
             if (! $this->hasPermission('ver_obras')) {
-                Log::warning('Usuario sin permisos para ver obra específica', [
+                \Log::warning('Usuario sin permisos para ver obra específica', [
                     'user_id' => Auth::id(),
                     'obra_id' => $id
                 ]);
@@ -432,11 +344,11 @@ class ObraController extends Controller
                 return redirect()->back()->with('error', $message);
             }
 
-            Log::info('Buscando obra por ID');
+            \Log::info('Buscando obra por ID');
             $obra = Obra::find($id);
 
             if (! $obra) {
-                Log::warning('Obra no encontrada', ['obra_id' => $id]);
+                \Log::warning('Obra no encontrada', ['obra_id' => $id]);
                 if ($request->expectsJson()) {
                     return response()->json(['error' => 'Obra no encontrada.'], 404);
                 }
@@ -444,23 +356,24 @@ class ObraController extends Controller
                 return redirect()->back()->with('error', 'Obra no encontrada.');
             }
 
-            Log::info('Obra encontrada exitosamente', [
+            \Log::info('Obra encontrada exitosamente', [
                 'obra_id' => $obra->id,
-                'obra_nombre' => $obra->nombre_obra ?? 'N/A'
+                'obra_nombre' => $obra->nombre
             ]);
 
+            // Log de acción
             LogAccion::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'ver_obra',
                 'tabla_afectada' => 'obras',
                 'registro_id' => $obra->id,
-                'detalles' => 'Usuario visualizó obra: ' . ($obra->nombre_obra ?? 'ID: ' . $obra->id),
+                'detalles' => 'Usuario visualizó obra: ' . $obra->nombre,
             ]);
 
-            Log::info('Renderizando vista obras.show');
+            \Log::info('Renderizando vista obras.show');
             return view('obras.show', compact('obra'));
         } catch (Exception $e) {
-            Log::error('=== ERROR EN ObraController@show ===', [
+            \Log::error('=== ERROR EN ObraController@show ===', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -469,6 +382,7 @@ class ObraController extends Controller
                 'user_id' => Auth::id()
             ]);
             
+            // Imprimir también en consola con dd() para debug inmediato
             if (app()->environment('local')) {
                 dump([
                     'ERROR_OBRAS_SHOW' => [
@@ -495,13 +409,14 @@ class ObraController extends Controller
     public function edit(Request $request, $id)
     {
         try {
-            Log::info('=== INICIO ObraController@edit ===', [
+            // Log inicial para debug
+            \Log::info('=== INICIO ObraController@edit ===', [
                 'obra_id' => $id,
                 'user_id' => Auth::id()
             ]);
 
             if (! $this->hasPermission('editar_obras')) {
-                Log::warning('Usuario sin permisos para editar obras', [
+                \Log::warning('Usuario sin permisos para editar obras', [
                     'user_id' => Auth::id(),
                     'obra_id' => $id
                 ]);
@@ -513,11 +428,11 @@ class ObraController extends Controller
                 return redirect()->back()->with('error', $message);
             }
 
-            Log::info('Buscando obra para edición');
+            \Log::info('Buscando obra para edición');
             $obra = Obra::find($id);
 
             if (! $obra) {
-                Log::warning('Obra no encontrada', ['obra_id' => $id]);
+                \Log::warning('Obra no encontrada', ['obra_id' => $id]);
                 if ($request->expectsJson()) {
                     return response()->json(['error' => 'Obra no encontrada.'], 404);
                 }
@@ -525,24 +440,46 @@ class ObraController extends Controller
                 return redirect()->back()->with('error', 'Obra no encontrada.');
             }
 
-            Log::info('Obra encontrada para edición', [
+            \Log::info('Obra encontrada para edición', [
                 'obra_id' => $obra->id,
-                'obra_nombre' => $obra->nombre_obra ?? 'N/A'
+                'obra_nombre' => $obra->nombre
             ]);
 
+            // Obtener datos para los formularios
             $estatusOptions = $this->getEstatusOptions();
+            
+            // Obtener vehículos disponibles (sin asignaciones activas)
+            $vehiculosDisponibles = Vehiculo::whereDoesntHave('asignacionesObraActivas')
+                ->whereHas('estatus', function ($q) {
+                    $q->where('nombre_estatus', 'Disponible')
+                      ->orWhere('nombre_estatus', 'Activo');
+                })
+                ->orderBy('marca')->orderBy('modelo')
+                ->get(['id', 'marca', 'modelo', 'placas']);
 
-            Log::info('Renderizando vista de edición de obra', [
+            // Obtener operadores disponibles (que no tengan restricciones)
+            $operadoresDisponibles = Personal::activos()->operadores()
+                ->orderBy('nombre_completo')
+                ->get(['id', 'nombre_completo', 'categoria_id']);
+
+            // Obtener usuarios para encargados
+            $encargadosDisponibles = User::with('personal')->get();
+
+            \Log::info('Renderizando vista de edición de obra', [
                 'obra_id' => $obra->id,
                 'estatus_options' => $estatusOptions,
+                'vehiculos_disponibles' => $vehiculosDisponibles->count(),
+                'operadores_disponibles' => $operadoresDisponibles->count(),
+                'encargados_disponibles' => $encargadosDisponibles->count(),
             ]);
 
+            // Log de acción
             LogAccion::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'editar_obra_formulario',
                 'tabla_afectada' => 'obras',
                 'registro_id' => $obra->id,
-                'detalles' => "Usuario accedió al formulario de edición de la obra: " . ($obra->nombre_obra ?? 'ID: ' . $obra->id),
+                'detalles' => "Usuario accedió al formulario de edición de la obra: {$obra->nombre_obra}",
             ]);
 
             if ($request->expectsJson()) {
@@ -551,13 +488,22 @@ class ObraController extends Controller
                     'data' => [
                         'obra' => $obra,
                         'estatus_options' => $estatusOptions,
+                        'vehiculos_disponibles' => $vehiculosDisponibles,
+                        'operadores_disponibles' => $operadoresDisponibles,
+                        'encargados_disponibles' => $encargadosDisponibles,
                     ],
                 ]);
             }
 
-            return view('obras.edit', compact('obra', 'estatusOptions'));
+            return view('obras.edit', compact(
+                'obra', 
+                'estatusOptions', 
+                'vehiculosDisponibles', 
+                'operadoresDisponibles', 
+                'encargadosDisponibles'
+            ));
         } catch (Exception $e) {
-            Log::error('=== ERROR EN ObraController@edit ===', [
+            \Log::error('=== ERROR EN ObraController@edit ===', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -566,6 +512,7 @@ class ObraController extends Controller
                 'user_id' => Auth::id()
             ]);
             
+            // Imprimir también en consola con dd() para debug inmediato
             if (app()->environment('local')) {
                 dump([
                     'ERROR_OBRAS_EDIT' => [
@@ -596,12 +543,11 @@ class ObraController extends Controller
             Log::info("Obra encontrada: " . json_encode($obra->toArray()));
             
             $validatedData = $request->validate([
-                'nombre_obra' => 'required|string|max:255',
-                'estatus' => 'required|in:planificada,en_progreso,suspendida,completada,cancelada',
+                'nombre' => 'required|string|max:255',
+                'descripcion' => 'nullable|string',
                 'fecha_inicio' => 'required|date',
                 'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
-                'avance' => 'nullable|integer|min:0|max:100',
-                'observaciones' => 'nullable|string'
+                'estado' => 'required|in:pendiente,en_progreso,completada,cancelada'
             ]);
             Log::info("Datos validados: " . json_encode($validatedData));
 
@@ -645,11 +591,13 @@ class ObraController extends Controller
                 return redirect()->back()->with('error', 'Obra no encontrada.');
             }
 
-            $nombreObra = $obra->nombre_obra ?? 'ID: ' . $obra->id;
+            $nombreObra = $obra->nombre_obra;
             $obraId = $obra->id;
 
+            // Soft delete
             $obra->delete();
 
+            // Log de acción
             LogAccion::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'eliminar_obra',
@@ -710,12 +658,13 @@ class ObraController extends Controller
 
             $obra->restore();
 
+            // Log de acción
             LogAccion::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'restaurar_obra',
                 'tabla_afectada' => 'obras',
                 'registro_id' => $obra->id,
-                'detalles' => "Se restauró la obra: " . ($obra->nombre_obra ?? 'ID: ' . $obra->id),
+                'detalles' => "Se restauró la obra: {$obra->nombre_obra}",
             ]);
 
             if ($request->expectsJson()) {
@@ -731,7 +680,7 @@ class ObraController extends Controller
                 return response()->json(['error' => 'Error al restaurar la obra.'], 500);
             }
 
-            return redirect()->back()->with('error', 'Error al restaurar la obra.');
+            return redirect()->back()->with('error' => 'Error al restaurar la obra.');
         }
     }
 
@@ -761,12 +710,13 @@ class ObraController extends Controller
 
             $options = $this->getEstatusOptions();
 
+            // Convertir el array asociativo a array de objetos con la estructura esperada
             $estatusArray = [];
             foreach ($options as $valor => $nombre) {
                 $estatusArray[] = [
                     'valor' => $valor,
                     'nombre' => $nombre,
-                    'descripcion' => $nombre,
+                    'descripcion' => $nombre, // Por ahora usamos el mismo nombre como descripción
                 ];
             }
 

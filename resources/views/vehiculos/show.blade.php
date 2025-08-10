@@ -25,23 +25,48 @@
                     <!-- Fotografía del Vehículo integrada en Datos Generales -->
                     <div class="mb-4">
                         <div class="relative">
-                            <div class="bg-gray-100 rounded overflow-hidden mb-2">
-                                <img src="{{ $vehiculo->imagen ?? '/images/placeholder-vehicle.jpg' }}" 
-                                     alt="Vehículo {{ $vehiculo->marca ?? 'Nissan' }} {{ $vehiculo->modelo ?? 'NP300' }}" 
-                                     class="w-full h-auto object-contain max-h-40"
-                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xNTAgODBWMTIwTTEzMCAxMDBIMTcwIiBzdHJva2U9IiM5QjlDQTQiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSIxNTAiIHk9IjE0MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmaWxsPSIjOUI5Q0E0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TaW4gZm90bzwvdGV4dD4KPC9zdmc+Cg=='">
-                                <div class="absolute bottom-1 left-1 bg-black bg-opacity-75 text-white px-1 py-0.5 rounded text-xs">
-                                    15/07/2025
+                            @if(!empty($vehiculo->imagen) && $vehiculo->imagen !== null && $vehiculo->imagen !== '')
+                                <div class="bg-gray-100 rounded overflow-hidden mb-2" id="image-container">
+                                    <img src="{{ $vehiculo->imagen }}" 
+                                         alt="Vehículo {{ $vehiculo->marca ?? 'Nissan' }} {{ $vehiculo->modelo ?? 'NP300' }}" 
+                                         class="w-full h-auto object-contain max-h-40"
+                                         id="vehicle-image"
+                                         onload="handleImageLoad()"
+                                         onerror="handleImageError()">
+                                    <div class="absolute bottom-1 left-1 bg-black bg-opacity-75 text-white px-1 py-0.5 rounded text-xs">
+                                        {{ now()->format('d/m/Y') }}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex justify-center space-x-2">
-                                <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs">
-                                    <svg class="w-3 h-3 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                    Descargar
-                                </button>
-                            </div>
+                                <div class="flex justify-center space-x-2" id="image-actions">
+                                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs">
+                                        <svg class="w-3 h-3 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Descargar
+                                    </button>
+                                </div>
+                                <!-- Placeholder para error de imagen (inicialmente oculto) -->
+                                <div class="bg-red-50 border-2 border-dashed border-red-300 rounded mb-2 h-40 flex items-center justify-center hidden" id="image-error-placeholder">
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                        </svg>
+                                        <p class="mt-2 text-sm text-red-600 font-medium">No se encontró la imagen</p>
+                                        <p class="text-xs text-red-500">Error al cargar la imagen del vehículo</p>
+                                    </div>
+                                </div>
+                            @else
+                                <!-- Placeholder para cuando no hay imagen -->
+                                <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded mb-2 h-40 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <p class="mt-2 text-sm text-gray-500 font-medium">Sin imagen disponible</p>
+                                        <p class="text-xs text-gray-400">No se ha asignado una imagen a este vehículo</p>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                     
@@ -181,96 +206,6 @@
                     <!-- Contenido de Operación -->
                     <div x-show="activeTab === 'operacion'" class="p-6 bg-gray-50">
                         <div class="space-y-6">
-                            <!-- Sección: Obra Actual -->
-                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
-                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                        </svg>
-                                        Obra Actual
-                                    </h5>
-                                    @if($vehiculo->obraActual)
-                                        <button class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
-                                            Cambiar Obra
-                                        </button>
-                                    @endif
-                                </div>
-                                
-                                @if($vehiculo->obraActual)
-                                    <div class="space-y-2">
-                                        <div class="grid grid-cols-2 gap-3">
-                                            <div>
-                                                <label class="block text-sm text-gray-600">Nombre de Obra</label>
-                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                    {{ $vehiculo->obraActual->nombre_obra }}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm text-gray-600">Estatus</label>
-                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                    {{ ucfirst(str_replace('_', ' ', $vehiculo->obraActual->estatus)) }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="grid grid-cols-2 gap-3">
-                                            <div>
-                                                <label class="block text-sm text-gray-600">Fecha Asignación</label>
-                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                    {{ $vehiculo->obraActual->fecha_asignacion ? $vehiculo->obraActual->fecha_asignacion->format('d/m/Y') : 'Sin fecha' }}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm text-gray-600">Avance</label>
-                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                    {{ $vehiculo->obraActual->avance ?? 0 }}%
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="grid grid-cols-2 gap-3">
-                                            <div>
-                                                <label class="block text-sm text-gray-600">Km. Inicial</label>
-                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                    {{ $vehiculo->obraActual->kilometraje_inicial ? number_format($vehiculo->obraActual->kilometraje_inicial) : 'Sin registrar' }}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm text-gray-600">Días Activa</label>
-                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                    {{ $vehiculo->obraActual->fecha_asignacion ? $vehiculo->obraActual->fecha_asignacion->diffInDays(now()) : 0 }} días
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Responsable de Obra</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                {{ $vehiculo->obraActual->encargado->personal->nombre_completo ?? 'Sin asignar' }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                @else
-                                    <div class="text-center py-8">
-                                        <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                        </svg>
-                                        <p class="text-gray-500 text-sm mb-2">Sin obra asignada</p>
-                                        <p class="text-gray-400 text-xs">El vehículo está disponible para asignación</p>
-                                        <button class="mt-3 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition-colors duration-200 flex items-center mx-auto text-sm">
-                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                            </svg>
-                                            Asignar a Obra
-                                        </button>
-                                    </div>
-                                @endif
-                            </div>
-                            
                             <!-- Sección: Operador Actual -->
                             <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
                                 <div class="flex justify-between items-center mb-4">
@@ -338,8 +273,6 @@
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- Aquí iba la sección de Kilometrajes que ahora tiene su propia pestaña -->
                         </div>
                     </div>
 
@@ -447,12 +380,6 @@
                                         </svg>
                                         Documentos del Vehículo
                                     </h5>
-                                    <button onclick="showUploadDocumentModal()" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                        </svg>
-                                        Subir Documento
-                                    </button>
                                 </div>
                                 
                                 <!-- Documentos Obligatorios -->
@@ -539,20 +466,6 @@
                                         </div>
                                     </li>
                                 </ul>
-                                
-                                <!-- Documentos Adicionales -->
-                                <h6 class="text-sm font-medium text-gray-700 mb-2">Documentos Adicionales</h6>
-                                <div id="documentos-adicionales">
-                                    <!-- Si no hay documentos adicionales -->
-                                    <div class="text-center py-4 text-gray-500 text-sm italic" id="no-documentos" x-show="true">
-                                        No hay documentos adicionales registrados
-                                    </div>
-                                    
-                                    <!-- Lista de documentos adicionales (se llenará dinámicamente) -->
-                                    <ul class="divide-y divide-gray-200" id="lista-documentos-adicionales">
-                                        <!-- Los documentos adicionales se agregarán aquí dinámicamente -->
-                                    </ul>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -774,5 +687,20 @@
         closeModal('upload-document-modal');
         alert('Documento subido exitosamente');
     });
+
+    // Funciones para manejar la carga de imágenes
+    function handleImageLoad() {
+        const container = document.getElementById('image-container');
+        const errorPlaceholder = document.getElementById('image-error-placeholder');
+        container.classList.remove('bg-gray-100', 'border-2', 'border-dashed', 'border-gray-300');
+        errorPlaceholder.classList.add('hidden');
+    }
+
+    function handleImageError() {
+        const container = document.getElementById('image-container');
+        const errorPlaceholder = document.getElementById('image-error-placeholder');
+        container.classList.add('hidden');
+        errorPlaceholder.classList.remove('hidden');
+    }
 </script>
 @endsection

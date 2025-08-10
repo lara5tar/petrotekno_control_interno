@@ -88,33 +88,38 @@
                 </div>
                 <div class="p-4 space-y-4">
                     <!-- Vehículo Asignado -->
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Vehículo Asignado</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ $obra->vehiculo ? $obra->vehiculo->marca . ' ' . $obra->vehiculo->modelo . ' - ' . $obra->vehiculo->placas : 'Sin asignar' }}
                             </div>
-                            @if($obra->vehiculo)
-                            <div class="text-xs text-gray-500 mt-1">
-                                Año: {{ $obra->vehiculo->anio ?? 'N/A' }} | 
-                                Serie: {{ $obra->vehiculo->n_serie ?? 'N/A' }} |
-                                KM Actual: {{ $obra->vehiculo->kilometraje_actual ? number_format($obra->vehiculo->kilometraje_actual) . ' km' : 'N/A' }}
-                            </div>
-                            @endif
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Fecha Asignación</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $obra->fecha_asignacion ? \Carbon\Carbon::parse($obra->fecha_asignacion)->format('d/m/Y') : 'No definida' }}
-                            </div>
-                            @if($obra->fecha_asignacion)
-                            <div class="text-xs text-gray-500 mt-1">
-                                {{ \Carbon\Carbon::parse($obra->fecha_asignacion)->format('H:i') }} hrs |
-                                {{ \Carbon\Carbon::parse($obra->fecha_asignacion)->diffForHumans() }}
-                            </div>
-                            @endif
                         </div>
                     </div>
+
+                    @if($obra->vehiculo)
+                    <!-- Detalles del Vehículo -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Año</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->vehiculo->anio ?? 'N/A' }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Serie</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->vehiculo->n_serie ?? 'N/A' }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">KM Actual</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->vehiculo->kilometraje_actual ? number_format($obra->vehiculo->kilometraje_actual) . ' km' : 'N/A' }}
+                            </div>
+                        </div>
+                    </div>
+                    @endif
 
                     <!-- Personal Asignado -->
                     <div class="grid grid-cols-2 gap-4">
@@ -123,20 +128,15 @@
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ $obra->operador ? $obra->operador->nombre_completo : 'Sin asignar' }}
                             </div>
-                            @if($obra->operador && $obra->operador->categoria)
-                            <div class="text-xs text-gray-500 mt-1">
-                                Categoría: {{ $obra->operador->categoria->nombre_categoria ?? 'N/A' }}
-                            </div>
-                            @endif
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Encargado</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $obra->encargado ? $obra->encargado->email : 'Sin asignar' }}
+                                {{ $obra->encargado ? $obra->encargado->nombre_completo : 'Sin asignar' }}
                             </div>
-                            @if($obra->encargado && $obra->encargado->personal)
+                            @if($obra->encargado && !$obra->encargado->personal)
                             <div class="text-xs text-gray-500 mt-1">
-                                {{ $obra->encargado->personal->nombre_completo ?? 'Usuario del sistema' }}
+                                Usuario del sistema: {{ $obra->encargado->email }}
                             </div>
                             @endif
                         </div>
@@ -204,79 +204,6 @@
 
         <!-- Panel Derecho - Información Adicional -->
         <div class="space-y-6">
-            <!-- Control de Combustible -->
-            <div class="bg-white border border-gray-300 rounded-lg">
-                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800">Control de Combustible</h3>
-                </div>
-                <div class="p-4 space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Combustible Inicial</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $obra->combustible_inicial ? $obra->combustible_inicial . ' L' : 'No registrado' }}
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Combustible Final</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $obra->combustible_final ? $obra->combustible_final . ' L' : 'No registrado' }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Combustible Suministrado</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $obra->combustible_suministrado ? $obra->combustible_suministrado . ' L' : 'No registrado' }}
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Costo Combustible</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $obra->costo_combustible ? '$' . number_format($obra->costo_combustible, 2) : 'No registrado' }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Historial de Combustible -->
-                    @if($obra->historial_combustible && count($obra->historial_combustible) > 0)
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-600 mb-2">Historial de Combustible</label>
-                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 max-h-40 overflow-y-auto">
-                            @foreach($obra->historial_combustible as $registro)
-                            <div class="bg-white border border-gray-200 rounded p-2 mb-2 last:mb-0">
-                                <div class="flex justify-between items-start text-xs">
-                                    <div class="flex-1">
-                                        <span class="font-medium text-gray-700">
-                                            {{ $registro['fecha'] ?? 'Fecha no especificada' }}
-                                        </span>
-                                        <div class="text-gray-600 mt-1">
-                                            @if(isset($registro['cantidad']))
-                                                Cantidad: {{ $registro['cantidad'] }} L
-                                            @endif
-                                            @if(isset($registro['costo']))
-                                                | Costo: ${{ number_format($registro['costo'], 2) }}
-                                            @endif
-                                            @if(isset($registro['estacion']))
-                                                | Estación: {{ $registro['estacion'] }}
-                                            @endif
-                                        </div>
-                                        @if(isset($registro['observaciones']))
-                                        <div class="text-gray-500 mt-1 italic">
-                                            {{ $registro['observaciones'] }}
-                                        </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    @endif
-                </div>
-            </div>
-
             <!-- Observaciones -->
             <div class="bg-white border border-gray-300 rounded-lg">
                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
@@ -444,55 +371,6 @@
                             <span class="text-red-800 font-medium">¡Obra Atrasada!</span>
                         </div>
                         <p class="text-red-700 text-sm mt-1">La fecha de finalización prevista ya ha pasado.</p>
-                    </div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Fechas de Control -->
-            <div class="bg-white border border-gray-300 rounded-lg">
-                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800">Fechas de Control</h3>
-                </div>
-                <div class="p-4 space-y-4">
-                    @if($obra->fecha_liberacion)
-                    <div class="grid grid-cols-1 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Fecha de Liberación</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ \Carbon\Carbon::parse($obra->fecha_liberacion)->format('d/m/Y H:i') }}
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Fecha de Creación</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ \Carbon\Carbon::parse($obra->created_at)->format('d/m/Y H:i') }}
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Última Actualización</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ \Carbon\Carbon::parse($obra->updated_at)->format('d/m/Y H:i') }}
-                            </div>
-                        </div>
-                    </div>
-                    @if($obra->fecha_eliminacion)
-                    <div class="bg-red-50 border border-red-200 rounded-lg p-3">
-                        <div class="flex items-center">
-                            <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h4a1 1 0 100-2H7z" clip-rule="evenodd"></path>
-                            </svg>
-                            <span class="text-red-800 font-medium">Obra Eliminada</span>
-                        </div>
-                        <div class="mt-1">
-                            <label class="block text-sm font-medium text-red-600">Fecha de Eliminación</label>
-                            <div class="bg-red-600 text-white px-3 py-2 rounded text-sm font-medium mt-1">
-                                {{ \Carbon\Carbon::parse($obra->fecha_eliminacion)->format('d/m/Y H:i') }}
-                            </div>
-                        </div>
                     </div>
                     @endif
                 </div>

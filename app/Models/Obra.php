@@ -69,19 +69,8 @@ class Obra extends Model
         'avance',
         'fecha_inicio',
         'fecha_fin',
-        'vehiculo_id',
-        'operador_id',
-        'encargado_id',
-        'fecha_asignacion',
-        'fecha_liberacion',
-        'kilometraje_inicial',
-        'kilometraje_final',
-        'combustible_inicial',
-        'combustible_final',
-        'combustible_suministrado',
-        'costo_combustible',
-        'historial_combustible',
         'observaciones',
+        'encargado_id', // Campo para el encargado de la obra
         // Campos para archivos
         'archivo_contrato',
         'archivo_fianza',
@@ -97,16 +86,7 @@ class Obra extends Model
     protected $casts = [
         'fecha_inicio' => 'date',
         'fecha_fin' => 'date',
-        'fecha_asignacion' => 'datetime',
-        'fecha_liberacion' => 'datetime',
         'avance' => 'integer',
-        'kilometraje_inicial' => 'integer',
-        'kilometraje_final' => 'integer',
-        'combustible_inicial' => 'decimal:2',
-        'combustible_final' => 'decimal:2',
-        'combustible_suministrado' => 'decimal:2',
-        'costo_combustible' => 'decimal:2',
-        'historial_combustible' => 'json',
         'fecha_eliminacion' => 'datetime',
         // Campos de fechas de archivos
         'fecha_subida_contrato' => 'datetime',
@@ -124,14 +104,64 @@ class Obra extends Model
         'duracion_total',
         'esta_atrasada',
         'porcentaje_tiempo_transcurrido',
+        'total_asignaciones_activas',
+        'total_vehiculos_asignados',
+        'total_operadores_asignados',
+        'puede_recibir_nuevas_asignaciones',
     ];
 
     /**
-     * Relación con asignaciones
+     * Relación con asignaciones de obra (nuevas múltiples asignaciones)
      */
-    public function asignaciones(): HasMany
+    public function asignacionesObra(): HasMany
     {
-        return $this->hasMany(Asignacion::class);
+        return $this->hasMany(AsignacionObra::class);
+    }
+
+    /**
+     * Relación con asignaciones activas de obra
+     */
+    public function asignacionesActivas(): HasMany
+    {
+        return $this->asignacionesObra()->activas();
+    }
+
+    /**
+     * Relación con asignaciones liberadas de obra
+     */
+    public function asignacionesLiberadas(): HasMany
+    {
+        return $this->asignacionesObra()->liberadas();
+    }
+
+    /**
+     * Relación con vehículos actualmente asignados (a través de asignaciones activas)
+     */
+    public function vehiculosAsignados()
+    {
+        return $this->hasManyThrough(
+            Vehiculo::class,
+            AsignacionObra::class,
+            'obra_id',
+            'id',
+            'id',
+            'vehiculo_id'
+        )->where('asignaciones_obra.estado', AsignacionObra::ESTADO_ACTIVA);
+    }
+
+    /**
+     * Relación con operadores actualmente asignados (a través de asignaciones activas)
+     */
+    public function operadoresAsignados()
+    {
+        return $this->hasManyThrough(
+            Personal::class,
+            AsignacionObra::class,
+            'obra_id',
+            'id',
+            'id',
+            'operador_id'
+        )->where('asignaciones_obra.estado', AsignacionObra::ESTADO_ACTIVA);
     }
 
     /**
@@ -485,5 +515,151 @@ class Obra extends Model
         if ($this->tieneActaEntregaRecepcion()) $completados++;
         
         return round(($completados / $total) * 100, 1);
+    }
+
+    /**
+     * Accessors para múltiples asignaciones
+     */
+    public function getTotalAsignacionesActivasAttribute()
+    {
+        return $this->asignacionesActivas()->count();
+    }
+
+    public function getTotalVehiculosAsignadosAttribute()
+    {
+        return $this->asignacionesActivas()->distinct('vehiculo_id')->count();
+    }
+
+    public function getTotalOperadoresAsignadosAttribute()
+    {
+        return $this->asignacionesActivas()->distinct('operador_id')->count();
+    }
+
+    public function getPuedeRecibirNuevasAsignacionesAttribute()
+    {
+        // Si tiene límite de vehículos y ya lo alcanzó
+        if ($this->max_vehiculos && $this->total_vehiculos_asignados >= $this->max_vehiculos) {
+            return false;
+        }
+
+        // La obra debe estar activa (no cancelada o completada)
+        return in_array($this->estatus, [
+            self::ESTATUS_PLANIFICADA,
+            self::ESTATUS_EN_PROGRESO,
+            self::ESTATUS_SUSPENDIDA
+        ]);
+    }
+
+    /**
+     * Métodos para gestionar múltiples asignaciones
+     */
+    public function asignarVehiculoYOperador($vehiculoId, $operadorId, $datos = [])
+    {
+        // Verificar que la obra puede recibir nuevas asignaciones
+        if (!$this->puede_recibir_nuevas_asignaciones) {
+            throw new \Exception('La obra no puede recibir nuevas asignaciones');
+        }
+
+        // REGLA ESTRICTA: Verificar que el vehículo NO tenga ninguna asignación activa
+        AsignacionObra::validarAsignacionUnicaVehiculo($vehiculoId);
+
+        // NOTA: Los operadores SÍ pueden tener múltiples asignaciones
+        // Un operador puede manejar varios vehículos en diferentes obras
+
+        // Crear la nueva asignación (sin encargado_id, se obtiene a través de la obra)
+        return $this->asignacionesObra()->create([
+            'vehiculo_id' => $vehiculoId,
+            'operador_id' => $operadorId,
+            'fecha_asignacion' => now(),
+            'kilometraje_inicial' => $datos['kilometraje_inicial'] ?? null,
+            'combustible_inicial' => $datos['combustible_inicial'] ?? null,
+            'observaciones' => $datos['observaciones'] ?? null,
+            'estado' => AsignacionObra::ESTADO_ACTIVA,
+        ]);
+    }
+
+    public function liberarAsignacion($asignacionId, $kilometrajeFinal, $datos = [])
+    {
+        $asignacion = $this->asignacionesObra()->findOrFail($asignacionId);
+        
+        if (!$asignacion->esta_activa) {
+            throw new \Exception('La asignación ya está liberada');
+        }
+
+        return $asignacion->liberar(
+            $kilometrajeFinal,
+            $datos['combustible_final'] ?? null,
+            $datos['observaciones'] ?? null
+        );
+    }
+
+    public function transferirAsignacion($asignacionId, $nuevoOperadorId, $kilometrajeTransferencia, $observaciones = null)
+    {
+        $asignacion = $this->asignacionesObra()->findOrFail($asignacionId);
+        
+        if (!$asignacion->esta_activa) {
+            throw new \Exception('Solo se pueden transferir asignaciones activas');
+        }
+
+        // Verificar que el nuevo operador esté disponible
+        if (AsignacionObra::operadorTieneAsignacionActiva($nuevoOperadorId, $asignacionId)) {
+            throw new \Exception('El nuevo operador ya tiene una asignación activa');
+        }
+
+        return $asignacion->transferir($nuevoOperadorId, $kilometrajeTransferencia, $observaciones);
+    }
+
+    public function getResumenAsignaciones()
+    {
+        $asignacionesActivas = $this->asignacionesActivas()->with(['vehiculo', 'operador'])->get();
+        $asignacionesLiberadas = $this->asignacionesLiberadas()->with(['vehiculo', 'operador'])->get();
+
+        return [
+            'activas' => [
+                'total' => $asignacionesActivas->count(),
+                'vehiculos' => $asignacionesActivas->pluck('vehiculo.nombre_completo')->unique()->values(),
+                'operadores' => $asignacionesActivas->pluck('operador.nombre_completo')->unique()->values(),
+                'detalles' => $asignacionesActivas
+            ],
+            'liberadas' => [
+                'total' => $asignacionesLiberadas->count(),
+                'kilometraje_total' => $asignacionesLiberadas->sum('kilometraje_recorrido'),
+                'combustible_total' => $asignacionesLiberadas->sum('combustible_consumido'),
+                'detalles' => $asignacionesLiberadas
+            ],
+            'capacidad' => [
+                'max_vehiculos' => $this->max_vehiculos,
+                'max_operadores' => $this->max_operadores,
+                'puede_recibir_nuevas' => $this->puede_recibir_nuevas_asignaciones
+            ]
+        ];
+    }
+
+    /**
+     * Scope para obras con asignaciones activas
+     */
+    public function scopeConAsignacionesActivas($query)
+    {
+        return $query->whereHas('asignacionesActivas');
+    }
+
+    /**
+     * Scope para obras sin asignaciones activas
+     */
+    public function scopeSinAsignacionesActivas($query)
+    {
+        return $query->whereDoesntHave('asignacionesActivas');
+    }
+
+    /**
+     * Scope para obras que pueden recibir nuevas asignaciones
+     */
+    public function scopeDisponiblesParaAsignacion($query)
+    {
+        return $query->whereIn('estatus', [
+            self::ESTATUS_PLANIFICADA,
+            self::ESTATUS_EN_PROGRESO,
+            self::ESTATUS_SUSPENDIDA
+        ]);
     }
 }

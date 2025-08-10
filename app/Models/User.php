@@ -151,4 +151,13 @@ class User extends Authenticatable
     {
         return $this->rol ? $this->rol->permisos : collect();
     }
+
+    /**
+     * Accessor para obtener el nombre completo del usuario
+     * Retorna el nombre del personal asociado o el email si no tiene personal
+     */
+    public function getNombreCompletoAttribute(): string
+    {
+        return $this->personal ? $this->personal->nombre_completo : $this->email;
+    }
 }

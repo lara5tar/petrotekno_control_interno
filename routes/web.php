@@ -140,7 +140,8 @@ Route::middleware('auth')->group(function () {
             // Campos estáticos para documentos y otros datos
             'derecho_vehicular' => 'DV-2025-001234',
             'poliza_seguro' => 'PS-2025-567890',
-            'imagen' => '/images/placeholder-vehicle.jpg'
+            // CORREGIDO: Usar el valor real del campo imagen en lugar de uno estático
+            'imagen' => $vehiculoReal->imagen
         ];
 
         return view('vehiculos.show', compact('vehiculo'));
@@ -665,6 +666,41 @@ Route::middleware('auth')->prefix('asignaciones-obra')->name('asignaciones-obra.
         ->middleware('permission.web:editar_asignaciones');
 
     Route::get('/estadisticas/general', [\App\Http\Controllers\AsignacionObraController::class, 'estadisticas'])
+        ->name('estadisticas')
+        ->middleware('permission.web:ver_asignaciones');
+});
+
+// Rutas para Asignaciones de Obra Múltiples (Nuevo sistema con múltiples vehículos por obra)
+Route::middleware('auth')->prefix('asignaciones-obra-multiple')->name('asignaciones-obra-multiple.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\AsignacionObraMultipleController::class, 'index'])
+        ->name('index')
+        ->middleware('permission.web:ver_asignaciones');
+
+    Route::get('/create', [\App\Http\Controllers\AsignacionObraMultipleController::class, 'create'])
+        ->name('create')
+        ->middleware('permission.web:crear_asignaciones');
+
+    Route::post('/', [\App\Http\Controllers\AsignacionObraMultipleController::class, 'store'])
+        ->name('store')
+        ->middleware('permission.web:crear_asignaciones');
+
+    Route::get('/{id}', [\App\Http\Controllers\AsignacionObraMultipleController::class, 'show'])
+        ->name('show')
+        ->middleware('permission.web:ver_asignaciones');
+
+    Route::post('/{id}/liberar', [\App\Http\Controllers\AsignacionObraMultipleController::class, 'liberar'])
+        ->name('liberar')
+        ->middleware('permission.web:editar_asignaciones');
+
+    Route::post('/{id}/transferir', [\App\Http\Controllers\AsignacionObraMultipleController::class, 'transferir'])
+        ->name('transferir')
+        ->middleware('permission.web:editar_asignaciones');
+
+    Route::get('/obra/{obraId}/asignaciones', [\App\Http\Controllers\AsignacionObraMultipleController::class, 'porObra'])
+        ->name('por-obra')
+        ->middleware('permission.web:ver_asignaciones');
+
+    Route::get('/estadisticas/dashboard', [\App\Http\Controllers\AsignacionObraMultipleController::class, 'estadisticas'])
         ->name('estadisticas')
         ->middleware('permission.web:ver_asignaciones');
 });

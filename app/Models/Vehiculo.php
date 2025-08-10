@@ -91,7 +91,7 @@ class Vehiculo extends Model
         'intervalo_km_hidraulico',
         'observaciones',
         'documentos_adicionales',
-        'fotografia_vehiculo',
+        'imagen',
     ];
 
     /**
@@ -159,6 +159,38 @@ class Vehiculo extends Model
     }
 
     /**
+     * Relación: Un vehículo tiene muchas asignaciones de obra
+     */
+    public function asignacionesObra(): HasMany
+    {
+        return $this->hasMany(AsignacionObra::class);
+    }
+
+    /**
+     * Relación: Asignaciones activas de obra
+     */
+    public function asignacionesObraActivas(): HasMany
+    {
+        return $this->asignacionesObra()->activas();
+    }
+
+    /**
+     * Obtener la asignación de obra activa actual
+     */
+    public function asignacionObraActual()
+    {
+        return $this->asignacionesObraActivas()->latest('fecha_asignacion')->first();
+    }
+
+    /**
+     * Verificar si tiene asignación de obra activa
+     */
+    public function tieneAsignacionObraActiva(): bool
+    {
+        return $this->asignacionesObraActivas()->exists();
+    }
+
+    /**
      * Scope para filtrar por marca
      */
     public function scopePorMarca($query, $marca)
@@ -216,7 +248,7 @@ class Vehiculo extends Model
     }
 
     /**
-     * Scope para filtrar vehículos disponibles (activos y sin asignación actual)
+     * Scope para filtrar vehículos disponibles (sin asignaciones activas en el nuevo sistema)
      */
     public function scopeDisponibles($query)
     {
@@ -224,13 +256,7 @@ class Vehiculo extends Model
             $q->where('nombre_estatus', 'Disponible')
                 ->orWhere('nombre_estatus', 'Activo');
         })
-            ->whereNotExists(function ($subQuery) {
-                $subQuery->select(\DB::raw(1))
-                    ->from('obras')
-                    ->whereColumn('obras.vehiculo_id', 'vehiculos.id')
-                    ->whereNull('obras.fecha_liberacion')
-                    ->whereIn('obras.estatus', ['en_progreso', 'planificada']);
-            });
+            ->whereDoesntHave('asignacionesObraActivas');
     }
 
     /**
@@ -271,8 +297,16 @@ class Vehiculo extends Model
      */
     public function operadorActual()
     {
-        $obraActual = $this->obraActual;
-        return $obraActual ? $obraActual->operador : null;
+        return $this->hasOneThrough(
+            Personal::class,
+            Obra::class,
+            'vehiculo_id',    // Clave foránea en la tabla obras
+            'id',             // Clave foránea en la tabla personal
+            'id',             // Clave local en vehiculos
+            'operador_id'     // Clave local en obras
+        )->whereNull('obras.fecha_liberacion')
+         ->whereIn('obras.estatus', ['en_progreso', 'planificada'])
+         ->latest('obras.fecha_asignacion');
     }
 
     /**
@@ -280,7 +314,7 @@ class Vehiculo extends Model
      */
     public function getEstadoActualAttribute(): array
     {
-        $obraActual = $this->obraActual;
+        $obraActual = $this->obraActual()->first();
         
         return [
             'tiene_obra_activa' => $this->tieneObraActual(),

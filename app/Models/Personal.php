@@ -139,6 +139,38 @@ class Personal extends Model
     }
 
     /**
+     * Relación con asignaciones de obra
+     */
+    public function asignacionesObra(): HasMany
+    {
+        return $this->hasMany(AsignacionObra::class, 'operador_id');
+    }
+
+    /**
+     * Relación con asignaciones de obra activas
+     */
+    public function asignacionesObraActivas(): HasMany
+    {
+        return $this->asignacionesObra()->activas();
+    }
+
+    /**
+     * Obtener la asignación de obra activa actual
+     */
+    public function asignacionObraActual()
+    {
+        return $this->asignacionesObraActivas()->latest('fecha_asignacion')->first();
+    }
+
+    /**
+     * Verificar si tiene asignación de obra activa
+     */
+    public function tieneAsignacionObraActiva(): bool
+    {
+        return $this->asignacionesObraActivas()->exists();
+    }
+
+    /**
      * Scopes
      */
     public function scopeActivos($query)

@@ -147,45 +147,6 @@
 
         <!-- Panel Derecho - Información Adicional -->
         <div class="space-y-6">
-            <!-- Control de Combustible -->
-            @if($obra->combustible_inicial || $obra->combustible_final || $obra->combustible_suministrado || $obra->costo_combustible)
-            <div class="bg-white border border-gray-300 rounded-lg">
-                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800">Control de Combustible</h3>
-                </div>
-                <div class="p-4 space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Combustible Inicial</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $obra->combustible_inicial ? $obra->combustible_inicial . ' L' : 'No registrado' }}
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Combustible Final</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $obra->combustible_final ? $obra->combustible_final . ' L' : 'No registrado' }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Combustible Suministrado</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $obra->combustible_suministrado ? $obra->combustible_suministrado . ' L' : 'No registrado' }}
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Costo Combustible</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $obra->costo_combustible ? '$' . number_format($obra->costo_combustible, 2) : 'No registrado' }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endif
-
             <!-- Observaciones -->
             @if($obra->observaciones)
             <div class="bg-white border border-gray-300 rounded-lg">
@@ -195,41 +156,6 @@
                 <div class="p-4">
                     <div class="bg-gray-100 px-3 py-3 rounded text-sm border border-gray-300">
                         {{ $obra->observaciones }}
-                    </div>
-                </div>
-            </div>
-            @endif
-
-            <!-- Fechas de Control -->
-            @if($obra->fecha_liberacion || $obra->created_at || $obra->updated_at)
-            <div class="bg-white border border-gray-300 rounded-lg">
-                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800">Fechas de Control</h3>
-                </div>
-                <div class="p-4 space-y-4">
-                    @if($obra->fecha_liberacion)
-                    <div class="grid grid-cols-1 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Fecha de Liberación</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ \Carbon\Carbon::parse($obra->fecha_liberacion)->format('d/m/Y H:i') }}
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Fecha de Creación</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ \Carbon\Carbon::parse($obra->created_at)->format('d/m/Y H:i') }}
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Última Actualización</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ \Carbon\Carbon::parse($obra->updated_at)->format('d/m/Y H:i') }}
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
