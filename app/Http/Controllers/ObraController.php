@@ -496,7 +496,18 @@ class ObraController extends Controller
             }
 
             Log::info('Buscando obra por ID');
-            $obra = Obra::find($id);
+            // Modificado: Cargar datos completos con eager loading optimizado
+            $obra = Obra::with([
+                'encargado', // Cargar encargado básico
+                'encargado.usuario', // Si el encargado tiene usuario asociado
+                'encargado.categoria', // Categoría del personal encargado
+                'vehiculo', // Relación antigua (para compatibilidad)
+                'vehiculosAsignados', // NUEVA RELACIÓN: Vehículos asignados a través de asignaciones
+                'asignacionesActivas', // Asignaciones activas
+                'asignacionesActivas.vehiculo', // Datos del vehículo en cada asignación
+                'asignacionesActivas.operador', // Datos del operador en cada asignación
+                'asignacionesLiberadas'
+            ])->find($id);
 
             if (! $obra) {
                 Log::warning('Obra no encontrada', ['obra_id' => $id]);
@@ -507,9 +518,13 @@ class ObraController extends Controller
                 return redirect()->back()->with('error', 'Obra no encontrada.');
             }
 
+            // NUEVO: Asignar los vehículos a una propiedad adicional para la vista
+            $obra->vehiculos = $obra->vehiculosAsignados;
+            
             Log::info('Obra encontrada exitosamente', [
                 'obra_id' => $obra->id,
-                'obra_nombre' => $obra->nombre_obra ?? 'N/A'
+                'obra_nombre' => $obra->nombre_obra ?? 'N/A',
+                'total_vehiculos' => $obra->vehiculos->count() ?? 0
             ]);
 
             LogAccion::create([

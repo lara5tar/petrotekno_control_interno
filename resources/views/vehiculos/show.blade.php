@@ -206,6 +206,95 @@
                     <!-- Contenido de Operación -->
                     <div x-show="activeTab === 'operacion'" class="p-6 bg-gray-50">
                         <div class="space-y-6">
+                            <!-- Sección: Encargado del Vehículo -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        Encargado del Vehículo
+                                    </h5>
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        Cambiar Encargado
+                                    </button>
+                                </div>
+                                
+                                @if(isset($vehiculo->encargado) && $vehiculo->encargado)
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <!-- Información personal -->
+                                    <div class="space-y-4">
+                                        <div class="flex items-center">
+                                            <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-4">
+                                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h6 class="text-lg font-semibold text-gray-800">{{ $vehiculo->encargado->nombre_completo }}</h6>
+                                                <p class="text-sm text-gray-600">
+                                                    @if(isset($vehiculo->encargado->categoria) && $vehiculo->encargado->categoria)
+                                                    <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs font-medium">
+                                                        {{ $vehiculo->encargado->categoria->nombre_categoria }}
+                                                    </span>
+                                                    @endif
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-2 gap-3 mt-4">
+                                            <div>
+                                                <label class="block text-sm text-gray-600">ID Personal</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $vehiculo->encargado->id }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-600">Categoría</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                    {{ isset($vehiculo->encargado->categoria) ? $vehiculo->encargado->categoria->nombre_categoria : 'Sin categoría' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Información de contacto -->
+                                    <div class="space-y-3">
+                                        <h6 class="font-medium text-gray-700">Información de Contacto</h6>
+                                        
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Email</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $vehiculo->encargado->email ?? 'No registrado' }}
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Teléfono</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $vehiculo->encargado->telefono ?? 'No registrado' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @else
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                                    <svg class="w-8 h-8 text-yellow-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                    <h5 class="text-lg font-medium text-yellow-800 mb-2">No hay encargado asignado</h5>
+                                    <p class="text-sm text-yellow-600 mb-3">Este vehículo no tiene un encargado asignado actualmente.</p>
+                                    
+                                    <button class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md text-sm transition-colors duration-200">
+                                        Asignar Encargado
+                                    </button>
+                                </div>
+                                @endif
+                            </div>
+
                             <!-- Sección: Operador Actual -->
                             <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
                                 <div class="flex justify-between items-center mb-4">

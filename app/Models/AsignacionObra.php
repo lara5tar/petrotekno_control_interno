@@ -17,6 +17,7 @@ class AsignacionObra extends Model
     protected $fillable = [
         'obra_id',
         'vehiculo_id',
+        'operador_id',  // Añadido para poder asignar operadores
         'fecha_asignacion',
         'fecha_liberacion',
         'kilometraje_inicial',
@@ -62,6 +63,14 @@ class AsignacionObra extends Model
     public function vehiculo(): BelongsTo
     {
         return $this->belongsTo(Vehiculo::class);
+    }
+    
+    /**
+     * Relación con el operador (Personal)
+     */
+    public function operador(): BelongsTo
+    {
+        return $this->belongsTo(Personal::class, 'operador_id');
     }
 
     /**

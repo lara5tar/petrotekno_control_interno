@@ -2,83 +2,65 @@
 
 @section('title', 'Detalles de la Obra')
 
-@section('header', 'Detalles de la Obra')
-
 @section('content')
-{{-- Breadcrumb --}}
+<!-- Breadcrumb -->
 <x-breadcrumb :items="[
     ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
     ['label' => 'Obras', 'url' => route('obras.index')],
     ['label' => 'Detalle de la Obra']
 ]" />
 
-<!-- Contenido Principal -->
-<div class="p-6">
-    <!-- Header con información principal -->
-    <div class="bg-white border border-gray-300 rounded-lg mb-6">
-        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 rounded-t-lg">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-xl font-bold text-white">{{ $obra->nombre_obra }}</h2>
-                    <p class="text-blue-100 text-sm">ID: {{ str_pad($obra->id, 6, '0', STR_PAD_LEFT) }}</p>
-                </div>
-                <div class="text-right">
-                    <div class="bg-{{ $obra->estatus === 'en_progreso' ? 'green' : ($obra->estatus === 'completada' ? 'blue' : 'orange') }}-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center">
-                        <span class="w-2 h-2 bg-white rounded-full mr-2"></span>
-                        {{ ucfirst(str_replace('_', ' ', $obra->estatus)) }}
-                    </div>
-                    @if($obra->esta_atrasada)
-                    <div class="bg-red-500 text-white px-3 py-1 rounded text-xs mt-2 flex items-center">
-                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                        </svg>
-                        Atrasada
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-        
-        <!-- Barra de progreso prominente -->
-        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-600">Progreso del Proyecto</span>
-                <span class="text-lg font-bold text-gray-800">{{ $obra->avance ?? 0 }}%</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3">
-                <div class="bg-{{ $obra->avance >= 100 ? 'green' : ($obra->avance >= 75 ? 'blue' : ($obra->avance >= 50 ? 'yellow' : 'orange')) }}-500 h-3 rounded-full transition-all duration-500 shadow-sm" 
-                     style="width: {{ min(100, $obra->avance ?? 0) }}%"></div>
-            </div>
-        </div>
-    </div>
+<div class="h-[calc(100vh-120px)] flex flex-col gap-4">
 
-    <!-- Secciones organizadas en dos columnas -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- COLUMNA IZQUIERDA: Información del Proyecto -->
-        <div class="space-y-6">
-            
-            <!-- Información Básica del Proyecto -->
+    <!-- Contenido Principal en Grid 50/50 -->
+    <div class="flex-1 grid grid-cols-2 gap-4">
+        <!-- Panel Izquierdo -->
+        <div class="flex flex-col gap-4">
+            <!-- Datos Generales -->
             <div class="bg-white border border-gray-300 rounded-lg">
                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        Información del Proyecto
-                    </h3>
+                    <h3 class="font-semibold text-gray-800">Datos Generales</h3>
                 </div>
-                <div class="p-4 space-y-4">
+                <div class="p-4">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
+                            <label class="block text-sm font-medium text-gray-600">Nombre de la Obra</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->nombre_obra }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">ID</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ str_pad($obra->id, 6, '0', STR_PAD_LEFT) }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
                             <label class="block text-sm font-medium text-gray-600">Fecha de Inicio</label>
-                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ $obra->fecha_inicio ? \Carbon\Carbon::parse($obra->fecha_inicio)->format('d/m/Y') : 'No definida' }}
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Fecha de Finalización</label>
-                            <div class="bg-{{ $obra->fecha_fin && \Carbon\Carbon::now()->gt(\Carbon\Carbon::parse($obra->fecha_fin)) ? 'red' : 'blue' }}-600 text-white px-3 py-2 rounded text-sm font-medium">
+                            <div class="bg-{{ $obra->fecha_fin && \Carbon\Carbon::now()->gt(\Carbon\Carbon::parse($obra->fecha_fin)) ? 'red' : 'gray' }}-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ $obra->fecha_fin ? \Carbon\Carbon::parse($obra->fecha_fin)->format('d/m/Y') : 'No definida' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Avance</label>
+                            <div class="bg-gray-100 rounded-full h-3 mt-1">
+                                <div class="bg-{{ $obra->avance >= 100 ? 'green' : ($obra->avance >= 75 ? 'blue' : ($obra->avance >= 50 ? 'yellow' : 'orange')) }}-500 h-3 rounded-full transition-all duration-500 shadow-sm" 
+                                     style="width: {{ min(100, $obra->avance ?? 0) }}%"></div>
+                            </div>
+                            <div class="text-right text-sm font-medium text-gray-600 mt-1">
+                                {{ $obra->avance ?? 0 }}%
                             </div>
                         </div>
                     </div>
@@ -88,19 +70,14 @@
             <!-- Estadísticas y Cronograma -->
             <div class="bg-white border border-gray-300 rounded-lg">
                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                        </svg>
-                        Cronograma y Estadísticas
-                    </h3>
+                    <h3 class="font-semibold text-gray-800">Cronograma y Estadísticas</h3>
                 </div>
                 <div class="p-4 space-y-4">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Días Transcurridos</label>
                             <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $obra->dias_transcurridos }} días
+                                {{ $obra->dias_transcurridos ?? 0 }} días
                             </div>
                         </div>
                         @if($obra->dias_restantes !== null)
@@ -135,12 +112,7 @@
             <!-- Observaciones -->
             <div class="bg-white border border-gray-300 rounded-lg">
                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                        </svg>
-                        Observaciones y Notas
-                    </h3>
+                    <h3 class="font-semibold text-gray-800">Observaciones y Notas</h3>
                 </div>
                 <div class="p-4">
                     <div class="bg-yellow-50 border border-yellow-200 px-4 py-3 rounded text-sm">
@@ -150,196 +122,715 @@
             </div>
         </div>
 
-        <!-- COLUMNA DERECHA: Recursos y Documentación -->
-        <div class="space-y-6">
-            
-            <!-- Asignación de Recursos -->
-            <div class="bg-white border border-gray-300 rounded-lg">
-                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        Recursos Asignados
-                    </h3>
-                </div>
-                <div class="p-4 space-y-4">
-                    <!-- Personal Asignado -->
-                    <div class="border-b border-gray-200 pb-4">
-                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Personal</h4>
-                        <div class="grid grid-cols-1 gap-3">
-                            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-800">Encargado</div>
-                                    <div class="text-xs text-gray-600">
-                                        {{ $obra->encargado ? $obra->encargado->nombre_completo : 'Sin asignar' }}
-                                    </div>
-                                    @if($obra->encargado && !$obra->encargado->personal)
-                                    <div class="text-xs text-blue-600 mt-1">
-                                        {{ $obra->encargado->email }}
-                                    </div>
-                                    @endif
-                                </div>
-                                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-800">Operador</div>
-                                    <div class="text-xs text-gray-600">
-                                        {{ $obra->operador ? $obra->operador->nombre_completo : 'Sin asignar' }}
-                                    </div>
-                                </div>
-                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Vehículo Asignado -->
-                    <div>
-                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Vehículo</h4>
-                        @if($obra->vehiculo)
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <div class="flex items-center justify-between mb-3">
-                                <div>
-                                    <div class="font-medium text-gray-800">
-                                        {{ $obra->vehiculo->marca }} {{ $obra->vehiculo->modelo }}
-                                    </div>
-                                    <div class="text-sm text-gray-600">{{ $obra->vehiculo->placas }}</div>
-                                </div>
-                                <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                                </svg>
-                            </div>
-                            <div class="grid grid-cols-3 gap-2 text-xs">
-                                <div>
-                                    <span class="text-gray-500">Año:</span>
-                                    <div class="font-medium">{{ $obra->vehiculo->anio ?? 'N/A' }}</div>
-                                </div>
-                                <div>
-                                    <span class="text-gray-500">Serie:</span>
-                                    <div class="font-medium">{{ Str::limit($obra->vehiculo->n_serie ?? 'N/A', 8) }}</div>
-                                </div>
-                                <div>
-                                    <span class="text-gray-500">KM:</span>
-                                    <div class="font-medium">{{ $obra->vehiculo->kilometraje_actual ? number_format($obra->vehiculo->kilometraje_actual) : 'N/A' }}</div>
-                                </div>
-                            </div>
-                        </div>
-                        @else
-                        <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-                            <svg class="w-8 h-8 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                            </svg>
-                            <div class="text-sm text-red-800">Sin vehículo asignado</div>
-                        </div>
+        <!-- Panel Derecho -->
+        <div class="flex flex-col gap-4">
+            <!-- Estado y Resumen en fila horizontal -->
+            <div class="grid grid-cols-1 gap-3">
+                <!-- Estado Actual -->
+                <div>
+                    <div class="text-sm font-medium text-gray-600 mb-1">Estado Actual</div>
+                    <div class="bg-{{ $obra->estatus === 'en_progreso' ? 'green' : ($obra->estatus === 'completada' ? 'blue' : 'orange') }}-500 text-white p-2 rounded text-center">
+                        <div class="text-sm font-bold">{{ ucfirst(str_replace('_', ' ', $obra->estatus)) }}</div>
+                        @if($obra->esta_atrasada)
+                        <div class="text-xs bg-red-600 inline-block px-2 py-0.5 rounded mt-1">Atrasada</div>
                         @endif
                     </div>
-
-                    <!-- Fecha de Liberación -->
-                    @if($obra->fecha_liberacion)
-                    <div class="border-t border-gray-200 pt-4">
-                        <div class="bg-red-50 border border-red-200 rounded-lg p-3">
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
-                                <div>
-                                    <div class="text-sm font-medium text-red-800">Recursos Liberados</div>
-                                    <div class="text-xs text-red-600">
-                                        {{ \Carbon\Carbon::parse($obra->fecha_liberacion)->format('d/m/Y H:i') }}
-                                        ({{ \Carbon\Carbon::parse($obra->fecha_liberacion)->diffForHumans() }})
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
                 </div>
             </div>
 
-            <!-- Documentos del Proyecto -->
-            <div class="bg-white border border-gray-300 rounded-lg">
-                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v2m0 0h14" />
-                        </svg>
-                        Documentación
-                    </h3>
+            <!-- Pestañas de Información - Flexible para ocupar espacio restante -->
+            <div class="bg-white border border-gray-300 rounded-lg flex-1 flex flex-col" x-data="{ activeTab: 'recursos' }">
+                <div class="bg-gray-50 px-3 py-1 border-b border-gray-300">
+                    <nav class="flex">
+                        <button @click="activeTab = 'recursos'" 
+                                :class="activeTab === 'recursos' ? 'border-gray-500 text-gray-700 bg-gray-100' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                class="px-3 py-2 text-sm font-medium border-b-2 transition-colors duration-200">
+                            Recursos
+                        </button>
+                        <button @click="activeTab = 'documentos'" 
+                                :class="activeTab === 'documentos' ? 'border-gray-500 text-gray-700 bg-gray-100' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                class="px-3 py-2 text-sm font-medium border-b-2 transition-colors duration-200">
+                            Documentos
+                        </button>
+                        <button @click="activeTab = 'asignaciones'" 
+                                :class="activeTab === 'asignaciones' ? 'border-gray-500 text-gray-700 bg-gray-100' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                class="px-3 py-2 text-sm font-medium border-b-2 transition-colors duration-200">
+                            Asignaciones
+                        </button>
+                    </nav>
                 </div>
-                <div class="p-4">
-                    <div class="space-y-3">
-                        <!-- Contrato -->
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border {{ $obra->tieneContrato() ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50' }}">
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 mr-3 text-{{ $obra->tieneContrato() ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                <div>
-                                    <div class="text-sm font-medium text-gray-800">Contrato</div>
-                                    <div class="text-xs text-gray-600">
-                                        {{ $obra->tieneContrato() ? 'Disponible' : 'No disponible' }}
+
+                <!-- Contenido de pestañas con scroll interno -->
+                <div class="flex-1 overflow-hidden">
+                    <!-- Contenido de Recursos -->
+                    <div x-show="activeTab === 'recursos'" class="p-6 bg-gray-50 overflow-y-auto h-full">
+                        <div class="space-y-6">
+                            <!-- Sección: Encargado de la Obra -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        Encargado de la Obra
+                                    </h5>
+                                    
+                                    @if(isset($permisos) && $permisos->contains('editar_obras'))
+                                    <a href="{{ route('obras.edit', ['obra' => $obra->id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                        Cambiar Encargado
+                                    </a>
+                                    @endif
+                                </div>
+                                
+                                @if($obra->encargado)
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <!-- Información personal -->
+                                    <div class="space-y-4">
+                                        <div class="flex items-center">
+                                            <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-4">
+                                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h6 class="text-lg font-semibold text-gray-800">{{ $obra->encargado->nombre_completo }}</h6>
+                                                <p class="text-sm text-gray-600">
+                                                    @if($obra->encargado->categoria)
+                                                    <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs font-medium">
+                                                        {{ $obra->encargado->categoria->nombre_categoria }}
+                                                    </span>
+                                                    @endif
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-2 gap-3 mt-4">
+                                            <div>
+                                                <label class="block text-sm text-gray-600">ID Personal</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $obra->encargado->id }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-600">Categoría</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                    {{ $obra->encargado->categoria ? $obra->encargado->categoria->nombre_categoria : 'Sin categoría' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Información de contacto -->
+                                    <div class="space-y-3">
+                                        <h6 class="font-medium text-gray-700">Información de Contacto</h6>
+                                        
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Email</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $obra->encargado->email ?? 'No registrado' }}
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Teléfono</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $obra->encargado->telefono ?? 'No registrado' }}
+                                            </div>
+                                        </div>
+                                        
+                                        @if($obra->encargado->usuario)
+                                        <div class="mt-4">
+                                            <label class="block text-sm text-gray-600">Cuenta de Usuario</label>
+                                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm flex justify-between items-center">
+                                                <span>{{ $obra->encargado->usuario->email }}</span>
+                                                <span class="bg-blue-800 px-2 py-0.5 rounded-full text-xs">
+                                                    {{ $obra->encargado->usuario->rol ? $obra->encargado->usuario->rol->nombre_rol : 'Sin rol' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        @endif
                                     </div>
                                 </div>
+                                
+                                <!-- Detalles adicionales -->
+                                <div class="mt-6 border-t border-gray-200 pt-4">
+                                    <h6 class="font-medium text-gray-700 mb-3">Detalles Adicionales</h6>
+                                    
+                                    <div class="grid md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Fecha de Alta</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $obra->encargado->created_at ? $obra->encargado->created_at->format('d/m/Y') : 'No disponible' }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Estatus</label>
+                                            <div class="bg-{{ $obra->encargado->estatus === 'activo' ? 'green' : 'red' }}-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ ucfirst($obra->encargado->estatus ?? 'No definido') }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Obras Asignadas</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $obra->encargado->obras_count ?? 'Desconocido' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                @if($obra->encargado->observaciones)
+                                <div class="mt-6 border-t border-gray-200 pt-4">
+                                    <h6 class="font-medium text-gray-700 mb-2">Observaciones</h6>
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-gray-700">
+                                        {{ $obra->encargado->observaciones }}
+                                    </div>
+                                </div>
+                                @endif
+                                
+                                @else
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-5 text-center">
+                                    <svg class="w-12 h-12 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                    <h5 class="text-lg font-medium text-red-800 mb-2">No hay encargado asignado</h5>
+                                    <p class="text-sm text-red-600 mb-3">Esta obra no tiene un encargado asignado actualmente.</p>
+                                    
+                                    @if(isset($permisos) && $permisos->contains('editar_obras'))
+                                    <a href="{{ route('obras.edit', ['obra' => $obra->id]) }}" class="inline-block bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md text-sm transition-colors duration-200">
+                                        Asignar Encargado
+                                    </a>
+                                    @endif
+                                </div>
+                                @endif
                             </div>
-                            @if($obra->tieneContrato())
-                                <a href="{{ $obra->getUrlContrato() }}" target="_blank" 
-                                   class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-colors duration-200">
-                                    Ver
-                                </a>
-                            @else
-                                <span class="text-xs text-red-600 font-medium">Faltante</span>
+
+                            <!-- Sección: Vehículos Asignados -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                        Vehículos Asignados
+                                    </h5>
+                                    
+                                    @if(isset($permisos) && $permisos->contains('editar_obras'))
+                                    <a href="{{ route('obras.edit', ['obra' => $obra->id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Asignar Vehículo
+                                    </a>
+                                    @endif
+                                </div>
+                                
+                                @if($obra->vehiculos && $obra->vehiculos->count() > 0)
+                                    <div class="space-y-4">
+                                        @foreach($obra->vehiculos as $vehiculo)
+                                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <div class="flex items-center">
+                                                    <div class="bg-blue-100 text-blue-600 p-2 rounded-lg mr-3">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-medium text-gray-800">
+                                                            {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
+                                                        </div>
+                                                        <div class="text-sm text-gray-600">{{ $vehiculo->placas }}</div>
+                                                    </div>
+                                                </div>
+                                                <a href="{{ route('vehiculos.show', $vehiculo->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    Ver Detalles
+                                                </a>
+                                            </div>
+                                            
+                                            <div class="grid grid-cols-3 gap-2 text-xs">
+                                                <div>
+                                                    <span class="text-gray-500">Año:</span>
+                                                    <div class="font-medium">{{ $vehiculo->anio ?? 'N/A' }}</div>
+                                                </div>
+                                                <div>
+                                                    <span class="text-gray-500">Serie:</span>
+                                                    <div class="font-medium">{{ Str::limit($vehiculo->n_serie ?? 'N/A', 8) }}</div>
+                                                </div>
+                                                <div>
+                                                    <span class="text-gray-500">Kilometraje:</span>
+                                                    <div class="font-medium">{{ $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) : 'N/A' }} km</div>
+                                                </div>
+                                            </div>
+                                            
+                                            @if(isset($vehiculo->pivot) && $vehiculo->pivot->fecha_asignacion)
+                                            <div class="mt-2 pt-2 border-t border-gray-200 grid grid-cols-2 gap-2 text-xs">
+                                                <div>
+                                                    <span class="text-gray-500">Fecha de asignación:</span>
+                                                    <div class="font-medium">{{ \Carbon\Carbon::parse($vehiculo->pivot->fecha_asignacion)->format('d/m/Y') }}</div>
+                                                </div>
+                                                <div>
+                                                    <span class="text-gray-500">Operador:</span>
+                                                    <div class="font-medium">{{ $vehiculo->operadorActual ? $vehiculo->operadorActual->nombre_completo : 'Sin operador asignado' }}</div>
+                                                </div>
+                                            </div>
+                                            @endif
+                                            
+                                            @if(isset($permisos) && $permisos->contains('eliminar_asignacion_vehiculo'))
+                                            <div class="mt-2 flex justify-end">
+                                                <form action="{{ route('obras.desasignar_vehiculo', ['obra' => $obra->id, 'vehiculo' => $vehiculo->id]) }}" method="POST" onsubmit="return confirm('¿Estás seguro de desasignar este vehículo de la obra?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="bg-red-100 text-red-600 hover:bg-red-200 py-1 px-2 rounded text-xs flex items-center transition-colors duration-200">
+                                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                        Desasignar
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            @endif
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                @elseif($obra->vehiculo)
+                                    <!-- Mostrar el vehículo único asociado directamente a la obra -->
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <div>
+                                                <div class="font-medium text-gray-800">
+                                                    {{ $obra->vehiculo->marca }} {{ $obra->vehiculo->modelo }}
+                                                </div>
+                                                <div class="text-sm text-gray-600">{{ $obra->vehiculo->placas }}</div>
+                                            </div>
+                                            <a href="{{ route('vehiculos.show', $obra->vehiculo->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                                Ver Vehículo
+                                            </a>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-2 text-xs">
+                                            <div>
+                                                <span class="text-gray-500">Año:</span>
+                                                <div class="font-medium">{{ $obra->vehiculo->anio ?? 'N/A' }}</div>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-500">Serie:</span>
+                                                <div class="font-medium">{{ Str::limit($obra->vehiculo->n_serie ?? 'N/A', 8) }}</div>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-500">Kilometraje:</span>
+                                                <div class="font-medium">{{ $obra->vehiculo->kilometraje_actual ? number_format($obra->vehiculo->kilometraje_actual) : 'N/A' }} km</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <!-- Mostrar mensaje cuando no hay vehículos asignados -->
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
+                                        <svg class="w-10 h-10 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                        </svg>
+                                        <h5 class="text-lg font-medium text-red-800 mb-2">Sin vehículo asignado</h5>
+                                        <p class="text-sm text-red-600 mb-4">Esta obra no tiene vehículos asignados actualmente.</p>
+                                        
+                                        @if(isset($permisos) && $permisos->contains('editar_obras'))
+                                        <a href="{{ route('obras.edit', ['obra' => $obra->id]) }}" class="inline-block bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md text-sm transition-colors duration-200">
+                                            Asignar Vehículo
+                                        </a>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+
+                            @if($obra->vehiculo_id && $obra->kilometraje_inicial)
+                            <!-- Información de Kilometraje -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                        </svg>
+                                        Registro de Kilometraje
+                                    </h5>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Kilometraje Inicial</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                            {{ number_format($obra->kilometraje_inicial) }} km
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Kilometraje Final</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                            {{ $obra->kilometraje_final ? number_format($obra->kilometraje_final) . ' km' : 'En progreso' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                @if($obra->kilometraje_final)
+                                <div class="mt-4">
+                                    <label class="block text-sm text-gray-600">Kilómetros Recorridos</label>
+                                    <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-bold">
+                                        {{ number_format($obra->kilometraje_final - $obra->kilometraje_inicial) }} km
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                            @endif
+
+                            @if($obra->combustible_inicial || $obra->combustible_final || $obra->combustible_suministrado)
+                            <!-- Información de Combustible -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        Registro de Combustible
+                                    </h5>
+                                </div>
+                                
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Inicial</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                            {{ $obra->combustible_inicial ? number_format($obra->combustible_inicial, 2) . ' L' : 'N/A' }}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Suministrado</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                            {{ $obra->combustible_suministrado ? number_format($obra->combustible_suministrado, 2) . ' L' : 'N/A' }}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Final</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                            {{ $obra->combustible_final ? number_format($obra->combustible_final, 2) . ' L' : 'En progreso' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                @if($obra->costo_combustible)
+                                <div class="mt-4">
+                                    <label class="block text-sm text-gray-600">Costo Total de Combustible</label>
+                                    <div class="bg-green-600 text-white px-3 py-2 rounded text-sm font-bold">
+                                        ${{ number_format($obra->costo_combustible, 2) }}
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
                             @endif
                         </div>
+                    </div>
 
-                        <!-- Fianza -->
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border {{ $obra->tieneFianza() ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50' }}">
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 mr-3 text-{{ $obra->tieneFianza() ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                                </svg>
-                                <div>
-                                    <div class="text-sm font-medium text-gray-800">Fianza</div>
-                                    <div class="text-xs text-gray-600">
-                                        {{ $obra->tieneFianza() ? 'Disponible' : 'No disponible' }}
+                    <!-- Contenido de Documentos -->
+                    <div x-show="activeTab === 'documentos'" class="p-6 bg-gray-50 overflow-y-auto h-full">
+                        <div class="space-y-6">
+                            <!-- Documentos del Proyecto -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v2m0 0h14" />
+                                        </svg>
+                                        Documentos del Proyecto
+                                    </h5>
+                                    <div class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                        {{ $obra->getPorcentajeDocumentosCompletados() }}% completo
                                     </div>
                                 </div>
+                                
+                                <ul class="divide-y divide-gray-200 mb-6">
+                                    <!-- Contrato -->
+                                    <li class="py-3 flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <svg class="w-5 h-5 mr-3 text-{{ $obra->tieneContrato() ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <div>
+                                                <span class="text-sm font-medium text-gray-800">Contrato</span>
+                                                @if($obra->fecha_subida_contrato)
+                                                    <p class="text-xs text-gray-500">Subido: {{ \Carbon\Carbon::parse($obra->fecha_subida_contrato)->format('d/m/Y') }}</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            @if($obra->tieneContrato())
+                                                <a href="{{ $obra->getUrlContrato() }}" target="_blank" 
+                                                class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    Ver
+                                                </a>
+                                                <a href="{{ $obra->getUrlContrato() }}" download class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                    </svg>
+                                                    Descargar
+                                                </a>
+                                            @else
+                                                <span class="text-xs text-red-600 font-medium">Faltante</span>
+                                            @endif
+                                        </div>
+                                    </li>
+                                    
+                                    <!-- Fianza -->
+                                    <li class="py-3 flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <svg class="w-5 h-5 mr-3 text-{{ $obra->tieneFianza() ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                            </svg>
+                                            <div>
+                                                <span class="text-sm font-medium text-gray-800">Fianza</span>
+                                                @if($obra->fecha_subida_fianza)
+                                                    <p class="text-xs text-gray-500">Subido: {{ \Carbon\Carbon::parse($obra->fecha_subida_fianza)->format('d/m/Y') }}</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            @if($obra->tieneFianza())
+                                                <a href="{{ $obra->getUrlFianza() }}" target="_blank" 
+                                                class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    Ver
+                                                </a>
+                                                <a href="{{ $obra->getUrlFianza() }}" download class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                    </svg>
+                                                    Descargar
+                                                </a>
+                                            @else
+                                                <span class="text-xs text-red-600 font-medium">Faltante</span>
+                                            @endif
+                                        </div>
+                                    </li>
+                                    
+                                    <!-- Acta Entrega-Recepción -->
+                                    <li class="py-3 flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <svg class="w-5 h-5 mr-3 text-{{ $obra->tieneActaEntregaRecepcion() ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                            <div>
+                                                <span class="text-sm font-medium text-gray-800">Acta Entrega-Recepción</span>
+                                                @if($obra->fecha_subida_acta)
+                                                    <p class="text-xs text-gray-500">Subido: {{ \Carbon\Carbon::parse($obra->fecha_subida_acta)->format('d/m/Y') }}</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            @if($obra->tieneActaEntregaRecepcion())
+                                                <a href="{{ $obra->getUrlActaEntregaRecepcion() }}" target="_blank" 
+                                                class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    Ver
+                                                </a>
+                                                <a href="{{ $obra->getUrlActaEntregaRecepcion() }}" download class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                    </svg>
+                                                    Descargar
+                                                </a>
+                                            @else
+                                                <span class="text-xs text-red-600 font-medium">Faltante</span>
+                                            @endif
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
-                            @if($obra->tieneFianza())
-                                <a href="{{ $obra->getUrlFianza() }}" target="_blank" 
-                                   class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-colors duration-200">
-                                    Ver
-                                </a>
-                            @else
-                                <span class="text-xs text-red-600 font-medium">Faltante</span>
-                            @endif
                         </div>
+                    </div>
 
-                        <!-- Acta Entrega-Recepción -->
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border {{ $obra->tieneActaEntregaRecepcion() ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50' }}">
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 mr-3 text-{{ $obra->tieneActaEntregaRecepcion() ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                                <div>
-                                    <div class="text-sm font-medium text-gray-800">Acta Entrega-Recepción</div>
-                                    <div class="text-xs text-gray-600">
-                                        {{ $obra->tieneActaEntregaRecepcion() ? 'Disponible' : 'No disponible' }}
-                                    </div>
+                    <!-- Contenido de Asignaciones -->
+                    <div x-show="activeTab === 'asignaciones'" class="p-6 bg-gray-50 overflow-y-auto h-full">
+                        <div class="space-y-6">
+                            <!-- Asignaciones Activas -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Asignaciones Activas
+                                    </h5>
+                                    @if(isset($permisos) && $permisos->contains('crear_asignaciones'))
+                                    <a href="{{ route('obras.edit', ['obra' => $obra->id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Nueva Asignación
+                                    </a>
+                                    @endif
+                                </div>
+                                
+                                <!-- Tabla de Asignaciones -->
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operador</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Asignación</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @if($obra->vehiculo_id && $obra->operador_id)
+                                            <tr>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $obra->vehiculo ? $obra->vehiculo->marca . ' ' . $obra->vehiculo->modelo : 'Sin vehículo' }}
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $obra->operador ? $obra->operador->nombre_completo : 'Sin operador' }}
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $obra->fecha_asignacion ? \Carbon\Carbon::parse($obra->fecha_asignacion)->format('d/m/Y') : 'N/A' }}
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $obra->kilometraje_inicial ? number_format($obra->kilometraje_inicial) : 'N/A' }} km
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    <!-- Acciones en línea -->
+                                                </td>
+                                            </tr>
+                                            @elseif($obra->asignacionesActivas && $obra->asignacionesActivas->count() > 0)
+                                                @foreach($obra->asignacionesActivas as $asignacion)
+                                                <tr>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                        {{ $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo : 'Sin vehículo' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        {{ $asignacion->operador ? $asignacion->operador->nombre_completo : 'Sin operador' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y') }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        {{ number_format($asignacion->kilometraje_inicial) }} km
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        <a href="{{ route('obras.show', $obra->id) }}" class="text-blue-600 hover:text-blue-900 mr-2">
+                                                            <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                            </svg>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            @else
+                                                <tr>
+                                                    <td colspan="5" class="px-3 py-4 text-center text-sm text-gray-500">
+                                                        No hay asignaciones activas para esta obra
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                            @if($obra->tieneActaEntregaRecepcion())
-                                <a href="{{ $obra->getUrlActaEntregaRecepcion() }}" target="_blank" 
-                                   class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-colors duration-200">
-                                    Ver
-                                </a>
-                            @else
-                                <span class="text-xs text-red-600 font-medium">Faltante</span>
-                            @endif
+
+                            <!-- Asignaciones Históricas -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Historial de Asignaciones
+                                    </h5>
+                                </div>
+                                
+                                <!-- Tabla de Asignaciones Liberadas -->
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operador</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Período</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @if($obra->fecha_liberacion)
+                                            <tr>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $obra->vehiculo ? $obra->vehiculo->marca . ' ' . $obra->vehiculo->modelo : 'Sin vehículo' }}
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $obra->operador ? $obra->operador->nombre_completo : 'Sin operador' }}
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $obra->fecha_asignacion ? \Carbon\Carbon::parse($obra->fecha_asignacion)->format('d/m/Y') : 'N/A' }} -
+                                                    {{ \Carbon\Carbon::parse($obra->fecha_liberacion)->format('d/m/Y') }}
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ number_format($obra->kilometraje_final - $obra->kilometraje_inicial) }} km
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    <!-- Acciones en línea -->
+                                                </td>
+                                            </tr>
+                                            @elseif($obra->asignacionesLiberadas && $obra->asignacionesLiberadas->count() > 0)
+                                                @foreach($obra->asignacionesLiberadas->take(5) as $asignacion)
+                                                <tr>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                        {{ $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo : 'Sin vehículo' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        {{ $asignacion->operador ? $asignacion->operador->nombre_completo : 'Sin operador' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y') }} -
+                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_liberacion)->format('d/m/Y') }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        {{ number_format($asignacion->kilometraje_recorrido) }} km
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        <a href="{{ route('obras.show', $obra->id) }}" class="text-blue-600 hover:text-blue-900 mr-2">
+                                                            <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                            </svg>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            @else
+                                                <tr>
+                                                    <td colspan="5" class="px-3 py-4 text-center text-sm text-gray-500">
+                                                        No hay historial de asignaciones para esta obra
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -382,4 +873,30 @@
     @endhasPermission
 </div>
 
+@endsection
+
+@section('scripts')
+<script>
+    function handleImageLoad() {
+        const container = document.getElementById('image-container');
+        const errorPlaceholder = document.getElementById('image-error-placeholder');
+        if (container && errorPlaceholder) {
+            container.classList.remove('bg-gray-100', 'border-2', 'border-dashed', 'border-gray-300');
+            errorPlaceholder.classList.add('hidden');
+        }
+    }
+
+    function handleImageError() {
+        const container = document.getElementById('image-container');
+        const errorPlaceholder = document.getElementById('image-error-placeholder');
+        if (container && errorPlaceholder) {
+            container.classList.add('hidden');
+            errorPlaceholder.classList.remove('hidden');
+        }
+    }
+    
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+</script>
 @endsection
