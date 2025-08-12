@@ -9,3 +9,17 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Estilos para vehículos no disponibles en dropdowns */
+select option:disabled {
+    color: #6c757d !important;
+    background-color: #f8f9fa !important;
+    font-style: italic;
+}
+
+.select2-container .select2-results__option[aria-disabled="true"] {
+    color: #6c757d !important;
+    background-color: #f8f9fa !important;
+    font-style: italic;
+    cursor: not-allowed !important;
+}

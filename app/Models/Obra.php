@@ -70,7 +70,7 @@ class Obra extends Model
         'fecha_inicio',
         'fecha_fin',
         'observaciones',
-        'encargado_id', // Campo para el encargado de la obra
+        'encargado_id', // Añadido para permitir asignación masiva
         // Campos para archivos
         'archivo_contrato',
         'archivo_fianza',
@@ -197,19 +197,19 @@ class Obra extends Model
     }
 
     /**
-     * Relación con el usuario encargado
+     * Relación con el personal encargado
      */
     public function encargado(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'encargado_id');
+        return $this->belongsTo(Personal::class, 'encargado_id');
     }
 
     /**
-     * Relación con el usuario que creó la asignación (alias para encargado)
+     * Relación con el personal que creó la obra (alias para encargado)
      */
     public function creadoPor(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'encargado_id');
+        return $this->belongsTo(Personal::class, 'encargado_id');
     }
 
     /**

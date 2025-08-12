@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AsignacionObra;
 use App\Models\LogAccion;
 use App\Models\Obra;
 use App\Models\Personal;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
@@ -171,58 +173,41 @@ class ObraController extends Controller
             // Obtener estados disponibles para obras
             $estados = ['planificada', 'en_progreso', 'suspendida', 'completada', 'cancelada'];
             
-            // Obtener encargados (usuarios con rol de encargado o administrador + personal encargado)
-            Log::info('=== OBTENIENDO ENCARGADOS ===');
+            // Obtener encargados SOLO de la tabla personal
+            Log::info('=== OBTENIENDO ENCARGADOS (SOLO PERSONAL) ===');
             try {
-                // Obtener usuarios con roles administrativos (con su personal relacionado)
-                $usuariosEncargados = User::whereHas('rol', function($query) {
-                    $query->whereIn('nombre_rol', ['Admin', 'Supervisor']);
-                })->with('personal:id,nombre_completo')
-                ->get()
-                ->map(function($user) {
-                    return [
-                        'id' => $user->id,
-                        'nombre_usuario' => $user->personal ? $user->personal->nombre_completo : $user->email,
-                        'tipo' => 'usuario',
-                        'rol' => $user->rol ? $user->rol->nombre_rol : 'Sin rol'
-                    ];
-                });
-
-                // Obtener personal encargado (que no sean usuarios del sistema)
-                $personalEncargados = collect();
+                // CORREGIDO: Solo obtener personal encargado, sin usuarios
+                $encargados = collect();
                 if (class_exists(Personal::class)) {
-                    $personalEncargados = Personal::encargados()
-                        ->activos()
-                        ->whereDoesntHave('usuario') // Excluir personal que ya es usuario
+                    $encargados = Personal::encargados()
+                        ->whereNotNull('nombre_completo') // Solo personal con nombre completo
+                        ->where('nombre_completo', '!=', '') // Evitar nombres vacíos
                         ->with('categoria:id,nombre_categoria')
                         ->orderBy('nombre_completo')
                         ->get(['id', 'nombre_completo', 'categoria_id'])
                         ->map(function($personal) {
                             return [
                                 'id' => $personal->id,
-                                'nombre_usuario' => $personal->nombre_completo,
-                                'tipo' => 'personal',
+                                'nombre_completo' => $personal->nombre_completo,
                                 'categoria' => $personal->categoria ? $personal->categoria->nombre_categoria : 'Sin categoría'
                             ];
                         });
                 }
-
-                // Combinar ambos tipos de encargados
-                $encargados = $usuariosEncargados->concat($personalEncargados);
                 
-                Log::info('Encargados obtenidos exitosamente', [
-                    'usuarios_count' => $usuariosEncargados->count(),
-                    'personal_count' => $personalEncargados->count(),
+                Log::info('Encargados (solo personal) obtenidos exitosamente', [
                     'total_count' => $encargados->count(),
                     'encargados' => $encargados->toArray()
                 ]);
                 
                 if ($encargados->isEmpty()) {
-                    Log::warning('No se encontraron encargados disponibles');
+                    Log::warning('No se encontraron encargados disponibles en personal');
                 }
                 
             } catch (Exception $e) {
-                Log::error('Error al obtener encargados: ' . $e->getMessage());
+                Log::error('Error al obtener encargados de personal', [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
                 $encargados = collect();
             }
             
@@ -231,28 +216,72 @@ class ObraController extends Controller
             $vehiculos = collect();
             if (class_exists(Vehiculo::class)) {
                 try {
-                    Log::info('Iniciando carga de vehículos disponibles');
-                    $vehiculos = Vehiculo::disponibles()
-                        ->with('estatus:id,nombre_estatus')
+                    Log::info('Iniciando carga de TODOS los vehículos');
+                    
+                    // Obtener TODOS los vehículos
+                    $todosVehiculos = Vehiculo::with('estatus:id,nombre_estatus')
                         ->orderBy('marca')
                         ->orderBy('modelo')
-                        ->get(['id', 'marca', 'modelo', 'placas', 'kilometraje_actual', 'estatus_id']);
+                        ->get(['id', 'marca', 'modelo', 'anio', 'placas', 'kilometraje_actual', 'estatus_id']);
                     
-                    Log::info('Vehículos cargados exitosamente', [
+                    // CORREGIDO: Obtener vehículos que ya están asignados a obras activas
+                    $vehiculosAsignados = [];
+                    try {
+                        $asignaciones = AsignacionObra::where('estado', AsignacionObra::ESTADO_ACTIVA)
+                            ->with('obra:id,nombre_obra')
+                            ->get(['vehiculo_id', 'obra_id']);
+                        
+                        foreach ($asignaciones as $asignacion) {
+                            if ($asignacion->obra) {
+                                $vehiculosAsignados[$asignacion->vehiculo_id] = $asignacion->obra->nombre_obra;
+                            }
+                        }
+                    } catch (Exception $e) {
+                        Log::error('Error al obtener vehículos asignados', [
+                            'message' => $e->getMessage()
+                        ]);
+                        $vehiculosAsignados = [];
+                    }
+                    
+                    // Agregar información de asignación a cada vehículo
+                    $todosVehiculos = $todosVehiculos->map(function($vehiculo) use ($vehiculosAsignados) {
+                        $vehiculo->esta_asignado = isset($vehiculosAsignados[$vehiculo->id]);
+                        $vehiculo->obra_asignada = $vehiculosAsignados[$vehiculo->id] ?? null;
+                        
+                        return $vehiculo;
+                    });
+                    
+                    // NUEVO: Separar vehículos en disponibles y asignados
+                    $vehiculosDisponibles = $todosVehiculos->filter(function($vehiculo) {
+                        return !$vehiculo->esta_asignado;
+                    });
+                    
+                    $vehiculosNoDisponibles = $todosVehiculos->filter(function($vehiculo) {
+                        return $vehiculo->esta_asignado;
+                    });
+                    
+                    // NUEVO: Combinar los arreglos poniendo disponibles primero y no disponibles después
+                    $vehiculos = $vehiculosDisponibles->concat($vehiculosNoDisponibles);
+                    
+                    Log::info('TODOS los vehículos cargados exitosamente con información de asignación', [
                         'count' => $vehiculos->count(),
+                        'disponibles' => $vehiculosDisponibles->count(),
+                        'no_disponibles' => $vehiculosNoDisponibles->count(),
                         'vehiculos' => $vehiculos->map(function($vehiculo) {
                             return [
                                 'id' => $vehiculo->id,
                                 'placas' => $vehiculo->placas,
                                 'marca' => $vehiculo->marca ?? 'N/A',
                                 'modelo' => $vehiculo->modelo ?? 'N/A',
-                                'estatus' => $vehiculo->estatus->nombre_estatus ?? 'Sin estatus'
+                                'anio' => $vehiculo->anio ?? 'N/A',
+                                'esta_asignado' => $vehiculo->esta_asignado,
+                                'obra_asignada' => $vehiculo->obra_asignada
                             ];
                         })->toArray()
                     ]);
                     
                     if ($vehiculos->isEmpty()) {
-                        Log::warning('No se encontraron vehículos disponibles para asignación');
+                        Log::warning('No se encontraron vehículos en el sistema');
                     }
                     
                 } catch (Exception $e) {
@@ -308,102 +337,136 @@ class ObraController extends Controller
      */
     public function store(Request $request)
     {
+        Log::info('=== INICIO ObraController@store ===', [
+            'user_id' => auth()->id(),
+            'datos_recibidos' => $request->all()
+        ]);
+
         try {
-            Log::info('=== INICIO ObraController@store ===', [
-                'user_id' => Auth::id(),
-                'request_data' => $request->all()
-            ]);
-
-            if (! $this->hasPermission('crear_obras')) {
-                Log::warning('Usuario sin permisos para crear obras en store', [
-                    'user_id' => Auth::id()
-                ]);
-                $message = 'No tienes permisos para crear obras.';
-                if ($request->expectsJson()) {
-                    return response()->json(['error' => $message], 403);
-                }
-
-                return redirect()->back()->with('error', $message)->withInput();
-            }
-
-            Log::info('Validando datos de entrada para nueva obra');
-            $validatedData = $request->validate([
-                'nombre_obra' => 'required|string|max:200|unique:obras,nombre_obra',
+            // Validación de los datos de entrada
+            $validated = $request->validate([
+                'nombre_obra' => 'required|string|max:255',
                 'estatus' => 'required|in:planificada,en_progreso,suspendida,completada,cancelada',
+                'avance' => 'nullable|integer|min:0|max:100',
                 'fecha_inicio' => 'required|date',
                 'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
-                'avance' => 'nullable|integer|min:0|max:100',
-                'observaciones' => 'nullable|string',
+                'observaciones' => 'nullable|string|max:1000',
+                'encargado_id' => [
+                    'required',
+                    'numeric',
+                    'exists:personal,id' // Solo validar que exista en personal
+                ],
+                
+                // Validación simplificada de vehículos seleccionados con checkboxes
+                'vehiculos_seleccionados' => 'nullable|array',
+                'vehiculos_seleccionados.*' => 'exists:vehiculos,id',
+                
+                // Validación de archivos
+                'archivo_contrato' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+                'archivo_fianza' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+                'archivo_acta_entrega_recepcion' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
             ]);
 
-            Log::info('Datos validados correctamente', ['validated_data' => $validatedData]);
+            Log::info('Datos validados correctamente', ['validated' => $validated]);
 
-            $obra = Obra::create($validatedData);
-            
+            DB::beginTransaction();
+
+            // Crear la obra
+            $obra = Obra::create([
+                'nombre_obra' => $validated['nombre_obra'],
+                'estatus' => $validated['estatus'],
+                'avance' => $validated['avance'] ?? 0,
+                'fecha_inicio' => $validated['fecha_inicio'],
+                'fecha_fin' => $validated['fecha_fin'] ?? null,
+                'observaciones' => $validated['observaciones'] ?? null,
+                'encargado_id' => $validated['encargado_id'],
+            ]);
+
             Log::info('Obra creada exitosamente', [
                 'obra_id' => $obra->id,
-                'obra_nombre' => $obra->nombre_obra
+                'nombre_obra' => $obra->nombre_obra
             ]);
 
-            LogAccion::create([
-                'usuario_id' => Auth::id(),
-                'accion' => 'crear_obra',
-                'tabla_afectada' => 'obras',
-                'registro_id' => $obra->id,
-                'detalles' => 'Usuario creó nueva obra: ' . $obra->nombre_obra,
-            ]);
-
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'message' => 'Obra creada exitosamente.',
-                    'data' => $obra
-                ], 201);
+            // Procesar archivos si se subieron
+            if ($request->hasFile('archivo_contrato')) {
+                $obra->subirContrato($request->file('archivo_contrato'));
+                Log::info('Contrato subido exitosamente');
             }
 
-            return redirect()->route('obras.index')->with('success', 'Obra creada exitosamente.');
+            if ($request->hasFile('archivo_fianza')) {
+                $obra->subirFianza($request->file('archivo_fianza'));
+                Log::info('Fianza subida exitosamente');
+            }
+
+            if ($request->hasFile('archivo_acta_entrega_recepcion')) {
+                $obra->subirActaEntregaRecepcion($request->file('archivo_acta_entrega_recepcion'));
+                Log::info('Acta de entrega-recepción subida exitosamente');
+            }
+
+            // Procesar vehículos seleccionados (método simplificado)
+            if (!empty($validated['vehiculos_seleccionados'])) {
+                Log::info('Procesando vehículos seleccionados', [
+                    'total_vehiculos' => count($validated['vehiculos_seleccionados'])
+                ]);
+
+                foreach ($validated['vehiculos_seleccionados'] as $vehiculoId) {
+                    // Obtener el vehículo para usar su kilometraje actual como inicial
+                    $vehiculo = Vehiculo::find($vehiculoId);
+                    
+                    if ($vehiculo) {
+                        // Crear asignación simple
+                        $asignacion = AsignacionObra::create([
+                            'obra_id' => $obra->id,
+                            'vehiculo_id' => $vehiculo->id,
+                            'fecha_asignacion' => now(),
+                            'kilometraje_inicial' => $vehiculo->kilometraje_actual,
+                            'observaciones' => 'Vehículo asignado desde formulario de creación de obra',
+                            'estado' => AsignacionObra::ESTADO_ACTIVA,
+                        ]);
+
+                        Log::info('Asignación de vehículo creada', [
+                            'asignacion_id' => $asignacion->id,
+                            'vehiculo_id' => $asignacion->vehiculo_id,
+                            'obra_id' => $asignacion->obra_id,
+                            'kilometraje_inicial' => $asignacion->kilometraje_inicial
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            $totalVehiculos = isset($validated['vehiculos_seleccionados']) ? count($validated['vehiculos_seleccionados']) : 0;
+            $mensaje = 'Obra creada exitosamente';
+            if ($totalVehiculos > 0) {
+                $mensaje .= ' con ' . $totalVehiculos . ' vehículo' . ($totalVehiculos > 1 ? 's' : '') . ' asignado' . ($totalVehiculos > 1 ? 's' : '');
+            }
+
+            Log::info('Obra y asignaciones creadas exitosamente', [
+                'obra_id' => $obra->id,
+                'total_asignaciones' => $totalVehiculos
+            ]);
+
+            return redirect()->route('obras.index')->with('success', $mensaje . '.');
+            
         } catch (ValidationException $e) {
-            Log::warning('Error de validación en store', [
-                'errors' => $e->errors(),
-                'user_id' => Auth::id()
-            ]);
+            DB::rollBack();
+            Log::warning('Error de validación', ['errors' => $e->errors()]);
             
-            if (app()->environment('local')) {
-                dump([
-                    'VALIDATION_ERROR_OBRAS_STORE' => [
-                        'errors' => $e->errors(),
-                        'user_id' => Auth::id()
-                    ]
-                ]);
-            }
-            
-            throw $e;
-        } catch (Exception $e) {
-            Log::error('=== ERROR EN ObraController@store ===', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-                'user_id' => Auth::id(),
-                'request_data' => $request->all()
-            ]);
-            
-            if (app()->environment('local')) {
-                dump([
-                    'ERROR_OBRAS_STORE' => [
-                        'message' => $e->getMessage(),
-                        'file' => $e->getFile(),
-                        'line' => $e->getLine(),
-                        'user_id' => Auth::id(),
-                        'request_data' => $request->all()
-                    ]
-                ]);
-            }
+            return back()
+                ->withErrors($e->errors())
+                ->withInput();
 
-            if ($request->expectsJson()) {
-                return response()->json(['error' => 'Error al crear obra: ' . $e->getMessage()], 500);
-            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error al crear obra', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
 
-            return redirect()->back()->withInput()->with('error', 'Error al crear obra: ' . $e->getMessage());
+            return back()
+                ->with('error', 'Error al crear obra: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
@@ -500,7 +563,7 @@ class ObraController extends Controller
                 'user_id' => Auth::id()
             ]);
 
-            if (! $this->hasPermission('editar_obras')) {
+            if (! $this->hasPermission('actualizar_obras')) {
                 Log::warning('Usuario sin permisos para editar obras', [
                     'user_id' => Auth::id(),
                     'obra_id' => $id
@@ -514,7 +577,13 @@ class ObraController extends Controller
             }
 
             Log::info('Buscando obra para edición');
-            $obra = Obra::find($id);
+            $obra = Obra::with([
+                'vehiculo:id,marca,modelo,placas,anio',
+                'operador:id,nombre_completo',
+                'encargado:id,email',
+                'encargado.personal:id,nombre_completo',
+                'asignacionesActivas'
+            ])->find($id);
 
             if (! $obra) {
                 Log::warning('Obra no encontrada', ['obra_id' => $id]);
@@ -532,9 +601,122 @@ class ObraController extends Controller
 
             $estatusOptions = $this->getEstatusOptions();
 
+            // Obtener vehículos disponibles
+            Log::info('=== OBTENIENDO VEHICULOS PARA EDICION ===');
+            $vehiculos = collect();
+            if (class_exists(Vehiculo::class)) {
+                try {
+                    Log::info('Iniciando carga de vehículos disponibles para edición');
+                    $vehiculos = Vehiculo::disponibles()
+                        ->with('estatus:id,nombre_estatus')
+                        ->orderBy('marca')
+                        ->orderBy('modelo')
+                        ->get(['id', 'marca', 'modelo', 'anio', 'placas', 'kilometraje_actual', 'estatus_id']);
+                    
+                    Log::info('Vehículos cargados exitosamente para edición', [
+                        'count' => $vehiculos->count()
+                    ]);
+                    
+                } catch (Exception $e) {
+                    Log::error('=== ERROR AL OBTENER VEHICULOS PARA EDICION ===', [
+                        'message' => $e->getMessage(),
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine()
+                    ]);
+                    $vehiculos = collect();
+                }
+            } else {
+                Log::warning('La clase Vehiculo no existe en el sistema');
+            }
+
+            // Obtener operadores disponibles
+            Log::info('=== OBTENIENDO OPERADORES PARA EDICION ===');
+            $operadores = collect();
+            if (class_exists(Personal::class)) {
+                try {
+                    $operadores = Personal::operadores()
+                        ->whereNotNull('nombre_completo')
+                        ->where('nombre_completo', '!=', '')
+                        ->orderBy('nombre_completo')
+                        ->get(['id', 'nombre_completo']);
+                    
+                    Log::info('Operadores cargados exitosamente para edición', [
+                        'count' => $operadores->count()
+                    ]);
+                    
+                } catch (Exception $e) {
+                    Log::error('Error al obtener operadores para edición', [
+                        'message' => $e->getMessage()
+                    ]);
+                    $operadores = collect();
+                }
+            }
+
+            // Obtener encargados disponibles (usuarios + personal)
+            Log::info('=== OBTENIENDO ENCARGADOS PARA EDICION ===');
+            try {
+                // Obtener usuarios con roles administrativos (con su personal relacionado)
+                $usuariosEncargados = User::whereHas('rol', function($query) {
+                    $query->whereIn('nombre_rol', ['Admin', 'Supervisor', 'Jefe de Obra']);
+                })
+                ->whereHas('personal', function($query) {
+                    $query->whereNotNull('nombre_completo')
+                          ->where('nombre_completo', '!=', '');
+                })
+                ->with('personal:id,nombre_completo')
+                ->get()
+                ->map(function($user) {
+                    return [
+                        'id' => $user->id,
+                        'nombre_usuario' => $user->nombre_completo, // CORREGIDO: Usar nombre_completo consistentemente
+                        'tipo' => 'usuario',
+                        'rol' => $user->rol ? $user->rol->nombre_rol : 'Sin rol'
+                    ];
+                });
+
+                // Obtener personal encargado (que no sean usuarios del sistema)
+                $personalEncargados = collect();
+                if (class_exists(Personal::class)) {
+                    $personalEncargados = Personal::encargados()
+                        ->whereDoesntHave('usuario') // Excluir personal que ya es usuario
+                        ->with('categoria:id,nombre_categoria')
+                        ->whereNotNull('nombre_completo') // Solo personal con nombre completo
+                        ->where('nombre_completo', '!=', '') // Evitar nombres vacíos
+                        ->orderBy('nombre_completo')
+                        ->get(['id', 'nombre_completo', 'categoria_id'])
+                        ->map(function($personal) {
+                            return [
+                                'id' => $personal->id,
+                                'nombre_usuario' => $personal->nombre_completo, // CORREGIDO: Usar nombre_usuario consistentemente
+                                'tipo' => 'personal',
+                                'categoria' => $personal->categoria ? $personal->categoria->nombre_categoria : 'Sin categoría'
+                            ];
+                        });
+                }
+
+                // Combinar ambos tipos de encargados
+                $encargados = $usuariosEncargados->concat($personalEncargados);
+                
+                Log::info('Encargados obtenidos exitosamente para edición', [
+                    'usuarios_count' => $usuariosEncargados->count(),
+                    'personal_count' => $personalEncargados->count(),
+                    'total_count' => $encargados->count()
+                ]);
+                
+            } catch (Exception $e) {
+                Log::error('Error al obtener encargados para edición', [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                $encargados = collect();
+            }
+
             Log::info('Renderizando vista de edición de obra', [
                 'obra_id' => $obra->id,
                 'estatus_options' => $estatusOptions,
+                'vehiculos_count' => $vehiculos->count(),
+                'operadores_count' => $operadores->count(),
+                'encargados_count' => $encargados->count()
             ]);
 
             LogAccion::create([
@@ -551,11 +733,14 @@ class ObraController extends Controller
                     'data' => [
                         'obra' => $obra,
                         'estatus_options' => $estatusOptions,
+                        'vehiculos' => $vehiculos,
+                        'operadores' => $operadores,
+                        'encargados' => $encargados,
                     ],
                 ]);
             }
 
-            return view('obras.edit', compact('obra', 'estatusOptions'));
+            return view('obras.edit', compact('obra', 'estatusOptions', 'vehiculos', 'operadores', 'encargados'));
         } catch (Exception $e) {
             Log::error('=== ERROR EN ObraController@edit ===', [
                 'message' => $e->getMessage(),
@@ -588,6 +773,14 @@ class ObraController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            if (! $this->hasPermission('actualizar_obras')) {
+                $message = 'No tienes permisos para actualizar obras.';
+                if ($request->expectsJson()) {
+                    return response()->json(['error' => $message], 403);
+                }
+                return redirect()->back()->with('error', $message);
+            }
+
             Log::info("=== INICIO UPDATE OBRA ===");
             Log::info("ID recibido: " . $id);
             Log::info("Datos del request: " . json_encode($request->all()));

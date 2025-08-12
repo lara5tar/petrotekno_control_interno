@@ -33,8 +33,6 @@ class DatabaseSeeder extends Seeder
             MantenimientoSeeder::class,
             KilometrajeSeeder::class,
             DocumentoSeeder::class,
-            
-            // AsignacionSeeder::class, // Comentado - las asignaciones ahora van en obras
         ]);
     }
 }

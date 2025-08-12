@@ -253,10 +253,10 @@ class Vehiculo extends Model
     public function scopeDisponibles($query)
     {
         return $query->whereHas('estatus', function ($q) {
-            $q->where('nombre_estatus', 'Disponible')
-                ->orWhere('nombre_estatus', 'Activo');
-        })
-            ->whereDoesntHave('asignacionesObraActivas');
+            $q->where('nombre_estatus', 'like', '%disponible%')
+                ->orWhere('nombre_estatus', 'like', '%activo%')
+                ->orWhere('nombre_estatus', 'like', '%libre%');
+        });
     }
 
     /**
@@ -323,7 +323,7 @@ class Vehiculo extends Model
                 'nombre' => $obraActual->nombre_obra,
                 'estatus' => $obraActual->estatus,
                 'fecha_asignacion' => $obraActual->fecha_asignacion,
-                'operador' => $obraActual->operador ? $obraActual->operador->nombre_completo : null,
+                'operador' => $obraActual->operador?->nombre_completo ?? null,
             ] : null,
             'esta_disponible' => $this->estaDisponible(),
             'estatus_vehiculo' => $this->estatus ? $this->estatus->nombre_estatus : 'Sin estatus',
@@ -357,7 +357,11 @@ class Vehiculo extends Model
      */
     public function getNombreCompletoAttribute()
     {
-        return "{$this->marca} {$this->modelo} ({$this->anio})";
+        $marca = $this->marca ?? 'Sin marca';
+        $modelo = $this->modelo ?? 'Sin modelo';
+        $anio = $this->anio ?? 'Sin año';
+        
+        return "{$marca} {$modelo} ({$anio})";
     }
 
     /**

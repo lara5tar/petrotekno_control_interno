@@ -17,16 +17,10 @@ class AsignacionObra extends Model
     protected $fillable = [
         'obra_id',
         'vehiculo_id',
-        'operador_id',
         'fecha_asignacion',
         'fecha_liberacion',
         'kilometraje_inicial',
         'kilometraje_final',
-        'combustible_inicial',
-        'combustible_final',
-        'combustible_suministrado',
-        'costo_combustible',
-        'historial_combustible',
         'observaciones',
         'estado',
     ];
@@ -36,19 +30,12 @@ class AsignacionObra extends Model
         'fecha_liberacion' => 'datetime',
         'kilometraje_inicial' => 'integer',
         'kilometraje_final' => 'integer',
-        'combustible_inicial' => 'decimal:2',
-        'combustible_final' => 'decimal:2',
-        'combustible_suministrado' => 'decimal:2',
-        'costo_combustible' => 'decimal:2',
-        'historial_combustible' => 'array',
     ];
 
     protected $appends = [
         'esta_activa',
         'duracion_en_dias',
         'kilometraje_recorrido',
-        'combustible_consumido',
-        'eficiencia_combustible',
     ];
 
     /**
@@ -65,7 +52,7 @@ class AsignacionObra extends Model
     ];
 
     /**
-     * Relaciones
+     * Relaciones - SOLO obra y vehiculo
      */
     public function obra(): BelongsTo
     {
@@ -75,24 +62,6 @@ class AsignacionObra extends Model
     public function vehiculo(): BelongsTo
     {
         return $this->belongsTo(Vehiculo::class);
-    }
-
-    public function operador(): BelongsTo
-    {
-        return $this->belongsTo(Personal::class, 'operador_id');
-    }
-
-    public function personal(): BelongsTo
-    {
-        return $this->belongsTo(Personal::class, 'operador_id');
-    }
-
-    /**
-     * Obtener el encargado de la asignación a través de la obra
-     */
-    public function getEncargadoAttribute()
-    {
-        return $this->obra?->encargado;
     }
 
     /**
@@ -116,11 +85,6 @@ class AsignacionObra extends Model
     public function scopePorVehiculo($query, $vehiculoId)
     {
         return $query->where('vehiculo_id', $vehiculoId);
-    }
-
-    public function scopePorOperador($query, $operadorId)
-    {
-        return $query->where('operador_id', $operadorId);
     }
 
     public function scopePorFecha($query, $fechaInicio, $fechaFin = null)
@@ -159,28 +123,8 @@ class AsignacionObra extends Model
         return $this->kilometraje_final - $this->kilometraje_inicial;
     }
 
-    public function getCombustibleConsumidoAttribute(): ?float
-    {
-        if (!$this->combustible_final || !$this->combustible_inicial) {
-            return null;
-        }
-        return $this->combustible_inicial - $this->combustible_final + ($this->combustible_suministrado ?? 0);
-    }
-
-    public function getEficienciaCombustibleAttribute(): ?float
-    {
-        $combustibleConsumido = $this->combustible_consumido;
-        $kilometrajeRecorrido = $this->kilometraje_recorrido;
-
-        if (!$combustibleConsumido || !$kilometrajeRecorrido || $combustibleConsumido <= 0) {
-            return null;
-        }
-
-        return round($kilometrajeRecorrido / $combustibleConsumido, 2);
-    }
-
     /**
-     * Métodos de validación de negocio
+     * Métodos de validación de negocio - SIMPLIFICADOS para solo vehículos
      */
     public static function vehiculoTieneAsignacionActiva($vehiculoId, $exceptoId = null): bool
     {
@@ -191,14 +135,6 @@ class AsignacionObra extends Model
         }
         
         return $query->exists();
-    }
-
-    public static function operadorTieneAsignacionActiva($operadorId, $exceptoId = null): bool
-    {
-        // IMPORTANTE: Los operadores SÍ pueden tener múltiples asignaciones activas
-        // ya que un operador puede manejar varios vehículos en la misma obra o diferentes obras
-        // Solo verificamos disponibilidad si se requiere explícitamente
-        return false; // Permitir múltiples asignaciones por operador por defecto
     }
 
     public static function validarAsignacionUnicaVehiculo($vehiculoId, $exceptoId = null): void
@@ -215,30 +151,22 @@ class AsignacionObra extends Model
             return false;
         }
 
-        // Si no permite múltiples asignaciones y ya tiene alguna activa
-        if (!$obra->permite_multiples_asignaciones && $obra->total_asignaciones_activas > 0) {
-            return false;
-        }
-
-        $asignacionesActivas = self::where('obra_id', $obraId)->activas()->count();
-
-        // Verificar límite de vehículos
-        if ($obra->max_vehiculos && $asignacionesActivas >= $obra->max_vehiculos) {
-            return false;
-        }
-
-        return true;
+        // Verificar que la obra esté en un estado que permita asignaciones
+        return in_array($obra->estatus, [
+            \App\Models\Obra::ESTATUS_PLANIFICADA,
+            \App\Models\Obra::ESTATUS_EN_PROGRESO,
+            \App\Models\Obra::ESTATUS_SUSPENDIDA
+        ]);
     }
 
     /**
-     * Método para liberar asignación
+     * Método para liberar asignación - SIMPLIFICADO sin combustible
      */
-    public function liberar($kilometrajeFinal, $combustibleFinal = null, $observaciones = null): bool
+    public function liberar($kilometrajeFinal, $observaciones = null): bool
     {
         $this->update([
             'fecha_liberacion' => Carbon::now(),
             'kilometraje_final' => $kilometrajeFinal,
-            'combustible_final' => $combustibleFinal,
             'estado' => self::ESTADO_LIBERADA,
             'observaciones' => $observaciones ? 
                 ($this->observaciones ? $this->observaciones . "\n\n" . $observaciones : $observaciones) :
@@ -251,75 +179,6 @@ class AsignacionObra extends Model
         }
 
         return true;
-    }
-
-    /**
-     * Método para transferir asignación a otro operador
-     */
-    public function transferir($nuevoOperadorId, $kilometrajeTransferencia, $observaciones = null): bool
-    {
-        $operadorAnterior = $this->operador;
-        
-        $this->update([
-            'operador_id' => $nuevoOperadorId,
-            'estado' => self::ESTADO_TRANSFERIDA,
-            'observaciones' => $this->observaciones . "\n\n[TRANSFERENCIA " . now()->format('d/m/Y H:i') . '] ' .
-                "De: {$operadorAnterior->nombre_completo} | " .
-                "Nuevo operador: " . Personal::find($nuevoOperadorId)->nombre_completo . " | " .
-                "Km: {$kilometrajeTransferencia}" . 
-                ($observaciones ? " | Observaciones: {$observaciones}" : ""),
-        ]);
-
-        // Actualizar kilometraje del vehículo
-        if ($this->vehiculo && $kilometrajeTransferencia > $this->vehiculo->kilometraje_actual) {
-            $this->vehiculo->update(['kilometraje_actual' => $kilometrajeTransferencia]);
-        }
-
-        return true;
-    }
-
-    /**
-     * Registrar suministro de combustible
-     */
-    public function registrarCombustible($litros, $costo, $estacion = null, $metadata = []): void
-    {
-        $historial = $this->historial_combustible ?? [];
-        
-        $registro = [
-            'fecha' => now()->toDateTimeString(),
-            'litros' => $litros,
-            'precio_por_litro' => $litros > 0 ? round($costo / $litros, 2) : 0,
-            'costo_total' => $costo,
-            'estacion' => $estacion,
-            'kilometraje_actual' => $this->vehiculo->kilometraje_actual ?? null,
-            'metadata' => $metadata,
-        ];
-
-        $historial[] = $registro;
-
-        $this->update([
-            'historial_combustible' => $historial,
-            'combustible_suministrado' => ($this->combustible_suministrado ?? 0) + $litros,
-            'costo_combustible' => ($this->costo_combustible ?? 0) + $costo,
-        ]);
-    }
-
-    /**
-     * Obtener resumen de combustible
-     */
-    public function getResumenCombustible(): array
-    {
-        return [
-            'inicial' => $this->combustible_inicial,
-            'final' => $this->combustible_final,
-            'suministrado' => $this->combustible_suministrado,
-            'consumido' => $this->combustible_consumido,
-            'costo_total' => $this->costo_combustible,
-            'eficiencia' => $this->eficiencia_combustible,
-            'total_recargas' => count($this->historial_combustible ?? []),
-            'promedio_precio_litro' => $this->combustible_suministrado > 0 ? 
-                round($this->costo_combustible / $this->combustible_suministrado, 2) : null,
-        ];
     }
 
     /**
@@ -336,10 +195,6 @@ class AsignacionObra extends Model
                     throw new \Exception('El vehículo ya tiene una asignación activa');
                 }
 
-                if (self::operadorTieneAsignacionActiva($asignacion->operador_id)) {
-                    throw new \Exception('El operador ya tiene una asignación activa');
-                }
-
                 if (!self::obraTieneCapacidadParaNuevaAsignacion($asignacion->obra_id)) {
                     throw new \Exception('La obra no tiene capacidad para nuevas asignaciones');
                 }
@@ -348,13 +203,16 @@ class AsignacionObra extends Model
 
         // Log de creación
         static::created(function ($asignacion) {
-            \App\Models\LogAccion::create([
-                'usuario_id' => $asignacion->obra?->encargado_id,
-                'accion' => 'crear_asignacion_obra',
-                'tabla_afectada' => 'asignaciones_obra',
-                'registro_id' => $asignacion->id,
-                'detalles' => "Asignación creada: Vehículo {$asignacion->vehiculo->nombre_completo} -> Obra {$asignacion->obra->nombre_obra} -> Operador {$asignacion->operador->nombre_completo}",
-            ]);
+            // Solo crear log si hay un usuario autenticado
+            if (auth()->id()) {
+                \App\Models\LogAccion::create([
+                    'usuario_id' => auth()->id(),
+                    'accion' => 'crear_asignacion_obra',
+                    'tabla_afectada' => 'asignaciones_obra',
+                    'registro_id' => $asignacion->id,
+                    'detalles' => "Asignación creada: Vehículo {$asignacion->vehiculo->nombre_completo} -> Obra {$asignacion->obra->nombre_obra}",
+                ]);
+            }
         });
     }
 }

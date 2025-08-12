@@ -158,6 +158,12 @@ class User extends Authenticatable
      */
     public function getNombreCompletoAttribute(): string
     {
-        return $this->personal ? $this->personal->nombre_completo : $this->email;
+        // Verificar que personal existe Y que nombre_completo no sea null/vacío
+        if ($this->personal && !empty($this->personal->nombre_completo)) {
+            return $this->personal->nombre_completo;
+        }
+        
+        // Si no tiene personal o nombre_completo está vacío, usar el email
+        return $this->email;
     }
 }

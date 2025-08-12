@@ -160,14 +160,42 @@ class AsignacionObraController extends Controller
             // Obtener datos para el formulario
             $obras = Obra::activas()->orderBy('nombre_obra')->get(['id', 'nombre_obra', 'estatus']);
 
-            $vehiculos = Vehiculo::disponibles()->orderBy('marca')->orderBy('modelo')->get([
-                'id',
-                'marca',
-                'modelo',
-                'placas',
-                'kilometraje_actual',
-                'estatus_id',
-            ]);
+            // Cargar vehículos disponibles primero
+            $vehiculosDisponibles = Vehiculo::disponibles()
+                ->with('estatus')
+                ->orderBy('marca')
+                ->orderBy('modelo')
+                ->get()
+                ->map(function ($vehiculo) {
+                    return [
+                        'id' => $vehiculo->id,
+                        'nombre_completo' => $vehiculo->nombre_completo,
+                        'disponible' => true,
+                        'texto_estado' => ''
+                    ];
+                });
+
+            // Cargar vehículos asignados para mostrarlos al final como no seleccionables
+            $vehiculosAsignados = Vehiculo::whereHas('asignacionesObraActivas')
+                ->with(['estatus', 'asignacionesObraActivas.obra'])
+                ->orderBy('marca')
+                ->orderBy('modelo')
+                ->get()
+                ->map(function ($vehiculo) {
+                    $obraAsignada = $vehiculo->asignacionesObraActivas->first();
+                    $textoEstado = $obraAsignada ? " (Asignado a: {$obraAsignada->obra->nombre_obra})" : " (No disponible)";
+                    
+                    return [
+                        'id' => $vehiculo->id,
+                        'nombre_completo' => $vehiculo->nombre_completo . $textoEstado,
+                        'disponible' => false,
+                        'texto_estado' => $textoEstado
+                    ];
+                });
+
+            // Combinar ambas listas: disponibles primero, asignados después
+            $vehiculos = $vehiculosDisponibles->concat($vehiculosAsignados);
+
             $operadores = Personal::activos()->operadores()->orderBy('nombre_completo')->get([
                 'id',
                 'nombre_completo',
@@ -250,6 +278,7 @@ class AsignacionObraController extends Controller
                 'kilometraje_inicial' => 'required|integer|min:0',
                 'combustible_inicial' => 'nullable|numeric|min:0|max:1000',
                 'observaciones' => 'nullable|string|max:1000',
+                'encargado_id' => 'nullable|integer|exists:personal,id', // Agregamos validación para encargado_id
             ], [
                 'vehiculo_id.required' => 'Debe seleccionar un vehículo.',
                 'vehiculo_id.exists' => 'El vehículo seleccionado no existe.',
@@ -261,6 +290,7 @@ class AsignacionObraController extends Controller
                 'kilometraje_inicial.min' => 'El kilometraje inicial no puede ser negativo.',
                 'combustible_inicial.max' => 'El combustible inicial no puede exceder 1000 litros.',
                 'observaciones.max' => 'Las observaciones no pueden exceder 1000 caracteres.',
+                'encargado_id.exists' => 'El encargado seleccionado no existe.',
             ]);
 
             if ($validator->fails()) {
@@ -327,7 +357,7 @@ class AsignacionObraController extends Controller
             $obra->update([
                 'vehiculo_id' => $request->vehiculo_id,
                 'operador_id' => $request->operador_id,
-                'encargado_id' => Auth::id(),
+                'encargado_id' => $request->encargado_id ?? Auth::id(), // Usar encargado_id del formulario o Auth::id() como fallback
                 'fecha_asignacion' => now(), // Fecha automática del sistema
                 'kilometraje_inicial' => $request->kilometraje_inicial,
                 'combustible_inicial' => $request->combustible_inicial,
