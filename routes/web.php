@@ -468,6 +468,37 @@ Route::middleware('auth')->prefix('mantenimientos')->name('mantenimientos.')->gr
         ->middleware('permission:ver_mantenimientos');
 });
 
+// Rutas para Categorías de Personal (solo para administradores)
+Route::middleware('auth')->prefix('categorias-personal')->name('categorias-personal.')->group(function () {
+    Route::get('/', [App\Http\Controllers\CategoriaPersonalController::class, 'index'])
+        ->name('index')
+        ->middleware('permission:gestionar_categorias_personal');
+
+    Route::get('/create', [App\Http\Controllers\CategoriaPersonalController::class, 'create'])
+        ->name('create')
+        ->middleware('permission:gestionar_categorias_personal');
+
+    Route::post('/', [App\Http\Controllers\CategoriaPersonalController::class, 'store'])
+        ->name('store')
+        ->middleware('permission:gestionar_categorias_personal');
+
+    Route::get('/{categoriaPersonal}', [App\Http\Controllers\CategoriaPersonalController::class, 'show'])
+        ->name('show')
+        ->middleware('permission:gestionar_categorias_personal');
+
+    Route::get('/{categoriaPersonal}/edit', [App\Http\Controllers\CategoriaPersonalController::class, 'edit'])
+        ->name('edit')
+        ->middleware('permission:gestionar_categorias_personal');
+
+    Route::put('/{categoriaPersonal}', [App\Http\Controllers\CategoriaPersonalController::class, 'update'])
+        ->name('update')
+        ->middleware('permission:gestionar_categorias_personal');
+
+    Route::delete('/{categoriaPersonal}', [App\Http\Controllers\CategoriaPersonalController::class, 'destroy'])
+        ->name('destroy')
+        ->middleware('permission:gestionar_categorias_personal');
+});
+
 // Ruta para vista de usuario (datos estáticos)
 Route::get('/usuarios/{id}', function ($id) {
     return view('usuarios.show');

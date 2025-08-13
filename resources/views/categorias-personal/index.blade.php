@@ -1,39 +1,35 @@
 @extends('layouts.app')
 
-@section('title', 'Personal')
+@section('title', 'Categorías de Personal')
 
-@section('header', 'Gestión de Personal')
+@section('header', 'Gestión de Categorías de Personal')
 
 @section('content')
     {{-- Breadcrumb --}}
     <x-breadcrumb :items="[
         ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
-        ['label' => 'Personal']
+        ['label' => 'Personal', 'url' => route('personal.index')],
+        ['label' => 'Categorías de Personal']
     ]" />
 
     <!-- Encabezado con botones de agregar -->
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Listado de Personal</h2>
+        <h2 class="text-2xl font-bold text-gray-800">Categorías de Personal</h2>
         <div class="flex space-x-3">
-            @hasPermission('gestionar_categorias_personal')
-            <a href="{{ route('categorias-personal.index') }}" 
-               class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center transition duration-200">
+            <a href="{{ route('personal.index') }}" 
+               class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded flex items-center transition duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
                 </svg>
-                Gestionar Categorías
+                Volver al Personal
             </a>
-            @endhasPermission
-            
-            @hasPermission('crear_personal')
-            <a href="{{ route('personal.create') }}" 
+            <a href="{{ route('categorias-personal.create') }}" 
                class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded flex items-center transition duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                 </svg>
-                Agregar Personal
+                Nueva Categoría
             </a>
-            @endhasPermission
         </div>
     </div>
 
@@ -52,10 +48,10 @@
 
     <!-- Filtros y búsqueda -->
     <div class="bg-white p-4 rounded-lg shadow-md mb-6">
-        <form method="GET" action="{{ route('personal.index') }}" id="filtrosForm">
+        <form method="GET" action="{{ route('categorias-personal.index') }}" id="filtrosForm">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div class="flex-1">
-                    <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar categoría</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
@@ -66,39 +62,16 @@
                                id="search" 
                                name="search" 
                                value="{{ request('search') }}"
-                               placeholder="Buscar por nombre, categoría, etc." 
+                               placeholder="Buscar por nombre de categoría..." 
                                class="pl-10 p-2 border border-gray-300 rounded-md w-full">
                     </div>
-                </div>
-                <div class="flex-1 md:flex-none md:w-48">
-                    <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                    <select id="estado" 
-                            name="estatus"
-                            class="p-2 border border-gray-300 rounded-md w-full">
-                        <option value="">Todos</option>
-                        <option value="activo" {{ request('estatus') == 'activo' ? 'selected' : '' }}>Activo</option>
-                        <option value="inactivo" {{ request('estatus') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
-                    </select>
-                </div>
-                <div class="flex-1 md:flex-none md:w-48">
-                    <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                    <select id="tipo" 
-                            name="categoria_id"
-                            class="p-2 border border-gray-300 rounded-md w-full">
-                        <option value="">Todos</option>
-                        @foreach($categorias as $categoria)
-                            <option value="{{ $categoria->id }}" {{ request('categoria_id') == $categoria->id ? 'selected' : '' }}>
-                                {{ $categoria->nombre_categoria }}
-                            </option>
-                        @endforeach
-                    </select>
                 </div>
                 <div class="flex gap-2">
                     <button type="submit" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded transition duration-200">
                         Filtrar
                     </button>
-                    @if(request()->hasAny(['search', 'categoria_id', 'estatus']))
-                        <a href="{{ route('personal.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition duration-200">
+                    @if(request()->filled('search'))
+                        <a href="{{ route('categorias-personal.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition duration-200">
                             Limpiar
                         </a>
                     @endif
@@ -107,56 +80,51 @@
         </form>
     </div>
 
-    <!-- Tabla de personal -->
+    <!-- Tabla de categorías -->
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Empleado</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Registro</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre de Categoría</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personal Asignado</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Creación</th>
                         <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @if($personal->count() > 0)
-                        @foreach($personal as $persona)
+                    @if($categorias->count() > 0)
+                        @foreach($categorias as $categoria)
                             <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ str_pad($persona->id, 4, '0', STR_PAD_LEFT) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $persona->nombre_completo }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $persona->categoria->nombre_categoria ?? 'Sin categoría' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($persona->estatus === 'activo')
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
-                                    @elseif($persona->estatus === 'inactivo')
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inactivo</span>
-                                    @else
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">{{ ucfirst($persona->estatus) }}</span>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $categoria->id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {{ $categoria->nombre_categoria }}
+                                    @if($categoria->descripcion)
+                                        <p class="text-xs text-gray-500 mt-1">{{ $categoria->descripcion }}</p>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $persona->created_at->format('d/m/Y') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {{ $categoria->personal_count }} {{ $categoria->personal_count == 1 ? 'empleado' : 'empleados' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $categoria->created_at->format('d/m/Y') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end space-x-2">
-                                        @hasPermission('ver_personal')
-                                        <a href="{{ route('personal.show', $persona->id) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
+                                        <a href="{{ route('categorias-personal.show', $categoria) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                 <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                                 <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
                                             </svg>
                                         </a>
-                                        @endhasPermission
-                                        @hasPermission('editar_personal')
-                                        <a href="{{ route('personal.edit', $persona->id) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar">
+                                        <a href="{{ route('categorias-personal.edit', $categoria) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                             </svg>
                                         </a>
-                                        @endhasPermission
-                                        @hasPermission('eliminar_personal')
-                                        <form action="{{ route('personal.destroy', $persona->id) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de que quieres eliminar a {{ $persona->nombre_completo }}? Esta acción no se puede deshacer.')">
+                                        @if($categoria->personal_count == 0)
+                                        <form action="{{ route('categorias-personal.destroy', $categoria) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de que quieres eliminar la categoría {{ $categoria->nombre_categoria }}? Esta acción no se puede deshacer.')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-600 hover:text-red-900" title="Eliminar">
@@ -165,7 +133,13 @@
                                                 </svg>
                                             </button>
                                         </form>
-                                        @endhasPermission
+                                        @else
+                                        <span class="text-gray-400" title="No se puede eliminar: tiene personal asignado">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        </span>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -173,27 +147,36 @@
                     @else
                         <!-- Estado vacío dentro de la tabla -->
                         <tr>
-                            <td colspan="6" class="px-6 py-8 text-center">
+                            <td colspan="5" class="px-6 py-8 text-center">
                                 <div class="flex flex-col items-center">
                                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                                     </svg>
-                                    <h3 class="mt-2 text-sm font-medium text-gray-900">No hay personal</h3>
+                                    <h3 class="mt-2 text-sm font-medium text-gray-900">No hay categorías</h3>
                                     <p class="mt-1 text-sm text-gray-500">
-                                        @if(request()->hasAny(['search', 'categoria_id', 'estatus']))
-                                            No se encontró personal con los criterios especificados.
+                                        @if(request()->filled('search'))
+                                            No se encontraron categorías con los criterios especificados.
                                         @else
-                                            Aún no hay personal registrado en el sistema.
+                                            Aún no hay categorías de personal registradas en el sistema.
                                         @endif
                                     </p>
-                                    @if(request()->hasAny(['search', 'categoria_id', 'estatus']))
+                                    @if(request()->filled('search'))
                                         <div class="mt-4">
-                                            <a href="{{ route('personal.index') }}" 
+                                            <a href="{{ route('categorias-personal.index') }}" 
                                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded text-gray-700 bg-gray-100 hover:bg-gray-200">
                                                 Limpiar filtros
                                             </a>
                                         </div>
                                     @endif
+                                    <div class="mt-4">
+                                        <a href="{{ route('categorias-personal.create') }}" 
+                                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded text-white bg-petroyellow hover:bg-yellow-500">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                                            </svg>
+                                            Crear primera categoría
+                                        </a>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -203,26 +186,39 @@
         </div>
         
         <!-- Paginación -->
-        @if(method_exists($personal, 'hasPages') && $personal->hasPages())
+        @if(method_exists($categorias, 'hasPages') && $categorias->hasPages())
             <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
                 <div class="flex items-center justify-between">
                     <div class="flex-1 flex justify-between sm:hidden">
-                        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Anterior
-                        </a>
-                        <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            Siguiente
-                        </a>
+                        @if($categorias->onFirstPage())
+                            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-500 bg-white cursor-default">
+                                Anterior
+                            </span>
+                        @else
+                            <a href="{{ $categorias->previousPageUrl() }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Anterior
+                            </a>
+                        @endif
+                        
+                        @if($categorias->hasMorePages())
+                            <a href="{{ $categorias->nextPageUrl() }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Siguiente
+                            </a>
+                        @else
+                            <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-500 bg-white cursor-default">
+                                Siguiente
+                            </span>
+                        @endif
                     </div>
                     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                             <p class="text-sm text-gray-700">
-                                Mostrando <span class="font-medium">{{ $personal->firstItem() }}</span> a <span class="font-medium">{{ $personal->lastItem() }}</span> de <span class="font-medium">{{ $personal->total() }}</span> resultados
+                                Mostrando <span class="font-medium">{{ $categorias->firstItem() }}</span> a <span class="font-medium">{{ $categorias->lastItem() }}</span> de <span class="font-medium">{{ $categorias->total() }}</span> categorías
                             </p>
                         </div>
                         <div>
                             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                {{ $personal->appends(request()->query())->links() }}
+                                {{ $categorias->appends(request()->query())->links() }}
                             </nav>
                         </div>
                     </div>
@@ -237,25 +233,14 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Elementos del formulario
     const searchInput = document.getElementById('search');
-    const estadoSelect = document.getElementById('estado');
-    const tipoSelect = document.getElementById('tipo');
     const form = document.getElementById('filtrosForm');
-    
-    // Función para enviar el formulario automáticamente
-    function autoSubmit() {
-        form.submit();
-    }
-    
-    // Event listeners para filtros automáticos
-    estadoSelect.addEventListener('change', autoSubmit);
-    tipoSelect.addEventListener('change', autoSubmit);
     
     // Event listener para búsqueda con delay
     let searchTimeout;
     searchInput.addEventListener('input', function() {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(function() {
-            autoSubmit();
+            form.submit();
         }, 500); // Esperar 500ms después de que el usuario deje de escribir
     });
     
