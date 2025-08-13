@@ -16,26 +16,18 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            // Seeders de catálogos base
+            // Seeders de catálogos base únicamente
             CategoriaPersonalSeeder::class,
             CatalogoEstatusSeeder::class,
             CatalogoTipoDocumentoSeeder::class,
             
-            // Seeders de permisos y roles
+            // Seeders de permisos y roles (necesarios para el sistema)
             PermissionSeeder::class,
             KilometrajePermissionSeeder::class,
             RoleSeeder::class,
+            
+            // Solo un usuario administrador
             AdminUserSeeder::class,
-            
-            // Seeders de entidades principales
-            PersonalSeeder::class,
-            VehiculoSeeder::class,
-            ObraSeeder::class,
-            
-            // Seeders de registros operacionales
-            MantenimientoSeeder::class,
-            KilometrajeSeeder::class,
-            DocumentoSeeder::class,
         ]);
     }
 }

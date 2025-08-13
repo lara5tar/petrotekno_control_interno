@@ -16,59 +16,47 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Crear personal administrador solo si no existe el usuario
+        // Crear solo el personal y usuario administrador
         if (!User::where('email', 'admin@petrotekno.com')->exists()) {
+            // Buscar la categoría de Administrador
             $categoriaAdmin = CategoriaPersonal::where('nombre_categoria', 'Administrador')->first();
+            
+            if (!$categoriaAdmin) {
+                // Si no existe, crear la categoría
+                $categoriaAdmin = CategoriaPersonal::create([
+                    'nombre_categoria' => 'Administrador',
+                    'descripcion' => 'Administrador del sistema con acceso completo'
+                ]);
+            }
+
+            // Crear personal administrador (solo con campos que existen en la tabla)
             $personal = Personal::create([
-                'nombre_completo' => 'Administrador del Sistema',
+                'nombre_completo' => 'Administrador Sistema',
                 'estatus' => 'activo',
                 'categoria_id' => $categoriaAdmin->id,
             ]);
 
-            // Crear usuario administrador
+            // Buscar el rol de Admin
             $adminRole = Role::where('nombre_rol', 'Admin')->first();
-            User::create([
+            
+            if (!$adminRole) {
+                throw new \Exception('El rol Admin no existe. Asegúrate de ejecutar RoleSeeder primero.');
+            }
+
+            // Crear usuario administrador
+            $adminUser = User::create([
                 'email' => 'admin@petrotekno.com',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('password'),
                 'rol_id' => $adminRole->id,
                 'personal_id' => $personal->id,
             ]);
-        }
 
-        // Crear usuario supervisor de ejemplo
-        if (!User::where('email', 'supervisor@petrotekno.com')->exists()) {
-            $categoriaSuper = CategoriaPersonal::where('nombre_categoria', 'Supervisor')->first();
-            $personalSuper = Personal::create([
-                'nombre_completo' => 'Juan Pérez Supervisor',
-                'estatus' => 'activo',
-                'categoria_id' => $categoriaSuper->id,
-            ]);
-
-            $supervisorRole = Role::where('nombre_rol', 'Supervisor')->first();
-            User::create([
-                'email' => 'supervisor@petrotekno.com',
-                'password' => Hash::make('password123'),
-                'rol_id' => $supervisorRole->id,
-                'personal_id' => $personalSuper->id,
-            ]);
-        }
-
-        // Crear usuario operador de ejemplo
-        if (!User::where('email', 'operador@petrotekno.com')->exists()) {
-            $categoriaOper = CategoriaPersonal::where('nombre_categoria', 'Operador')->first();
-            $personalOper = Personal::create([
-                'nombre_completo' => 'Carlos García Operador',
-                'estatus' => 'activo',
-                'categoria_id' => $categoriaOper->id,
-            ]);
-
-            $operadorRole = Role::where('nombre_rol', 'Operador')->first();
-            User::create([
-                'email' => 'operador@petrotekno.com',
-                'password' => Hash::make('password123'),
-                'rol_id' => $operadorRole->id,
-                'personal_id' => $personalOper->id,
-            ]);
+            $this->command->info('✅ Usuario administrador creado exitosamente:');
+            $this->command->info('   Email: admin@petrotekno.com');
+            $this->command->info('   Password: password');
+            $this->command->info('   Personal: ' . $personal->nombre_completo);
+        } else {
+            $this->command->info('ℹ️ Usuario administrador ya existe, omitiendo creación.');
         }
     }
 }

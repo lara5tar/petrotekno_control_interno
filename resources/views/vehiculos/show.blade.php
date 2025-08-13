@@ -290,98 +290,164 @@
                                         </svg>
                                         Obra Actual
                                     </h5>
-                                    @hasPermission('editar_vehiculos')
-                                    <a href="{{ route('vehiculos.edit', ['vehiculo' => $vehiculo]) }}" 
-                                       class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                    @hasPermission('crear_asignaciones')
+                                    <a href="{{ route('obras.index') }}" 
+                                       class="bg-green-600 hover:bg-green-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                         </svg>
-                                        Cambiar Asignación
+                                        Ver Obras
                                     </a>
                                     @endhasPermission
                                 </div>
                                 
-                                @if(isset($vehiculo->obra) && $vehiculo->obra)
+                                @php
+                                    // Obtener la asignación activa actual del vehículo
+                                    $asignacionActiva = null;
+                                    
+                                    // Verificar si el vehículo tiene el método asignacionesObraActivas
+                                    if (method_exists($vehiculo, 'asignacionesObraActivas')) {
+                                        try {
+                                            $asignacionActiva = $vehiculo->asignacionesObraActivas()->with(['obra.encargado', 'operador'])->first();
+                                        } catch (\Exception $e) {
+                                            // Si hay error, simplemente continuar sin asignación
+                                            $asignacionActiva = null;
+                                        }
+                                    }
+                                @endphp
+                                
+                                @if($asignacionActiva && $asignacionActiva->obra)
                                 <div class="space-y-4">
+                                    <!-- Información Principal de la Obra -->
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <h6 class="text-lg font-semibold text-blue-800">
+                                                {{ $asignacionActiva->obra->nombre_obra }}
+                                            </h6>
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                                @if($asignacionActiva->obra->estatus == 'en_progreso') bg-green-100 text-green-800
+                                                @elseif($asignacionActiva->obra->estatus == 'planificada') bg-yellow-100 text-yellow-800
+                                                @elseif($asignacionActiva->obra->estatus == 'completada') bg-blue-100 text-blue-800
+                                                @elseif($asignacionActiva->obra->estatus == 'suspendida') bg-red-100 text-red-800
+                                                @else bg-gray-100 text-gray-800 @endif">
+                                                {{ ucfirst(str_replace('_', ' ', $asignacionActiva->obra->estatus)) }}
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-2 gap-3 text-sm">
+                                            <div>
+                                                <span class="text-blue-600 font-medium">Fecha de Asignación:</span>
+                                                <div class="text-blue-800">
+                                                    {{ $asignacionActiva->fecha_asignacion ? \Carbon\Carbon::parse($asignacionActiva->fecha_asignacion)->format('d/m/Y') : 'No registrada' }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <span class="text-blue-600 font-medium">Operador en Obra:</span>
+                                                <div class="text-blue-800">
+                                                    {{ $asignacionActiva->operador ? $asignacionActiva->operador->nombre_completo : 'Sin operador específico' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Detalles de la Obra -->
                                     <div class="grid grid-cols-1 gap-3">
                                         <div>
-                                            <label class="block text-sm text-gray-600">Nombre de la Obra</label>
+                                            <label class="block text-sm text-gray-600">Encargado de la Obra</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                {{ $vehiculo->obra->nombre }}
+                                                {{ $asignacionActiva->obra->encargado ? $asignacionActiva->obra->encargado->nombre_completo : 'Sin encargado asignado' }}
                                             </div>
                                         </div>
                                     </div>
                                     
                                     <div class="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label class="block text-sm text-gray-600">Ubicación</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                {{ $vehiculo->obra->ubicacion ?? 'No especificada' }}
+                                            <label class="block text-sm text-gray-600">Avance de la Obra</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm flex items-center">
+                                                <div class="flex-1">
+                                                    {{ $asignacionActiva->obra->avance ?? 0 }}%
+                                                </div>
+                                                <div class="w-16 bg-gray-700 rounded-full h-2 ml-2">
+                                                    <div class="bg-green-400 h-2 rounded-full" style="width: {{ $asignacionActiva->obra->avance ?? 0 }}%"></div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-600">Estado</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                                @if($vehiculo->obra->estado == 'activa')
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                        Activa
-                                                    </span>
-                                                @elseif($vehiculo->obra->estado == 'pausada')
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                        Pausada
-                                                    </span>
-                                                @elseif($vehiculo->obra->estado == 'completada')
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                        Completada
-                                                    </span>
-                                                @elseif($vehiculo->obra->estado == 'cancelada')
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                        Cancelada
-                                                    </span>
-                                                @else
-                                                    {{ $vehiculo->obra->estado ?? 'No definido' }}
-                                                @endif
+                                            <label class="block text-sm text-gray-600">Kilometraje Inicial</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $asignacionActiva->kilometraje_inicial ? number_format($asignacionActiva->kilometraje_inicial) . ' km' : 'No registrado' }}
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <div class="grid grid-cols-2 gap-3">
+                                    @if($asignacionActiva->observaciones)
+                                    <div class="grid grid-cols-1 gap-3">
                                         <div>
-                                            <label class="block text-sm text-gray-600">Fecha de Asignación</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                {{ $vehiculo->fecha_asignacion_obra ? \Carbon\Carbon::parse($vehiculo->fecha_asignacion_obra)->format('d/m/Y') : 'No registrada' }}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Jefe de Obra</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                {{ $vehiculo->obra->jefe_obra ? $vehiculo->obra->jefe_obra->nombre_completo : 'Sin asignar' }}
+                                            <label class="block text-sm text-gray-600">Observaciones de la Asignación</label>
+                                            <div class="bg-gray-100 border border-gray-300 px-3 py-2 rounded text-sm">
+                                                {{ $asignacionActiva->observaciones }}
                                             </div>
                                         </div>
                                     </div>
+                                    @endif
                                     
-                                    <div class="grid grid-cols-1">
-                                        <a href="{{ route('obras.show', $vehiculo->obra->id) }}" class="text-blue-600 hover:text-blue-800 text-sm flex items-center justify-end">
-                                            <span>Ver detalles de la obra</span>
-                                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    <!-- Acciones -->
+                                    <div class="flex justify-between items-center pt-3 border-t border-gray-200">
+                                        <a href="{{ route('obras.show', $asignacionActiva->obra->id) }}" 
+                                           class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
+                                            <span>Ver detalles completos de la obra</span>
                                         </a>
+                                        
+                                        <div class="flex space-x-2">
+                                            @hasPermission('editar_asignaciones')
+                                            <button onclick="alert('Función de edición en desarrollo')" 
+                                               class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded text-xs flex items-center">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                                Editar Asignación
+                                            </button>
+                                            @endhasPermission
+                                            
+                                            @hasPermission('liberar_asignaciones')
+                                            <button onclick="alert('Función de liberación en desarrollo')" 
+                                                    class="bg-orange-600 hover:bg-orange-700 text-white py-1 px-2 rounded text-xs flex items-center">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                                                </svg>
+                                                Liberar de Obra
+                                            </button>
+                                            @endhasPermission
+                                        </div>
                                     </div>
                                 </div>
                                 @else
-                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
-                                    <svg class="w-8 h-8 text-yellow-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                                    <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                     </svg>
-                                    <h5 class="text-lg font-medium text-yellow-800 mb-2">Sin obra asignada</h5>
-                                    <p class="text-sm text-yellow-600 mb-3">Este vehículo no está asignado a ninguna obra actualmente.</p>
+                                    <h5 class="text-lg font-medium text-gray-800 mb-2">Sin obra asignada</h5>
+                                    <p class="text-sm text-gray-600 mb-4">Este vehículo no está asignado a ninguna obra actualmente.</p>
+                                    <p class="text-xs text-gray-500 mb-4">Un vehículo puede estar asignado solo a una obra a la vez.</p>
                                     
-                                    @hasPermission('editar_vehiculos')
-                                    <a href="{{ route('vehiculos.edit', ['vehiculo' => $vehiculo]) }}" 
-                                       class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md text-sm transition-colors duration-200">
-                                        Asignar a Obra
-                                    </a>
+                                    @hasPermission('crear_asignaciones')
+                                    <div class="flex flex-col space-y-2">
+                                        <a href="{{ route('obras.index') }}" 
+                                           class="inline-block bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm transition-colors duration-200">
+                                            <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                            Ver Obras Disponibles
+                                        </a>
+                                        <p class="text-xs text-gray-500">Desde el listado de obras podrás asignar este vehículo</p>
+                                    </div>
+                                    @else
+                                    <p class="text-xs text-gray-500">Contacta al administrador para asignar este vehículo a una obra</p>
                                     @endhasPermission
                                 </div>
                                 @endif
@@ -781,6 +847,35 @@
     // Función para cerrar modales
     function closeModal(modalId) {
         document.getElementById(modalId).classList.add('hidden');
+    }
+
+    // Función para liberar asignación de obra
+    function liberarAsignacion(asignacionId) {
+        if (confirm('¿Está seguro de que desea liberar este vehículo de la obra? Esta acción no se puede deshacer.')) {
+            // Crear formulario para enviar petición
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/asignaciones-obra/${asignacionId}/liberar`;
+            
+            // Agregar token CSRF
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            // Agregar método PATCH
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'PATCH';
+            form.appendChild(methodInput);
+            
+            // Enviar formulario
+            document.body.appendChild(form);
+            form.submit();
+        }
     }
 
     // Manejar el envío del formulario de agregar kilometraje
