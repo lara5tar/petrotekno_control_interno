@@ -90,27 +90,8 @@
                         <x-form-input name="placas" label="Placas" required placeholder="ABC-123-A" value="{{ old('placas', $vehiculo->placas) }}" />
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
                         <x-form-input name="kilometraje_actual" label="Kilometraje Actual (km)" type="number" required min="0" placeholder="15000" value="{{ old('kilometraje_actual', $vehiculo->kilometraje_actual) }}" />
-                        
-                        <div class="form-group">
-                            <label for="estatus_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                Estatus <span class="text-red-500">*</span>
-                            </label>
-                            <select name="estatus_id" 
-                                    id="estatus_id" 
-                                    required
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('estatus_id') border-red-500 @enderror">
-                                <option value="">Seleccione el estatus</option>
-                                @foreach($estatusDisponibles as $estado)
-                                    <option value="{{ $estado->id }}" 
-                                            {{ old('estatus_id', $vehiculo->estatus_id) == $estado->id ? 'selected' : '' }}>
-                                        {{ ucfirst($estado->nombre_estatus) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('estatus_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
                     </div>
                 </div>
 
@@ -343,6 +324,39 @@
                         </div>
                         <p class="text-xs text-gray-500 mt-2" x-text="fileStatus.documentos_adicionales || ''"></p>
                         @error('documentos_adicionales.*') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                <!-- Operador Asignado -->
+                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                    <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                        </svg>
+                        Asignar Operador
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
+                        <!-- Operador Asignado -->
+                        <div class="form-group">
+                            <label for="operador_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                Operador Asignado
+                            </label>
+                            <select name="operador_id" 
+                                    id="operador_id" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('operador_id') border-red-500 @enderror">
+                                <option value="">Seleccione un operador (opcional)</option>
+                                @if(isset($operadores) && $operadores->count() > 0)
+                                    @foreach($operadores as $operador)
+                                        <option value="{{ $operador->id }}" {{ (old('operador_id', $vehiculo->operador_id) == $operador->id) ? 'selected' : '' }}>
+                                            {{ $operador->nombre_completo }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            @error('operador_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-500">Persona encargada de operar el vehículo</p>
+                        </div>
                     </div>
                 </div>
 

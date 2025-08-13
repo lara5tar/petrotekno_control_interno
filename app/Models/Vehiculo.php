@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\EstadoVehiculo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $anio
  * @property string $n_serie
  * @property string $placas
- * @property int $estatus_id
+ * @property string $estado Estado del vehículo usando enum
  * @property int $kilometraje_actual
  * @property int|null $intervalo_km_motor Intervalo de cambio de aceite de motor
  * @property int|null $intervalo_km_transmision Intervalo de cambio de aceite de transmisión
@@ -23,13 +24,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon|null $deleted_at
- * @property int|null $intervalo_km_hidraulico Intervalo de cambio de aceite hidráulico
  * @property string|null $observaciones
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fecha_eliminacion
- * @property-read \App\Models\CatalogoEstatus $estatus
  * @property-read mixed $nombre_completo
+ * @property-read EstadoVehiculo $estado_enum
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo buscar($termino)
  * @method static \Database\Factories\VehiculoFactory factory($count = null, $state = [])
@@ -37,13 +37,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo porAnio($anio_inicio, $anio_fin = null)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo porEstatus($estatus_id)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo porMarca($marca)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo porModelo($modelo)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo porEstado($estado)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereAnio($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereEstatusId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereEstado($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereFechaEliminacion($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereIntervaloKmHidraulico($value)
@@ -84,14 +84,15 @@ class Vehiculo extends Model
         'anio',
         'n_serie',
         'placas',
-        'estatus_id',
+        'estatus', // Campo para el estado del vehículo
+        'operador_id', // Campo para el operador del vehículo
         'kilometraje_actual',
         'intervalo_km_motor',
         'intervalo_km_transmision',
         'intervalo_km_hidraulico',
         'observaciones',
-        'documentos_adicionales',
         'imagen',
+        'documentos_adicionales',
     ];
 
     /**
@@ -105,22 +106,16 @@ class Vehiculo extends Model
         'intervalo_km_hidraulico' => 'integer',
         'fecha_eliminacion' => 'datetime',
         'documentos_adicionales' => 'array',
+        'estatus' => EstadoVehiculo::class, // Cambio temporal: usar 'estatus'
     ];
 
     /**
-     * Relación: Un vehículo pertenece a un estatus
+     * Relación: Un vehículo tiene muchas obras a través de asignaciones
      */
-    public function estatus(): BelongsTo
+    public function obras()
     {
-        return $this->belongsTo(CatalogoEstatus::class, 'estatus_id');
-    }
-
-    /**
-     * Relación: Un vehículo tiene muchas obras (antes asignaciones)
-     */
-    public function obras(): HasMany
-    {
-        return $this->hasMany(Obra::class, 'vehiculo_id');
+        return $this->belongsToMany(Obra::class, 'asignaciones_obra', 'vehiculo_id', 'obra_id')
+                   ->whereNull('asignaciones_obra.deleted_at');
     }
 
     /**
@@ -131,9 +126,6 @@ class Vehiculo extends Model
         return $this->obras()->whereNull('fecha_liberacion');
     }
 
-    /**
-     * Preparado para futuras relaciones con kilometrajes
-     */
     /**
      * Relación con kilometrajes
      */
@@ -191,6 +183,14 @@ class Vehiculo extends Model
     }
 
     /**
+     * Relación: Un vehículo pertenece a un operador (personal)
+     */
+    public function operador(): BelongsTo
+    {
+        return $this->belongsTo(Personal::class, 'operador_id');
+    }
+
+    /**
      * Scope para filtrar por marca
      */
     public function scopePorMarca($query, $marca)
@@ -204,14 +204,6 @@ class Vehiculo extends Model
     public function scopePorModelo($query, $modelo)
     {
         return $query->where('modelo', 'like', "%{$modelo}%");
-    }
-
-    /**
-     * Scope para filtrar por estatus
-     */
-    public function scopePorEstatus($query, $estatus_id)
-    {
-        return $query->where('estatus_id', $estatus_id);
     }
 
     /**
@@ -240,42 +232,42 @@ class Vehiculo extends Model
     }
 
     /**
-     * Scope para filtrar vehículos activos
+     * Scope para filtrar por estado
      */
-    public function scopeActivos($query)
+    public function scopePorEstado($query, $estado)
     {
-        return $query->where('estatus_id', 1); // Asumiendo que 1 es 'Activo'
+        if ($estado instanceof EstadoVehiculo) {
+            return $query->where('estatus', $estado->value);
+        }
+        
+        return $query->where('estatus', $estado);
     }
 
     /**
-     * Scope para filtrar vehículos disponibles (sin asignaciones activas en el nuevo sistema)
+     * Scope para filtrar vehículos disponibles
      */
     public function scopeDisponibles($query)
     {
-        return $query->whereHas('estatus', function ($q) {
-            $q->where('nombre_estatus', 'like', '%disponible%')
-                ->orWhere('nombre_estatus', 'like', '%activo%')
-                ->orWhere('nombre_estatus', 'like', '%libre%');
-        });
+        return $query->where('estatus', EstadoVehiculo::DISPONIBLE->value);
     }
 
     /**
-     * Obtener la obra actual del vehículo (obra activa sin liberar)
+     * Scope para filtrar vehículos activos (disponibles o asignados)
      */
-    public function obraActual()
+    public function scopeActivos($query)
     {
-        return $this->hasOne(Obra::class, 'vehiculo_id')
-            ->whereNull('fecha_liberacion')
-            ->whereIn('estatus', ['en_progreso', 'planificada'])
-            ->latest('fecha_asignacion');
+        return $query->whereIn('estatus', [
+            EstadoVehiculo::DISPONIBLE->value,
+            EstadoVehiculo::ASIGNADO->value
+        ]);
     }
 
     /**
-     * Verificar si el vehículo tiene una obra actual activa
+     * Scope para filtrar vehículos en mantenimiento
      */
-    public function tieneObraActual(): bool
+    public function scopeEnMantenimiento($query)
     {
-        return $this->obraActual()->exists();
+        return $query->where('estatus', EstadoVehiculo::EN_MANTENIMIENTO->value);
     }
 
     /**
@@ -283,30 +275,51 @@ class Vehiculo extends Model
      */
     public function estaDisponible(): bool
     {
-        // Verificar que el estatus sea disponible/activo y no tenga obra actual
-        $estatusDisponible = $this->estatus && in_array(
-            strtolower($this->estatus->nombre_estatus), 
-            ['disponible', 'activo']
-        );
-        
-        return $estatusDisponible && !$this->tieneObraActual();
+        return $this->estatus === EstadoVehiculo::DISPONIBLE->value;
     }
 
     /**
-     * Obtener el operador actual del vehículo (si tiene obra activa)
+     * Verificar si el vehículo está asignado
      */
-    public function operadorActual()
+    public function estaAsignado(): bool
     {
-        return $this->hasOneThrough(
-            Personal::class,
-            Obra::class,
-            'vehiculo_id',    // Clave foránea en la tabla obras
-            'id',             // Clave foránea en la tabla personal
-            'id',             // Clave local en vehiculos
-            'operador_id'     // Clave local en obras
-        )->whereNull('obras.fecha_liberacion')
-         ->whereIn('obras.estatus', ['en_progreso', 'planificada'])
-         ->latest('obras.fecha_asignacion');
+        return $this->estatus === EstadoVehiculo::ASIGNADO->value;
+    }
+
+    /**
+     * Verificar si el vehículo está en mantenimiento
+     */
+    public function estaEnMantenimiento(): bool
+    {
+        return $this->estatus === EstadoVehiculo::EN_MANTENIMIENTO->value;
+    }
+
+    /**
+     * Cambiar el estado del vehículo
+     */
+    public function cambiarEstado(EstadoVehiculo $nuevoEstado): void
+    {
+        $this->update(['estatus' => $nuevoEstado->value]);
+    }
+
+    /**
+     * Verificar si tiene obra actual
+     */
+    public function tieneObraActual(): bool
+    {
+        return $this->obras()->whereNull('fecha_liberacion')
+            ->whereIn('estatus', ['en_progreso', 'planificada'])
+            ->exists();
+    }
+
+    /**
+     * Obtener obra actual
+     */
+    public function obraActual()
+    {
+        return $this->obras()->whereNull('fecha_liberacion')
+            ->whereIn('estatus', ['en_progreso', 'planificada'])
+            ->latest('fecha_asignacion');
     }
 
     /**
@@ -326,7 +339,6 @@ class Vehiculo extends Model
                 'operador' => $obraActual->operador?->nombre_completo ?? null,
             ] : null,
             'esta_disponible' => $this->estaDisponible(),
-            'estatus_vehiculo' => $this->estatus ? $this->estatus->nombre_estatus : 'Sin estatus',
         ];
     }
 
@@ -350,6 +362,14 @@ class Vehiculo extends Model
             $q->whereNull('fecha_liberacion')
               ->whereIn('estatus', ['en_progreso', 'planificada']);
         });
+    }
+
+    /**
+     * Accessor para obtener el enum del estado
+     */
+    public function getEstadoEnumAttribute(): EstadoVehiculo
+    {
+        return EstadoVehiculo::fromValue($this->estatus);
     }
 
     /**

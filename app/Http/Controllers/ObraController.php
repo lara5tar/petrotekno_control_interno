@@ -173,16 +173,19 @@ class ObraController extends Controller
             // Obtener estados disponibles para obras
             $estados = ['planificada', 'en_progreso', 'suspendida', 'completada', 'cancelada'];
             
-            // Obtener encargados SOLO de la tabla personal
-            Log::info('=== OBTENIENDO ENCARGADOS (SOLO PERSONAL) ===');
+            // Obtener encargados (PERSONAL con categoría "Responsable de obra")
+            Log::info('=== OBTENIENDO PERSONAL RESPONSABLE DE OBRA ===');
             try {
-                // CORREGIDO: Solo obtener personal encargado, sin usuarios
                 $encargados = collect();
                 if (class_exists(Personal::class)) {
-                    $encargados = Personal::encargados()
-                        ->whereNotNull('nombre_completo') // Solo personal con nombre completo
-                        ->where('nombre_completo', '!=', '') // Evitar nombres vacíos
+                    // Obtener personal activo con categoría "Responsable de obra"
+                    $encargados = Personal::where('estatus', 'activo')
+                        ->whereHas('categoria', function($query) {
+                            $query->where('nombre_categoria', 'Responsable de obra');
+                        })
                         ->with('categoria:id,nombre_categoria')
+                        ->whereNotNull('nombre_completo')
+                        ->where('nombre_completo', '!=', '')
                         ->orderBy('nombre_completo')
                         ->get(['id', 'nombre_completo', 'categoria_id'])
                         ->map(function($personal) {
@@ -194,17 +197,17 @@ class ObraController extends Controller
                         });
                 }
                 
-                Log::info('Encargados (solo personal) obtenidos exitosamente', [
+                Log::info('Personal responsable de obra obtenido exitosamente', [
                     'total_count' => $encargados->count(),
                     'encargados' => $encargados->toArray()
                 ]);
                 
                 if ($encargados->isEmpty()) {
-                    Log::warning('No se encontraron encargados disponibles en personal');
+                    Log::warning('No se encontró personal activo con categoría "Responsable de obra"');
                 }
                 
             } catch (Exception $e) {
-                Log::error('Error al obtener encargados de personal', [
+                Log::error('Error al obtener personal responsable de obra', [
                     'message' => $e->getMessage(),
                     'trace' => $e->getTraceAsString()
                 ]);
@@ -218,71 +221,76 @@ class ObraController extends Controller
                 try {
                     Log::info('Iniciando carga de TODOS los vehículos');
                     
-                    // Obtener TODOS los vehículos
-                    $todosVehiculos = Vehiculo::with('estatus:id,nombre_estatus')
-                        ->orderBy('marca')
+                    // Obtener TODOS los vehículos sin filtro de disponibilidad
+                    $todosVehiculos = Vehiculo::orderBy('marca')
                         ->orderBy('modelo')
-                        ->get(['id', 'marca', 'modelo', 'anio', 'placas', 'kilometraje_actual', 'estatus_id']);
+                        ->get(['id', 'marca', 'modelo', 'anio', 'placas', 'kilometraje_actual']);
                     
-                    // CORREGIDO: Obtener vehículos que ya están asignados a obras activas
+                    Log::info('Vehículos base obtenidos', [
+                        'total' => $todosVehiculos->count(),
+                        'vehiculos' => $todosVehiculos->toArray()
+                    ]);
+                    
+                    // Obtener vehículos que ya están asignados a obras activas
                     $vehiculosAsignados = [];
-                    try {
-                        $asignaciones = AsignacionObra::where('estado', AsignacionObra::ESTADO_ACTIVA)
-                            ->with('obra:id,nombre_obra')
-                            ->get(['vehiculo_id', 'obra_id']);
-                        
-                        foreach ($asignaciones as $asignacion) {
-                            if ($asignacion->obra) {
-                                $vehiculosAsignados[$asignacion->vehiculo_id] = $asignacion->obra->nombre_obra;
+                    if (class_exists(AsignacionObra::class)) {
+                        try {
+                            $asignaciones = AsignacionObra::where('estado', 'activa')
+                                ->with('obra:id,nombre_obra')
+                                ->get(['vehiculo_id', 'obra_id']);
+                            
+                            foreach ($asignaciones as $asignacion) {
+                                if ($asignacion->obra) {
+                                    $vehiculosAsignados[$asignacion->vehiculo_id] = $asignacion->obra->nombre_obra;
+                                }
                             }
+                            
+                            Log::info('Vehículos asignados encontrados', [
+                                'count' => count($vehiculosAsignados),
+                                'asignados' => $vehiculosAsignados
+                            ]);
+                            
+                        } catch (Exception $e) {
+                            Log::error('Error al obtener vehículos asignados', [
+                                'message' => $e->getMessage()
+                            ]);
+                            $vehiculosAsignados = [];
                         }
-                    } catch (Exception $e) {
-                        Log::error('Error al obtener vehículos asignados', [
-                            'message' => $e->getMessage()
-                        ]);
-                        $vehiculosAsignados = [];
                     }
                     
                     // Agregar información de asignación a cada vehículo
-                    $todosVehiculos = $todosVehiculos->map(function($vehiculo) use ($vehiculosAsignados) {
+                    $vehiculos = $todosVehiculos->map(function($vehiculo) use ($vehiculosAsignados) {
                         $vehiculo->esta_asignado = isset($vehiculosAsignados[$vehiculo->id]);
                         $vehiculo->obra_asignada = $vehiculosAsignados[$vehiculo->id] ?? null;
                         
                         return $vehiculo;
                     });
                     
-                    // NUEVO: Separar vehículos en disponibles y asignados
-                    $vehiculosDisponibles = $todosVehiculos->filter(function($vehiculo) {
+                    // Ordenar: disponibles primero, luego asignados
+                    $vehiculosDisponibles = $vehiculos->filter(function($vehiculo) {
                         return !$vehiculo->esta_asignado;
                     });
                     
-                    $vehiculosNoDisponibles = $todosVehiculos->filter(function($vehiculo) {
+                    $vehiculosNoDisponibles = $vehiculos->filter(function($vehiculo) {
                         return $vehiculo->esta_asignado;
                     });
                     
-                    // NUEVO: Combinar los arreglos poniendo disponibles primero y no disponibles después
                     $vehiculos = $vehiculosDisponibles->concat($vehiculosNoDisponibles);
                     
-                    Log::info('TODOS los vehículos cargados exitosamente con información de asignación', [
-                        'count' => $vehiculos->count(),
+                    Log::info('Vehículos procesados correctamente', [
+                        'total' => $vehiculos->count(),
                         'disponibles' => $vehiculosDisponibles->count(),
                         'no_disponibles' => $vehiculosNoDisponibles->count(),
-                        'vehiculos' => $vehiculos->map(function($vehiculo) {
+                        'vehiculos_detalle' => $vehiculos->map(function($vehiculo) {
                             return [
                                 'id' => $vehiculo->id,
+                                'marca' => $vehiculo->marca,
+                                'modelo' => $vehiculo->modelo,
                                 'placas' => $vehiculo->placas,
-                                'marca' => $vehiculo->marca ?? 'N/A',
-                                'modelo' => $vehiculo->modelo ?? 'N/A',
-                                'anio' => $vehiculo->anio ?? 'N/A',
-                                'esta_asignado' => $vehiculo->esta_asignado,
-                                'obra_asignada' => $vehiculo->obra_asignada
+                                'esta_asignado' => $vehiculo->esta_asignado
                             ];
                         })->toArray()
                     ]);
-                    
-                    if ($vehiculos->isEmpty()) {
-                        Log::warning('No se encontraron vehículos en el sistema');
-                    }
                     
                 } catch (Exception $e) {
                     Log::error('=== ERROR AL OBTENER VEHICULOS ===', [
@@ -354,7 +362,7 @@ class ObraController extends Controller
                 'encargado_id' => [
                     'required',
                     'numeric',
-                    'exists:personal,id' // Solo validar que exista en personal
+                    'exists:personal,id' // Cambiar de users a personal
                 ],
                 
                 // Validación simplificada de vehículos seleccionados con checkboxes

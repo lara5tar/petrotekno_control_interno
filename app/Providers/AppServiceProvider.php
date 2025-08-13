@@ -32,14 +32,29 @@ class AppServiceProvider extends ServiceProvider
 
         // Registrar directivas Blade personalizadas
         Blade::directive('hasPermission', function ($permission) {
-            return "<?php if(auth()->check() && auth()->user()->hasPermission($permission)): ?>";
+            return "<?php if(auth()->check() && auth()->user() && auth()->user()->hasPermission($permission)): ?>";
         });
 
         Blade::directive('endhasPermission', function () {
             return "<?php endif; ?>";
         });
 
-        // Definir gate para autorización adicional
+        // Registrar gates para usar con @can
+        $permissions = [
+            'ver_vehiculos', 'crear_vehiculos', 'editar_vehiculos', 'eliminar_vehiculos',
+            'ver_personal', 'crear_personal', 'editar_personal', 'eliminar_personal',
+            'ver_obras', 'crear_obras', 'actualizar_obras', 'eliminar_obras',
+            'ver_mantenimientos', 'crear_mantenimientos', 'actualizar_mantenimientos', 'eliminar_mantenimientos',
+            'ver_asignaciones', 'crear_asignaciones', 'editar_asignaciones', 'eliminar_asignaciones'
+        ];
+
+        foreach ($permissions as $permission) {
+            \Illuminate\Support\Facades\Gate::define($permission, function ($user) use ($permission) {
+                return $user->hasPermission($permission);
+            });
+        }
+
+        // Definir gates específicos de kilometrajes (ya existentes)
         \Illuminate\Support\Facades\Gate::define('ver_kilometrajes', function ($user) {
             return $user->hasPermission('ver_kilometrajes');
         });

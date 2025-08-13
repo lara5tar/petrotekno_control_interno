@@ -28,226 +28,35 @@ Auth::routes(['register' => false]);
 // Ruta del dashboard después de iniciar sesión
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('auth');
 
-// Rutas para Vehículos CRUD (usando datos reales de la base de datos)
-Route::middleware('auth')->group(function () {
-    // Rutas para vehículos (datos estáticos)
-    Route::get('/vehiculos', function (\Illuminate\Http\Request $request) {
-        // Obtener vehículos reales de la base de datos con sus estatus
-        $query = \App\Models\Vehiculo::with('estatus');
-
-        // Aplicar filtros si existen
-        if ($request->has('search') && $request->input('search') !== '') {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('marca', 'like', "%{$search}%")
-                    ->orWhere('modelo', 'like', "%{$search}%")
-                    ->orWhere('placas', 'like', "%{$search}%")
-                    ->orWhere('n_serie', 'like', "%{$search}%");
-            });
-        }
-
-        if ($request->has('estatus_id') && !empty($request->input('estatus_id'))) {
-            $query->where('estatus_id', $request->input('estatus_id'));
-        }
-
-        if ($request->has('marca') && $request->input('marca') !== '') {
-            $query->where('marca', 'like', "%{$request->input('marca')}%");
-        }
-
-        // Paginar resultados
-        $vehiculos = $query->orderBy('created_at', 'desc')->paginate(15);
-
-        // Obtener estatus para el filtro
-        $estatus = \App\Models\CatalogoEstatus::where('activo', true)
-            ->orderBy('nombre_estatus')
-            ->get();
-
-        return view('vehiculos.index', compact('vehiculos', 'estatus'));
-    })->name('vehiculos.index')->middleware('permission:ver_vehiculos');
-
-    Route::get('/vehiculos/create', function () {
-        // Obtener estatus reales de la base de datos
-        $estatus = \App\Models\CatalogoEstatus::where('activo', true)
-            ->orderBy('nombre_estatus')
-            ->get();
-
-        // Obtener tipos de documento reales de la base de datos
-        $tiposDocumento = \App\Models\CatalogoTipoDocumento::orderBy('nombre_tipo_documento')->get();
-
-        return view('vehiculos.create', compact('estatus', 'tiposDocumento'));
-    })->name('vehiculos.create')->middleware('permission:crear_vehiculos');
-
-    // Ruta movida al grupo de personal para evitar conflictos
-
-    Route::post('/vehiculos', function (\Illuminate\Http\Request $request) {
-        try {
-            // Validar los datos del formulario
-            $validatedData = $request->validate([
-                'marca' => 'required|string|max:100',
-                'modelo' => 'required|string|max:100',
-                'anio' => 'required|integer|min:1990|max:2025',
-                'n_serie' => 'required|string|max:50|unique:vehiculos,n_serie',
-                'placas' => 'required|string|max:20|unique:vehiculos,placas',
-                'kilometraje_actual' => 'required|integer|min:0',
-                'estatus_id' => 'required|exists:catalogo_estatus,id',
-                'observaciones' => 'nullable|string|max:1000',
-                'intervalo_km_motor' => 'nullable|integer|min:1000',
-                'intervalo_km_transmision' => 'nullable|integer|min:5000',
-                'intervalo_km_hidraulico' => 'nullable|integer|min:1000',
-                // Campos de documentos (solo números, archivos no funcionarán)
-                'no_tarjeta_circulacion' => 'nullable|string|max:50',
-                'fecha_vencimiento_tarjeta' => 'nullable|date',
-                'no_derecho_vehicular' => 'nullable|string|max:50',
-                'fecha_vencimiento_derecho' => 'nullable|date',
-                'no_poliza_seguro' => 'nullable|string|max:50',
-                'fecha_vencimiento_seguro' => 'nullable|date',
-                'aseguradora' => 'nullable|string|max:100',
-                'no_factura_pedimento' => 'nullable|string|max:50',
-            ]);
-
-            // Crear el vehículo usando el modelo
-            $vehiculo = \App\Models\Vehiculo::create($validatedData);
-
-            return redirect()->route('vehiculos.index')->with('success', 'Vehículo creado exitosamente.');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return back()->withErrors($e->errors())->withInput();
-        } catch (\Exception $e) {
-            return back()->with('error', 'Error al crear el vehículo: ' . $e->getMessage())->withInput();
-        }
-    })->name('vehiculos.store')->middleware('permission:crear_vehiculos');
-
-    Route::get('/vehiculos/{id}', function ($id) {
-        // Obtener datos reales del vehículo de la base de datos con todas las relaciones necesarias
-        $vehiculoReal = \App\Models\Vehiculo::with(['estatus', 'kilometrajes.usuarioCaptura', 'documentos.tipoDocumento'])->find($id);
-
-        if (!$vehiculoReal) {
-            abort(404, 'Vehículo no encontrado');
-        }
-
-        // Crear objeto con datos reales para campos generales y datos estáticos para el resto
-        $vehiculo = (object) [
-            'id' => $vehiculoReal->id,
-            'placas' => $vehiculoReal->placas,
-            'marca' => $vehiculoReal->marca,
-            'modelo' => $vehiculoReal->modelo,
-            'anio' => $vehiculoReal->anio,
-            'n_serie' => $vehiculoReal->n_serie,
-            'kilometraje_actual' => $vehiculoReal->kilometraje_actual,
-            'estatus' => $vehiculoReal->estatus,
-            'kilometrajes' => $vehiculoReal->kilometrajes,
-            'documentos' => $vehiculoReal->documentos,
-            // Campos estáticos para documentos y otros datos
-            'derecho_vehicular' => 'DV-2025-001234',
-            'poliza_seguro' => 'PS-2025-567890',
-            // CORREGIDO: Usar el valor real del campo imagen en lugar de uno estático
-            'imagen' => $vehiculoReal->imagen
-        ];
-
-        return view('vehiculos.show', compact('vehiculo'));
-    })->name('vehiculos.show')->middleware('permission:ver_vehiculos');
-
-    Route::get('/vehiculos/{id}/edit', function ($id) {
-        // Obtener datos reales del vehículo de la base de datos
-        $vehiculoReal = \App\Models\Vehiculo::with(['estatus', 'documentos.tipoDocumento'])->find($id);
-
-        if (!$vehiculoReal) {
-            abort(404, 'Vehículo no encontrado');
-        }
-
-        // Obtener estatus activos para el dropdown
-        $estatusDisponibles = \App\Models\CatalogoEstatus::where('activo', true)
-            ->orderBy('nombre_estatus')
-            ->get();
-
-        // Obtener tipos de documentos disponibles
-        $tiposDocumento = \App\Models\CatalogoTipoDocumento::orderBy('nombre_tipo_documento')->get();
-
-        // Crear objeto con datos reales para campos generales y datos estáticos para el resto
-        $vehiculo = (object) [
-            'id' => $vehiculoReal->id,
-            'placas' => $vehiculoReal->placas,
-            'marca' => $vehiculoReal->marca,
-            'modelo' => $vehiculoReal->modelo,
-            'anio' => $vehiculoReal->anio,
-            'n_serie' => $vehiculoReal->n_serie,
-            'kilometraje_actual' => $vehiculoReal->kilometraje_actual,
-            'estatus_id' => $vehiculoReal->estatus_id,
-            'estatus' => $vehiculoReal->estatus,
-            'observaciones' => $vehiculoReal->observaciones,
-            'documentos_adicionales' => $vehiculoReal->documentos_adicionales,
-            'documentos' => $vehiculoReal->documentos,
-            // Campos estáticos para intervalos de mantenimiento
-            'intervalo_km_motor' => 5000,
-            'intervalo_km_transmision' => 40000,
-            'intervalo_km_hidraulico' => 10000
-        ];
-
-        return view('vehiculos.edit', compact('vehiculo', 'estatusDisponibles', 'tiposDocumento'));
-    })->name('vehiculos.edit')->middleware('permission:editar_vehiculos');
-
-    Route::put('/vehiculos/{id}', function (Request $request, $id) {
-        // Buscar el vehículo
-        $vehiculo = \App\Models\Vehiculo::find($id);
-
-        if (!$vehiculo) {
-            abort(404, 'Vehículo no encontrado');
-        }
-
-        // Validar los datos
-        $request->validate([
-            'marca' => 'required|string|max:100',
-            'modelo' => 'required|string|max:100',
-            'anio' => 'required|integer|min:1990|max:' . (date('Y') + 1),
-            'n_serie' => 'required|string|max:50|unique:vehiculos,n_serie,' . $id,
-            'placas' => 'required|string|max:20|unique:vehiculos,placas,' . $id,
-            'kilometraje_actual' => 'required|integer|min:0',
-            'estatus_id' => 'required|exists:catalogo_estatus,id',
-            'observaciones' => 'nullable|string|max:1000',
-            'documentos_adicionales.*' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png,webp|max:10240'
-        ]);
-
-        // Preparar datos para actualizar
-        $datosVehiculo = [
-            'marca' => $request->marca,
-            'modelo' => $request->modelo,
-            'anio' => $request->anio,
-            'n_serie' => $request->n_serie,
-            'placas' => $request->placas,
-            'kilometraje_actual' => $request->kilometraje_actual,
-            'estatus_id' => $request->estatus_id,
-            'observaciones' => $request->observaciones
-        ];
-
-        // Manejar documentos adicionales si se subieron nuevos
-        if ($request->hasFile('documentos_adicionales')) {
-            // Eliminar documentos anteriores si existen
-            if ($vehiculo->documentos_adicionales) {
-                foreach ($vehiculo->documentos_adicionales as $rutaDoc) {
-                    if (\Storage::disk('public')->exists($rutaDoc)) {
-                        \Storage::disk('public')->delete($rutaDoc);
-                    }
-                }
-            }
-
-            // Subir nuevos documentos
-            $documentosRutas = [];
-            foreach ($request->file('documentos_adicionales') as $archivo) {
-                $nombreArchivo = time() . '_' . $archivo->getClientOriginalName();
-                $ruta = $archivo->storeAs('vehiculos/documentos', $nombreArchivo, 'public');
-                $documentosRutas[] = $ruta;
-            }
-            $datosVehiculo['documentos_adicionales'] = $documentosRutas;
-        }
-
-        // Actualizar el vehículo
-        $vehiculo->update($datosVehiculo);
-
-        return redirect()->route('vehiculos.show', $id)->with('success', 'Vehículo actualizado exitosamente.');
-    })->name('vehiculos.update')->middleware('permission:editar_vehiculos');
-
-    Route::delete('/vehiculos/{id}', function ($id) {
-        return redirect()->route('vehiculos.index')->with('success', 'Vehículo eliminado exitosamente.');
-    })->name('vehiculos.destroy')->middleware('permission:eliminar_vehiculos');
+// Rutas para Vehículos CRUD (usando VehiculoController)
+Route::middleware('auth')->prefix('vehiculos')->name('vehiculos.')->group(function () {
+    Route::get('/', [App\Http\Controllers\VehiculoController::class, 'index'])
+        ->name('index')
+        ->middleware('permission:ver_vehiculos');
+    
+    Route::get('/create', [App\Http\Controllers\VehiculoController::class, 'create'])
+        ->name('create')
+        ->middleware('permission:crear_vehiculos');
+    
+    Route::post('/', [App\Http\Controllers\VehiculoController::class, 'store'])
+        ->name('store')
+        ->middleware('permission:crear_vehiculos');
+    
+    Route::get('/{vehiculo}', [App\Http\Controllers\VehiculoController::class, 'show'])
+        ->name('show')
+        ->middleware('permission:ver_vehiculos');
+    
+    Route::get('/{vehiculo}/edit', [App\Http\Controllers\VehiculoController::class, 'edit'])
+        ->name('edit')
+        ->middleware('permission:editar_vehiculos');
+    
+    Route::put('/{vehiculo}', [App\Http\Controllers\VehiculoController::class, 'update'])
+        ->name('update')
+        ->middleware('permission:editar_vehiculos');
+    
+    Route::delete('/{vehiculo}', [App\Http\Controllers\VehiculoController::class, 'destroy'])
+        ->name('destroy')
+        ->middleware('permission:eliminar_vehiculos');
 });
 
 // Ruta para crear personal (fuera del grupo para evitar conflictos con PUT personal/{id})
@@ -290,19 +99,14 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         return view('personal.index', compact('personal', 'categorias'));
     })->name('index')->middleware('permission:ver_personal');
 
-    // Ruta para mostrar formulario de crear personal (valores estáticos)
+    // Ruta para mostrar formulario de crear personal (usando categorías reales de BD)
     Route::get('/create', function () {
-        // Categorías estáticas
-        $categorias = collect([
-            (object)['id' => 1, 'nombre_categoria' => 'Administrador'],
-            (object)['id' => 2, 'nombre_categoria' => 'Supervisor'],
-            (object)['id' => 3, 'nombre_categoria' => 'Operador'],
-            (object)['id' => 4, 'nombre_categoria' => 'Técnico'],
-            (object)['id' => 5, 'nombre_categoria' => 'Mecánico'],
-            (object)['id' => 6, 'nombre_categoria' => 'Jefe de Obra']
-        ]);
+        // Obtener categorías reales de la base de datos
+        $categorias = \App\Models\CategoriaPersonal::select('id', 'nombre_categoria')
+            ->orderBy('nombre_categoria')
+            ->get();
 
-        // Usuarios estáticos
+        // Usuarios estáticos (mantenemos estos)
         $usuarios = collect([
             (object)['id' => 1, 'nombre_usuario' => 'Administrador del Sistema'],
             (object)['id' => 2, 'nombre_usuario' => 'Juan Pérez Supervisor'],
@@ -444,21 +248,16 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         }
     })->name('documents.upload')->middleware('permission:editar_personal');
 
-    // Ruta para mostrar formulario de editar personal - CORREGIDO: Agregado middleware de permisos
+    // Ruta para mostrar formulario de editar personal - usando categorías reales de BD
     Route::get('/{id}/edit', function ($id) {
         $personal = \App\Models\Personal::findOrFail($id);
 
-        // Categorías estáticas
-        $categorias = collect([
-            (object)['id' => 1, 'nombre_categoria' => 'Administrador'],
-            (object)['id' => 2, 'nombre_categoria' => 'Supervisor'],
-            (object)['id' => 3, 'nombre_categoria' => 'Operador'],
-            (object)['id' => 4, 'nombre_categoria' => 'Técnico'],
-            (object)['id' => 5, 'nombre_categoria' => 'Mecánico'],
-            (object)['id' => 6, 'nombre_categoria' => 'Jefe de Obra']
-        ]);
+        // Obtener categorías reales de la base de datos
+        $categorias = \App\Models\CategoriaPersonal::select('id', 'nombre_categoria')
+            ->orderBy('nombre_categoria')
+            ->get();
 
-        // Usuarios estáticos
+        // Usuarios estáticos (mantenemos estos)
         $usuarios = collect([
             (object)['id' => 1, 'nombre_usuario' => 'Administrador del Sistema'],
             (object)['id' => 2, 'nombre_usuario' => 'Juan Pérez Supervisor'],

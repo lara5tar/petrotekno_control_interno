@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\EstadoVehiculo;
 use App\Models\CatalogoEstatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -32,16 +33,13 @@ class VehiculoFactory extends Factory
         $marca = $this->faker->randomElement($marcas);
         $modelo = $this->faker->randomElement($modelos[$marca]);
 
-        // Obtener un estatus existente o crear uno si no existe
-        $estatus = CatalogoEstatus::first() ?? CatalogoEstatus::factory()->create();
-
         return [
             'marca' => $marca,
             'modelo' => $modelo,
             'anio' => $this->faker->numberBetween(2010, 2024),
             'n_serie' => strtoupper($this->faker->bothify('???######')),
             'placas' => strtoupper($this->faker->bothify('???-###')),
-            'estatus_id' => $estatus->id,
+            'estatus' => $this->faker->randomElement(array_column(EstadoVehiculo::cases(), 'value')),
             'kilometraje_actual' => $this->faker->numberBetween(0, 300000),
             'intervalo_km_motor' => $this->faker->randomElement([5000, 7500, 10000]),
             'intervalo_km_transmision' => $this->faker->randomElement([40000, 60000, 80000]),
@@ -57,7 +55,7 @@ class VehiculoFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'estatus_id' => CatalogoEstatus::where('nombre_estatus', 'activo')->first()?->id ?? 1,
+                'estatus' => EstadoVehiculo::DISPONIBLE->value,
             ];
         });
     }
@@ -69,7 +67,7 @@ class VehiculoFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'estatus_id' => CatalogoEstatus::where('nombre_estatus', 'mantenimiento')->first()?->id ?? 2,
+                'estatus' => EstadoVehiculo::EN_MANTENIMIENTO->value,
             ];
         });
     }

@@ -32,15 +32,27 @@
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-800">Listado de Vehículos</h2>
 
-        @hasPermission('crear_vehiculos')
-        <a href="{{ route('vehiculos.create') }}" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
+        @php
+            $user = auth()->user();
+            $canCreateVehicles = $user && $user->hasPermission('crear_vehiculos');
+        @endphp
 
+        @if($canCreateVehicles)
+        <a href="{{ route('vehiculos.create') }}" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
             </svg>
             Agregar Vehículo
         </a>
-        @endhasPermission
+        @elseif(auth()->check() && auth()->user()->email === 'admin@petrotekno.com')
+        <!-- Botón de emergencia para admin -->
+        <a href="{{ route('vehiculos.create') }}" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            ADMIN: Agregar Vehículo
+        </a>
+        @endif
 
     </div>
     
@@ -60,11 +72,11 @@
             </div>
             <div class="flex-1 md:flex-none md:w-48">
                 <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                <select id="estado" name="estatus_id" class="p-2 border border-gray-300 rounded-md w-full">
+                <select id="estado" name="estado" class="p-2 border border-gray-300 rounded-md w-full">
                     <option value="">Todos los estados</option>
-                    @foreach($estatus as $estado)
-                        <option value="{{ $estado->id }}" {{ request('estatus_id') == $estado->id ? 'selected' : '' }}>
-                            {{ $estado->nombre_estatus }}
+                    @foreach($estados as $estadoKey => $estadoNombre)
+                        <option value="{{ $estadoKey }}" {{ request('estado') == $estadoKey ? 'selected' : '' }}>
+                            {{ $estadoNombre }}
                         </option>
                     @endforeach
                 </select>
@@ -77,7 +89,7 @@
                 <button type="submit" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md transition duration-200">
                     Filtrar
                 </button>
-                @if(request()->hasAny(['search', 'estatus_id', 'marca']))
+                @if(request()->hasAny(['search', 'estado', 'marca']))
                     <a href="{{ route('vehiculos.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-200">
                         Limpiar
                     </a>
@@ -114,25 +126,31 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $vehiculo->anio }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @php
-                                // Asignar colores basándose en el nombre del estatus
-                                $nombreEstatus = strtolower($vehiculo->estatus->nombre_estatus);
-                                if (in_array($nombreEstatus, ['disponible', 'asignado', 'activo'])) {
+                                // Asignar colores basándose en el estado del vehículo
+                                $estadoVehiculo = $vehiculo->estatus;
+                                if ($estadoVehiculo === 'disponible') {
                                     $colorClass = 'bg-green-100 text-green-800';
-                                } elseif (in_array($nombreEstatus, ['mantenimiento', 'reparación', 'reparacion'])) {
+                                } elseif ($estadoVehiculo === 'asignado') {
+                                    $colorClass = 'bg-blue-100 text-blue-800';
+                                } elseif ($estadoVehiculo === 'en_mantenimiento') {
                                     $colorClass = 'bg-yellow-100 text-yellow-800';
-                                } else {
-                                    // Para estados como: fuera_servicio, baja, accidentado, inactivo
+                                } elseif ($estadoVehiculo === 'fuera_de_servicio') {
+                                    $colorClass = 'bg-orange-100 text-orange-800';
+                                } elseif ($estadoVehiculo === 'baja') {
                                     $colorClass = 'bg-red-100 text-red-800';
+                                } else {
+                                    // Valor por defecto para estados desconocidos
+                                    $colorClass = 'bg-gray-100 text-gray-800';
                                 }
                             @endphp
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $colorClass }}">
-                                {{ $vehiculo->estatus->nombre_estatus }}
+                                {{ $vehiculo->estatus->nombre() }}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end space-x-2">
                                 @hasPermission('ver_vehiculos')
-                                <a href="{{ route('vehiculos.show', $vehiculo->id) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
+                                <a href="{{ route('vehiculos.show', ['vehiculo' => $vehiculo]) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                         <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
@@ -140,7 +158,7 @@
                                 </a>
                                 @endhasPermission
                                 @hasPermission('editar_vehiculos')
-                                <a href="{{ route('vehiculos.edit', $vehiculo->id) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar vehículo">
+                                <a href="{{ route('vehiculos.edit', ['vehiculo' => $vehiculo]) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar vehículo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                     </svg>

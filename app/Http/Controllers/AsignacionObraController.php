@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EstadoVehiculo;
 use App\Models\LogAccion;
 use App\Models\Obra;
 use App\Models\Personal;
@@ -368,7 +369,7 @@ class AsignacionObraController extends Controller
             $vehiculo = Vehiculo::find($request->vehiculo_id);
             if ($vehiculo) {
                 $vehiculo->update([
-                    'estatus_id' => $this->getEstatusAsignado(),
+                    'estatus' => EstadoVehiculo::ASIGNADO->value,
                     'kilometraje_actual' => $request->kilometraje_inicial,
                 ]);
             }
@@ -537,7 +538,7 @@ class AsignacionObraController extends Controller
             // Actualizar el vehículo
             if ($obra->vehiculo) {
                 $obra->vehiculo->update([
-                    'estatus_id' => $this->getEstatusDisponible(),
+                    'estatus' => EstadoVehiculo::DISPONIBLE->value,
                     'kilometraje_actual' => $request->kilometraje_final,
                 ]);
             }
@@ -644,27 +645,5 @@ class AsignacionObraController extends Controller
 
             return redirect()->back()->with('error', 'Error al obtener estadísticas.');
         }
-    }
-
-    /**
-     * Obtener ID del estatus "Asignado"
-     */
-    private function getEstatusAsignado(): int
-    {
-        // Buscar en la tabla catalogo_estatus el ID correspondiente a "Asignado"
-        return DB::table('catalogo_estatus')
-            ->where('nombre_estatus', 'Asignado')
-            ->value('id') ?? 3; // Fallback si no existe
-    }
-
-    /**
-     * Obtener ID del estatus "Disponible"
-     */
-    private function getEstatusDisponible(): int
-    {
-        // Buscar en la tabla catalogo_estatus el ID correspondiente a "Disponible"
-        return DB::table('catalogo_estatus')
-            ->where('nombre_estatus', 'Disponible')
-            ->value('id') ?? 5; // Fallback si no existe
     }
 }

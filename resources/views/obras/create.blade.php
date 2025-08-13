@@ -141,18 +141,21 @@
                     @enderror
                 </div>
 
-                {{-- Encargado --}}
+                {{-- Responsable de la obra --}}
                 <div class="md:col-span-2">
                     <label for="encargado_id" class="block text-sm font-medium text-gray-700 mb-1">
-                        Encargado <span class="text-red-500">*</span>
+                        Responsable de la obra <span class="text-red-500">*</span>
                     </label>
                     <select id="encargado_id" 
                             name="encargado_id" 
                             class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('encargado_id') border-red-500 @enderror"
-                            required>
-                        <option value="">Seleccione un encargado</option>
+                            required
+                            data-testid="encargado-selector">
+                        <option value="">Seleccione un responsable</option>
                         @foreach($encargados as $encargado)
-                            <option value="{{ $encargado['id'] }}" {{ old('encargado_id') == $encargado['id'] ? 'selected' : '' }}>
+                            <option value="{{ $encargado['id'] }}" {{ old('encargado_id') == $encargado['id'] ? 'selected' : '' }}
+                                    data-testid="encargado-option-{{ $encargado['id'] }}"
+                                    data-categoria="{{ $encargado['categoria'] ?? 'Sin categoría' }}">
                                 {{ $encargado['nombre_completo'] }}
                                 @if(isset($encargado['categoria']))
                                     - {{ $encargado['categoria'] }}
@@ -163,6 +166,7 @@
                     @error('encargado_id')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
+                    <p class="mt-1 text-xs text-gray-500">Personal con categoría "Responsable de obra" para supervisión del proyecto</p>
                 </div>
 
                 {{-- Observaciones --}}
@@ -186,7 +190,7 @@
         <div class="bg-white border border-gray-200 rounded-lg p-6">
             <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                    <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1 1 0 11-3 0 1.5 1.5 0 013 0z" />
                     <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
                 </svg>
                 Asignación de Vehículos
@@ -394,62 +398,76 @@
                         Seleccione un vehículo
                     </label>
                     <div id="vehicle-options" class="max-h-60 overflow-y-auto border border-gray-300 rounded-md divide-y divide-gray-200">
-                        @foreach($vehiculos->where('esta_asignado', false) as $vehiculo)
-                            <div class="vehicle-option p-3 hover:bg-gray-50 cursor-pointer" 
-                                 data-id="{{ $vehiculo->id }}"
-                                 data-marca="{{ $vehiculo->marca }}"
-                                 data-modelo="{{ $vehiculo->modelo }}"
-                                 data-anio="{{ $vehiculo->anio }}"
-                                 data-placas="{{ $vehiculo->placas }}"
-                                 data-km="{{ $vehiculo->kilometraje_actual }}"
-                                 onclick="selectVehicle(this)">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <h4 class="font-medium text-gray-900">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
-                                        <p class="text-xs text-gray-500">
-                                            Año: {{ $vehiculo->anio }} | Placas: <span class="font-mono">{{ $vehiculo->placas }}</span> | 
-                                            {{ number_format($vehiculo->kilometraje_actual) }} km
-                                        </p>
-                                    </div>
-                                    <div class="px-2 py-1 bg-gray-900 text-white rounded text-xs font-medium">
-                                        Disponible
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                        
-                        <!-- Separador para vehículos no disponibles -->
-                        @if($vehiculos->where('esta_asignado', true)->count() > 0)
-                            <div class="p-3 bg-gray-100 border-b border-gray-300">
-                                <p class="text-sm font-medium text-gray-500 text-center">Vehículos no disponibles (solo referencia)</p>
-                            </div>
-                            
-                            @foreach($vehiculos->where('esta_asignado', true) as $vehiculo)
-                                <div class="vehicle-option p-3 bg-gray-50 opacity-70 cursor-not-allowed" 
-                                    data-id="{{ $vehiculo->id }}"
-                                    data-marca="{{ $vehiculo->marca }}"
-                                    data-modelo="{{ $vehiculo->modelo }}"
-                                    data-anio="{{ $vehiculo->anio }}"
-                                    data-placas="{{ $vehiculo->placas }}"
-                                    data-km="{{ $vehiculo->kilometraje_actual }}">
+                        @if($vehiculos->count() > 0)
+                            {{-- Vehículos disponibles primero --}}
+                            @foreach($vehiculos->where('esta_asignado', false) as $vehiculo)
+                                <div class="vehicle-option p-3 hover:bg-gray-50 cursor-pointer" 
+                                     data-id="{{ $vehiculo->id }}"
+                                     data-marca="{{ $vehiculo->marca }}"
+                                     data-modelo="{{ $vehiculo->modelo }}"
+                                     data-anio="{{ $vehiculo->anio }}"
+                                     data-placas="{{ $vehiculo->placas }}"
+                                     data-km="{{ $vehiculo->kilometraje_actual }}"
+                                     onclick="selectVehicle(this)">
                                     <div class="flex items-center justify-between">
                                         <div>
-                                            <h4 class="font-medium text-gray-600">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
+                                            <h4 class="font-medium text-gray-900">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
                                             <p class="text-xs text-gray-500">
-                                                Año: {{ $vehiculo->anio }} | Placas: <span class="font-mono">{{ $vehiculo->placas }}</span>
+                                                Año: {{ $vehiculo->anio }} | Placas: <span class="font-mono">{{ $vehiculo->placas }}</span> | 
+                                                {{ number_format($vehiculo->kilometraje_actual) }} km
                                             </p>
-                                            @if($vehiculo->obra_asignada)
-                                                <p class="text-xs text-gray-500 mt-1 italic">
-                                                    Asignado a: {{ $vehiculo->obra_asignada }}
-                                                </p>
-                                            @endif
                                         </div>
-                                        <div class="px-2 py-1 bg-gray-200 text-gray-700 rounded text-xs font-medium border border-gray-300">
-                                            En uso
+                                        <div class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium border border-green-200">
+                                            Disponible
                                         </div>
                                     </div>
                                 </div>
                             @endforeach
+                            
+                            {{-- Separador para vehículos no disponibles --}}
+                            @if($vehiculos->where('esta_asignado', true)->count() > 0)
+                                <div class="p-3 bg-gray-100 border-b border-gray-300">
+                                    <p class="text-sm font-medium text-gray-500 text-center">Vehículos no disponibles (solo referencia)</p>
+                                </div>
+                                
+                                @foreach($vehiculos->where('esta_asignado', true) as $vehiculo)
+                                    <div class="vehicle-option p-3 bg-gray-50 opacity-70 cursor-not-allowed" 
+                                        data-id="{{ $vehiculo->id }}"
+                                        data-marca="{{ $vehiculo->marca }}"
+                                        data-modelo="{{ $vehiculo->modelo }}"
+                                        data-anio="{{ $vehiculo->anio }}"
+                                        data-placas="{{ $vehiculo->placas }}"
+                                        data-km="{{ $vehiculo->kilometraje_actual }}">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <h4 class="font-medium text-gray-600">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
+                                                <p class="text-xs text-gray-500">
+                                                    Año: {{ $vehiculo->anio }} | Placas: <span class="font-mono">{{ $vehiculo->placas }}</span>
+                                                </p>
+                                                @if($vehiculo->obra_asignada)
+                                                    <p class="text-xs text-gray-500 mt-1 italic">
+                                                        Asignado a: {{ $vehiculo->obra_asignada }}
+                                                    </p>
+                                                @endif
+                                            </div>
+                                            <div class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium border border-red-200">
+                                                En uso
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
+                        @else
+                            {{-- Mensaje cuando no hay vehículos --}}
+                            <div class="p-4 text-center">
+                                <div class="flex flex-col items-center space-y-2">
+                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    <p class="text-gray-500 text-sm">No hay vehículos registrados en el sistema</p>
+                                    <p class="text-gray-400 text-xs">Agregue vehículos primero para poder asignarlos</p>
+                                </div>
+                            </div>
                         @endif
                         
                         <!-- Mensaje de no resultados (oculto inicialmente) -->

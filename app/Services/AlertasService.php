@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\EstadoVehiculo;
 use App\Models\Vehiculo;
 use Illuminate\Support\Collection;
 
@@ -26,7 +27,7 @@ class AlertasService
         $vehiculos = Vehiculo::with(['kilometrajes' => function ($query) {
             $query->orderBy('kilometraje', 'desc')->limit(1);
         }])
-        ->where('estatus_id', '!=', 4) // No incluir vehículos fuera de servicio
+        ->where('estatus', '!=', EstadoVehiculo::FUERA_DE_SERVICIO->value) // No incluir vehículos fuera de servicio
         ->get();
 
         foreach ($vehiculos as $vehiculo) {

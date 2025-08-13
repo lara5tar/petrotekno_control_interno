@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use App\Enums\EstadoVehiculo;
 
 class StoreVehiculoRequest extends FormRequest
 {
@@ -57,10 +59,10 @@ class StoreVehiculoRequest extends FormRequest
                 'unique:vehiculos,placas',
                 'regex:/^[A-Z0-9\-]+$/',
             ],
-            'estatus_id' => [
+            'estatus' => [
                 'required',
-                'integer',
-                'exists:catalogo_estatus,id',
+                'string',
+                Rule::in(array_column(EstadoVehiculo::cases(), 'value')),
             ],
             'kilometraje_actual' => [
                 'required',
@@ -264,9 +266,9 @@ class StoreVehiculoRequest extends FormRequest
             'placas.unique' => 'Estas placas ya están registradas en el sistema',
             'placas.regex' => 'Las placas solo pueden contener letras, números y guiones',
             
-            'estatus_id.required' => 'El estatus del vehículo es obligatorio',
-            'estatus_id.integer' => 'El estatus debe ser un número entero',
-            'estatus_id.exists' => 'El estatus seleccionado no es válido',
+            'estatus.required' => 'El estatus del vehículo es obligatorio',
+            'estatus.string' => 'El estatus debe ser un texto válido',
+            'estatus.in' => 'El estatus seleccionado no es válido',
             
             'kilometraje_actual.required' => 'El kilometraje actual es obligatorio',
             'kilometraje_actual.integer' => 'El kilometraje debe ser un número entero',

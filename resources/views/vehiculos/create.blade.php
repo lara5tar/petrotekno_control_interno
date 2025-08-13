@@ -66,8 +66,8 @@
     </div>
 
     <!-- Formulario -->
-    <div class="bg-white rounded-lg shadow p-6" x-data="vehiculoFormController()">
-        <form action="{{ route('vehiculos.store') }}" method="POST" enctype="multipart/form-data">
+    <div class="bg-white rounded-lg shadow p-6">
+        <form action="{{ route('vehiculos.store') }}" method="POST" enctype="multipart/form-data" id="vehiculoForm">
             @csrf
             
             <div class="space-y-8">
@@ -75,7 +75,7 @@
                 <div class="bg-white border border-gray-200 rounded-lg p-6">
                     <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                            <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1 1 0 11-3 0 1.5 1.5 0 013 0z"/>
                             <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1V8a1 1 0 00-1-1h-3z"/>
                         </svg>
                         Información del Vehículo
@@ -92,25 +92,30 @@
                         <x-form-input name="placas" label="Placas" required placeholder="ABC-123-A" />
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
                         <x-form-input name="kilometraje_actual" label="Kilometraje Actual (km)" type="number" required min="0" placeholder="15000" />
-                        
+                    </div>
+
+                    <!-- Operador Asignado -->
+                    <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
                         <div class="form-group">
-                            <label for="estatus_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                Estatus <span class="text-red-500">*</span>
+                            <label for="operador_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                Operador Asignado
                             </label>
-                            <select name="estatus_id" 
-                                    id="estatus_id" 
-                                    required
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('estatus_id') border-red-500 @enderror">
-                                <option value="">Seleccione el estatus</option>
-                                @foreach($estatus as $estado)
-                                    <option value="{{ $estado->id }}" {{ old('estatus_id') == $estado->id ? 'selected' : '' }}>
-                                        {{ ucfirst($estado->nombre_estatus) }}
-                                    </option>
-                                @endforeach
+                            <select name="operador_id" 
+                                    id="operador_id" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('operador_id') border-red-500 @enderror">
+                                <option value="">Seleccione un operador (opcional)</option>
+                                @if(isset($operadores) && $operadores->count() > 0)
+                                    @foreach($operadores as $operador)
+                                        <option value="{{ $operador->id }}" {{ old('operador_id') == $operador->id ? 'selected' : '' }}>
+                                            {{ $operador->nombre_completo }}
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
-                            @error('estatus_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            @error('operador_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-500">Persona encargada de operar el vehículo</p>
                         </div>
                     </div>
                 </div>
@@ -142,7 +147,7 @@
                                                name="poliza_seguro_file" 
                                                accept=".pdf,.jpg,.jpeg,.png" 
                                                class="hidden" 
-                                               @change="handleFileInput($event, 'poliza_seguro')" />
+                                               onchange="handleFileInput(event, 'poliza_seguro')" />
                                         <label for="poliza_seguro_file" 
                                                class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                             <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,7 +165,7 @@
                                            class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
                                     <span class="text-sm text-gray-500 flex-shrink-0">Vencimiento</span>
                                 </div>
-                                <p class="text-xs text-gray-500 text-center" x-text="fileStatus.poliza_seguro || 'PDF, JPG, PNG (máx. 5MB)'"></p>
+                                <p class="text-xs text-gray-500 text-center file-status" id="poliza_seguro_status">PDF, JPG, PNG (máx. 5MB)</p>
                             </div>
 
                             <!-- 2. Derecho Vehicular -->
@@ -178,7 +183,7 @@
                                                name="derecho_vehicular_file" 
                                                accept=".pdf,.jpg,.jpeg,.png" 
                                                class="hidden" 
-                                               @change="handleFileInput($event, 'derecho_vehicular')" />
+                                               onchange="handleFileInput(event, 'derecho_vehicular')" />
                                         <label for="derecho_vehicular_file" 
                                                class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                             <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,7 +201,7 @@
                                            class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
                                     <span class="text-sm text-gray-500 flex-shrink-0">Vencimiento</span>
                                 </div>
-                                <p class="text-xs text-gray-500 text-center" x-text="fileStatus.derecho_vehicular || 'PDF, JPG, PNG (máx. 5MB)'"></p>
+                                <p class="text-xs text-gray-500 text-center file-status" id="derecho_vehicular_status">PDF, JPG, PNG (máx. 5MB)</p>
                             </div>
                         </div>
 
@@ -217,7 +222,7 @@
                                                name="factura_pedimento_file" 
                                                accept=".pdf,.jpg,.jpeg,.png" 
                                                class="hidden" 
-                                               @change="handleFileInput($event, 'factura_pedimento')" />
+                                               onchange="handleFileInput(event, 'factura_pedimento')" />
                                         <label for="factura_pedimento_file" 
                                                class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                             <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -227,7 +232,7 @@
                                         </label>
                                     </div>
                                 </div>
-                                <p class="text-xs text-gray-500 text-center" x-text="fileStatus.factura_pedimento || 'PDF, JPG, PNG (máx. 5MB)'"></p>
+                                <p class="text-xs text-gray-500 text-center file-status" id="factura_pedimento_status">PDF, JPG, PNG (máx. 5MB)</p>
                             </div>
 
                             <!-- 4. Fotografía del Vehículo -->
@@ -245,7 +250,7 @@
                                                name="fotografia_file" 
                                                accept=".jpg,.jpeg,.png" 
                                                class="hidden" 
-                                               @change="handleFileInput($event, 'fotografia')" />
+                                               onchange="handleFileInput(event, 'fotografia')" />
                                         <label for="fotografia_file" 
                                                class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                             <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,7 +260,7 @@
                                         </label>
                                     </div>
                                 </div>
-                                <p class="text-xs text-gray-500 text-center" x-text="fileStatus.fotografia || 'JPG, PNG (máx. 5MB)'"></p>
+                                <p class="text-xs text-gray-500 text-center file-status" id="fotografia_status">JPG, PNG (máx. 5MB)</p>
                             </div>
                         </div>
                     </div>
@@ -362,174 +367,139 @@
 @endsection
 
 @push('scripts')
-<script src="//unpkg.com/alpinejs" defer></script>
 <script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('vehiculoFormController', () => ({
-            fileStatus: {
-                tarjeta_circulacion: '',
-                tenencia_vehicular: '',
-                verificacion_vehicular: '',
-                poliza_seguro: '',
-                factura_compra: '',
-                manual_vehiculo: '',
-                fotografia: '',
-                documentos_adicionales: ''
-            },
-            documentosAdicionales: [],
-            nuevoDocumento: {
-                tipo_documento_id: '',
-                descripcion: '',
-                archivo: null,
-                fecha_vencimiento: ''
-            },
+    // Estado de los archivos
+    const fileStatus = {
+        tarjeta_circulacion: '',
+        tenencia_vehicular: '',
+        verificacion_vehicular: '',
+        poliza_seguro: '',
+        factura_pedimento: '',
+        manual_vehiculo: '',
+        fotografia: '',
+        documentos_adicionales: ''
+    };
+    
+    // Función para manejar la selección de archivos
+    function handleFileInput(event, type) {
+        const file = event.target.files[0];
+        const statusElement = document.getElementById(`${type}_status`);
+        
+        if (!file) {
+            statusElement.textContent = type === 'fotografia' ? 'JPG, PNG (máx. 5MB)' : 'PDF, JPG, PNG (máx. 5MB)';
+            fileStatus[type] = '';
+            return;
+        }
+
+        // Validar tamaño (5MB para fotos, 10MB para documentos)
+        const maxSize = type === 'fotografia' ? 5 * 1024 * 1024 : 10 * 1024 * 1024;
+        if (file.size > maxSize) {
+            const maxSizeMB = type === 'fotografia' ? '5MB' : '10MB';
+            alert(`El archivo es demasiado grande. Máximo ${maxSizeMB}`);
+            event.target.value = '';
+            statusElement.textContent = type === 'fotografia' ? 'JPG, PNG (máx. 5MB)' : 'PDF, JPG, PNG (máx. 5MB)';
+            fileStatus[type] = '';
+            return;
+        }
+
+        // Validar tipo de archivo
+        let allowedTypes = [];
+        if (type === 'fotografia') {
+            allowedTypes = ['image/jpeg', 'image/png'];
+        } else {
+            allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        }
+        
+        if (!allowedTypes.includes(file.type)) {
+            const allowedExtensions = type === 'fotografia' ? 'JPG, PNG' : 'PDF, JPG, PNG, DOC, DOCX';
+            alert(`Formato de archivo no permitido. Solo se permiten: ${allowedExtensions}`);
+            event.target.value = '';
+            statusElement.textContent = type === 'fotografia' ? 'JPG, PNG (máx. 5MB)' : 'PDF, JPG, PNG (máx. 5MB)';
+            fileStatus[type] = '';
+            return;
+        }
+
+        const fileInfo = `✅ ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+        statusElement.textContent = fileInfo;
+        fileStatus[type] = fileInfo;
+    }
+    
+    // Inicializar documentos adicionales (si se necesita)
+    let documentosAdicionales = [];
+    
+    // Función para manejar documentos adicionales (si se necesita)
+    function handleAdditionalDocumentFile(event) {
+        const file = event.target.files[0];
+        if (!file) return null;
+        
+        // Validar tamaño del archivo (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('El archivo es muy grande. El tamaño máximo es 10MB.');
+            event.target.value = '';
+            return null;
+        }
+
+        // Validar tipo de archivo
+        const allowedTypes = [
+            'application/pdf', 
+            'image/jpeg', 
+            'image/jpg', 
+            'image/png', 
+            'application/msword', 
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ];
+        
+        if (!allowedTypes.includes(file.type)) {
+            alert('Tipo de archivo no válido. Solo se permiten: PDF, JPG, PNG, DOC, DOCX');
+            event.target.value = '';
+            return null;
+        }
+
+        return file;
+    }
+    
+    // Función para manejar múltiples archivos (si se necesita)
+    function handleMultipleFileInput(event, type) {
+        const files = event.target.files;
+        const statusElement = document.getElementById(`${type}_status`);
+        
+        if (!files || files.length === 0) {
+            statusElement.textContent = 'PDF, JPG, PNG (máx. 5MB)';
+            fileStatus[type] = '';
+            return;
+        }
+
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        const allowedTypes = [
+            'application/pdf', 
+            'image/jpeg', 
+            'image/png', 
+            'application/msword', 
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ];
+        
+        let validFiles = 0;
+        let invalidFiles = 0;
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
             
-            handleFileInput(event, type) {
-                const file = event.target.files[0];
-                if (!file) {
-                    this.fileStatus[type] = '';
-                    return;
-                }
-
-                // Validar tamaño (5MB para fotos, 10MB para documentos)
-                const maxSize = type === 'fotografia' ? 5 * 1024 * 1024 : 10 * 1024 * 1024;
-                if (file.size > maxSize) {
-                    const maxSizeMB = type === 'fotografia' ? '5MB' : '10MB';
-                    alert(`El archivo es demasiado grande. Máximo ${maxSizeMB}`);
-                    event.target.value = '';
-                    this.fileStatus[type] = '';
-                    return;
-                }
-
-                // Validar tipo de archivo
-                let allowedTypes = [];
-                if (type === 'fotografia') {
-                    allowedTypes = ['image/jpeg', 'image/png'];
-                } else {
-                    allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-                }
-                
-                if (!allowedTypes.includes(file.type)) {
-                    const allowedExtensions = type === 'fotografia' ? 'JPG, PNG' : 'PDF, JPG, PNG, DOC, DOCX';
-                    alert(`Formato de archivo no permitido. Solo se permiten: ${allowedExtensions}`);
-                    event.target.value = '';
-                    this.fileStatus[type] = '';
-                    return;
-                }
-
-                this.fileStatus[type] = `✅ ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
-            },
-
-            handleAdditionalDocumentFile(event) {
-                const file = event.target.files[0];
-                if (!file) {
-                    this.nuevoDocumento.archivo = null;
-                    return;
-                }
-
-                // Validar tamaño del archivo (10MB)
-                if (file.size > 10 * 1024 * 1024) {
-                    alert('El archivo es muy grande. El tamaño máximo es 10MB.');
-                    event.target.value = '';
-                    return;
-                }
-
-                // Validar tipo de archivo
-                const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-                if (!allowedTypes.includes(file.type)) {
-                    alert('Tipo de archivo no válido. Solo se permiten: PDF, JPG, PNG, DOC, DOCX');
-                    event.target.value = '';
-                    return;
-                }
-
-                this.nuevoDocumento.archivo = file;
-            },
-
-            agregarDocumentoAdicional() {
-                if (!this.nuevoDocumento.tipo_documento_id || !this.nuevoDocumento.archivo) {
-                    alert('Por favor seleccione un tipo de documento y un archivo.');
-                    return;
-                }
-
-                // Obtener el nombre del tipo de documento
-                const selectElement = document.querySelector('select[x-model="nuevoDocumento.tipo_documento_id"]');
-                const selectedOption = selectElement.options[selectElement.selectedIndex];
-                const tipoNombre = selectedOption.text;
-
-                // Agregar el documento a la lista
-                this.documentosAdicionales.push({
-                    tipo_documento_id: this.nuevoDocumento.tipo_documento_id,
-                    tipo_nombre: tipoNombre,
-                    descripcion: this.nuevoDocumento.descripcion || '',
-                    archivo: this.nuevoDocumento.archivo,
-                    fecha_vencimiento: this.nuevoDocumento.fecha_vencimiento || null
-                });
-
-                // Actualizar el input oculto de archivos
-                this.actualizarArchivosOcultos();
-
-                // Limpiar el formulario
-                this.nuevoDocumento = {
-                    tipo_documento_id: '',
-                    descripcion: '',
-                    archivo: null,
-                    fecha_vencimiento: ''
-                };
-
-                // Limpiar el input de archivo
-                document.getElementById('documento_adicional_file').value = '';
-            },
-
-            eliminarDocumentoAdicional(index) {
-                this.documentosAdicionales.splice(index, 1);
-                this.actualizarArchivosOcultos();
-            },
-
-            actualizarArchivosOcultos() {
-                const hiddenInput = document.getElementById('documentos_adicionales_archivos_hidden');
-                const dataTransfer = new DataTransfer();
-                
-                // Agregar todos los archivos al DataTransfer
-                this.documentosAdicionales.forEach(doc => {
-                    if (doc.archivo) {
-                        dataTransfer.items.add(doc.archivo);
-                    }
-                });
-                
-                // Asignar los archivos al input oculto
-                hiddenInput.files = dataTransfer.files;
-            },
-
-            handleMultipleFileInput(event, type) {
-                const files = event.target.files;
-                if (!files || files.length === 0) {
-                    this.fileStatus[type] = '';
-                    return;
-                }
-
-                const maxSize = 10 * 1024 * 1024; // 10MB
-                const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-                
-                let validFiles = 0;
-                let invalidFiles = 0;
-
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    
-                    if (file.size > maxSize || !allowedTypes.includes(file.type)) {
-                        invalidFiles++;
-                    } else {
-                        validFiles++;
-                    }
-                }
-
-                if (invalidFiles > 0) {
-                    this.fileStatus[type] = `⚠️ ${validFiles} archivos válidos, ${invalidFiles} archivos inválidos (tamaño o tipo)`;
-                } else {
-                    this.fileStatus[type] = `✅ ${validFiles} archivos seleccionados`;
-                }
+            if (file.size > maxSize || !allowedTypes.includes(file.type)) {
+                invalidFiles++;
+            } else {
+                validFiles++;
             }
-        }));
-    });
+        }
+
+        if (invalidFiles > 0) {
+            const fileInfo = `⚠️ ${validFiles} archivos válidos, ${invalidFiles} archivos inválidos (tamaño o tipo)`;
+            statusElement.textContent = fileInfo;
+            fileStatus[type] = fileInfo;
+        } else {
+            const fileInfo = `✅ ${validFiles} archivos seleccionados`;
+            statusElement.textContent = fileInfo;
+            fileStatus[type] = fileInfo;
+        }
+    }
 </script>
 @endpush

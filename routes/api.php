@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\AuthController;
+// use App\Http\Controllers\AuthController; // Comentado - AuthController no existe
 use App\Http\Controllers\CatalogoTipoDocumentoController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\KilometrajeController;
@@ -24,21 +24,26 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Rutas públicas de autenticación
-Route::prefix('auth')->group(function () {
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/register', [AuthController::class, 'register']); // Para futuro uso
+// Rutas de verificación para testing con Playwright (sin autenticación para testing)
+Route::prefix('verificacion')->group(function () {
+    Route::post('/verificar-obra', [\App\Http\Controllers\Api\VerificacionController::class, 'verificarObra']);
 });
+
+// Rutas públicas de autenticación - COMENTADAS (AuthController no existe)
+// Route::prefix('auth')->group(function () {
+//     Route::post('/login', [AuthController::class, 'login']);
+//     Route::post('/register', [AuthController::class, 'register']); // Para futuro uso
+// });
 
 // Rutas protegidas por autenticación
 Route::middleware('auth:sanctum')->group(function () {
 
-    // Rutas de autenticación del usuario logueado
-    Route::prefix('auth')->group(function () {
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::get('/me', [AuthController::class, 'me']);
-        Route::put('/change-password', [AuthController::class, 'changePassword']);
-    });
+    // Rutas de autenticación del usuario logueado - COMENTADAS (AuthController no existe)
+    // Route::prefix('auth')->group(function () {
+    //     Route::post('/logout', [AuthController::class, 'logout']);
+    //     Route::get('/me', [AuthController::class, 'me']);
+    //     Route::put('/change-password', [AuthController::class, 'changePassword']);
+    // });
 
     // Rutas de usuarios - requieren permisos específicos
     Route::prefix('users')->group(function () {
