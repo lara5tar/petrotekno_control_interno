@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test del Modal de Kilometraje</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .step {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+
+        button {
+            margin: 5px;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        code {
+            background: #f8f9fa;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 Test del Modal de Kilometraje</h1>
+        <p>Esta página te ayuda a verificar si el modal de kilometraje está funcionando correctamente.</p>
+
+        <div class="step info">
+            <h3>📋 Instrucciones:</h3>
+            <ol>
+                <li>Navega a la aplicación en otra pestaña: <a href="http://127.0.0.1:8001"
+                        target="_blank">http://127.0.0.1:8001</a></li>
+                <li>Inicia sesión con tus credenciales</li>
+                <li>Ve a cualquier página de detalle de vehículo (ej: <code>/vehiculos/1</code>)</li>
+                <li>Abre la consola del navegador (F12)</li>
+                <li>Copia y pega el script de debug en la consola</li>
+                <li>Ejecuta las pruebas usando los botones de abajo</li>
+            </ol>
+        </div>
+
+        <div class="step warning">
+            <h3>⚠️ Script de Debug para la Consola:</h3>
+            <textarea id="debug-script" rows="15" style="width: 100%; font-family: monospace; font-size: 12px;">
+// === SCRIPT DE DEBUG DEL MODAL ===
+console.log('🔍 Iniciando debug del modal de kilometraje...');
+
+// Verificar elementos del modal
+function debugModal() {
+    const resultados = {
+        botonCapturar: null,
+        modal: null,
+        funcionJS: false,
+        formulario: null,
+        accion: null
+    };
+    
+    // Verificar botones
+    const botones = document.querySelectorAll('button[onclick*="openKilometrajeModal"]');
+    resultados.botonCapturar = botones.length;
+    console.log(`✅ Botones "Capturar Nuevo" encontrados: ${botones.length}`);
+    
+    // Verificar modal
+    const modal = document.getElementById('kilometraje-modal');
+    resultados.modal = modal ? 'Encontrado' : 'No encontrado';
+    console.log(`📱 Modal: ${resultados.modal}`);
+    
+    // Verificar función JavaScript
+    resultados.funcionJS = typeof openKilometrajeModal === 'function';
+    console.log(`⚙️ Función openKilometrajeModal: ${resultados.funcionJS ? 'Definida' : 'No definida'}`);
+    
+    // Verificar formulario
+    const form = document.getElementById('kilometraje-form');
+    resultados.formulario = form ? 'Encontrado' : 'No encontrado';
+    if (form) {
+        resultados.accion = form.action;
+        console.log(`📤 Acción del formulario: ${form.action}`);
+    }
+    
+    console.log('📊 Resumen completo:', resultados);
+    return resultados;
+}
+
+// Simular click en el botón
+function testearClick() {
+    const botones = document.querySelectorAll('button[onclick*="openKilometrajeModal"]');
+    if (botones.length > 0) {
+        console.log('🧪 Simulando click en el primer botón...');
+        const modalAntes = document.getElementById('kilometraje-modal');
+        const estaOcultoAntes = modalAntes ? modalAntes.classList.contains('hidden') : 'Modal no encontrado';
+        console.log('📊 Estado antes del click:', estaOcultoAntes);
+        
+        botones[0].click();
+        
+        setTimeout(() => {
+            const modalDespues = document.getElementById('kilometraje-modal');
+            const estaOcultoDespues = modalDespues ? modalDespues.classList.contains('hidden') : 'Modal no encontrado';
+            console.log('📊 Estado después del click:', estaOcultoDespues);
+            
+            if (modalDespues && !modalDespues.classList.contains('hidden')) {
+                console.log('🎉 ¡ÉXITO! El modal se abrió correctamente');
+            } else {
+                console.log('❌ FALLO: El modal no se abrió o no existe');
+            }
+        }, 100);
+    } else {
+        console.log('❌ No se encontraron botones para testear');
+    }
+}
+
+// Verificar página actual
+function verificarPagina() {
+    const url = window.location.href;
+    const esVehiculoShow = url.includes('/vehiculos/') && !url.includes('/create') && !url.includes('/edit');
+    console.log('📄 URL actual:', url);
+    console.log('📄 ¿Es página de vehículo?', esVehiculoShow);
+    return esVehiculoShow;
+}
+
+// Auto ejecutar si estamos en la página correcta
+if (verificarPagina()) {
+    console.log('✅ Estás en una página de vehículo. Ejecutando debug...');
+    debugModal();
+    console.log('🎯 Para probar el click del botón, ejecuta: testearClick()');
+} else {
+    console.log('⚠️ No estás en una página de detalle de vehículo');
+    console.log('   Navega a una URL como: /vehiculos/1');
+}
+
+// Exportar funciones globalmente
+window.debugModal = debugModal;
+window.testearClick = testearClick;
+window.verificarPagina = verificarPagina;
+
+console.log('🔧 Funciones disponibles: debugModal(), testearClick(), verificarPagina()');
+            </textarea>
+            <button onclick="copyScript()">📋 Copiar Script</button>
+        </div>
+
+        <div class="step info">
+            <h3>🔍 Tests Rápidos:</h3>
+            <p>Una vez que tengas la consola abierta en la página del vehículo:</p>
+            <button onclick="showTest('debug')">1. Ejecutar Debug Completo</button>
+            <button onclick="showTest('click')">2. Probar Click del Botón</button>
+            <button onclick="showTest('verify')">3. Verificar Página</button>
+        </div>
+
+        <div id="test-commands" class="step" style="display: none;">
+            <h3>📝 Comando a Ejecutar:</h3>
+            <div class="log" id="command-output"></div>
+            <button onclick="copyCommand()">📋 Copiar Comando</button>
+        </div>
+
+        <div class="step success">
+            <h3>✅ Resultados Esperados:</h3>
+            <ul>
+                <li><strong>Botones encontrados:</strong> Debería ser mayor a 0</li>
+                <li><strong>Modal:</strong> Debería decir "Encontrado"</li>
+                <li><strong>Función JS:</strong> Debería ser true</li>
+                <li><strong>Al hacer click:</strong> El modal debería abrirse (hidden: false)</li>
+            </ul>
+        </div>
+
+        <div class="step error">
+            <h3>❌ Posibles Problemas y Soluciones:</h3>
+            <ul>
+                <li><strong>Modal no encontrado:</strong> El HTML del modal no se está cargando</li>
+                <li><strong>Función no definida:</strong> El JavaScript no se está ejecutando</li>
+                <li><strong>Botones no encontrados:</strong> Los permisos del usuario no permiten ver los botones</li>
+                <li><strong>Modal no se abre:</strong> Hay un error de JavaScript que impide la ejecución</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function copyScript() {
+            const script = document.getElementById('debug-script');
+            script.select();
+            document.execCommand('copy');
+            alert('✅ Script copiado al portapapeles');
+        }
+
+        function showTest(testType) {
+            const container = document.getElementById('test-commands');
+            const output = document.getElementById('command-output');
+
+            let command = '';
+            switch (testType) {
+                case 'debug':
+                    command = 'debugModal()';
+                    break;
+                case 'click':
+                    command = 'testearClick()';
+                    break;
+                case 'verify':
+                    command = 'verificarPagina()';
+                    break;
+            }
+
+            output.textContent = command;
+            container.style.display = 'block';
+        }
+
+        function copyCommand() {
+            const command = document.getElementById('command-output').textContent;
+            navigator.clipboard.writeText(command).then(() => {
+                alert('✅ Comando copiado al portapapeles');
+            });
+        }
+    </script>
+</body>
+
+</html>

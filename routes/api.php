@@ -1,14 +1,14 @@
 <?php
 
 // use App\Http\Controllers\AuthController; // Comentado - AuthController no existe
-use App\Http\Controllers\CatalogoTipoDocumentoController;
+
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\KilometrajeController;
 use App\Http\Controllers\MantenimientoController;
 use App\Http\Controllers\ObraController;
-use App\Http\Controllers\PermissionController;
+// use App\Http\Controllers\PermissionController; // Comentado - PermissionController no existe
 use App\Http\Controllers\PersonalController;
-use App\Http\Controllers\RoleController;
+// use App\Http\Controllers\RoleController; // Comentado - RoleController no existe
 // use App\Http\Controllers\UserController; // Comentado - UserController no existe
 use App\Http\Controllers\VehiculoController;
 use App\Models\CatalogoEstatus;
@@ -68,7 +68,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     */
 
-    // Rutas de roles - solo administradores
+    // Rutas de roles - solo administradores - COMENTADAS (RoleController no existe)
+    /*
     Route::prefix('roles')->middleware('role:Admin')->group(function () {
         Route::get('/', [RoleController::class, 'index']);
         Route::post('/', [RoleController::class, 'store']);
@@ -78,8 +79,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{roleId}/permissions/{permissionId}', [RoleController::class, 'attachPermission']);
         Route::delete('/{roleId}/permissions/{permissionId}', [RoleController::class, 'detachPermission']);
     });
+    */
 
-    // Rutas de permisos - solo administradores
+    // Rutas de permisos - solo administradores - COMENTADAS (PermissionController no existe)
+    /*
     Route::prefix('permissions')->middleware('role:Admin')->group(function () {
         Route::get('/', [PermissionController::class, 'index']);
         Route::post('/', [PermissionController::class, 'store']);
@@ -87,6 +90,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{id}', [PermissionController::class, 'update']);
         Route::delete('/{id}', [PermissionController::class, 'destroy']);
     });
+    */
 
     // Rutas de personal
     Route::prefix('personal')->group(function () {
@@ -210,7 +214,8 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:ver_documentos');
     });
 
-    // Rutas de catálogo de tipos de documento
+    // Rutas de catálogo de tipos de documento (Comentado - Controlador no existe)
+    /*
     Route::prefix('catalogo-tipos-documento')->group(function () {
         Route::get('/', [CatalogoTipoDocumentoController::class, 'index'])
             ->middleware('permission:ver_catalogos');
@@ -227,6 +232,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [CatalogoTipoDocumentoController::class, 'destroy'])
             ->middleware('permission:eliminar_catalogos');
     });
+    */
 
     // Rutas de mantenimientos
     Route::prefix('mantenimientos')->group(function () {

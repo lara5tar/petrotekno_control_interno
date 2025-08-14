@@ -1,4 +1,4 @@
-sale error@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Registrar Kilometraje - ' . $vehiculo->marca . ' ' . $vehiculo->modelo)
 
@@ -33,7 +33,7 @@ sale error@extends('layouts.app')
         <!-- Formulario -->
         <div class="bg-white border border-gray-300 rounded-lg">
             <div class="p-6">
-                <form action="{{ route('vehiculos.kilometrajes.store', $vehiculo) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <form action="{{ route('vehiculos.kilometrajes.store.vehiculo', $vehiculo) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                     @csrf
 
                     <!-- Kilometraje -->
@@ -70,23 +70,6 @@ sale error@extends('layouts.app')
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('fecha_captura') border-red-500 @enderror"
                                required>
                         @error('fecha_captura')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Ubicación -->
-                    <div>
-                        <label for="ubicacion" class="block text-sm font-medium text-gray-700 mb-2">
-                            Ubicación <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" 
-                               name="ubicacion" 
-                               id="ubicacion" 
-                               value="{{ old('ubicacion') }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('ubicacion') border-red-500 @enderror"
-                               placeholder="Ej: Oficina Central, Obra Los Pinos, etc."
-                               required>
-                        @error('ubicacion')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>

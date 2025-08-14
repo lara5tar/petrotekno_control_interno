@@ -56,14 +56,6 @@
                                 </div>
                             </div>
 
-                            <!-- Ubicación -->
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-600 mb-2">Ubicación</label>
-                                <div class="bg-gray-600 text-white px-4 py-3 rounded">
-                                    {{ $kilometraje->ubicacion }}
-                                </div>
-                            </div>
-
                             <!-- Usuario que Registró -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-600 mb-2">Registrado por</label>
@@ -243,7 +235,6 @@
             <div class="bg-gray-50 border border-gray-200 rounded p-3 mb-4">
                 <p class="text-sm"><strong>Kilometraje:</strong> {{ number_format($kilometraje->kilometraje) }} km</p>
                 <p class="text-sm"><strong>Fecha:</strong> {{ $kilometraje->fecha_captura ? $kilometraje->fecha_captura->format('d/m/Y') : 'Sin fecha' }}</p>
-                <p class="text-sm"><strong>Ubicación:</strong> {{ $kilometraje->ubicacion }}</p>
             </div>
             
             <div class="flex justify-end space-x-3">

@@ -481,13 +481,13 @@
                                         Registro de Kilometraje
                                     </h5>
                                     @hasPermission('crear_kilometrajes')
-                                    <a href="{{ route('vehiculos.kilometrajes.create', $vehiculo) }}" 
+                                    <button onclick="openKilometrajeModal()" 
                                        class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                         </svg>
                                         Capturar Nuevo
-                                    </a>
+                                    </button>
                                     @endhasPermission
                                 </div>
                                 
@@ -516,7 +516,7 @@
                                                 </td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                                     @hasPermission('ver_kilometrajes')
-                                                    <a href="{{ route('vehiculos.kilometrajes.show', [$vehiculo->id, $kilometraje->id]) }}" 
+                                                    <a href="{{ route('vehiculos.kilometrajes.show.vehiculo', [$vehiculo->id, $kilometraje->id]) }}" 
                                                        class="text-blue-600 hover:text-blue-900 transition-colors duration-200" 
                                                        title="Ver detalles">
                                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -537,10 +537,10 @@
                                                         <p class="font-medium">No hay registros de kilometraje</p>
                                                         <p class="text-xs text-gray-400">Este vehículo aún no tiene registros de kilometraje</p>
                                                         @hasPermission('crear_kilometrajes')
-                                                        <a href="{{ route('vehiculos.kilometrajes.create', $vehiculo) }}" 
+                                                        <button onclick="openKilometrajeModal()" 
                                                            class="mt-2 text-blue-600 hover:text-blue-800 text-sm">
                                                             Crear primer registro
-                                                        </a>
+                                                        </button>
                                                         @endhasPermission
                                                     </div>
                                                 </td>
@@ -793,18 +793,13 @@
             <form id="add-kilometraje-form">
                 @csrf
                 <div class="mb-4">
-                    <label for="kilometraje" class="block text-sm font-medium text-gray-700">Kilometraje</label>
-                    <input type="number" name="kilometraje" id="kilometraje" required
+                    <label for="add-kilometraje" class="block text-sm font-medium text-gray-700">Kilometraje</label>
+                    <input type="number" name="kilometraje" id="add-kilometraje" required
                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div class="mb-4">
-                    <label for="fecha_captura" class="block text-sm font-medium text-gray-700">Fecha</label>
-                    <input type="date" name="fecha_captura" id="fecha_captura" required
-                           class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div class="mb-4">
-                    <label for="ubicacion" class="block text-sm font-medium text-gray-700">Ubicación</label>
-                    <input type="text" name="ubicacion" id="ubicacion" required
+                    <label for="add-fecha_captura" class="block text-sm font-medium text-gray-700">Fecha</label>
+                    <input type="date" name="fecha_captura" id="add-fecha_captura" required
                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div class="mb-4">
@@ -863,10 +858,112 @@
     </div>
 </div>
 
+<!-- Modal para Capturar Kilometraje -->
+<div id="kilometraje-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <!-- Header del Modal -->
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Capturar Kilometraje</h3>
+                <button onclick="closeKilometrajeModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Formulario -->
+            <form id="kilometraje-form" method="POST" action="{{ route('vehiculos.kilometrajes.store.vehiculo', $vehiculo) }}">
+                @csrf
+                
+                <!-- Kilometraje Actual (solo referencia) -->
+                <div class="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-sm text-blue-800">
+                        <span class="font-semibold">Kilometraje Actual:</span> {{ number_format($vehiculo->kilometraje_actual ?? 0) }} km
+                    </p>
+                </div>
+
+                <!-- Campo de Kilometraje -->
+                <div class="mb-4">
+                    <label for="kilometraje" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nuevo Kilometraje <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" 
+                           id="kilometraje" 
+                           name="kilometraje" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           placeholder="Ingrese el kilometraje actual"
+                           min="{{ ($vehiculo->kilometraje_actual ?? 0) + 1 }}"
+                           required>
+                    <p class="text-xs text-gray-500 mt-1">
+                        Debe ser mayor a {{ number_format($vehiculo->kilometraje_actual ?? 0) }} km
+                    </p>
+                </div>
+
+                <!-- Fecha de Captura -->
+                <div class="mb-4">
+                    <label for="fecha_captura" class="block text-sm font-medium text-gray-700 mb-2">
+                        Fecha de Captura <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" 
+                           id="fecha_captura" 
+                           name="fecha_captura" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           value="{{ date('Y-m-d') }}"
+                           max="{{ date('Y-m-d') }}"
+                           required>
+                </div>
+
+                <!-- Observaciones -->
+                <div class="mb-6">
+                    <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-2">
+                        Observaciones
+                    </label>
+                    <textarea id="observaciones" 
+                              name="observaciones" 
+                              rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                              placeholder="Observaciones adicionales (opcional)"></textarea>
+                </div>
+
+                <!-- Botones -->
+                <div class="flex justify-end space-x-3">
+                    <button type="button" 
+                            onclick="closeKilometrajeModal()" 
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors duration-200">
+                        Cancelar
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200">
+                        Guardar Kilometraje
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
+    // Funciones para el modal de kilometraje
+    function openKilometrajeModal() {
+        document.getElementById('kilometraje-modal').classList.remove('hidden');
+        // Enfocar el campo de kilometraje
+        setTimeout(() => {
+            document.getElementById('kilometraje').focus();
+        }, 100);
+    }
+
+    function closeKilometrajeModal() {
+        document.getElementById('kilometraje-modal').classList.add('hidden');
+        // Limpiar el formulario
+        document.getElementById('kilometraje-form').reset();
+        // Restaurar fecha actual
+        document.getElementById('fecha_captura').value = '{{ date("Y-m-d") }}';
+    }
+
     // Función para mostrar el modal de agregar kilometraje
     function showAddKilometrajeModal() {
         document.getElementById('add-kilometraje-modal').classList.remove('hidden');
@@ -938,5 +1035,92 @@
         if (container) container.classList.add('hidden');
         if (errorPlaceholder) errorPlaceholder.classList.remove('hidden');
     }
+
+    // Eventos para el modal de kilometraje
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cerrar modal al hacer clic fuera
+        const modal = document.getElementById('kilometraje-modal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeKilometrajeModal();
+                }
+            });
+        }
+
+        // Validación en tiempo real del kilometraje
+        const kilometrajeInput = document.getElementById('kilometraje');
+        if (kilometrajeInput) {
+            kilometrajeInput.addEventListener('input', function(e) {
+                const valor = parseInt(e.target.value);
+                const minimo = {{ $vehiculo->kilometraje_actual ?? 0 }};
+                
+                if (valor && valor <= minimo) {
+                    e.target.setCustomValidity('El kilometraje debe ser mayor a ' + minimo.toLocaleString() + ' km');
+                } else {
+                    e.target.setCustomValidity('');
+                }
+            });
+        }
+
+        // Manejo del envío del formulario
+        const form = document.getElementById('kilometraje-form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const cancelBtn = this.querySelector('button[type="button"]');
+                
+                // Deshabilitar botones durante el envío
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Guardando...';
+                }
+                if (cancelBtn) {
+                    cancelBtn.disabled = true;
+                }
+            });
+        }
+
+        // Mostrar mensajes de sesión (éxito/error)
+        @if(session('success'))
+            showNotification('{{ session('success') }}', 'success');
+        @endif
+
+        @if(session('error'))
+            showNotification('{{ session('error') }}', 'error');
+        @endif
+
+        // Si hay errores de validación, reabrir el modal
+        @if($errors->any())
+            openKilometrajeModal();
+            
+            // Mostrar errores específicos
+            @foreach($errors->all() as $error)
+                showNotification('{{ $error }}', 'error');
+            @endforeach
+        @endif
+    });
+
+    // Función para mostrar notificaciones
+    function showNotification(message, type = 'info') {
+        // Crear elemento de notificación
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
+            type === 'success' ? 'bg-green-500 text-white' : 
+            type === 'error' ? 'bg-red-500 text-white' : 
+            'bg-blue-500 text-white'
+        }`;
+        notification.textContent = message;
+        
+        // Agregar al DOM
+        document.body.appendChild(notification);
+        
+        // Remover después de 5 segundos
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
+    }
 </script>
-@endsection
+@endpush

@@ -457,7 +457,6 @@ class VehiculoController extends Controller
                 'gt:' . ($vehiculo->kilometraje_actual ?? 0)
             ],
             'fecha_captura' => 'required|date|before_or_equal:today',
-            'ubicacion' => 'required|string|max:255',
             'observaciones' => 'nullable|string|max:1000',
             'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:5120'
         ], [
@@ -465,7 +464,6 @@ class VehiculoController extends Controller
             'kilometraje.gt' => 'El kilometraje debe ser mayor al actual (' . number_format($vehiculo->kilometraje_actual ?? 0) . ').',
             'fecha_captura.required' => 'La fecha de captura es obligatoria.',
             'fecha_captura.before_or_equal' => 'La fecha no puede ser futura.',
-            'ubicacion.required' => 'La ubicación es obligatoria.',
         ]);
 
         DB::beginTransaction();
@@ -483,7 +481,6 @@ class VehiculoController extends Controller
             $kilometraje = $vehiculo->kilometrajes()->create([
                 'kilometraje' => $validatedData['kilometraje'],
                 'fecha_captura' => $validatedData['fecha_captura'],
-                'ubicacion' => $validatedData['ubicacion'],
                 'observaciones' => $validatedData['observaciones'],
                 'imagen' => $rutaImagen,
                 'usuario_captura_id' => Auth::id(),
@@ -556,13 +553,11 @@ class VehiculoController extends Controller
 
         $validatedData = $request->validate([
             'fecha_captura' => 'required|date|before_or_equal:today',
-            'ubicacion' => 'required|string|max:255',
             'observaciones' => 'nullable|string|max:1000',
             'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:5120'
         ], [
             'fecha_captura.required' => 'La fecha de captura es obligatoria.',
             'fecha_captura.before_or_equal' => 'La fecha no puede ser futura.',
-            'ubicacion.required' => 'La ubicación es obligatoria.',
         ]);
 
         DB::beginTransaction();
