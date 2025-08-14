@@ -57,6 +57,35 @@ Route::middleware('auth')->prefix('vehiculos')->name('vehiculos.')->group(functi
     Route::delete('/{vehiculo}', [App\Http\Controllers\VehiculoController::class, 'destroy'])
         ->name('destroy')
         ->middleware('permission:eliminar_vehiculos');
+
+    // Rutas de kilometraje integradas en vehículos
+    Route::get('/{vehiculo}/kilometrajes', [App\Http\Controllers\VehiculoController::class, 'kilometrajes'])
+        ->name('kilometrajes.index')
+        ->middleware('permission:ver_vehiculos');
+        
+    Route::get('/{vehiculo}/kilometrajes/create', [App\Http\Controllers\VehiculoController::class, 'createKilometraje'])
+        ->name('kilometrajes.create')
+        ->middleware('permission:crear_kilometrajes');
+        
+    Route::post('/{vehiculo}/kilometrajes', [App\Http\Controllers\VehiculoController::class, 'storeKilometraje'])
+        ->name('kilometrajes.store')
+        ->middleware('permission:crear_kilometrajes');
+        
+    Route::get('/{vehiculo}/kilometrajes/{kilometraje}', [App\Http\Controllers\VehiculoController::class, 'showKilometraje'])
+        ->name('kilometrajes.show')
+        ->middleware('permission:ver_vehiculos');
+        
+    Route::get('/{vehiculo}/kilometrajes/{kilometraje}/edit', [App\Http\Controllers\VehiculoController::class, 'editKilometraje'])
+        ->name('kilometrajes.edit')
+        ->middleware('permission:editar_kilometrajes');
+        
+    Route::put('/{vehiculo}/kilometrajes/{kilometraje}', [App\Http\Controllers\VehiculoController::class, 'updateKilometraje'])
+        ->name('kilometrajes.update')
+        ->middleware('permission:editar_kilometrajes');
+        
+    Route::delete('/{vehiculo}/kilometrajes/{kilometraje}', [App\Http\Controllers\VehiculoController::class, 'destroyKilometraje'])
+        ->name('kilometrajes.destroy')
+        ->middleware('permission:eliminar_kilometrajes');
 });
 
 // Ruta para crear personal (fuera del grupo para evitar conflictos con PUT personal/{id})
@@ -393,36 +422,28 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:restaurar_obras');
 });
 
-// Rutas para Kilometrajes (CRUD completo)
-Route::middleware('auth')->prefix('kilometrajes')->name('kilometrajes.')->group(function () {
-    Route::get('/', [KilometrajeController::class, 'index'])
-        ->name('index');
-
-    Route::get('/create', [KilometrajeController::class, 'create'])
-        ->name('create');
-
-    Route::post('/', [KilometrajeController::class, 'store'])
-        ->name('store');
-
-    Route::get('/{kilometraje}', [KilometrajeController::class, 'show'])
-        ->name('show');
-
-    Route::get('/{kilometraje}/edit', [KilometrajeController::class, 'edit'])
-        ->name('edit');
-
-    Route::put('/{kilometraje}', [KilometrajeController::class, 'update'])
-        ->name('update');
-
-    Route::delete('/{kilometraje}', [KilometrajeController::class, 'destroy'])
-        ->name('destroy');
-
-    // Rutas adicionales específicas
-    Route::get('/vehiculo/{vehiculoId}/historial', [KilometrajeController::class, 'historialPorVehiculo'])
-        ->name('historial');
-
-    Route::get('/alertas/mantenimiento', [KilometrajeController::class, 'alertasMantenimiento'])
-        ->name('alertas');
-});
+// Rutas para Kilometrajes - DEPRECATED: Ahora integrado en módulo de vehículos
+// Las rutas de kilometraje ahora están en vehiculos/{vehiculo}/kilometrajes/*
+// Route::middleware('auth')->prefix('kilometrajes')->name('kilometrajes.')->group(function () {
+//     Route::get('/', [KilometrajeController::class, 'index'])
+//         ->name('index');
+//     Route::get('/create', [KilometrajeController::class, 'create'])
+//         ->name('create');
+//     Route::post('/', [KilometrajeController::class, 'store'])
+//         ->name('store');
+//     Route::get('/{kilometraje}', [KilometrajeController::class, 'show'])
+//         ->name('show');
+//     Route::get('/{kilometraje}/edit', [KilometrajeController::class, 'edit'])
+//         ->name('edit');
+//     Route::put('/{kilometraje}', [KilometrajeController::class, 'update'])
+//         ->name('update');
+//     Route::delete('/{kilometraje}', [KilometrajeController::class, 'destroy'])
+//         ->name('destroy');
+//     Route::get('/vehiculo/{vehiculoId}/historial', [KilometrajeController::class, 'historialPorVehiculo'])
+//         ->name('historial');
+//     Route::get('/alertas/mantenimiento', [KilometrajeController::class, 'alertasMantenimiento'])
+//         ->name('alertas');
+// });
 
 // Rutas para Mantenimientos (CRUD completo)
 Route::middleware('auth')->prefix('mantenimientos')->name('mantenimientos.')->group(function () {

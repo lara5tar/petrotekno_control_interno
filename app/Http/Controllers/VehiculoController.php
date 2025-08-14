@@ -406,4 +406,255 @@ class VehiculoController extends Controller
             })
         ]);
     }
+
+    // ================== MÉTODOS DE KILOMETRAJE ==================
+
+    /**
+     * Display a listing of kilometrajes for a specific vehicle.
+     */
+    public function kilometrajes(Request $request, Vehiculo $vehiculo)
+    {
+        $this->authorize('ver_vehiculos');
+
+        $query = $vehiculo->kilometrajes()->with(['usuarioCaptura']);
+
+        // Aplicar filtros
+        if ($request->filled('fecha_desde')) {
+            $query->where('fecha_captura', '>=', $request->get('fecha_desde'));
+        }
+
+        if ($request->filled('fecha_hasta')) {
+            $query->where('fecha_captura', '<=', $request->get('fecha_hasta'));
+        }
+
+        $kilometrajes = $query->orderBy('fecha_captura', 'desc')->paginate(15);
+
+        return view('vehiculos.kilometrajes.index', compact('vehiculo', 'kilometrajes'));
+    }
+
+    /**
+     * Show the form for creating a new kilometraje for a vehicle.
+     */
+    public function createKilometraje(Vehiculo $vehiculo)
+    {
+        $this->authorize('crear_kilometrajes');
+
+        return view('vehiculos.kilometrajes.create', compact('vehiculo'));
+    }
+
+    /**
+     * Store a newly created kilometraje for a vehicle.
+     */
+    public function storeKilometraje(Request $request, Vehiculo $vehiculo)
+    {
+        $this->authorize('crear_kilometrajes');
+
+        $validatedData = $request->validate([
+            'kilometraje' => [
+                'required',
+                'integer',
+                'min:0',
+                'gt:' . ($vehiculo->kilometraje_actual ?? 0)
+            ],
+            'fecha_captura' => 'required|date|before_or_equal:today',
+            'ubicacion' => 'required|string|max:255',
+            'observaciones' => 'nullable|string|max:1000',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:5120'
+        ], [
+            'kilometraje.required' => 'El kilometraje es obligatorio.',
+            'kilometraje.gt' => 'El kilometraje debe ser mayor al actual (' . number_format($vehiculo->kilometraje_actual ?? 0) . ').',
+            'fecha_captura.required' => 'La fecha de captura es obligatoria.',
+            'fecha_captura.before_or_equal' => 'La fecha no puede ser futura.',
+            'ubicacion.required' => 'La ubicación es obligatoria.',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            // Procesar imagen si existe
+            $rutaImagen = null;
+            if ($request->hasFile('imagen')) {
+                $imagen = $request->file('imagen');
+                $nombreImagen = time() . '_km_' . $vehiculo->id . '.' . $imagen->getClientOriginalExtension();
+                $rutaImagen = $imagen->storeAs('kilometrajes', $nombreImagen, 'public');
+            }
+
+            // Crear el registro de kilometraje
+            $kilometraje = $vehiculo->kilometrajes()->create([
+                'kilometraje' => $validatedData['kilometraje'],
+                'fecha_captura' => $validatedData['fecha_captura'],
+                'ubicacion' => $validatedData['ubicacion'],
+                'observaciones' => $validatedData['observaciones'],
+                'imagen' => $rutaImagen,
+                'usuario_captura_id' => Auth::id(),
+            ]);
+
+            // Actualizar el kilometraje actual del vehículo
+            $vehiculo->update(['kilometraje_actual' => $validatedData['kilometraje']]);
+
+            // Log de auditoría
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'crear_kilometraje',
+                'tabla' => 'kilometrajes',
+                'registro_id' => $kilometraje->id,
+                'datos_anteriores' => null,
+                'datos_nuevos' => $kilometraje->toArray(),
+                'fecha_hora' => now(),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('vehiculos.show', $vehiculo->id)
+                ->with('success', 'Kilometraje registrado exitosamente.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Error al registrar el kilometraje: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Display the specified kilometraje.
+     */
+    public function showKilometraje(Vehiculo $vehiculo, $kilometrajeId)
+    {
+        $this->authorize('ver_vehiculos');
+
+        $kilometraje = $vehiculo->kilometrajes()
+            ->with(['usuarioCaptura'])
+            ->findOrFail($kilometrajeId);
+
+        return view('vehiculos.kilometrajes.show', compact('vehiculo', 'kilometraje'));
+    }
+
+    /**
+     * Show the form for editing the specified kilometraje.
+     */
+    public function editKilometraje(Vehiculo $vehiculo, $kilometrajeId)
+    {
+        $this->authorize('editar_kilometrajes');
+
+        $kilometraje = $vehiculo->kilometrajes()->findOrFail($kilometrajeId);
+
+        return view('vehiculos.kilometrajes.edit', compact('vehiculo', 'kilometraje'));
+    }
+
+    /**
+     * Update the specified kilometraje.
+     */
+    public function updateKilometraje(Request $request, Vehiculo $vehiculo, $kilometrajeId)
+    {
+        $this->authorize('editar_kilometrajes');
+
+        $kilometraje = $vehiculo->kilometrajes()->findOrFail($kilometrajeId);
+
+        $validatedData = $request->validate([
+            'fecha_captura' => 'required|date|before_or_equal:today',
+            'ubicacion' => 'required|string|max:255',
+            'observaciones' => 'nullable|string|max:1000',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:5120'
+        ], [
+            'fecha_captura.required' => 'La fecha de captura es obligatoria.',
+            'fecha_captura.before_or_equal' => 'La fecha no puede ser futura.',
+            'ubicacion.required' => 'La ubicación es obligatoria.',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $datosAnteriores = $kilometraje->toArray();
+
+            // Procesar nueva imagen si existe
+            if ($request->hasFile('imagen')) {
+                // Eliminar imagen anterior si existe
+                if ($kilometraje->imagen && Storage::disk('public')->exists($kilometraje->imagen)) {
+                    Storage::disk('public')->delete($kilometraje->imagen);
+                }
+
+                $imagen = $request->file('imagen');
+                $nombreImagen = time() . '_km_' . $vehiculo->id . '.' . $imagen->getClientOriginalExtension();
+                $validatedData['imagen'] = $imagen->storeAs('kilometrajes', $nombreImagen, 'public');
+            }
+
+            $kilometraje->update($validatedData);
+
+            // Log de auditoría
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'actualizar_kilometraje',
+                'tabla' => 'kilometrajes',
+                'registro_id' => $kilometraje->id,
+                'datos_anteriores' => $datosAnteriores,
+                'datos_nuevos' => $kilometraje->fresh()->toArray(),
+                'fecha_hora' => now(),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('vehiculos.kilometrajes.show', [$vehiculo->id, $kilometraje->id])
+                ->with('success', 'Kilometraje actualizado exitosamente.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Error al actualizar el kilometraje: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove the specified kilometraje.
+     */
+    public function destroyKilometraje(Request $request, Vehiculo $vehiculo, $kilometrajeId)
+    {
+        $this->authorize('eliminar_kilometrajes');
+
+        $kilometraje = $vehiculo->kilometrajes()->findOrFail($kilometrajeId);
+
+        DB::beginTransaction();
+
+        try {
+            $datosAnteriores = $kilometraje->toArray();
+
+            // Eliminar imagen si existe
+            if ($kilometraje->imagen && Storage::disk('public')->exists($kilometraje->imagen)) {
+                Storage::disk('public')->delete($kilometraje->imagen);
+            }
+
+            $kilometraje->delete();
+
+            // Log de auditoría
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'eliminar_kilometraje',
+                'tabla' => 'kilometrajes',
+                'registro_id' => $kilometrajeId,
+                'datos_anteriores' => $datosAnteriores,
+                'datos_nuevos' => null,
+                'fecha_hora' => now(),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('vehiculos.show', $vehiculo->id)
+                ->with('success', 'Kilometraje eliminado exitosamente.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return redirect()->back()
+                ->with('error', 'Error al eliminar el kilometraje: ' . $e->getMessage());
+        }
+    }
 }

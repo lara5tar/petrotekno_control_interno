@@ -60,6 +60,8 @@ class CatalogoEstatus extends Model
      */
     public function vehiculos(): HasMany
     {
+        // Nota: Ahora los vehículos usan el campo 'estatus' en lugar de 'estatus_id'
+        // Esta relación se mantiene por compatibilidad pero ya no es funcional
         return $this->hasMany(Vehiculo::class, 'estatus_id');
     }
 

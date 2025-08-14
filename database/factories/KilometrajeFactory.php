@@ -27,9 +27,8 @@ class KilometrajeFactory extends Factory
     {
         return [
             'vehiculo_id' => function () {
-                $estatus = CatalogoEstatus::first() ?? CatalogoEstatus::factory()->create();
-
-                return Vehiculo::factory()->create(['estatus_id' => $estatus->id])->id;
+                // Usar el enum estatus directamente en lugar de estatus_id
+                return Vehiculo::factory()->create(['estatus' => 'disponible'])->id;
             },
             'kilometraje' => $this->faker->numberBetween(1000, 100000),
             'fecha_captura' => $this->faker->date(),
@@ -39,21 +38,8 @@ class KilometrajeFactory extends Factory
 
                 return User::factory()->create(['personal_id' => $personal->id])->id;
             },
-            'obra_id' => function () {
-                return Obra::factory()->create()->id;
-            },
             'observaciones' => $this->faker->optional()->sentence(),
         ];
-    }
-
-    /**
-     * Kilometraje sin obra asignada
-     */
-    public function sinObra(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'obra_id' => null,
-        ]);
     }
 
     /**

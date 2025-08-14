@@ -82,19 +82,6 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="flex-1 md:flex-none md:w-48">
-                    <label for="obra_id" class="block text-sm font-medium text-gray-700 mb-1">Obra</label>
-                    <select id="obra_id" 
-                            name="obra_id"
-                            class="p-2 border border-gray-300 rounded-md w-full">
-                        <option value="">Todas las obras</option>
-                        @foreach($obras as $obra)
-                            <option value="{{ $obra->id }}" {{ request('obra_id') == $obra->id ? 'selected' : '' }}>
-                                {{ $obra->nombre_obra }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
             </div>
             <div class="flex flex-col md:flex-row gap-4 mt-4">
                 <div class="flex-1 md:flex-none md:w-48">
@@ -117,7 +104,7 @@
                     <button type="submit" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded transition duration-200">
                         Filtrar
                     </button>
-                    @if(request()->hasAny(['buscar', 'vehiculo_id', 'obra_id', 'fecha_inicio', 'fecha_fin']))
+                    @if(request()->hasAny(['buscar', 'vehiculo_id', 'fecha_inicio', 'fecha_fin']))
                         <a href="{{ route('kilometrajes.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition duration-200">
                             Limpiar
                         </a>
@@ -137,7 +124,6 @@
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Obra</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Observaciones</th>
                         <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                     </tr>
@@ -164,15 +150,6 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $kilometraje->usuarioCaptura->name }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($kilometraje->obra)
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            {{ Str::limit($kilometraje->obra->nombre_obra, 20) }}
-                                        </span>
-                                    @else
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Sin obra</span>
-                                    @endif
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-500">
                                     @if($kilometraje->observaciones)
@@ -216,20 +193,20 @@
                     @else
                         <!-- Estado vacío dentro de la tabla -->
                         <tr>
-                            <td colspan="7" class="px-6 py-8 text-center">
+                            <td colspan="6" class="px-6 py-8 text-center">
                                 <div class="flex flex-col items-center">
                                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                     </svg>
                                     <h3 class="mt-2 text-sm font-medium text-gray-900">No hay registros de kilometraje</h3>
                                     <p class="mt-1 text-sm text-gray-500">
-                                        @if(request()->hasAny(['buscar', 'vehiculo_id', 'obra_id', 'fecha_inicio', 'fecha_fin']))
+                                        @if(request()->hasAny(['buscar', 'vehiculo_id', 'fecha_inicio', 'fecha_fin']))
                                             No se encontraron registros con los criterios especificados.
                                         @else
                                             Aún no hay registros de kilometraje en el sistema.
                                         @endif
                                     </p>
-                                    @if(request()->hasAny(['buscar', 'vehiculo_id', 'obra_id', 'fecha_inicio', 'fecha_fin']))
+                                    @if(request()->hasAny(['buscar', 'vehiculo_id', 'fecha_inicio', 'fecha_fin']))
                                         <div class="mt-4">
                                             <a href="{{ route('kilometrajes.index') }}" 
                                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded text-gray-700 bg-gray-100 hover:bg-gray-200">
@@ -281,7 +258,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Elementos del formulario
     const buscarInput = document.getElementById('buscar');
     const vehiculoSelect = document.getElementById('vehiculo_id');
-    const obraSelect = document.getElementById('obra_id');
     const fechaInicioInput = document.getElementById('fecha_inicio');
     const fechaFinInput = document.getElementById('fecha_fin');
     const form = document.getElementById('filtrosForm');
@@ -293,7 +269,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Event listeners para filtros automáticos
     vehiculoSelect.addEventListener('change', autoSubmit);
-    obraSelect.addEventListener('change', autoSubmit);
     fechaInicioInput.addEventListener('change', autoSubmit);
     fechaFinInput.addEventListener('change', autoSubmit);
     

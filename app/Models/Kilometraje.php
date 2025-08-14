@@ -19,7 +19,6 @@ class Kilometraje extends Model
         'kilometraje',
         'fecha_captura',
         'usuario_captura_id',
-        'obra_id',
         'observaciones',
     ];
 
@@ -28,7 +27,7 @@ class Kilometraje extends Model
         'kilometraje' => 'integer',
     ];
 
-    protected $with = ['vehiculo', 'usuarioCaptura', 'obra'];
+    protected $with = ['vehiculo', 'usuarioCaptura'];
 
     // Relaciones
     public function vehiculo(): BelongsTo
@@ -41,20 +40,10 @@ class Kilometraje extends Model
         return $this->belongsTo(User::class, 'usuario_captura_id');
     }
 
-    public function obra(): BelongsTo
-    {
-        return $this->belongsTo(Obra::class);
-    }
-
     // Scopes para filtros comunes
     public function scopeByVehiculo(Builder $query, int $vehiculoId): Builder
     {
         return $query->where('vehiculo_id', $vehiculoId);
-    }
-
-    public function scopeByObra(Builder $query, int $obraId): Builder
-    {
-        return $query->where('obra_id', $obraId);
     }
 
     public function scopeByFechas(Builder $query, string $fechaInicio, ?string $fechaFin = null): Builder

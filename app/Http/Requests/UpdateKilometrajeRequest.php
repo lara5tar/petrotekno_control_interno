@@ -66,12 +66,6 @@ class UpdateKilometrajeRequest extends FormRequest
                 'before_or_equal:today',
                 'after:2020-01-01',
             ],
-            'obra_id' => [
-                'sometimes',
-                'nullable',
-                'integer',
-                'exists:obras,id',
-            ],
             'observaciones' => [
                 'sometimes',
                 'nullable',
@@ -96,7 +90,6 @@ class UpdateKilometrajeRequest extends FormRequest
             'fecha_captura.date' => 'La fecha de captura debe tener un formato válido.',
             'fecha_captura.before_or_equal' => 'La fecha de captura no puede ser futura.',
             'fecha_captura.after' => 'La fecha de captura debe ser posterior a enero 2020.',
-            'obra_id.exists' => 'La obra seleccionada no existe.',
             'observaciones.max' => 'Las observaciones no pueden exceder 1000 caracteres.',
         ];
     }
@@ -111,7 +104,6 @@ class UpdateKilometrajeRequest extends FormRequest
         return [
             'kilometraje' => 'kilometraje',
             'fecha_captura' => 'fecha de captura',
-            'obra_id' => 'obra',
             'observaciones' => 'observaciones',
         ];
     }

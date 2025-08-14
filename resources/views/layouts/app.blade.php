@@ -112,17 +112,18 @@
             </div>
             <div class="flex items-center space-x-4">
                 <!-- Botón de Alertas -->
-                <a href="{{ route('kilometrajes.alertas') }}" 
+                <a href="#" 
                    class="relative p-2 rounded-full hover:bg-gray-700 transition-colors duration-200 group"
-                   title="Ver alertas de mantenimiento">
+                   title="Ver alertas de mantenimiento"
+                   onclick="alert('Las alertas de mantenimiento ahora se gestionan desde cada vehículo individual')">
                     <!-- Icono de campana -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white group-hover:text-petroyellow transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M10 20h4c0 1.1-.9 2-2 2s-2-.9-2-2zm10-2.65V19H4v-1.65l2-1.88v-5.15C6 7.4 7.56 5.1 10 4.34v-.38c0-1.42 1.49-2.5 2.99-1.76.65.32 1.01 1.03 1.01 1.76v.39c2.44.75 4 3.06 4 5.98v5.15l2 1.88z"/>
                     </svg>
                     
                     <!-- Badge con número de alertas -->
-                    @if($alertasCount > 0)
-                        <span class="absolute -top-1 -right-1 h-5 w-5 {{ $tieneAlertasUrgentes ? 'bg-red-500' : 'bg-yellow-500' }} text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                    @if(isset($alertasCount) && $alertasCount > 0)
+                        <span class="absolute -top-1 -right-1 h-5 w-5 {{ isset($tieneAlertasUrgentes) && $tieneAlertasUrgentes ? 'bg-red-500' : 'bg-yellow-500' }} text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
                             {{ $alertasCount > 99 ? '99+' : $alertasCount }}
                         </span>
                     @endif

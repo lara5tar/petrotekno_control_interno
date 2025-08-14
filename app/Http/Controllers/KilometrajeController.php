@@ -31,16 +31,12 @@ class KilometrajeController extends Controller
      */
     public function index(Request $request): View|JsonResponse
     {
-        $query = Kilometraje::with(['vehiculo.estatus', 'usuarioCaptura', 'obra'])
+        $query = Kilometraje::with(['vehiculo', 'usuarioCaptura'])
             ->orderedByFecha();
 
         // Filtros
         if ($request->filled('vehiculo_id')) {
             $query->byVehiculo($request->vehiculo_id);
-        }
-
-        if ($request->filled('obra_id')) {
-            $query->byObra($request->obra_id);
         }
 
         if ($request->filled('fecha_inicio')) {
@@ -87,13 +83,8 @@ class KilometrajeController extends Controller
             ->orderBy('modelo')
             ->get();
 
-        $obras = Obra::select('id', 'nombre_obra')
-            ->where('estatus', '!=', 'completada')
-            ->orderBy('nombre_obra')
-            ->get();
-
         /** @phpstan-ignore-next-line */
-        return view('kilometrajes.index', compact('kilometrajes', 'vehiculos', 'obras'));
+        return view('kilometrajes.index', compact('kilometrajes', 'vehiculos'));
     }
 
     /**
@@ -101,15 +92,10 @@ class KilometrajeController extends Controller
      */
     public function create(): View|JsonResponse
     {
-        $vehiculos = Vehiculo::with('estatus')
-            ->where('estatus_id', '!=', 4) // No mostrar vehículos fuera de servicio
+        $vehiculos = Vehiculo::select('id', 'marca', 'modelo', 'placas', 'kilometraje_actual', 'estatus')
+            ->where('estatus', '!=', 'fuera_servicio') // No mostrar vehículos fuera de servicio
             ->orderBy('marca')
             ->orderBy('modelo')
-            ->get();
-
-        $obras = Obra::select('id', 'nombre_obra')
-            ->where('estatus', '!=', 'completada')
-            ->orderBy('nombre_obra')
             ->get();
 
         // Para API - devolver datos del formulario
@@ -118,14 +104,13 @@ class KilometrajeController extends Controller
                 'success' => true,
                 'data' => [
                     'vehiculos' => $vehiculos,
-                    'obras' => $obras,
                 ],
             ]);
         }
 
         // Para Blade
         /** @phpstan-ignore-next-line */
-        return view('kilometrajes.create', compact('vehiculos', 'obras'));
+        return view('kilometrajes.create', compact('vehiculos'));
     }
 
     /**
@@ -159,7 +144,7 @@ class KilometrajeController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Kilometraje registrado exitosamente',
-                    'data' => $kilometraje->load(['vehiculo.estatus', 'usuarioCaptura', 'obra']),
+                    'data' => $kilometraje->load(['vehiculo', 'usuarioCaptura']),
                 ], 201);
             }
 
@@ -195,7 +180,7 @@ class KilometrajeController extends Controller
      */
     public function show(Kilometraje $kilometraje): View|JsonResponse
     {
-        $kilometraje->load(['vehiculo.estatus', 'usuarioCaptura', 'obra']);
+        $kilometraje->load(['vehiculo', 'usuarioCaptura']);
 
         // Calcular próximos mantenimientos
         $alertasMantenimiento = $kilometraje->calcularProximosMantenimientos();
@@ -221,12 +206,7 @@ class KilometrajeController extends Controller
      */
     public function edit(Kilometraje $kilometraje): View|JsonResponse
     {
-        $kilometraje->load(['vehiculo.estatus', 'obra']);
-
-        $obras = Obra::select('id', 'nombre_obra')
-            ->where('estatus', '!=', 'completada')
-            ->orderBy('nombre_obra')
-            ->get();
+        $kilometraje->load(['vehiculo']);
 
         // Para API
         if (request()->expectsJson()) {
@@ -234,14 +214,13 @@ class KilometrajeController extends Controller
                 'success' => true,
                 'data' => [
                     'kilometraje' => $kilometraje,
-                    'obras' => $obras,
                 ],
             ]);
         }
 
         // Para Blade
         /** @phpstan-ignore-next-line */
-        return view('kilometrajes.edit', compact('kilometraje', 'obras'));
+        return view('kilometrajes.edit', compact('kilometraje'));
     }
 
     /**
@@ -277,7 +256,7 @@ class KilometrajeController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Kilometraje actualizado exitosamente',
-                    'data' => $kilometraje->fresh()->load(['vehiculo.estatus', 'usuarioCaptura', 'obra']),
+                    'data' => $kilometraje->fresh()->load(['vehiculo', 'usuarioCaptura']),
                 ]);
             }
 
@@ -379,9 +358,9 @@ class KilometrajeController extends Controller
      */
     public function historialPorVehiculo(Request $request, int $vehiculoId): JsonResponse|View
     {
-        $vehiculo = Vehiculo::with('estatus')->findOrFail($vehiculoId);
+        $vehiculo = Vehiculo::findOrFail($vehiculoId);
 
-        $kilometrajes = Kilometraje::with(['usuarioCaptura', 'obra'])
+        $kilometrajes = Kilometraje::with(['usuarioCaptura'])
             ->byVehiculo($vehiculoId)
             ->orderedByFecha()
             ->paginate(20);
@@ -416,9 +395,9 @@ class KilometrajeController extends Controller
         $alertas = collect();
 
         // Obtener últimos kilometrajes de todos los vehículos activos
-        $vehiculos = Vehiculo::with(['estatus', 'kilometrajes' => function ($query) {
+        $vehiculos = Vehiculo::with(['kilometrajes' => function ($query) {
             $query->orderBy('kilometraje', 'desc')->limit(1);
-        }])->where('estatus_id', '!=', 4)->get(); // No incluir fuera de servicio
+        }])->where('estatus', '!=', 'fuera_servicio')->get(); // No incluir fuera de servicio
 
         foreach ($vehiculos as $vehiculo) {
             $ultimoKilometraje = $vehiculo->kilometrajes->first();

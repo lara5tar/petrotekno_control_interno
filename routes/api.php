@@ -9,7 +9,7 @@ use App\Http\Controllers\ObraController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\UserController;
+// use App\Http\Controllers\UserController; // Comentado - UserController no existe
 use App\Http\Controllers\VehiculoController;
 use App\Models\CatalogoEstatus;
 use App\Models\LogAccion;
@@ -45,7 +45,8 @@ Route::middleware('auth:sanctum')->group(function () {
     //     Route::put('/change-password', [AuthController::class, 'changePassword']);
     // });
 
-    // Rutas de usuarios - requieren permisos específicos
+    // Rutas de usuarios - requieren permisos específicos - COMENTADAS (UserController no existe)
+    /*
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index'])
             ->middleware('permission:ver_usuarios');
@@ -65,6 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{id}/restore', [UserController::class, 'restore'])
             ->middleware('permission:editar_usuarios');
     });
+    */
 
     // Rutas de roles - solo administradores
     Route::prefix('roles')->middleware('role:Admin')->group(function () {

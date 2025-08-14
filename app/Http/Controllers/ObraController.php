@@ -603,8 +603,8 @@ class ObraController extends Controller
             $obra = Obra::with([
                 'vehiculo:id,marca,modelo,placas,anio',
                 'operador:id,nombre_completo',
-                'encargado:id,email',
-                'encargado.personal:id,nombre_completo',
+                'encargado:id,nombre_completo', // CORREGIDO: Removido 'email' ya que no existe en la tabla personal
+                'encargado.categoria:id,nombre_categoria', // CORREGIDO: Cambiar de 'encargado.personal' a 'encargado.categoria'
                 'asignacionesActivas'
             ])->find($id);
 
@@ -634,7 +634,7 @@ class ObraController extends Controller
                         ->with('estatus:id,nombre_estatus')
                         ->orderBy('marca')
                         ->orderBy('modelo')
-                        ->get(['id', 'marca', 'modelo', 'anio', 'placas', 'kilometraje_actual', 'estatus_id']);
+                        ->get(['id', 'marca', 'modelo', 'anio', 'placas', 'kilometraje_actual', 'estatus']);
                     
                     Log::info('Vehículos cargados exitosamente para edición', [
                         'count' => $vehiculos->count()

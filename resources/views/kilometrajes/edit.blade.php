@@ -152,75 +152,6 @@
             <!-- Alertas de Validación -->
             <div id="validacion-alerts" class="mb-6"></div>
 
-            <!-- Obra -->
-            <div class="mb-6">
-                <label for="obra_search" class="block text-sm font-medium text-gray-700 mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-6a1 1 0 00-1-1H9a1 1 0 00-1 1v6a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd" />
-                    </svg>
-                    Obra Asociada
-                </label>
-                <div class="relative">
-                    <input type="text" 
-                           class="w-full p-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('obra_id') border-red-500 @enderror" 
-                           id="obra_search" 
-                           placeholder="Busca por nombre de obra..."
-                           autocomplete="off">
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer" id="obra_arrow">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
-                    <input type="hidden" id="obra_id" name="obra_id" value="{{ old('obra_id', $kilometraje->obra_id) }}">
-                    
-                    <!-- Dropdown de obras -->
-                    <div id="obra-dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto hidden">
-                        <div class="obra-option cursor-pointer px-3 py-2 hover:bg-blue-50 border-b border-gray-100" 
-                             data-id=""
-                             data-text="Sin obra específica"
-                             onclick="selectObra(this)">
-                            <div class="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
-                                </svg>
-                                <div>
-                                    <div class="font-medium text-gray-500">Sin obra específica</div>
-                                </div>
-                            </div>
-                        </div>
-                        @foreach($obras as $obra)
-                        <div class="obra-option cursor-pointer px-3 py-2 hover:bg-blue-50 border-b border-gray-100 last:border-b-0" 
-                             data-id="{{ $obra->id }}"
-                             data-text="{{ $obra->nombre_obra }}"
-                             onclick="selectObra(this)">
-                            <div class="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <div>
-                                    <div class="font-medium text-gray-900">{{ $obra->nombre_obra }}</div>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @error('obra_id')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-                <p class="text-gray-600 text-sm mt-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                    </svg>
-                    Obra actual: 
-                    @if($kilometraje->obra)
-                        {{ $kilometraje->obra->nombre_obra }}
-                    @else
-                        <span class="text-gray-500">Sin obra específica</span>
-                    @endif
-                </p>
-            </div>
-
             <!-- Observaciones -->
             <div class="mb-6">
                 <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-2">
@@ -234,7 +165,7 @@
                           name="observaciones" 
                           rows="4"
                           maxlength="500"
-                          placeholder="Ej: Recorrido a obra zona norte, abastecimiento de combustible, mantenimiento preventivo...">{{ old('observaciones', $kilometraje->observaciones) }}</textarea>
+                          placeholder="Ej: Recorrido a sitio de trabajo, abastecimiento de combustible, mantenimiento preventivo...">{{ old('observaciones', $kilometraje->observaciones) }}</textarea>
                 @error('observaciones')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -290,8 +221,6 @@
     </div>
 @endsection
 
-@endsection
-
 @push('scripts')
 <script>
 // Variables globales
@@ -305,99 +234,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Validar kilometraje inicial
     validarKilometraje();
-    
-    // Configurar buscador de obras si hay valor pre-seleccionado
-    const obraIdActual = document.getElementById('obra_id').value;
-    if (obraIdActual) {
-        const obraOption = document.querySelector(`[data-id="${obraIdActual}"]`);
-        if (obraOption) {
-            document.getElementById('obra_search').value = obraOption.dataset.text;
-        }
-    }
-    
-    // Configurar event listeners para el dropdown de obra
-    const obraSearch = document.getElementById('obra_search');
-    const obraArrow = document.getElementById('obra_arrow');
-    
-    // Event listeners para obra
-    obraSearch.addEventListener('focus', function(e) {
-        e.stopPropagation();
-        showObraDropdown();
-    });
-    
-    obraSearch.addEventListener('click', function(e) {
-        e.stopPropagation();
-        showObraDropdown();
-    });
-    
-    obraSearch.addEventListener('input', function() {
-        filterObras();
-    });
-    
-    obraArrow.addEventListener('click', function(e) {
-        e.stopPropagation();
-        toggleObraDropdown();
-        obraSearch.focus();
-    });
-});
-
-// Funciones para el dropdown de obras
-function toggleObraDropdown() {
-    const dropdown = document.getElementById('obra-dropdown');
-    dropdown.classList.toggle('hidden');
-}
-
-function showObraDropdown() {
-    const dropdown = document.getElementById('obra-dropdown');
-    dropdown.classList.remove('hidden');
-}
-
-function hideObraDropdown() {
-    const dropdown = document.getElementById('obra-dropdown');
-    dropdown.classList.add('hidden');
-}
-
-function filterObras() {
-    const searchValue = document.getElementById('obra_search').value.toLowerCase();
-    const options = document.querySelectorAll('.obra-option');
-    
-    options.forEach(option => {
-        const text = option.dataset.text.toLowerCase();
-        
-        if (text.includes(searchValue)) {
-            option.style.display = 'block';
-        } else {
-            option.style.display = 'none';
-        }
-    });
-    
-    showObraDropdown();
-}
-
-function selectObra(element) {
-    const searchInput = document.getElementById('obra_search');
-    const hiddenInput = document.getElementById('obra_id');
-    
-    searchInput.value = element.dataset.text;
-    hiddenInput.value = element.dataset.id;
-    
-    hideObraDropdown();
-}
-
-// Cerrar dropdown al hacer clic fuera
-document.addEventListener('click', function(event) {
-    const obraSearch = document.getElementById('obra_search');
-    const obraDropdown = document.getElementById('obra-dropdown');
-    const obraArrow = document.getElementById('obra_arrow');
-    
-    // Cerrar dropdown de obras si se hace clic fuera de todo el componente
-    const isObraClick = obraSearch.contains(event.target) || 
-                       obraDropdown.contains(event.target) || 
-                       obraArrow.contains(event.target);
-                       
-    if (!isObraClick) {
-        hideObraDropdown();
-    }
 });
 
 function validarKilometraje() {

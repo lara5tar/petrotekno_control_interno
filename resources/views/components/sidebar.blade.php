@@ -19,11 +19,7 @@
                 icon='<path fill="currentColor" d="M19 7h-3V6a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v8a1 1 0 0 0 1 1h1.5a2.5 2.5 0 0 1 5 0h3a2.5 2.5 0 0 1 5 0H19a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zM7 16.5A1.5 1.5 0 1 1 7 14a1.5 1.5 0 0 1 0 2.5zm10 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>'
                 label="Vehículos" />
 
-            <x-sidebar-item 
-                route="{{ route('kilometrajes.index') }}" 
-                :active="request()->routeIs('kilometrajes.index') || request()->routeIs('kilometrajes.create') || request()->routeIs('kilometrajes.edit') || request()->routeIs('kilometrajes.show') || request()->routeIs('kilometrajes.historial')" 
-                icon='<path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/>'
-                label="Kilometrajes" />
+            <!-- Kilometrajes ahora están integrados en el módulo de vehículos -->
 
             <x-sidebar-item 
                 route="{{ route('mantenimientos.index') }}" 

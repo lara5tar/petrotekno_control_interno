@@ -54,19 +54,6 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Obra Asociada</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                @if($kilometraje->obra)
-                                    {{ $kilometraje->obra->nombre_obra }}
-                                @else
-                                    Sin obra específica
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-
                     @if($kilometraje->observaciones)
                     <div class="grid grid-cols-1 gap-4">
                         <div>
@@ -96,26 +83,31 @@
                             <label class="block text-sm font-medium text-gray-600">Estado Actual</label>
                             @php
                                 $statusColors = [
-                                    'Disponible' => 'bg-green-600',
-                                    'Asignado' => 'bg-blue-600', 
-                                    'En Mantenimiento' => 'bg-yellow-600',
-                                    'Fuera de Servicio' => 'bg-red-600'
+                                    'disponible' => 'bg-green-600',
+                                    'asignado' => 'bg-blue-600', 
+                                    'en_mantenimiento' => 'bg-yellow-600',
+                                    'fuera_de_servicio' => 'bg-red-600',
+                                    'baja' => 'bg-gray-600'
                                 ];
-                                $statusColor = $statusColors[$kilometraje->vehiculo->estatus->nombre_estatus] ?? 'bg-gray-600';
+                                // Asegurar que obtenemos el valor string del estatus
+                                $estatusValue = is_object($kilometraje->vehiculo->estatus) 
+                                    ? $kilometraje->vehiculo->estatus->value 
+                                    : $kilometraje->vehiculo->estatus;
+                                $statusColor = $statusColors[$estatusValue] ?? 'bg-gray-600';
                             @endphp
                             <div class="{{ $statusColor }} text-white px-3 py-2 rounded text-sm font-medium flex items-center">
                                 <span class="w-2 h-2 bg-white rounded-full mr-2 opacity-75"></span>
-                                {{ $kilometraje->vehiculo->estatus->nombre_estatus }}
+                                {{ $kilometraje->vehiculo->estado_enum->nombre() }}
                             </div>
                         </div>
                     </div>
 
-                    @if($kilometraje->vehiculo->estatus->descripcion)
+                    @if($kilometraje->vehiculo->estado_enum->descripcion())
                     <div class="grid grid-cols-1 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Descripción del Estado</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $kilometraje->vehiculo->estatus->descripcion }}
+                                {{ $kilometraje->vehiculo->estado_enum->descripcion() }}
                             </div>
                         </div>
                     </div>

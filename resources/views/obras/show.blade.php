@@ -186,80 +186,62 @@
                                 </div>
                                 
                                 @if($obra->encargado)
-                                <div class="grid md:grid-cols-2 gap-6">
-                                    <!-- Información personal -->
-                                    <div class="space-y-4">
-                                        <div class="flex items-center">
-                                            <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-4">
-                                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                </svg>
-                                            </div>
-                                            <div>
-                                                <h6 class="text-lg font-semibold text-gray-800">{{ $obra->encargado->nombre_completo }}</h6>
-                                                <p class="text-sm text-gray-600">
-                                                    @if($obra->encargado->categoria)
-                                                    <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs font-medium">
-                                                        {{ $obra->encargado->categoria->nombre_categoria }}
-                                                    </span>
-                                                    @endif
-                                                </p>
+                                <div class="space-y-4">
+                                    <!-- Nombre completo en componente gris -->
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Nombre Completo</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                            {{ $obra->encargado->nombre_completo }}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Información básica -->
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">ID Personal</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $obra->encargado->id }}
                                             </div>
                                         </div>
-                                        
-                                        <div class="grid grid-cols-2 gap-3 mt-4">
-                                            <div>
-                                                <label class="block text-sm text-gray-600">ID Personal</label>
-                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                    {{ $obra->encargado->id }}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-600">Categoría</label>
-                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                                    {{ $obra->encargado->categoria ? $obra->encargado->categoria->nombre_categoria : 'Sin categoría' }}
-                                                </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Categoría</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                {{ $obra->encargado->categoria ? $obra->encargado->categoria->nombre_categoria : 'Sin categoría' }}
                                             </div>
                                         </div>
                                     </div>
                                     
                                     <!-- Información de contacto -->
-                                    <div class="space-y-3">
-                                        <h6 class="font-medium text-gray-700">Información de Contacto</h6>
-                                        
+                                    <div class="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label class="block text-sm text-gray-600">Email</label>
+                                            <label class="block text-sm text-gray-600">Categoría</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                {{ $obra->encargado->email ?? 'No registrado' }}
+                                                {{ $obra->encargado->categoria ? $obra->encargado->categoria->nombre_categoria : 'Sin categoría' }}
                                             </div>
                                         </div>
-                                        
                                         <div>
                                             <label class="block text-sm text-gray-600">Teléfono</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
                                                 {{ $obra->encargado->telefono ?? 'No registrado' }}
                                             </div>
                                         </div>
-                                        
-                                        @if($obra->encargado->usuario)
-                                        <div class="mt-4">
-                                            <label class="block text-sm text-gray-600">Cuenta de Usuario</label>
-                                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm flex justify-between items-center">
-                                                <span>{{ $obra->encargado->usuario->email }}</span>
-                                                <span class="bg-blue-800 px-2 py-0.5 rounded-full text-xs">
-                                                    {{ $obra->encargado->usuario->rol ? $obra->encargado->usuario->rol->nombre_rol : 'Sin rol' }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        @endif
                                     </div>
-                                </div>
-                                
-                                <!-- Detalles adicionales -->
-                                <div class="mt-6 border-t border-gray-200 pt-4">
-                                    <h6 class="font-medium text-gray-700 mb-3">Detalles Adicionales</h6>
                                     
-                                    <div class="grid md:grid-cols-3 gap-4">
+                                    <!-- Cuenta de usuario si existe -->
+                                    @if($obra->encargado->usuario)
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Cuenta de Usuario</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm flex justify-between items-center">
+                                            <span>{{ $obra->encargado->usuario->email }}</span>
+                                            <span class="bg-gray-800 px-2 py-0.5 rounded-full text-xs">
+                                                {{ $obra->encargado->usuario->rol ? $obra->encargado->usuario->rol->nombre_rol : 'Sin rol' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    @endif
+                                    
+                                    <!-- Detalles adicionales -->
+                                    <div class="grid grid-cols-3 gap-3">
                                         <div>
                                             <label class="block text-sm text-gray-600">Fecha de Alta</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
@@ -279,16 +261,17 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                
-                                @if($obra->encargado->observaciones)
-                                <div class="mt-6 border-t border-gray-200 pt-4">
-                                    <h6 class="font-medium text-gray-700 mb-2">Observaciones</h6>
-                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-gray-700">
-                                        {{ $obra->encargado->observaciones }}
+                                    
+                                    <!-- Observaciones si existen -->
+                                    @if($obra->encargado->observaciones)
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Observaciones</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                            {{ $obra->encargado->observaciones }}
+                                        </div>
                                     </div>
+                                    @endif
                                 </div>
-                                @endif
                                 
                                 @else
                                 <div class="bg-red-50 border border-red-200 rounded-lg p-5 text-center">
@@ -330,106 +313,140 @@
                                 @if($obra->vehiculos && $obra->vehiculos->count() > 0)
                                     <div class="space-y-4">
                                         @foreach($obra->vehiculos as $vehiculo)
-                                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                                            <div class="flex items-center justify-between mb-2">
-                                                <div class="flex items-center">
-                                                    <div class="bg-blue-100 text-blue-600 p-2 rounded-lg mr-3">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                                        </svg>
-                                                    </div>
-                                                    <div>
-                                                        <div class="font-medium text-gray-800">
-                                                            {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
-                                                        </div>
-                                                        <div class="text-sm text-gray-600">{{ $vehiculo->placas }}</div>
+                                        <div class="space-y-3">
+                                            <!-- Información del vehículo en componentes grises -->
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Vehículo</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                    {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-sm text-gray-600">Placas</label>
+                                                    <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                        {{ $vehiculo->placas }}
                                                     </div>
                                                 </div>
-                                                <a href="{{ route('vehiculos.show', $vehiculo->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                                <div>
+                                                    <label class="block text-sm text-gray-600">Año</label>
+                                                    <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                        {{ $vehiculo->anio ?? 'N/A' }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-sm text-gray-600">Serie</label>
+                                                    <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                        {{ $vehiculo->n_serie ?? 'N/A' }}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm text-gray-600">Kilometraje</label>
+                                                    <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                        {{ $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) : 'N/A' }} km
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            @if(isset($vehiculo->pivot) && $vehiculo->pivot->fecha_asignacion)
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-sm text-gray-600">Fecha de Asignación</label>
+                                                    <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                        {{ \Carbon\Carbon::parse($vehiculo->pivot->fecha_asignacion)->format('d/m/Y') }}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm text-gray-600">Operador</label>
+                                                    <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                        {{ $vehiculo->operadorActual ? $vehiculo->operadorActual->nombre_completo : 'Sin operador asignado' }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @endif
+                                            
+                                            <!-- Botones de acción -->
+                                            <div class="flex justify-between items-center pt-3 border-t border-gray-200">
+                                                <a href="{{ route('vehiculos.show', $vehiculo->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-md transition-colors duration-200 flex items-center text-xs">
                                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                     </svg>
                                                     Ver Detalles
                                                 </a>
-                                            </div>
-                                            
-                                            <div class="grid grid-cols-3 gap-2 text-xs">
-                                                <div>
-                                                    <span class="text-gray-500">Año:</span>
-                                                    <div class="font-medium">{{ $vehiculo->anio ?? 'N/A' }}</div>
-                                                </div>
-                                                <div>
-                                                    <span class="text-gray-500">Serie:</span>
-                                                    <div class="font-medium">{{ Str::limit($vehiculo->n_serie ?? 'N/A', 8) }}</div>
-                                                </div>
-                                                <div>
-                                                    <span class="text-gray-500">Kilometraje:</span>
-                                                    <div class="font-medium">{{ $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) : 'N/A' }} km</div>
-                                                </div>
-                                            </div>
-                                            
-                                            @if(isset($vehiculo->pivot) && $vehiculo->pivot->fecha_asignacion)
-                                            <div class="mt-2 pt-2 border-t border-gray-200 grid grid-cols-2 gap-2 text-xs">
-                                                <div>
-                                                    <span class="text-gray-500">Fecha de asignación:</span>
-                                                    <div class="font-medium">{{ \Carbon\Carbon::parse($vehiculo->pivot->fecha_asignacion)->format('d/m/Y') }}</div>
-                                                </div>
-                                                <div>
-                                                    <span class="text-gray-500">Operador:</span>
-                                                    <div class="font-medium">{{ $vehiculo->operadorActual ? $vehiculo->operadorActual->nombre_completo : 'Sin operador asignado' }}</div>
-                                                </div>
-                                            </div>
-                                            @endif
-                                            
-                                            @if(isset($permisos) && $permisos->contains('eliminar_asignacion_vehiculo'))
-                                            <div class="mt-2 flex justify-end">
-                                                <form action="{{ route('obras.desasignar_vehiculo', ['obra' => $obra->id, 'vehiculo' => $vehiculo->id]) }}" method="POST" onsubmit="return confirm('¿Estás seguro de desasignar este vehículo de la obra?')">
+                                                
+                                                @if(isset($permisos) && $permisos->contains('eliminar_asignacion_vehiculo'))
+                                                <form action="{{ route('obras.desasignar_vehiculo', ['obra' => $obra->id, 'vehiculo' => $vehiculo->id]) }}" method="POST" onsubmit="return confirm('¿Estás seguro de desasignar este vehículo de la obra?')" class="inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="bg-red-100 text-red-600 hover:bg-red-200 py-1 px-2 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <button type="submit" class="bg-red-100 text-red-600 hover:bg-red-200 py-1 px-3 rounded text-xs flex items-center transition-colors duration-200">
                                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                         </svg>
                                                         Desasignar
                                                     </button>
                                                 </form>
+                                                @endif
                                             </div>
-                                            @endif
                                         </div>
+                                        
+                                        @if(!$loop->last)
+                                        <div class="border-b border-gray-300 my-4"></div>
+                                        @endif
                                         @endforeach
                                     </div>
                                 @elseif($obra->vehiculo)
                                     <!-- Mostrar el vehículo único asociado directamente a la obra -->
-                                    <div class="bg-gray-50 rounded-lg p-4">
-                                        <div class="flex items-center justify-between mb-3">
-                                            <div>
-                                                <div class="font-medium text-gray-800">
-                                                    {{ $obra->vehiculo->marca }} {{ $obra->vehiculo->modelo }}
-                                                </div>
-                                                <div class="text-sm text-gray-600">{{ $obra->vehiculo->placas }}</div>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Vehículo</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                {{ $obra->vehiculo->marca }} {{ $obra->vehiculo->modelo }}
                                             </div>
-                                            <a href="{{ route('vehiculos.show', $obra->vehiculo->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Placas</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $obra->vehiculo->placas }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Año</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $obra->vehiculo->anio ?? 'N/A' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Serie</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $obra->vehiculo->n_serie ?? 'N/A' }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Kilometraje</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $obra->vehiculo->kilometraje_actual ? number_format($obra->vehiculo->kilometraje_actual) : 'N/A' }} km
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="pt-3 border-t border-gray-200">
+                                            <a href="{{ route('vehiculos.show', $obra->vehiculo->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-md transition-colors duration-200 flex items-center text-xs w-fit">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
                                                 Ver Vehículo
                                             </a>
-                                        </div>
-                                        <div class="grid grid-cols-3 gap-2 text-xs">
-                                            <div>
-                                                <span class="text-gray-500">Año:</span>
-                                                <div class="font-medium">{{ $obra->vehiculo->anio ?? 'N/A' }}</div>
-                                            </div>
-                                            <div>
-                                                <span class="text-gray-500">Serie:</span>
-                                                <div class="font-medium">{{ Str::limit($obra->vehiculo->n_serie ?? 'N/A', 8) }}</div>
-                                            </div>
-                                            <div>
-                                                <span class="text-gray-500">Kilometraje:</span>
-                                                <div class="font-medium">{{ $obra->vehiculo->kilometraje_actual ? number_format($obra->vehiculo->kilometraje_actual) : 'N/A' }} km</div>
-                                            </div>
                                         </div>
                                     </div>
                                 @else

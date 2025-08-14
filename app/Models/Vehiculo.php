@@ -275,7 +275,8 @@ class Vehiculo extends Model
      */
     public function estaDisponible(): bool
     {
-        return $this->estatus === EstadoVehiculo::DISPONIBLE->value;
+        return $this->estatus === EstadoVehiculo::DISPONIBLE || 
+               ($this->estatus instanceof EstadoVehiculo && $this->estatus === EstadoVehiculo::DISPONIBLE);
     }
 
     /**
@@ -283,7 +284,8 @@ class Vehiculo extends Model
      */
     public function estaAsignado(): bool
     {
-        return $this->estatus === EstadoVehiculo::ASIGNADO->value;
+        return $this->estatus === EstadoVehiculo::ASIGNADO ||
+               ($this->estatus instanceof EstadoVehiculo && $this->estatus === EstadoVehiculo::ASIGNADO);
     }
 
     /**
@@ -291,7 +293,8 @@ class Vehiculo extends Model
      */
     public function estaEnMantenimiento(): bool
     {
-        return $this->estatus === EstadoVehiculo::EN_MANTENIMIENTO->value;
+        return $this->estatus === EstadoVehiculo::EN_MANTENIMIENTO ||
+               ($this->estatus instanceof EstadoVehiculo && $this->estatus === EstadoVehiculo::EN_MANTENIMIENTO);
     }
 
     /**
@@ -369,6 +372,12 @@ class Vehiculo extends Model
      */
     public function getEstadoEnumAttribute(): EstadoVehiculo
     {
+        // Si ya es un enum (due to cast), devolverlo directamente
+        if ($this->estatus instanceof EstadoVehiculo) {
+            return $this->estatus;
+        }
+        
+        // Si es un string, convertirlo a enum
         return EstadoVehiculo::fromValue($this->estatus);
     }
 

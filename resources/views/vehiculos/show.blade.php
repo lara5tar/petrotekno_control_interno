@@ -22,54 +22,7 @@
                     <h3 class="font-semibold text-gray-800">Datos Generales</h3>
                 </div>
                 <div class="p-4">
-                    <!-- Fotografía del Vehículo integrada en Datos Generales -->
-                    <div class="mb-4">
-                        <div class="relative">
-                            @if(!empty($vehiculo->imagen) && $vehiculo->imagen !== null && $vehiculo->imagen !== '')
-                                <div class="bg-gray-100 rounded overflow-hidden mb-2" id="image-container">
-                                    <img src="{{ $vehiculo->imagen }}" 
-                                         alt="Vehículo {{ $vehiculo->marca ?? 'Nissan' }} {{ $vehiculo->modelo ?? 'NP300' }}" 
-                                         class="w-full h-auto object-contain max-h-40"
-                                         id="vehicle-image"
-                                         onload="handleImageLoad()"
-                                         onerror="handleImageError()">
-                                    <div class="absolute bottom-1 left-1 bg-black bg-opacity-75 text-white px-1 py-0.5 rounded text-xs">
-                                        {{ now()->format('d/m/Y') }}
-                                    </div>
-                                </div>
-                                <div class="flex justify-center space-x-2" id="image-actions">
-                                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs">
-                                        <svg class="w-3 h-3 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                        </svg>
-                                        Descargar
-                                    </button>
-                                </div>
-                                <!-- Placeholder para error de imagen (inicialmente oculto) -->
-                                <div class="bg-red-50 border-2 border-dashed border-red-300 rounded mb-2 h-40 flex items-center justify-center hidden" id="image-error-placeholder">
-                                    <div class="text-center">
-                                        <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                                        </svg>
-                                        <p class="mt-2 text-sm text-red-600 font-medium">No se encontró la imagen</p>
-                                        <p class="text-xs text-red-500">Error al cargar la imagen del vehículo</p>
-                                    </div>
-                                </div>
-                            @else
-                                <!-- Placeholder para cuando no hay imagen -->
-                                <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded mb-2 h-40 flex items-center justify-center">
-                                    <div class="text-center">
-                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                        <p class="mt-2 text-sm text-gray-500 font-medium">Sin imagen disponible</p>
-                                        <p class="text-xs text-gray-400">No se ha asignado una imagen a este vehículo</p>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                    
+                    <!-- Datos del vehículo primero -->
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Marca</label>
@@ -82,7 +35,6 @@
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ $vehiculo->modelo ?? 'NP300' }}
                             </div>
-
                         </div>
                     </div>
                     
@@ -142,7 +94,54 @@
                                     </svg>
                                 </button>
                             </div>
+                        </div>
+                    </div>
 
+                    <!-- Fotografía del Vehículo ahora al final -->
+                    <div class="mt-6">
+                        <div class="relative">
+                            @if(!empty($vehiculo->imagen) && $vehiculo->imagen !== null && $vehiculo->imagen !== '')
+                                <div class="bg-gray-100 rounded overflow-hidden mb-2" id="image-container">
+                                    <img src="{{ $vehiculo->imagen }}" 
+                                         alt="Vehículo {{ $vehiculo->marca ?? 'Nissan' }} {{ $vehiculo->modelo ?? 'NP300' }}" 
+                                         class="w-full h-auto object-contain max-h-64"
+                                         id="vehicle-image"
+                                         onload="handleImageLoad()"
+                                         onerror="handleImageError()">
+                                    <div class="absolute bottom-1 left-1 bg-black bg-opacity-75 text-white px-1 py-0.5 rounded text-xs">
+                                        {{ now()->format('d/m/Y') }}
+                                    </div>
+                                </div>
+                                <div class="flex justify-center space-x-2" id="image-actions">
+                                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs">
+                                        <svg class="w-3 h-3 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Descargar
+                                    </button>
+                                </div>
+                                <!-- Placeholder para error de imagen (inicialmente oculto) -->
+                                <div class="bg-red-50 border-2 border-dashed border-red-300 rounded mb-2 h-64 flex items-center justify-center hidden" id="image-error-placeholder">
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                        </svg>
+                                        <p class="mt-2 text-sm text-red-600 font-medium">No se encontró la imagen</p>
+                                        <p class="text-xs text-red-500">Error al cargar la imagen del vehículo</p>
+                                    </div>
+                                </div>
+                            @else
+                                <!-- Placeholder para cuando no hay imagen -->
+                                <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded mb-2 h-64 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <p class="mt-2 text-sm text-gray-500 font-medium">Sin imagen disponible</p>
+                                        <p class="text-xs text-gray-400">No se ha asignado una imagen a este vehículo</p>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -158,19 +157,31 @@
                 <div>
                     <div class="text-sm font-medium text-gray-600 mb-1">Último Kilometraje</div>
                     <div class="bg-gray-800 text-white p-2 rounded text-center">
-                        <div class="text-sm font-bold">{{ $vehiculo->kilometraje_actual ?? '125,145' }}</div>
+                        <div class="text-sm font-bold">{{ number_format($vehiculo->kilometraje_actual ?? 0) }} km</div>
                     </div>
                 </div>
 
                 <!-- Estatus Actual -->
                 <div>
                     <div class="text-sm font-medium text-gray-600 mb-1">Estatus Actual</div>
-                    <select class="w-full text-sm bg-orange-500 text-white p-2 rounded border-none focus:ring-1 focus:ring-white">
-                        <option value="disponible" selected>Disponible</option>
-                        <option value="en_obra">En Obra</option>
-                        <option value="mantenimiento">Mantenimiento</option>
-                        <option value="fuera_servicio">Fuera de Servicio</option>
-                    </select>
+                    @php
+                        $statusColors = [
+                            'disponible' => 'bg-green-500',
+                            'asignado' => 'bg-blue-500',
+                            'en_obra' => 'bg-yellow-500',
+                            'mantenimiento' => 'bg-orange-500',
+                            'fuera_servicio' => 'bg-red-500'
+                        ];
+                        // Asegurar que obtenemos el valor string del estatus
+                        $estatusValue = is_object($vehiculo->estatus) 
+                            ? $vehiculo->estatus->value 
+                            : $vehiculo->estatus;
+                        $currentStatus = $estatusValue ?? 'disponible';
+                        $colorClass = $statusColors[$currentStatus] ?? 'bg-gray-500';
+                    @endphp
+                    <div class="{{ $colorClass }} text-white p-2 rounded text-center">
+                        <div class="text-sm font-medium">{{ ucfirst(str_replace('_', ' ', $currentStatus)) }}</div>
+                    </div>
                 </div>
             </div>
 
@@ -206,6 +217,180 @@
                     <!-- Contenido de Operación -->
                     <div x-show="activeTab === 'operacion'" class="p-6 bg-gray-50">
                         <div class="space-y-6">
+                            <!-- Sección: Obra Actual -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm" id="obra-actual-section">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                        Obra Actual
+                                    </h5>
+                                    @hasPermission('crear_asignaciones')
+                                    <a href="{{ route('obras.index') }}" 
+                                       class="bg-green-600 hover:bg-green-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Ver Obras
+                                    </a>
+                                    @endhasPermission
+                                </div>
+                                
+                                @php
+                                    // Obtener la asignación activa actual del vehículo
+                                    $asignacionActiva = null;
+                                    
+                                    // Verificar si el vehículo tiene el método asignacionesObraActivas
+                                    if (method_exists($vehiculo, 'asignacionesObraActivas')) {
+                                        try {
+                                            $asignacionActiva = $vehiculo->asignacionesObraActivas()->with(['obra.encargado', 'operador'])->first();
+                                        } catch (\Exception $e) {
+                                            // Si hay error, simplemente continuar sin asignación
+                                            $asignacionActiva = null;
+                                        }
+                                    }
+                                @endphp
+                                
+                                @if($asignacionActiva && $asignacionActiva->obra)
+                                <div class="space-y-4">
+                                    <!-- Nombre de la Obra -->
+                                    <div class="grid grid-cols-1 gap-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Nombre de la Obra</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                {{ $asignacionActiva->obra->nombre_obra }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Estatus y Fecha de Asignación -->
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Estatus de la Obra</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                {{ ucfirst(str_replace('_', ' ', $asignacionActiva->obra->estatus)) }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Fecha de Asignación</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                {{ $asignacionActiva->fecha_asignacion ? \Carbon\Carbon::parse($asignacionActiva->fecha_asignacion)->format('d/m/Y') : 'No registrada' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Operador en Obra y Encargado -->
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Operador en Obra</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                {{ $asignacionActiva->operador ? $asignacionActiva->operador->nombre_completo : 'Sin operador específico' }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Encargado de la Obra</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                {{ $asignacionActiva->obra->encargado ? $asignacionActiva->obra->encargado->nombre_completo : 'Sin encargado asignado' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Avance y Kilometraje Inicial -->
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Avance de la Obra</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex items-center">
+                                                <div class="flex-1">
+                                                    {{ $asignacionActiva->obra->avance ?? 0 }}%
+                                                </div>
+                                                <div class="w-16 bg-gray-700 rounded-full h-2 ml-2">
+                                                    <div class="bg-green-400 h-2 rounded-full" style="width: {{ $asignacionActiva->obra->avance ?? 0 }}%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Kilometraje Inicial</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                {{ $asignacionActiva->kilometraje_inicial ? number_format($asignacionActiva->kilometraje_inicial) . ' km' : 'No registrado' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    @if($asignacionActiva->observaciones)
+                                    <!-- Observaciones -->
+                                    <div class="grid grid-cols-1 gap-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Observaciones de la Asignación</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                {{ $asignacionActiva->observaciones }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
+                                    
+                                    <!-- Acciones -->
+                                    <div class="flex justify-between items-center pt-3 border-t border-gray-200">
+                                        <a href="{{ route('obras.show', $asignacionActiva->obra->id) }}" 
+                                           class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                            <span>Ver detalles completos de la obra</span>
+                                        </a>
+                                        
+                                        <div class="flex space-x-2">
+                                            @hasPermission('editar_asignaciones')
+                                            <button onclick="alert('Función de edición en desarrollo')" 
+                                               class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded text-xs flex items-center">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                                Editar Asignación
+                                            </button>
+                                            @endhasPermission
+                                            
+                                            @hasPermission('liberar_asignaciones')
+                                            <button onclick="alert('Función de liberación en desarrollo')" 
+                                                    class="bg-orange-600 hover:bg-orange-700 text-white py-1 px-2 rounded text-xs flex items-center">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                                                </svg>
+                                                Liberar de Obra
+                                            </button>
+                                            @endhasPermission
+                                        </div>
+                                    </div>
+                                </div>
+                                @else
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                                    <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                    <h5 class="text-lg font-medium text-gray-800 mb-2">Sin obra asignada</h5>
+                                    <p class="text-sm text-gray-600 mb-4">Este vehículo no está asignado a ninguna obra actualmente.</p>
+                                    <p class="text-xs text-gray-500 mb-4">Un vehículo puede estar asignado solo a una obra a la vez.</p>
+                                    
+                                    @hasPermission('crear_asignaciones')
+                                    <div class="flex flex-col space-y-2">
+                                        <a href="{{ route('obras.index') }}" 
+                                           class="inline-block bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm transition-colors duration-200">
+                                            <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                            Ver Obras Disponibles
+                                        </a>
+                                        <p class="text-xs text-gray-500">Desde el listado de obras podrás asignar este vehículo</p>
+                                    </div>
+                                    @else
+                                    <p class="text-xs text-gray-500">Contacta al administrador para asignar este vehículo a una obra</p>
+                                    @endhasPermission
+                                </div>
+                                @endif
+                            </div>
+                            
                             <!-- Sección: Operador Actual -->
                             <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
                                 <div class="flex justify-between items-center mb-4">
@@ -280,178 +465,6 @@
                                 </div>
                                 @endif
                             </div>
-                            
-                            <!-- Sección: Obra Actual -->
-                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm" id="obra-actual-section">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
-                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                        </svg>
-                                        Obra Actual
-                                    </h5>
-                                    @hasPermission('crear_asignaciones')
-                                    <a href="{{ route('obras.index') }}" 
-                                       class="bg-green-600 hover:bg-green-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                        </svg>
-                                        Ver Obras
-                                    </a>
-                                    @endhasPermission
-                                </div>
-                                
-                                @php
-                                    // Obtener la asignación activa actual del vehículo
-                                    $asignacionActiva = null;
-                                    
-                                    // Verificar si el vehículo tiene el método asignacionesObraActivas
-                                    if (method_exists($vehiculo, 'asignacionesObraActivas')) {
-                                        try {
-                                            $asignacionActiva = $vehiculo->asignacionesObraActivas()->with(['obra.encargado', 'operador'])->first();
-                                        } catch (\Exception $e) {
-                                            // Si hay error, simplemente continuar sin asignación
-                                            $asignacionActiva = null;
-                                        }
-                                    }
-                                @endphp
-                                
-                                @if($asignacionActiva && $asignacionActiva->obra)
-                                <div class="space-y-4">
-                                    <!-- Información Principal de la Obra -->
-                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                        <div class="flex items-center justify-between mb-3">
-                                            <h6 class="text-lg font-semibold text-blue-800">
-                                                {{ $asignacionActiva->obra->nombre_obra }}
-                                            </h6>
-                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
-                                                @if($asignacionActiva->obra->estatus == 'en_progreso') bg-green-100 text-green-800
-                                                @elseif($asignacionActiva->obra->estatus == 'planificada') bg-yellow-100 text-yellow-800
-                                                @elseif($asignacionActiva->obra->estatus == 'completada') bg-blue-100 text-blue-800
-                                                @elseif($asignacionActiva->obra->estatus == 'suspendida') bg-red-100 text-red-800
-                                                @else bg-gray-100 text-gray-800 @endif">
-                                                {{ ucfirst(str_replace('_', ' ', $asignacionActiva->obra->estatus)) }}
-                                            </span>
-                                        </div>
-                                        
-                                        <div class="grid grid-cols-2 gap-3 text-sm">
-                                            <div>
-                                                <span class="text-blue-600 font-medium">Fecha de Asignación:</span>
-                                                <div class="text-blue-800">
-                                                    {{ $asignacionActiva->fecha_asignacion ? \Carbon\Carbon::parse($asignacionActiva->fecha_asignacion)->format('d/m/Y') : 'No registrada' }}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <span class="text-blue-600 font-medium">Operador en Obra:</span>
-                                                <div class="text-blue-800">
-                                                    {{ $asignacionActiva->operador ? $asignacionActiva->operador->nombre_completo : 'Sin operador específico' }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Detalles de la Obra -->
-                                    <div class="grid grid-cols-1 gap-3">
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Encargado de la Obra</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                {{ $asignacionActiva->obra->encargado ? $asignacionActiva->obra->encargado->nombre_completo : 'Sin encargado asignado' }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Avance de la Obra</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm flex items-center">
-                                                <div class="flex-1">
-                                                    {{ $asignacionActiva->obra->avance ?? 0 }}%
-                                                </div>
-                                                <div class="w-16 bg-gray-700 rounded-full h-2 ml-2">
-                                                    <div class="bg-green-400 h-2 rounded-full" style="width: {{ $asignacionActiva->obra->avance ?? 0 }}%"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Kilometraje Inicial</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                {{ $asignacionActiva->kilometraje_inicial ? number_format($asignacionActiva->kilometraje_inicial) . ' km' : 'No registrado' }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    @if($asignacionActiva->observaciones)
-                                    <div class="grid grid-cols-1 gap-3">
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Observaciones de la Asignación</label>
-                                            <div class="bg-gray-100 border border-gray-300 px-3 py-2 rounded text-sm">
-                                                {{ $asignacionActiva->observaciones }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    @endif
-                                    
-                                    <!-- Acciones -->
-                                    <div class="flex justify-between items-center pt-3 border-t border-gray-200">
-                                        <a href="{{ route('obras.show', $asignacionActiva->obra->id) }}" 
-                                           class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                            <span>Ver detalles completos de la obra</span>
-                                        </a>
-                                        
-                                        <div class="flex space-x-2">
-                                            @hasPermission('editar_asignaciones')
-                                            <button onclick="alert('Función de edición en desarrollo')" 
-                                               class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded text-xs flex items-center">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                </svg>
-                                                Editar Asignación
-                                            </button>
-                                            @endhasPermission
-                                            
-                                            @hasPermission('liberar_asignaciones')
-                                            <button onclick="alert('Función de liberación en desarrollo')" 
-                                                    class="bg-orange-600 hover:bg-orange-700 text-white py-1 px-2 rounded text-xs flex items-center">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                                                </svg>
-                                                Liberar de Obra
-                                            </button>
-                                            @endhasPermission
-                                        </div>
-                                    </div>
-                                </div>
-                                @else
-                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                                    <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                    </svg>
-                                    <h5 class="text-lg font-medium text-gray-800 mb-2">Sin obra asignada</h5>
-                                    <p class="text-sm text-gray-600 mb-4">Este vehículo no está asignado a ninguna obra actualmente.</p>
-                                    <p class="text-xs text-gray-500 mb-4">Un vehículo puede estar asignado solo a una obra a la vez.</p>
-                                    
-                                    @hasPermission('crear_asignaciones')
-                                    <div class="flex flex-col space-y-2">
-                                        <a href="{{ route('obras.index') }}" 
-                                           class="inline-block bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm transition-colors duration-200">
-                                            <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                            Ver Obras Disponibles
-                                        </a>
-                                        <p class="text-xs text-gray-500">Desde el listado de obras podrás asignar este vehículo</p>
-                                    </div>
-                                    @else
-                                    <p class="text-xs text-gray-500">Contacta al administrador para asignar este vehículo a una obra</p>
-                                    @endhasPermission
-                                </div>
-                                @endif
-                            </div>
                         </div>
                     </div>
 
@@ -467,12 +480,15 @@
                                         </svg>
                                         Registro de Kilometraje
                                     </h5>
-                                    <button onclick="showAddKilometrajeModal()" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                    @hasPermission('crear_kilometrajes')
+                                    <a href="{{ route('vehiculos.kilometrajes.create', $vehiculo) }}" 
+                                       class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                         </svg>
                                         Capturar Nuevo
-                                    </button>
+                                    </a>
+                                    @endhasPermission
                                 </div>
                                 
                                 <!-- Tabla de Kilometrajes -->
@@ -482,67 +498,66 @@
                                             <tr>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                                                <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Ubicación</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Registró</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
-                                            @if($vehiculo->kilometrajes && $vehiculo->kilometrajes->count() > 0)
-                                                @foreach($vehiculo->kilometrajes->take(5) as $kilometraje)
-                                                <tr>
-                                                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{{ number_format($kilometraje->kilometraje) }}</td>
-                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">{{ $kilometraje->fecha_captura?->format('d/m/Y') ?? 'Sin fecha' }}</td>
-                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">{{ $kilometraje->observaciones ?? 'No especificada' }}</td>
-                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">{{ $kilometraje->usuarioCaptura->nombre_completo ?? 'No asignado' }}</td>
-                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                        <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
-                                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                            </svg>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                @endforeach
-                                            @else
-                                                <tr>
-                                                    <td colspan="5" class="px-3 py-4 text-center text-sm text-gray-500">
-                                                        No hay registros de kilometraje disponibles
-                                                    </td>
-                                                </tr>
-                                            @endif
+                                            @forelse($vehiculo->kilometrajes()->with(['usuarioCaptura'])->orderBy('fecha_captura', 'desc')->limit(10)->get() as $kilometraje)
                                             <tr>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">120,574</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">15/05/2023</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Libramiento Monterrey</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Diego López</td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ number_format($kilometraje->kilometraje) }} km
+                                                </td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
+                                                    {{ $kilometraje->fecha_captura?->format('d/m/Y') ?? 'Sin fecha' }}
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $kilometraje->usuarioCaptura?->name ?? 'Usuario no disponible' }}
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    @hasPermission('ver_kilometrajes')
+                                                    <a href="{{ route('vehiculos.kilometrajes.show', [$vehiculo->id, $kilometraje->id]) }}" 
+                                                       class="text-blue-600 hover:text-blue-900 transition-colors duration-200" 
+                                                       title="Ver detalles">
                                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                         </svg>
-                                                    </button>
+                                                    </a>
+                                                    @endhasPermission
                                                 </td>
                                             </tr>
+                                            @empty
                                             <tr>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">118,117</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">10/05/2023</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Carretera ABC</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">José Pérez</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
-                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                <td colspan="4" class="px-3 py-4 text-center text-sm text-gray-500">
+                                                    <div class="flex flex-col items-center">
+                                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                                         </svg>
-                                                    </button>
+                                                        <p class="font-medium">No hay registros de kilometraje</p>
+                                                        <p class="text-xs text-gray-400">Este vehículo aún no tiene registros de kilometraje</p>
+                                                        @hasPermission('crear_kilometrajes')
+                                                        <a href="{{ route('vehiculos.kilometrajes.create', $vehiculo) }}" 
+                                                           class="mt-2 text-blue-600 hover:text-blue-800 text-sm">
+                                                            Crear primer registro
+                                                        </a>
+                                                        @endhasPermission
+                                                    </div>
                                                 </td>
                                             </tr>
+                                            @endforelse
                                         </tbody>
                                     </table>
                                 </div>
+
+                                @if($vehiculo->kilometrajes()->count() > 10)
+                                <div class="mt-4 text-center">
+                                    <a href="{{ route('kilometrajes.index') }}?vehiculo_id={{ $vehiculo->id }}" 
+                                       class="text-blue-600 hover:text-blue-800 text-sm">
+                                        Ver todos los registros ({{ $vehiculo->kilometrajes()->count() }} total)
+                                    </a>
+                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -662,12 +677,15 @@
                                         </svg>
                                         Mantenimientos Recientes
                                     </h5>
-                                    <button class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                    @hasPermission('crear_mantenimientos')
+                                    <a href="{{ route('mantenimientos.create') }}?vehiculo_id={{ $vehiculo->id }}" 
+                                       class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                         </svg>
                                         Registrar Mantenimiento
-                                    </button>
+                                    </a>
+                                    @endhasPermission
                                 </div>
                                 
                                 <!-- Tabla de Mantenimientos -->
@@ -677,73 +695,83 @@
                                             <tr>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Sistema</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
-                                                <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Proveedor</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
+                                            @forelse($vehiculo->mantenimientos()->orderBy('fecha_inicio', 'desc')->limit(10)->get() as $mantenimiento)
                                             <tr>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">15/03/2024</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Preventivo</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">125,000 km</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Proveedor Mecánico Central</td>
-                                                <td class="px-3 py-2 whitespace-nowrap">
-                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                        Completado
-                                                    </span>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $mantenimiento->fecha_inicio?->format('d/m/Y') ?? 'Sin fecha' }}
                                                 </td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
+                                                    {{ ucfirst(strtolower($mantenimiento->tipo_servicio)) }}
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ ucfirst($mantenimiento->sistema_vehiculo ?? 'General') }}
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ number_format($mantenimiento->kilometraje_servicio ?? 0) }} km
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap">
+                                                    @if($mantenimiento->fecha_fin)
+                                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            Completado
+                                                        </span>
+                                                    @else
+                                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                            En Progreso
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    @hasPermission('ver_mantenimientos')
+                                                    <a href="{{ route('mantenimientos.show', $mantenimiento) }}" 
+                                                       class="text-blue-600 hover:text-blue-900 transition-colors duration-200" 
+                                                       title="Ver detalles">
                                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                         </svg>
-                                                    </button>
+                                                    </a>
+                                                    @endhasPermission
                                                 </td>
                                             </tr>
+                                            @empty
                                             <tr>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">10/01/2024</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Correctivo</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">120,500 km</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Servicio Oficial Toyota</td>
-                                                <td class="px-3 py-2 whitespace-nowrap">
-                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                        Completado
-                                                    </span>
-                                                </td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
-                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <td colspan="6" class="px-3 py-4 text-center text-sm text-gray-500">
+                                                    <div class="flex flex-col items-center">
+                                                        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                         </svg>
-                                                    </button>
+                                                        <p class="font-medium">No hay mantenimientos registrados</p>
+                                                        <p class="text-xs text-gray-400">Este vehículo no tiene historial de mantenimientos</p>
+                                                        @hasPermission('crear_mantenimientos')
+                                                        <a href="{{ route('mantenimientos.create') }}?vehiculo_id={{ $vehiculo->id }}" 
+                                                           class="mt-2 text-blue-600 hover:text-blue-800 text-sm">
+                                                            Registrar primer mantenimiento
+                                                        </a>
+                                                        @endhasPermission
+                                                    </div>
                                                 </td>
                                             </tr>
-                                            <tr>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">05/12/2023</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Preventivo</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">115,000 km</td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">Proveedor Mecánico Central</td>
-                                                <td class="px-3 py-2 whitespace-nowrap">
-                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                        Completado
-                                                    </span>
-                                                </td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    <button class="text-blue-600 hover:text-blue-900 transition-colors duration-200" title="Ver detalles">
-                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                        </svg>
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                            @endforelse
                                         </tbody>
                                     </table>
                                 </div>
+
+                                @if($vehiculo->mantenimientos()->count() > 10)
+                                <div class="mt-4 text-center">
+                                    <a href="{{ route('mantenimientos.index') }}?vehiculo_id={{ $vehiculo->id }}" 
+                                       class="text-blue-600 hover:text-blue-800 text-sm">
+                                        Ver todos los mantenimientos ({{ $vehiculo->mantenimientos()->count() }} total)
+                                    </a>
+                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -900,15 +928,15 @@
     function handleImageLoad() {
         const container = document.getElementById('image-container');
         const errorPlaceholder = document.getElementById('image-error-placeholder');
-        container.classList.remove('bg-gray-100', 'border-2', 'border-dashed', 'border-gray-300');
-        errorPlaceholder.classList.add('hidden');
+        if (container) container.classList.remove('bg-gray-100', 'border-2', 'border-dashed', 'border-gray-300');
+        if (errorPlaceholder) errorPlaceholder.classList.add('hidden');
     }
 
     function handleImageError() {
         const container = document.getElementById('image-container');
         const errorPlaceholder = document.getElementById('image-error-placeholder');
-        container.classList.add('hidden');
-        errorPlaceholder.classList.remove('hidden');
+        if (container) container.classList.add('hidden');
+        if (errorPlaceholder) errorPlaceholder.classList.remove('hidden');
     }
 </script>
 @endsection

@@ -195,25 +195,25 @@
                 </svg>
                 Asignación de Vehículos
             </h3>
-            <p class="text-sm text-gray-500 mb-6">Seleccione un vehículo para asignar a esta obra</p>
+            <p class="text-sm text-gray-500 mb-6">Seleccione los vehículos que desea asignar a esta obra</p>
 
             @if($vehiculos->isNotEmpty())
                 <div class="flex justify-between items-center mb-4">
-                    <p class="text-sm text-gray-600">Puede asignar un vehículo a esta obra para su seguimiento.</p>
+                    <p class="text-sm text-gray-600">Puede asignar múltiples vehículos a esta obra para su seguimiento.</p>
                     <button type="button" 
                             onclick="openVehicleModal()" 
                             class="bg-petroyellow hover:bg-yellow-500 text-petrodark px-4 py-2 rounded-md transition-colors duration-200 flex items-center font-medium">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
-                        Asignar Vehículo
+                        Agregar Vehículo
                     </button>
                 </div>
                 
                 {{-- Lista de vehículos asignados --}}
                 <div id="assigned-vehicles-list" class="space-y-3">
                     <div class="text-gray-600 text-sm" id="no-vehicles-message">
-                        Ningún vehículo asignado. Use el botón "Asignar Vehículo" para agregar vehículos a esta obra.
+                        Ningún vehículo asignado. Use el botón "Agregar Vehículo" para agregar vehículos a esta obra.
                     </div>
                 </div>
                 
@@ -342,8 +342,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold text-white mb-1">Asignación de Vehículo</h3>
-                            <p class="text-gray-300 text-sm">Seleccione un vehículo para asignar a esta obra</p>
+                            <h3 class="text-xl font-bold text-white mb-1">Asignación de Vehículos</h3>
+                            <p class="text-gray-300 text-sm">Seleccione vehículos para asignar a esta obra</p>
                         </div>
                     </div>
                     
@@ -366,8 +366,8 @@
                         </svg>
                         <div>
                             <p class="text-sm text-gray-600 leading-relaxed">
-                                Busque y seleccione un vehículo por sus características (marca, modelo, placas). 
-                                Solo los vehículos disponibles pueden ser seleccionados.
+                                Busque y seleccione vehículos por sus características (marca, modelo, placas). 
+                                Puede seleccionar múltiples vehículos. Solo los vehículos disponibles pueden ser seleccionados.
                             </p>
                         </div>
                     </div>
@@ -395,7 +395,7 @@
                 <!-- Lista de vehículos disponibles -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Seleccione un vehículo
+                        Seleccione vehículos (haga clic para seleccionar/deseleccionar)
                     </label>
                     <div id="vehicle-options" class="max-h-60 overflow-y-auto border border-gray-300 rounded-md divide-y divide-gray-200">
                         @if($vehiculos->count() > 0)
@@ -408,14 +408,19 @@
                                      data-anio="{{ $vehiculo->anio }}"
                                      data-placas="{{ $vehiculo->placas }}"
                                      data-km="{{ $vehiculo->kilometraje_actual }}"
-                                     onclick="selectVehicle(this)">
+                                     onclick="toggleVehicleSelection(this)">
                                     <div class="flex items-center justify-between">
-                                        <div>
-                                            <h4 class="font-medium text-gray-900">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
-                                            <p class="text-xs text-gray-500">
-                                                Año: {{ $vehiculo->anio }} | Placas: <span class="font-mono">{{ $vehiculo->placas }}</span> | 
-                                                {{ number_format($vehiculo->kilometraje_actual) }} km
-                                            </p>
+                                        <div class="flex items-center space-x-3">
+                                            <div class="vehicle-checkbox w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center bg-white">
+                                                <!-- Checkmark will be added here when selected -->
+                                            </div>
+                                            <div>
+                                                <h4 class="font-medium text-gray-900">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
+                                                <p class="text-xs text-gray-500">
+                                                    Año: {{ $vehiculo->anio }} | Placas: <span class="font-mono">{{ $vehiculo->placas }}</span> | 
+                                                    {{ number_format($vehiculo->kilometraje_actual) }} km
+                                                </p>
+                                            </div>
                                         </div>
                                         <div class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium border border-green-200">
                                             Disponible
@@ -439,16 +444,19 @@
                                         data-placas="{{ $vehiculo->placas }}"
                                         data-km="{{ $vehiculo->kilometraje_actual }}">
                                         <div class="flex items-center justify-between">
-                                            <div>
-                                                <h4 class="font-medium text-gray-600">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
-                                                <p class="text-xs text-gray-500">
-                                                    Año: {{ $vehiculo->anio }} | Placas: <span class="font-mono">{{ $vehiculo->placas }}</span>
-                                                </p>
-                                                @if($vehiculo->obra_asignada)
-                                                    <p class="text-xs text-gray-500 mt-1 italic">
-                                                        Asignado a: {{ $vehiculo->obra_asignada }}
+                                            <div class="flex items-center space-x-3">
+                                                <div class="w-5 h-5 border-2 border-gray-400 rounded bg-gray-200"></div>
+                                                <div>
+                                                    <h4 class="font-medium text-gray-600">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
+                                                    <p class="text-xs text-gray-500">
+                                                        Año: {{ $vehiculo->anio }} | Placas: <span class="font-mono">{{ $vehiculo->placas }}</span>
                                                     </p>
-                                                @endif
+                                                    @if($vehiculo->obra_asignada)
+                                                        <p class="text-xs text-gray-500 mt-1 italic">
+                                                            Asignado a: {{ $vehiculo->obra_asignada }}
+                                                        </p>
+                                                    @endif
+                                                </div>
                                             </div>
                                             <div class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium border border-red-200">
                                                 En uso
@@ -458,7 +466,6 @@
                                 @endforeach
                             @endif
                         @else
-                            {{-- Mensaje cuando no hay vehículos --}}
                             <div class="p-4 text-center">
                                 <div class="flex flex-col items-center space-y-2">
                                     <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -477,65 +484,60 @@
                     </div>
                 </div>
                 
-                <!-- Vehículo seleccionado -->
-                <div id="selected-vehicle-container" class="hidden mb-6 bg-gray-50 rounded-lg border border-gray-300 p-4">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h4 class="font-medium text-gray-900">Vehículo seleccionado:</h4>
-                            <p id="selected-vehicle-details" class="text-sm text-gray-700 mt-1"></p>
-                        </div>
-                        <button type="button" onclick="clearVehicleSelection()" 
-                                class="text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full p-1">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
+                <!-- Vehículos seleccionados -->
+                <div id="selected-vehicles-container" class="hidden mb-6 bg-blue-50 rounded-lg border border-blue-200 p-4">
+                    <h4 class="font-medium text-blue-900 mb-2">Vehículos seleccionados:</h4>
+                    <div id="selected-vehicles-list" class="space-y-2"></div>
                 </div>
-                
-                <!-- Input oculto para el formulario -->
-                <input type="hidden" id="selected-vehicle-id" name="vehiculo_id" value="">
             </div>
 
             <!-- Footer del modal -->
             <div class="px-6 py-4 bg-gray-100 border-t border-gray-200">
-                <div class="flex items-center justify-end space-x-3">
-                    <button type="button" 
-                            onclick="closeVehicleModal()" 
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 text-sm font-medium">
-                        Cancelar
-                    </button>
-                    <button type="button" 
-                            id="confirm-vehicle-btn"
-                            onclick="assignSelectedVehicle()" 
-                            class="px-4 py-2 bg-petroyellow text-petrodark rounded-md hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-petroyellow focus:ring-offset-2 transition-all duration-200 text-sm font-medium disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
-                            disabled>
-                        Asignar Vehículo
-                    </button>
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-600">
+                        <span id="selected-count">0</span> vehículo(s) seleccionado(s)
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button type="button" 
+                                onclick="closeVehicleModal()" 
+                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 text-sm font-medium">
+                            Cancelar
+                        </button>
+                        <button type="button" 
+                                id="confirm-vehicles-btn"
+                                onclick="assignSelectedVehicles()" 
+                                class="px-4 py-2 bg-petroyellow text-petrodark rounded-md hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-petroyellow focus:ring-offset-2 transition-all duration-200 text-sm font-medium disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+                                disabled>
+                            Agregar Vehículos
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
 <script>
-    // Variable para almacenar el vehículo seleccionado
-    let selectedVehicleId = null;
+    // Variables para almacenar los vehículos seleccionados
+    let selectedVehicles = new Set();
+    let assignedVehicles = new Set(); // Para evitar duplicados
     
     function openVehicleModal() {
         document.getElementById('vehicle-modal').classList.remove('hidden');
-        // Resetear selección previa al abrir el modal
-        clearVehicleSelection();
+        // No limpiar selecciones para permitir múltiples selecciones
+        updateSelectedVehiclesDisplay();
     }
 
     function closeVehicleModal() {
         document.getElementById('vehicle-modal').classList.add('hidden');
+        // Limpiar selecciones temporales del modal
+        selectedVehicles.clear();
+        clearModalSelections();
     }
 
     function filterVehicles(searchText) {
         searchText = searchText.toLowerCase().trim();
         const vehicleOptions = document.querySelectorAll('.vehicle-option');
         let hasResults = false;
-        let availableResults = false;
         
         vehicleOptions.forEach(option => {
             const marca = option.dataset.marca?.toLowerCase() || '';
@@ -549,15 +551,11 @@
                                   placas.includes(searchText) ||
                                   anio.includes(searchText);
             
-            // No mostrar vehículos no disponibles en los resultados de búsqueda a menos que la búsqueda sea específica
             const isDisabled = option.classList.contains('cursor-not-allowed');
             
             if (matchesSearch) {
                 option.style.display = 'block';
                 hasResults = true;
-                if (!isDisabled) {
-                    availableResults = true;
-                }
             } else {
                 option.style.display = 'none';
             }
@@ -567,64 +565,110 @@
         document.getElementById('no-vehicle-results').style.display = hasResults ? 'none' : 'block';
     }
     
-    function selectVehicle(element) {
+    function toggleVehicleSelection(element) {
         // No permitir seleccionar vehículos no disponibles
         if (element.classList.contains('cursor-not-allowed')) {
             return;
         }
         
-        // Desmarcar selección anterior
-        const previousSelected = document.querySelector('.vehicle-option.bg-gray-100');
-        if (previousSelected) {
-            previousSelected.classList.remove('bg-gray-100', 'border-l-4', 'border-petroyellow');
+        const vehicleId = element.dataset.id;
+        const checkbox = element.querySelector('.vehicle-checkbox');
+        
+        if (selectedVehicles.has(vehicleId)) {
+            // Deseleccionar
+            selectedVehicles.delete(vehicleId);
+            checkbox.innerHTML = '';
+            checkbox.classList.remove('bg-petroyellow', 'border-petroyellow');
+            checkbox.classList.add('bg-white', 'border-gray-300');
+            element.classList.remove('bg-blue-50');
+        } else {
+            // Seleccionar (solo si no está ya asignado)
+            if (!assignedVehicles.has(vehicleId)) {
+                selectedVehicles.add(vehicleId);
+                checkbox.innerHTML = '<svg class="w-3 h-3 text-petrodark" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
+                checkbox.classList.remove('bg-white', 'border-gray-300');
+                checkbox.classList.add('bg-petroyellow', 'border-petroyellow');
+                element.classList.add('bg-blue-50');
+            }
         }
         
-        // Marcar nueva selección
-        element.classList.add('bg-gray-100', 'border-l-4', 'border-petroyellow');
-        
-        // Guardar ID del vehículo seleccionado
-        selectedVehicleId = element.dataset.id;
-        document.getElementById('selected-vehicle-id').value = selectedVehicleId;
-        
-        // Mostrar detalles del vehículo seleccionado
-        const marca = element.dataset.marca;
-        const modelo = element.dataset.modelo;
-        const anio = element.dataset.anio;
-        const placas = element.dataset.placas;
-        const km = element.dataset.km;
-        
-        const detailsText = `${marca} ${modelo} (${anio}) - Placas: ${placas} - Kilometraje: ${numberWithCommas(km)} km`;
-        document.getElementById('selected-vehicle-details').textContent = detailsText;
-        document.getElementById('selected-vehicle-container').classList.remove('hidden');
-        
-        // Habilitar botón de confirmar
-        document.getElementById('confirm-vehicle-btn').disabled = false;
+        updateSelectedVehiclesDisplay();
     }
     
-    function clearVehicleSelection() {
-        // Desmarcar selección visual
-        const selected = document.querySelector('.vehicle-option.bg-gray-100');
-        if (selected) {
-            selected.classList.remove('bg-gray-100', 'border-l-4', 'border-petroyellow');
+    function updateSelectedVehiclesDisplay() {
+        const container = document.getElementById('selected-vehicles-container');
+        const list = document.getElementById('selected-vehicles-list');
+        const count = document.getElementById('selected-count');
+        const confirmBtn = document.getElementById('confirm-vehicles-btn');
+        
+        count.textContent = selectedVehicles.size;
+        confirmBtn.disabled = selectedVehicles.size === 0;
+        
+        if (selectedVehicles.size > 0) {
+            container.classList.remove('hidden');
+            list.innerHTML = '';
+            
+            selectedVehicles.forEach(vehicleId => {
+                const vehicleElement = document.querySelector(`.vehicle-option[data-id="${vehicleId}"]`);
+                if (vehicleElement) {
+                    const marca = vehicleElement.dataset.marca;
+                    const modelo = vehicleElement.dataset.modelo;
+                    const placas = vehicleElement.dataset.placas;
+                    
+                    const item = document.createElement('div');
+                    item.className = 'flex items-center justify-between text-sm';
+                    item.innerHTML = `
+                        <span class="text-blue-800">${marca} ${modelo} - Placas: ${placas}</span>
+                        <button type="button" onclick="removeFromSelection('${vehicleId}')" 
+                                class="text-red-600 hover:text-red-800 ml-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    `;
+                    list.appendChild(item);
+                }
+            });
+        } else {
+            container.classList.add('hidden');
+        }
+    }
+    
+    function removeFromSelection(vehicleId) {
+        selectedVehicles.delete(vehicleId);
+        
+        // Actualizar visual del vehículo en la lista
+        const vehicleElement = document.querySelector(`.vehicle-option[data-id="${vehicleId}"]`);
+        if (vehicleElement) {
+            const checkbox = vehicleElement.querySelector('.vehicle-checkbox');
+            checkbox.innerHTML = '';
+            checkbox.classList.remove('bg-petroyellow', 'border-petroyellow');
+            checkbox.classList.add('bg-white', 'border-gray-300');
+            vehicleElement.classList.remove('bg-blue-50');
         }
         
-        // Limpiar variable e input
-        selectedVehicleId = null;
-        document.getElementById('selected-vehicle-id').value = '';
+        updateSelectedVehiclesDisplay();
+    }
+    
+    function clearModalSelections() {
+        // Limpiar todas las selecciones visuales en el modal
+        document.querySelectorAll('.vehicle-option').forEach(element => {
+            const checkbox = element.querySelector('.vehicle-checkbox');
+            if (checkbox) {
+                checkbox.innerHTML = '';
+                checkbox.classList.remove('bg-petroyellow', 'border-petroyellow');
+                checkbox.classList.add('bg-white', 'border-gray-300');
+            }
+            element.classList.remove('bg-blue-50');
+        });
         
-        // Ocultar detalles
-        document.getElementById('selected-vehicle-container').classList.add('hidden');
-        
-        // Deshabilitar botón de confirmar
-        document.getElementById('confirm-vehicle-btn').disabled = true;
-        
-        // Restablecer búsqueda
+        document.getElementById('selected-vehicles-container').classList.add('hidden');
         document.getElementById('vehiculo-search').value = '';
         filterVehicles('');
     }
     
-    function assignSelectedVehicle() {
-        if (!selectedVehicleId) {
+    function assignSelectedVehicles() {
+        if (selectedVehicles.size === 0) {
             return;
         }
         
@@ -632,68 +676,92 @@
         const noVehiclesMessage = document.getElementById('no-vehicles-message');
         const vehicleCheckboxes = document.getElementById('vehicle-checkboxes');
         
-        // Limpiar lista previa
-        vehicleList.innerHTML = '';
-        vehicleCheckboxes.innerHTML = '';
+        // Ocultar mensaje de "no hay vehículos" si hay selecciones
+        if (selectedVehicles.size > 0 || assignedVehicles.size > 0) {
+            noVehiclesMessage.classList.add('hidden');
+            vehicleCheckboxes.classList.remove('hidden');
+        }
         
-        // Buscar datos del vehículo seleccionado
-        const selectedElement = document.querySelector(`.vehicle-option[data-id="${selectedVehicleId}"]`);
-        const vehicleMarca = selectedElement.dataset.marca;
-        const vehicleModelo = selectedElement.dataset.modelo;
-        const vehiclePlacas = selectedElement.dataset.placas;
+        // Agregar nuevos vehículos seleccionados
+        selectedVehicles.forEach(vehicleId => {
+            if (!assignedVehicles.has(vehicleId)) {
+                const vehicleElement = document.querySelector(`.vehicle-option[data-id="${vehicleId}"]`);
+                if (vehicleElement) {
+                    const marca = vehicleElement.dataset.marca;
+                    const modelo = vehicleElement.dataset.modelo;
+                    const placas = vehicleElement.dataset.placas;
+                    
+                    // Agregar vehículo a la lista visual
+                    const vehicleItem = document.createElement('div');
+                    vehicleItem.className = 'flex items-center justify-between p-4 bg-gray-50 border border-gray-300 rounded-lg shadow-sm';
+                    vehicleItem.setAttribute('data-vehicle-id', vehicleId);
+                    vehicleItem.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <div class="flex items-center justify-center w-8 h-8 bg-petroyellow rounded-lg">
+                                <svg class="w-4 h-4 text-petrodark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="text-sm font-semibold text-gray-900">${marca} ${modelo}</span>
+                                <p class="text-xs text-gray-700">Placas: ${placas}</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="removeVehicle('${vehicleId}')" 
+                                class="flex items-center justify-center w-8 h-8 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    `;
+                    
+                    vehicleList.appendChild(vehicleItem);
+                    
+                    // Agregar checkbox oculto para el formulario
+                    const hiddenCheckbox = document.createElement('input');
+                    hiddenCheckbox.type = 'checkbox';
+                    hiddenCheckbox.name = 'vehiculos_seleccionados[]';
+                    hiddenCheckbox.value = vehicleId;
+                    hiddenCheckbox.checked = true;
+                    hiddenCheckbox.classList.add('hidden');
+                    hiddenCheckbox.setAttribute('data-vehicle-checkbox', vehicleId);
+                    vehicleCheckboxes.appendChild(hiddenCheckbox);
+                    
+                    // Agregar a la lista de vehículos asignados
+                    assignedVehicles.add(vehicleId);
+                }
+            }
+        });
         
-        // Agregar vehículo a la lista
-        const vehicleItem = document.createElement('div');
-        vehicleItem.className = 'flex items-center justify-between p-4 bg-gray-50 border border-gray-300 rounded-lg shadow-sm';
-        vehicleItem.innerHTML = `
-            <div class="flex items-center space-x-3">
-                <div class="flex items-center justify-center w-8 h-8 bg-petroyellow rounded-lg">
-                    <svg class="w-4 h-4 text-petrodark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                    </svg>
-                </div>
-                <div>
-                    <span class="text-sm font-semibold text-gray-900">${vehicleMarca} ${vehicleModelo}</span>
-                    <p class="text-xs text-gray-700">Placas: ${vehiclePlacas}</p>
-                </div>
-            </div>
-            <button type="button" onclick="removeVehicle('${selectedVehicleId}')" 
-                    class="flex items-center justify-center w-8 h-8 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        `;
-        
-        vehicleList.appendChild(vehicleItem);
-        noVehiclesMessage.classList.add('hidden');
-        vehicleCheckboxes.classList.remove('hidden');
-        
-        // Agregar checkbox oculto para el formulario
-        const hiddenCheckbox = document.createElement('input');
-        hiddenCheckbox.type = 'checkbox';
-        hiddenCheckbox.name = 'vehiculos_seleccionados[]';
-        hiddenCheckbox.value = selectedVehicleId;
-        hiddenCheckbox.checked = true;
-        hiddenCheckbox.classList.add('hidden');
-        vehicleCheckboxes.appendChild(hiddenCheckbox);
-        
-        // Cerrar modal
+        // Cerrar modal y limpiar selecciones temporales
         closeVehicleModal();
     }
     
     function removeVehicle(vehicleId) {
+        // Remover de la lista visual
+        const vehicleItem = document.querySelector(`[data-vehicle-id="${vehicleId}"]`);
+        if (vehicleItem) {
+            vehicleItem.remove();
+        }
+        
+        // Remover checkbox oculto
+        const checkbox = document.querySelector(`[data-vehicle-checkbox="${vehicleId}"]`);
+        if (checkbox) {
+            checkbox.remove();
+        }
+        
+        // Remover de la lista de asignados
+        assignedVehicles.delete(vehicleId);
+        
+        // Si no hay más vehículos, mostrar mensaje
         const vehicleList = document.getElementById('assigned-vehicles-list');
         const noVehiclesMessage = document.getElementById('no-vehicles-message');
         const vehicleCheckboxes = document.getElementById('vehicle-checkboxes');
         
-        // Eliminar todos los elementos de la lista y los checkboxes
-        vehicleList.innerHTML = '';
-        vehicleCheckboxes.innerHTML = '';
-        
-        // Mostrar mensaje de ningún vehículo asignado
-        noVehiclesMessage.classList.remove('hidden');
-        vehicleCheckboxes.classList.add('hidden');
+        if (assignedVehicles.size === 0) {
+            noVehiclesMessage.classList.remove('hidden');
+            vehicleCheckboxes.classList.add('hidden');
+        }
     }
     
     function numberWithCommas(x) {

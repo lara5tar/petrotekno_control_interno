@@ -58,11 +58,6 @@ class StoreKilometrajeRequest extends FormRequest
                 'before_or_equal:today',
                 'after:2020-01-01', // Evitar fechas muy antiguas
             ],
-            'obra_id' => [
-                'nullable',
-                'integer',
-                'exists:obras,id',
-            ],
             'observaciones' => [
                 'nullable',
                 'string',
@@ -93,7 +88,6 @@ class StoreKilometrajeRequest extends FormRequest
             'fecha_captura.date' => 'La fecha de captura debe tener un formato válido.',
             'fecha_captura.before_or_equal' => 'La fecha de captura no puede ser futura.',
             'fecha_captura.after' => 'La fecha de captura debe ser posterior a enero 2020.',
-            'obra_id.exists' => 'La obra seleccionada no existe.',
             'observaciones.max' => 'Las observaciones no pueden exceder 1000 caracteres.',
         ];
     }
@@ -109,7 +103,6 @@ class StoreKilometrajeRequest extends FormRequest
             'vehiculo_id' => 'vehículo',
             'kilometraje' => 'kilometraje',
             'fecha_captura' => 'fecha de captura',
-            'obra_id' => 'obra',
             'observaciones' => 'observaciones',
         ];
     }

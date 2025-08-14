@@ -44,8 +44,7 @@ class AsignacionObraController extends Controller
             $query = Obra::with([
                 'vehiculo:id,marca,modelo,placas,kilometraje_actual',
                 'operador:id,nombre_completo',
-                'encargado:id,personal_id',
-                'encargado.personal:id,nombre_completo',
+                'encargado:id,nombre_completo', // CORREGIDO: Cambiar de 'encargado:id,personal_id' y remover la línea siguiente
             ])
                 ->whereNotNull('vehiculo_id')  // Solo obras que tienen asignación
                 ->whereNotNull('operador_id'); // Solo obras que tienen operador asignado
@@ -423,7 +422,7 @@ class AsignacionObraController extends Controller
             $obra = Obra::with([
                 'vehiculo',
                 'operador',
-                'encargado.personal',
+                'encargado', // CORREGIDO: Cambiar de 'encargado.personal' a solo 'encargado'
             ])
                 ->whereNotNull('vehiculo_id')
                 ->whereNotNull('operador_id')
