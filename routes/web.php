@@ -86,6 +86,11 @@ Route::middleware('auth')->prefix('vehiculos')->name('vehiculos.')->group(functi
     Route::delete('/{vehiculo}/kilometrajes/{kilometraje}', [App\Http\Controllers\VehiculoController::class, 'destroyKilometraje'])
         ->name('kilometrajes.destroy.vehiculo')
         ->middleware('permission:eliminar_kilometrajes');
+        
+    // Ruta para cambiar operador del vehículo
+    Route::patch('/{vehiculo}/cambiar-operador', [App\Http\Controllers\VehiculoController::class, 'cambiarOperador'])
+        ->name('cambiar-operador')
+        ->middleware('permission:editar_vehiculos');
 });
 
 // Ruta para crear personal (fuera del grupo para evitar conflictos con PUT personal/{id})

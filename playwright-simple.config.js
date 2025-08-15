@@ -1,10 +1,10 @@
 // @ts-check
-const { defineConfig, devices } = require('@playwright/test');
+import { defineConfig, devices } from '@playwright/test';
 
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
-module.exports = defineConfig({
+export default defineConfig({
     testDir: './tests/playwright',
     /* Run tests in files in parallel */
     fullyParallel: false,
@@ -37,7 +37,7 @@ module.exports = defineConfig({
         },
     ],
 
-    /* Run your local dev server before starting the tests */
+    /* NO usar webServer automático */
     // webServer: {
     //     command: 'php artisan serve --port=8000',
     //     port: 8000,

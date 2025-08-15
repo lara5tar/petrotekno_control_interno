@@ -233,24 +233,6 @@
                         <div class="space-y-6">
                             <!-- Sección: Obra Actual -->
                             <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm" id="obra-actual-section">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
-                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                        </svg>
-                                        Obra Actual
-                                    </h5>
-                                    @hasPermission('crear_asignaciones')
-                                    <button onclick="openCambiarObraModal()" 
-                                       class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                        </svg>
-                                        Cambiar Obra
-                                    </button>
-                                    @endhasPermission
-                                </div>
-                                
                                 @php
                                     // Obtener la asignación activa actual del vehículo
                                     $asignacionActiva = null;
@@ -265,6 +247,28 @@
                                         }
                                     }
                                 @endphp
+                                
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                        Obra Actual
+                                    </h5>
+                                    @hasPermission('crear_asignaciones')
+                                    <button onclick="openCambiarObraModal()" 
+                                       class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                        </svg>
+                                        @if($asignacionActiva && $asignacionActiva->obra)
+                                            Cambiar Obra
+                                        @else
+                                            Asignar Obra
+                                        @endif
+                                    </button>
+                                    @endhasPermission
+                                </div>
                                 
                                 @if($asignacionActiva && $asignacionActiva->obra)
                                 <div class="space-y-4">
@@ -358,15 +362,22 @@
                                     
                                     @hasPermission('crear_asignaciones')
                                     <div class="flex flex-col space-y-2">
-                                        <a href="{{ route('obras.index') }}" 
+                                        <button onclick="openCambiarObraModal()" 
                                            class="inline-block bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm transition-colors duration-200">
+                                            <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                            </svg>
+                                            Asignar Obra
+                                        </button>
+                                        <a href="{{ route('obras.index') }}" 
+                                           class="inline-block bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md text-sm transition-colors duration-200">
                                             <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                             Ver Obras Disponibles
                                         </a>
-                                        <p class="text-xs text-gray-500">Desde el listado de obras podrás asignar este vehículo</p>
+                                        <p class="text-xs text-gray-500">Usa "Asignar Obra" para asignar directamente o "Ver Obras" para explorar opciones</p>
                                     </div>
                                     @else
                                     <p class="text-xs text-gray-500">Contacta al administrador para asignar este vehículo a una obra</p>
@@ -385,13 +396,17 @@
                                         Operador Actual
                                     </h5>
                                     @hasPermission('editar_vehiculos')
-                                    <a href="{{ route('vehiculos.edit', ['vehiculo' => $vehiculo]) }}" 
+                                    <button onclick="openCambiarOperadorModal()" 
                                        class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                         </svg>
-                                        Cambiar Operador
-                                    </a>
+                                        @if(isset($vehiculo->operador) && $vehiculo->operador)
+                                            Cambiar Operador
+                                        @else
+                                            Asignar Operador
+                                        @endif
+                                    </button>
                                     @endhasPermission
                                 </div>
                                 
@@ -458,10 +473,10 @@
                                     <p class="text-sm text-yellow-600 mb-3">Este vehículo no tiene un operador asignado actualmente.</p>
                                     
                                     @hasPermission('editar_vehiculos')
-                                    <a href="{{ route('vehiculos.edit', ['vehiculo' => $vehiculo]) }}" 
+                                    <button onclick="openCambiarOperadorModal()" 
                                        class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md text-sm transition-colors duration-200">
                                         Asignar Operador
-                                    </a>
+                                    </button>
                                     @endhasPermission
                                 </div>
                                 @endif
@@ -934,7 +949,13 @@
 <div id="cambiar-obra-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
     <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Cambiar Obra Asignada</h3>
+            <h3 id="modal-title" class="text-lg font-semibold text-gray-900">
+                @if($asignacionActiva && $asignacionActiva->obra)
+                    Cambiar Obra Asignada
+                @else
+                    Asignar Obra al Vehículo
+                @endif
+            </h3>
             <button onclick="closeCambiarObraModal()" class="text-gray-400 hover:text-gray-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -975,33 +996,22 @@
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">Seleccionar obra...</option>
                         @php
-                            // Obtener obras disponibles (que no tengan asignaciones activas)
-                            $obrasConAsignaciones = \App\Models\AsignacionObra::where('estado', 'activa')
-                                ->whereNull('fecha_liberacion')
-                                ->pluck('obra_id');
+                            // Obtener obras disponibles (excluyendo solo la obra actual del vehículo)
+                            $obraActualId = null;
+                            if ($asignacionActiva && $asignacionActiva->obra) {
+                                $obraActualId = $asignacionActiva->obra->id;
+                            }
                             
                             $obrasDisponibles = \App\Models\Obra::where('estatus', 'planificada')
                                 ->orWhere('estatus', 'en_progreso')
-                                ->whereNotIn('id', $obrasConAsignaciones)
+                                ->when($obraActualId, function($query, $obraActualId) {
+                                    return $query->where('id', '!=', $obraActualId);
+                                })
                                 ->orderBy('nombre_obra')
                                 ->get();
                         @endphp
                         @foreach($obrasDisponibles as $obra)
                             <option value="{{ $obra->id }}">{{ $obra->nombre_obra }} - {{ $obra->ubicacion ?? 'Sin ubicación' }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Nuevo Operador -->
-                <div>
-                    <label for="operador_id" class="block text-sm font-medium text-gray-700 mb-1">Nuevo Operador</label>
-                    <select id="operador_id" name="operador_id" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="">Seleccionar operador...</option>
-                        @foreach(\App\Models\Personal::where('categoria_id', 1)->orderBy('nombre_completo')->get() as $operador)
-                            <option value="{{ $operador->id }}" {{ $vehiculo->operador_id == $operador->id ? 'selected' : '' }}>
-                                {{ $operador->nombre_completo }}
-                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -1032,7 +1042,112 @@
                 </button>
                 <button type="submit" 
                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200">
-                    Cambiar Obra
+                    @if($asignacionActiva && $asignacionActiva->obra)
+                        Cambiar Obra
+                    @else
+                        Asignar Obra
+                    @endif
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Cambiar Operador -->
+<div id="cambiar-operador-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="modal-operador-title" class="text-lg font-semibold text-gray-900">
+                @if(isset($vehiculo->operador) && $vehiculo->operador)
+                    Cambiar Operador del Vehículo
+                @else
+                    Asignar Operador al Vehículo
+                @endif
+            </h3>
+            <button onclick="closeCambiarOperadorModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="mb-4 text-sm text-gray-600">
+            <p><strong>Vehículo:</strong> {{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->placas }})</p>
+            @if(isset($vehiculo->operador) && $vehiculo->operador)
+                <p><strong>Operador Actual:</strong> {{ $vehiculo->operador->nombre_completo }}</p>
+            @else
+                <p><strong>Estado:</strong> Sin operador asignado</p>
+            @endif
+        </div>
+
+        <form id="cambiar-operador-form" method="POST" action="{{ route('vehiculos.cambiar-operador', $vehiculo) }}">
+            @csrf
+            @method('PATCH')
+            
+            <!-- Selección de Nuevo Operador -->
+            <div class="mb-4">
+                <label for="operador_id" class="block text-sm font-medium text-gray-700 mb-1">
+                    @if(isset($vehiculo->operador) && $vehiculo->operador)
+                        Nuevo Operador
+                    @else
+                        Operador a Asignar
+                    @endif
+                </label>
+                <select id="operador_id" name="operador_id" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">Seleccionar operador...</option>
+                    @php
+                        // Obtener operadores disponibles (excluyendo el operador actual del vehículo)
+                        $operadorActualId = null;
+                        if (isset($vehiculo->operador) && $vehiculo->operador) {
+                            $operadorActualId = $vehiculo->operador->id;
+                        }
+                        
+                        // Obtener ID de la categoría "Operador"
+                        $categoriaOperador = \App\Models\CategoriaPersonal::where('nombre_categoria', 'Operador')->first();
+                        
+                        $operadoresDisponibles = \App\Models\Personal::where('categoria_id', $categoriaOperador?->id)
+                            ->where('estatus', 'activo')
+                            ->when($operadorActualId, function($query, $operadorActualId) {
+                                return $query->where('id', '!=', $operadorActualId);
+                            })
+                            ->orderBy('nombre_completo')
+                            ->get();
+                    @endphp
+                    @foreach($operadoresDisponibles as $operador)
+                        <option value="{{ $operador->id }}">{{ $operador->nombre_completo }} - {{ $operador->nss ?? 'Sin NSS' }}</option>
+                    @endforeach
+                </select>
+                <p class="text-xs text-gray-500 mt-1">
+                    @if(isset($vehiculo->operador) && $vehiculo->operador)
+                        Selecciona el nuevo operador que reemplazará al actual
+                    @else
+                        Selecciona el operador que será asignado a este vehículo
+                    @endif
+                </p>
+            </div>
+
+            <!-- Observaciones (opcional) -->
+            <div class="mb-4">
+                <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-1">Observaciones (opcional)</label>
+                <textarea id="observaciones" name="observaciones" rows="3" 
+                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                         placeholder="Motivo del cambio u observaciones adicionales..."></textarea>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex justify-end space-x-3 mt-6 pt-4 border-t">
+                <button type="button" onclick="closeCambiarOperadorModal()" 
+                       class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-200">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                       class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200">
+                    @if(isset($vehiculo->operador) && $vehiculo->operador)
+                        Cambiar Operador
+                    @else
+                        Asignar Operador
+                    @endif
                 </button>
             </div>
         </form>
@@ -1239,7 +1354,11 @@
         
         // Deshabilitar botón mientras se procesa
         submitButton.disabled = true;
-        submitButton.textContent = 'Cambiando...';
+        @if($asignacionActiva && $asignacionActiva->obra)
+            submitButton.textContent = 'Cambiando...';
+        @else
+            submitButton.textContent = 'Asignando...';
+        @endif
         
         fetch(this.action, {
             method: 'POST',
@@ -1269,7 +1388,80 @@
         .finally(() => {
             // Rehabilitar botón
             submitButton.disabled = false;
-            submitButton.textContent = 'Cambiar Obra';
+            @if($asignacionActiva && $asignacionActiva->obra)
+                submitButton.textContent = 'Cambiar Obra';
+            @else
+                submitButton.textContent = 'Asignar Obra';
+            @endif
+        });
+    });
+
+    // Funciones para el modal de cambiar operador
+    function openCambiarOperadorModal() {
+        document.getElementById('cambiar-operador-modal').classList.remove('hidden');
+    }
+
+    function closeCambiarOperadorModal() {
+        document.getElementById('cambiar-operador-modal').classList.add('hidden');
+        // Limpiar el formulario
+        document.getElementById('cambiar-operador-form').reset();
+    }
+
+    // Manejar envío del formulario de cambiar operador
+    document.getElementById('cambiar-operador-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const submitButton = this.querySelector('button[type="submit"]');
+        
+        // Deshabilitar botón mientras se procesa
+        submitButton.disabled = true;
+        @if(isset($vehiculo->operador) && $vehiculo->operador)
+            submitButton.textContent = 'Cambiando...';
+        @else
+            submitButton.textContent = 'Asignando...';
+        @endif
+        
+        // Debug: verificar que los datos se envían
+        console.log('Datos del formulario:');
+        for (let [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
+        
+        fetch(this.action, {
+            method: 'POST', // Cambiar a POST y usar _method en FormData
+            body: formData, // FormData ya incluye _token y _method
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+                // No incluir X-CSRF-TOKEN cuando usamos FormData con _token
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                closeCambiarOperadorModal();
+                
+                // Redirigir después de un breve delay
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 1500);
+            } else {
+                showNotification(data.error, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error al cambiar el operador', 'error');
+        })
+        .finally(() => {
+            // Rehabilitar botón
+            submitButton.disabled = false;
+            @if(isset($vehiculo->operador) && $vehiculo->operador)
+                submitButton.textContent = 'Cambiar Operador';
+            @else
+                submitButton.textContent = 'Asignar Operador';
+            @endif
         });
     });
 </script>

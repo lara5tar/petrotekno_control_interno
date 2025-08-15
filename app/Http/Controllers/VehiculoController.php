@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\EstadoVehiculo;
+use App\Models\CategoriaPersonal;
 use App\Models\LogAccion;
 use App\Models\Personal;
 use App\Models\Vehiculo;
@@ -655,6 +656,100 @@ class VehiculoController extends Controller
             
             return redirect()->back()
                 ->with('error', 'Error al eliminar el kilometraje: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Cambiar el operador asignado a un vehículo
+     */
+    public function cambiarOperador(Request $request, Vehiculo $vehiculo)
+    {
+        $this->authorize('editar_vehiculos');
+
+        // Validar la solicitud
+        $request->validate([
+            'operador_id' => 'required|exists:personal,id',
+            'observaciones' => 'nullable|string|max:500'
+        ]);
+
+        // Verificar que el operador sea de la categoría correcta y esté activo
+        $categoriaOperador = \App\Models\CategoriaPersonal::where('nombre_categoria', 'Operador')->first();
+        
+        $nuevoOperador = Personal::where('id', $request->operador_id)
+            ->where('categoria_id', $categoriaOperador?->id)
+            ->where('estatus', 'activo')
+            ->first();
+
+        if (!$nuevoOperador) {
+            return response()->json([
+                'success' => false,
+                'error' => 'El operador seleccionado no es válido o no está activo.'
+            ], 400);
+        }
+
+        // Verificar que no sea el mismo operador actual
+        if ($vehiculo->operador_id == $request->operador_id) {
+            return response()->json([
+                'success' => false,
+                'error' => 'El operador seleccionado ya está asignado a este vehículo.'
+            ], 400);
+        }
+
+        DB::beginTransaction();
+        
+        try {
+            $operadorAnterior = $vehiculo->operador;
+            
+            // Actualizar el operador del vehículo
+            $vehiculo->update([
+                'operador_id' => $request->operador_id
+            ]);
+
+            // Registrar la acción en los logs
+            $mensaje = $operadorAnterior 
+                ? "Operador cambiado de {$operadorAnterior->nombre_completo} a {$nuevoOperador->nombre_completo}"
+                : "Operador asignado: {$nuevoOperador->nombre_completo}";
+            
+            if ($request->observaciones) {
+                $mensaje .= ". Observaciones: {$request->observaciones}";
+            }
+
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => $operadorAnterior ? 'cambio_operador_vehiculo' : 'asignacion_operador_vehiculo',
+                'tabla_afectada' => 'vehiculos',
+                'registro_id' => $vehiculo->id,
+                'detalles' => [
+                    'mensaje' => $mensaje,
+                    'operador_anterior' => $operadorAnterior ? [
+                        'id' => $operadorAnterior->id,
+                        'nombre' => $operadorAnterior->nombre_completo
+                    ] : null,
+                    'operador_nuevo' => [
+                        'id' => $nuevoOperador->id,
+                        'nombre' => $nuevoOperador->nombre_completo
+                    ],
+                    'observaciones' => $request->observaciones
+                ]
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => $operadorAnterior 
+                    ? 'Operador cambiado exitosamente' 
+                    : 'Operador asignado exitosamente',
+                'redirect' => route('vehiculos.show', $vehiculo)
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al cambiar el operador: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

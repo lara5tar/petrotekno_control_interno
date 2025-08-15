@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class AsignacionObraController extends Controller
@@ -654,14 +655,11 @@ class AsignacionObraController extends Controller
             // Validar datos de entrada
             $validator = Validator::make($request->all(), [
                 'obra_id' => 'required|exists:obras,id',
-                'operador_id' => 'required|exists:personal,id',
                 'kilometraje_inicial' => 'nullable|integer|min:0',
                 'observaciones' => 'nullable|string|max:1000',
             ], [
                 'obra_id.required' => 'Debe seleccionar una obra.',
                 'obra_id.exists' => 'La obra seleccionada no existe.',
-                'operador_id.required' => 'Debe seleccionar un operador.',
-                'operador_id.exists' => 'El operador seleccionado no existe.',
                 'kilometraje_inicial.integer' => 'El kilometraje inicial debe ser un número entero.',
                 'kilometraje_inicial.min' => 'El kilometraje inicial no puede ser negativo.',
             ]);
@@ -679,57 +677,54 @@ class AsignacionObraController extends Controller
             $vehiculo = Vehiculo::findOrFail($vehiculoId);
 
             // Liberar asignación actual si existe
-            $asignacionActual = $vehiculo->asignacionObraActual();
-            if ($asignacionActual) {
-                $asignacionActual->update([
-                    'fecha_liberacion' => now(),
-                    'kilometraje_final' => $vehiculo->kilometraje_actual ?? 0,
-                    'observaciones' => ($asignacionActual->observaciones ?? '') . ' | Liberado para cambio de obra',
-                    'estado' => 'liberada'
-                ]);
+            $asignacionActual = AsignacionObra::where('vehiculo_id', $vehiculoId)
+                ->where('estado', 'activa')
+                ->whereNull('fecha_liberacion')
+                ->first();
 
+            // Liberar asignaciones actuales del vehículo
+            $asignacionesActuales = AsignacionObra::where('vehiculo_id', $vehiculoId)
+                ->where('estado', 'activa')
+                ->whereNull('fecha_liberacion')
+                ->get();
+
+            foreach ($asignacionesActuales as $asignacion) {
                 // Log de liberación
                 LogAccion::create([
                     'usuario_id' => Auth::id(),
                     'accion' => 'liberar_asignacion_obra',
-                    'tabla' => 'asignaciones_obra',
-                    'registro_id' => $asignacionActual->id,
-                    'datos_anteriores' => $asignacionActual->getOriginal(),
-                    'datos_nuevos' => $asignacionActual->toArray(),
-                    'fecha_hora' => now(),
-                    'ip' => $request->ip(),
-                    'user_agent' => $request->userAgent(),
+                    'tabla_afectada' => 'asignaciones_obra',
+                    'registro_id' => $asignacion->id,
+                    'detalles' => "Asignación liberada para cambio de obra: {$vehiculo->marca} {$vehiculo->modelo} ({$vehiculo->placas})",
                 ]);
+
+                // Forzar eliminación permanente para evitar constraint conflicts
+                $asignacion->forceDelete();
             }
 
             // Crear nueva asignación
             $nuevaAsignacion = AsignacionObra::create([
                 'obra_id' => $request->obra_id,
                 'vehiculo_id' => $vehiculo->id,
-                'operador_id' => $request->operador_id,
+                'operador_id' => $vehiculo->operador_id, // Usar el operador actual del vehículo
                 'fecha_asignacion' => now(),
                 'kilometraje_inicial' => $request->kilometraje_inicial ?? $vehiculo->kilometraje_actual ?? 0,
                 'observaciones' => $request->observaciones ?? 'Cambio de obra desde vehículo',
                 'estado' => 'activa',
             ]);
 
-            // Actualizar operador del vehículo
+            // Actualizar solo el estatus del vehículo (mantener el mismo operador)
             $vehiculo->update([
                 'estatus' => EstadoVehiculo::ASIGNADO->value,
-                'operador_id' => $request->operador_id,
             ]);
 
             // Log de nueva asignación
             LogAccion::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'crear_asignacion_obra',
-                'tabla' => 'asignaciones_obra',
+                'tabla_afectada' => 'asignaciones_obra',
                 'registro_id' => $nuevaAsignacion->id,
-                'datos_anteriores' => null,
-                'datos_nuevos' => $nuevaAsignacion->toArray(),
-                'fecha_hora' => now(),
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
+                'detalles' => "Cambio de obra: {$vehiculo->marca} {$vehiculo->modelo} ({$vehiculo->placas}) asignado a obra ID {$request->obra_id} con operador actual ID {$vehiculo->operador_id}",
             ]);
 
             DB::commit();
