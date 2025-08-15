@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\EstadoVehiculo;
+use App\Models\AsignacionObra;
 use App\Models\LogAccion;
 use App\Models\Obra;
 use App\Models\Personal;
@@ -41,19 +42,22 @@ class AsignacionObraController extends Controller
                 return redirect()->back()->with('error', $message);
             }
 
-            $query = Obra::with([
+            $query = AsignacionObra::with([
+                'obra',
                 'vehiculo:id,marca,modelo,placas,kilometraje_actual',
                 'operador:id,nombre_completo',
-                'encargado:id,nombre_completo', // CORREGIDO: Cambiar de 'encargado:id,personal_id' y remover la línea siguiente
+                'obra.encargado:id,nombre_completo',
             ])
-                ->whereNotNull('vehiculo_id')  // Solo obras que tienen asignación
-                ->whereNotNull('operador_id'); // Solo obras que tienen operador asignado
+                ->where('estado', 'activa')
+                ->whereNull('fecha_liberacion');
 
             // Aplicar filtros de búsqueda
             if ($request->filled('buscar')) {
                 $searchTerm = $request->buscar;
                 $query->where(function ($q) use ($searchTerm) {
-                    $q->where('nombre_obra', 'like', "%{$searchTerm}%")
+                    $q->whereHas('obra', function ($oq) use ($searchTerm) {
+                            $oq->where('nombre_obra', 'like', "%{$searchTerm}%");
+                        })
                         ->orWhereHas('vehiculo', function ($vq) use ($searchTerm) {
                             $vq->where('marca', 'like', "%{$searchTerm}%")
                                 ->orWhere('modelo', 'like', "%{$searchTerm}%")
@@ -67,9 +71,9 @@ class AsignacionObraController extends Controller
 
             if ($request->filled('estado')) {
                 if ($request->estado === 'activa') {
-                    $query->whereNull('fecha_liberacion');
+                    $query->where('estado', 'activa')->whereNull('fecha_liberacion');
                 } elseif ($request->estado === 'liberada') {
-                    $query->whereNotNull('fecha_liberacion');
+                    $query->where('estado', 'liberada')->whereNotNull('fecha_liberacion');
                 }
             }
 
@@ -99,13 +103,12 @@ class AsignacionObraController extends Controller
             $perPage = max(1, min((int) $perPage, 100));
             $asignaciones = $query->paginate($perPage);
 
-            // Estadísticas usando Obra en lugar de Asignacion
+            // Estadísticas usando AsignacionObra en lugar de Obra
             $estadisticas = [
-                'total' => Obra::whereNotNull('vehiculo_id')->whereNotNull('operador_id')->count(),
-                'activas' => Obra::whereNotNull('vehiculo_id')->whereNotNull('operador_id')->whereNull('fecha_liberacion')->count(),
-                'liberadas' => Obra::whereNotNull('vehiculo_id')->whereNotNull('operador_id')->whereNotNull('fecha_liberacion')->count(),
-                'este_mes' => Obra::whereNotNull('vehiculo_id')->whereNotNull('operador_id')
-                    ->whereMonth('fecha_asignacion', now()->month)
+                'total' => AsignacionObra::count(),
+                'activas' => AsignacionObra::where('estado', 'activa')->whereNull('fecha_liberacion')->count(),
+                'liberadas' => AsignacionObra::where('estado', 'liberada')->whereNotNull('fecha_liberacion')->count(),
+                'este_mes' => AsignacionObra::whereMonth('fecha_asignacion', now()->month)
                     ->whereYear('fecha_asignacion', now()->year)
                     ->count(),
             ];
@@ -308,10 +311,9 @@ class AsignacionObraController extends Controller
 
             DB::beginTransaction();
 
-            // Verificaciones adicionales - ahora usando la tabla obras unificada
-            $obraConAsignacion = Obra::where('id', $request->obra_id)
-                ->whereNotNull('vehiculo_id')
-                ->whereNotNull('operador_id')
+            // Verificaciones adicionales - usando la tabla asignaciones_obra
+            $obraConAsignacion = AsignacionObra::where('obra_id', $request->obra_id)
+                ->where('estado', 'activa')
                 ->whereNull('fecha_liberacion')
                 ->first();
 
@@ -324,8 +326,8 @@ class AsignacionObraController extends Controller
                 return redirect()->back()->with('error', $message)->withInput();
             }
 
-            $vehiculoAsignado = Obra::where('vehiculo_id', $request->vehiculo_id)
-                ->whereNotNull('operador_id')
+            $vehiculoAsignado = AsignacionObra::where('vehiculo_id', $request->vehiculo_id)
+                ->where('estado', 'activa')
                 ->whereNull('fecha_liberacion')
                 ->first();
 
@@ -338,8 +340,8 @@ class AsignacionObraController extends Controller
                 return redirect()->back()->with('error', $message)->withInput();
             }
 
-            $operadorAsignado = Obra::where('operador_id', $request->operador_id)
-                ->whereNotNull('vehiculo_id')
+            $operadorAsignado = AsignacionObra::where('operador_id', $request->operador_id)
+                ->where('estado', 'activa')
                 ->whereNull('fecha_liberacion')
                 ->first();
 
@@ -352,16 +354,15 @@ class AsignacionObraController extends Controller
                 return redirect()->back()->with('error', $message)->withInput();
             }
 
-            // Actualizar la obra con los datos de asignación
-            $obra = Obra::findOrFail($request->obra_id);
-            $obra->update([
+            // Crear la asignación en la tabla asignaciones_obra
+            $asignacion = AsignacionObra::create([
+                'obra_id' => $request->obra_id,
                 'vehiculo_id' => $request->vehiculo_id,
                 'operador_id' => $request->operador_id,
-                'encargado_id' => $request->encargado_id ?? Auth::id(), // Usar encargado_id del formulario o Auth::id() como fallback
-                'fecha_asignacion' => now(), // Fecha automática del sistema
+                'fecha_asignacion' => now(),
                 'kilometraje_inicial' => $request->kilometraje_inicial,
-                'combustible_inicial' => $request->combustible_inicial,
                 'observaciones' => $request->observaciones,
+                'estado' => 'activa',
             ]);
 
             // Actualizar el estatus del vehículo a "Asignado"
@@ -377,9 +378,9 @@ class AsignacionObraController extends Controller
             LogAccion::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'crear_asignacion',
-                'tabla_afectada' => 'obras',
-                'registro_id' => $obra->id,
-                'detalles' => "Asignación creada: {$obra->vehiculo->marca} {$obra->vehiculo->modelo} ({$obra->vehiculo->placas}) asignado a {$obra->nombre_obra} - Operador: {$obra->operador->nombre_completo}",
+                'tabla_afectada' => 'asignaciones_obra',
+                'registro_id' => $asignacion->id,
+                'detalles' => "Asignación creada: {$asignacion->vehiculo->marca} {$asignacion->vehiculo->modelo} ({$asignacion->vehiculo->placas}) asignado a {$asignacion->obra->nombre_obra} - Operador: {$asignacion->operador->nombre_completo}",
             ]);
 
             DB::commit();
@@ -388,7 +389,7 @@ class AsignacionObraController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => $message,
-                    'data' => $obra->fresh(['vehiculo', 'operador', 'encargado']),
+                    'data' => $asignacion->fresh(['vehiculo', 'operador', 'obra']),
                 ], 201);
             }
 
@@ -471,10 +472,12 @@ class AsignacionObraController extends Controller
                 return redirect()->back()->with('error', $message);
             }
 
-            $obra = Obra::whereNotNull('vehiculo_id')->whereNotNull('operador_id')->findOrFail($id);
+            $asignacion = AsignacionObra::where('estado', 'activa')
+                ->whereNull('fecha_liberacion')
+                ->findOrFail($id);
 
-            if ($obra->fecha_liberacion) {
-                $message = 'Esta obra ya ha sido liberada.';
+            if ($asignacion->fecha_liberacion) {
+                $message = 'Esta asignación ya ha sido liberada.';
                 if ($request->expectsJson()) {
                     return response()->json(['error' => $message], 400);
                 }
@@ -482,10 +485,10 @@ class AsignacionObraController extends Controller
                 return redirect()->back()->with('error', $message);
             }
 
-            if (is_null($obra->fecha_liberacion)) {
-                $message = 'Esta obra está activa y puede ser liberada.';
+            if (is_null($asignacion->fecha_liberacion)) {
+                $message = 'Esta asignación está activa y puede ser liberada.';
             } else {
-                $message = 'Esta obra no está activa.';
+                $message = 'Esta asignación no está activa.';
                 if ($request->expectsJson()) {
                     return response()->json(['error' => $message], 400);
                 }
@@ -495,15 +498,11 @@ class AsignacionObraController extends Controller
 
             // Validación
             $validator = Validator::make($request->all(), [
-                'kilometraje_final' => 'required|integer|gte:' . ($obra->kilometraje_inicial ?? 0),
-                'combustible_final' => 'nullable|numeric|min:0|max:1000',
-                'combustible_suministrado' => 'nullable|numeric|min:0|max:1000',
-                'costo_combustible' => 'nullable|numeric|min:0',
+                'kilometraje_final' => 'required|integer|gte:' . ($asignacion->kilometraje_inicial ?? 0),
                 'observaciones_liberacion' => 'nullable|string|max:1000',
             ], [
                 'kilometraje_final.required' => 'El kilometraje final es obligatorio.',
-                'kilometraje_final.gte' => 'El kilometraje final debe ser mayor o igual al inicial (' . ($obra->kilometraje_inicial ?? 0) . ' km).',
-                'combustible_final.max' => 'El combustible final no puede exceder 1000 litros.',
+                'kilometraje_final.gte' => 'El kilometraje final debe ser mayor o igual al inicial (' . ($asignacion->kilometraje_inicial ?? 0) . ' km).',
                 'observaciones_liberacion.max' => 'Las observaciones no pueden exceder 1000 caracteres.',
             ]);
 
@@ -522,21 +521,19 @@ class AsignacionObraController extends Controller
 
             DB::beginTransaction();
 
-            // Liberar la obra/asignación
-            $obra->update([
+            // Liberar la asignación
+            $asignacion->update([
                 'fecha_liberacion' => now(),
                 'kilometraje_final' => $request->kilometraje_final,
-                'combustible_final' => $request->combustible_final,
-                'combustible_suministrado' => $request->combustible_suministrado,
-                'costo_combustible' => $request->costo_combustible,
-                'observaciones' => $obra->observaciones
-                    ? $obra->observaciones . "\n\nLiberación: " . $request->observaciones_liberacion
+                'estado' => 'liberada',
+                'observaciones' => $asignacion->observaciones
+                    ? $asignacion->observaciones . "\n\nLiberación: " . $request->observaciones_liberacion
                     : 'Liberación: ' . $request->observaciones_liberacion,
             ]);
 
             // Actualizar el vehículo
-            if ($obra->vehiculo) {
-                $obra->vehiculo->update([
+            if ($asignacion->vehiculo) {
+                $asignacion->vehiculo->update([
                     'estatus' => EstadoVehiculo::DISPONIBLE->value,
                     'kilometraje_actual' => $request->kilometraje_final,
                 ]);
@@ -546,22 +543,22 @@ class AsignacionObraController extends Controller
             LogAccion::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'liberar_asignacion',
-                'tabla_afectada' => 'obras',
-                'registro_id' => $obra->id,
-                'detalles' => "Obra liberada: {$obra->vehiculo->marca} {$obra->vehiculo->modelo} ({$obra->vehiculo->placas}) - Kilometraje: {$request->kilometraje_final} km",
+                'tabla_afectada' => 'asignaciones_obra',
+                'registro_id' => $asignacion->id,
+                'detalles' => "Asignación liberada: {$asignacion->vehiculo->marca} {$asignacion->vehiculo->modelo} ({$asignacion->vehiculo->placas}) - Kilometraje: {$request->kilometraje_final} km",
             ]);
 
             DB::commit();
 
-            $message = 'Obra liberada exitosamente.';
+            $message = 'Asignación liberada exitosamente.';
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => $message,
-                    'data' => $obra->fresh(['vehiculo', 'operador', 'encargado']),
+                    'data' => $asignacion->fresh(['vehiculo', 'operador', 'obra']),
                 ]);
             }
 
-            return redirect()->route('asignaciones-obra.show', $obra->id)->with('success', $message);
+            return redirect()->route('asignaciones-obra.index')->with('success', $message);
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -589,21 +586,18 @@ class AsignacionObraController extends Controller
 
             $estadisticas = [
                 // Contadores generales
-                'total_asignaciones' => Obra::whereNotNull('vehiculo_id')->whereNotNull('operador_id')->count(),
-                'asignaciones_activas' => Obra::whereNotNull('vehiculo_id')->whereNotNull('operador_id')->whereNull('fecha_liberacion')->count(),
-                'asignaciones_liberadas' => Obra::whereNotNull('vehiculo_id')->whereNotNull('operador_id')->whereNotNull('fecha_liberacion')->count(),
+                'total_asignaciones' => AsignacionObra::count(),
+                'asignaciones_activas' => AsignacionObra::where('estado', 'activa')->whereNull('fecha_liberacion')->count(),
+                'asignaciones_liberadas' => AsignacionObra::where('estado', 'liberada')->whereNotNull('fecha_liberacion')->count(),
 
                 // Estadísticas por período
-                'este_mes' => Obra::whereNotNull('vehiculo_id')->whereNotNull('operador_id')
-                    ->whereMonth('fecha_asignacion', now()->month)
+                'este_mes' => AsignacionObra::whereMonth('fecha_asignacion', now()->month)
                     ->whereYear('fecha_asignacion', now()->year)->count(),
-                'mes_anterior' => Obra::whereNotNull('vehiculo_id')->whereNotNull('operador_id')
-                    ->whereMonth('fecha_asignacion', now()->subMonth()->month)
+                'mes_anterior' => AsignacionObra::whereMonth('fecha_asignacion', now()->subMonth()->month)
                     ->whereYear('fecha_asignacion', now()->subMonth()->year)->count(),
 
                 // Vehículos más utilizados
-                'vehiculos_mas_utilizados' => Obra::with('vehiculo')
-                    ->whereNotNull('vehiculo_id')->whereNotNull('operador_id')
+                'vehiculos_mas_utilizados' => AsignacionObra::with('vehiculo')
                     ->selectRaw('vehiculo_id, COUNT(*) as total_asignaciones')
                     ->groupBy('vehiculo_id')
                     ->orderByDesc('total_asignaciones')
@@ -611,8 +605,7 @@ class AsignacionObraController extends Controller
                     ->get(),
 
                 // Operadores más activos
-                'operadores_mas_activos' => Obra::with('operador')
-                    ->whereNotNull('vehiculo_id')->whereNotNull('operador_id')
+                'operadores_mas_activos' => AsignacionObra::with('operador')
                     ->selectRaw('operador_id, COUNT(*) as total_asignaciones')
                     ->groupBy('operador_id')
                     ->orderByDesc('total_asignaciones')
@@ -620,14 +613,12 @@ class AsignacionObraController extends Controller
                     ->get(),
 
                 // Duración promedio de asignaciones
-                'duracion_promedio' => Obra::whereNotNull('fecha_liberacion')
-                    ->whereNotNull('vehiculo_id')->whereNotNull('operador_id')
+                'duracion_promedio' => AsignacionObra::whereNotNull('fecha_liberacion')
                     ->selectRaw('AVG(DATEDIFF(fecha_liberacion, fecha_asignacion)) as promedio')
                     ->value('promedio'),
 
                 // Kilometraje total recorrido
-                'kilometraje_total' => Obra::whereNotNull('fecha_liberacion')
-                    ->whereNotNull('vehiculo_id')->whereNotNull('operador_id')
+                'kilometraje_total' => AsignacionObra::whereNotNull('fecha_liberacion')
                     ->selectRaw('SUM(kilometraje_final - kilometraje_inicial) as total')
                     ->value('total'),
             ];
@@ -643,6 +634,132 @@ class AsignacionObraController extends Controller
             }
 
             return redirect()->back()->with('error', 'Error al obtener estadísticas.');
+        }
+    }
+
+    /**
+     * Cambiar la obra asignada a un vehículo
+     */
+    public function cambiarObra(Request $request, int $vehiculoId)
+    {
+        try {
+            if (!$this->hasPermission('crear_asignaciones')) {
+                $message = 'No tienes permisos para cambiar asignaciones de obra.';
+                if ($request->expectsJson()) {
+                    return response()->json(['error' => $message], 403);
+                }
+                return redirect()->back()->with('error', $message);
+            }
+
+            // Validar datos de entrada
+            $validator = Validator::make($request->all(), [
+                'obra_id' => 'required|exists:obras,id',
+                'operador_id' => 'required|exists:personal,id',
+                'kilometraje_inicial' => 'nullable|integer|min:0',
+                'observaciones' => 'nullable|string|max:1000',
+            ], [
+                'obra_id.required' => 'Debe seleccionar una obra.',
+                'obra_id.exists' => 'La obra seleccionada no existe.',
+                'operador_id.required' => 'Debe seleccionar un operador.',
+                'operador_id.exists' => 'El operador seleccionado no existe.',
+                'kilometraje_inicial.integer' => 'El kilometraje inicial debe ser un número entero.',
+                'kilometraje_inicial.min' => 'El kilometraje inicial no puede ser negativo.',
+            ]);
+
+            if ($validator->fails()) {
+                if ($request->expectsJson()) {
+                    return response()->json(['errors' => $validator->errors()], 422);
+                }
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
+
+            DB::beginTransaction();
+
+            // Obtener el vehículo
+            $vehiculo = Vehiculo::findOrFail($vehiculoId);
+
+            // Liberar asignación actual si existe
+            $asignacionActual = $vehiculo->asignacionObraActual();
+            if ($asignacionActual) {
+                $asignacionActual->update([
+                    'fecha_liberacion' => now(),
+                    'kilometraje_final' => $vehiculo->kilometraje_actual ?? 0,
+                    'observaciones' => ($asignacionActual->observaciones ?? '') . ' | Liberado para cambio de obra',
+                    'estado' => 'liberada'
+                ]);
+
+                // Log de liberación
+                LogAccion::create([
+                    'usuario_id' => Auth::id(),
+                    'accion' => 'liberar_asignacion_obra',
+                    'tabla' => 'asignaciones_obra',
+                    'registro_id' => $asignacionActual->id,
+                    'datos_anteriores' => $asignacionActual->getOriginal(),
+                    'datos_nuevos' => $asignacionActual->toArray(),
+                    'fecha_hora' => now(),
+                    'ip' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]);
+            }
+
+            // Crear nueva asignación
+            $nuevaAsignacion = AsignacionObra::create([
+                'obra_id' => $request->obra_id,
+                'vehiculo_id' => $vehiculo->id,
+                'operador_id' => $request->operador_id,
+                'fecha_asignacion' => now(),
+                'kilometraje_inicial' => $request->kilometraje_inicial ?? $vehiculo->kilometraje_actual ?? 0,
+                'observaciones' => $request->observaciones ?? 'Cambio de obra desde vehículo',
+                'estado' => 'activa',
+            ]);
+
+            // Actualizar operador del vehículo
+            $vehiculo->update([
+                'estatus' => EstadoVehiculo::ASIGNADO->value,
+                'operador_id' => $request->operador_id,
+            ]);
+
+            // Log de nueva asignación
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'crear_asignacion_obra',
+                'tabla' => 'asignaciones_obra',
+                'registro_id' => $nuevaAsignacion->id,
+                'datos_anteriores' => null,
+                'datos_nuevos' => $nuevaAsignacion->toArray(),
+                'fecha_hora' => now(),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
+            DB::commit();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Obra cambiada exitosamente',
+                    'data' => [
+                        'vehiculo' => $vehiculo->fresh(),
+                        'nueva_asignacion' => $nuevaAsignacion->fresh(),
+                    ]
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Obra cambiada exitosamente');
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Error al cambiar la obra: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->with('error', 'Error al cambiar la obra: ' . $e->getMessage())
+                ->withInput();
         }
     }
 }

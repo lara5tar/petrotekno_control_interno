@@ -121,10 +121,21 @@ class KilometrajeController extends Controller
         try {
             DB::beginTransaction();
 
-            $kilometraje = Kilometraje::create($request->validated());
+            // Obtener datos validados
+            $data = $request->validated();
+            
+            // Obtener el vehículo para conseguir la obra actual
+            $vehiculo = Vehiculo::findOrFail($data['vehiculo_id']);
+            $obraActual = $vehiculo->obraActual()->first();
+            
+            // Agregar obra_id si existe una obra actual
+            if ($obraActual) {
+                $data['obra_id'] = $obraActual->id;
+            }
+
+            $kilometraje = Kilometraje::create($data);
 
             // Actualizar kilometraje actual del vehículo si es mayor
-            $vehiculo = $kilometraje->vehiculo;
             if ($kilometraje->kilometraje > $vehiculo->kilometraje_actual) {
                 $vehiculo->update(['kilometraje_actual' => $kilometraje->kilometraje]);
             }
@@ -134,6 +145,7 @@ class KilometrajeController extends Controller
                 'usuario_id' => Auth::id(),
                 'kilometraje_id' => $kilometraje->id,
                 'vehiculo_id' => $kilometraje->vehiculo_id,
+                'obra_id' => $kilometraje->obra_id,
                 'kilometraje' => $kilometraje->kilometraje,
             ]);
 
@@ -144,7 +156,7 @@ class KilometrajeController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Kilometraje registrado exitosamente',
-                    'data' => $kilometraje->load(['vehiculo', 'usuarioCaptura']),
+                    'data' => $kilometraje->load(['vehiculo', 'obra', 'usuarioCaptura']),
                 ], 201);
             }
 

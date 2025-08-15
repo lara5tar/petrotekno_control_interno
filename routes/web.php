@@ -510,6 +510,37 @@ Route::middleware('auth')->prefix('categorias-personal')->name('categorias-perso
         ->middleware('permission:gestionar_categorias_personal');
 });
 
+// Rutas para Asignaciones de Obra
+Route::middleware('auth')->prefix('asignaciones-obra')->name('asignaciones-obra.')->group(function () {
+    Route::get('/', [App\Http\Controllers\AsignacionObraController::class, 'index'])
+        ->name('index')
+        ->middleware('permission:ver_asignaciones');
+    
+    Route::get('/create', [App\Http\Controllers\AsignacionObraController::class, 'create'])
+        ->name('create')
+        ->middleware('permission:crear_asignaciones');
+    
+    Route::post('/', [App\Http\Controllers\AsignacionObraController::class, 'store'])
+        ->name('store')
+        ->middleware('permission:crear_asignaciones');
+    
+    Route::get('/{id}', [App\Http\Controllers\AsignacionObraController::class, 'show'])
+        ->name('show')
+        ->middleware('permission:ver_asignaciones');
+    
+    Route::post('/{id}/liberar', [App\Http\Controllers\AsignacionObraController::class, 'liberar'])
+        ->name('liberar')
+        ->middleware('permission:crear_asignaciones');
+    
+    Route::post('/vehiculos/{vehiculo}/cambiar-obra', [App\Http\Controllers\AsignacionObraController::class, 'cambiarObra'])
+        ->name('cambiar-obra')
+        ->middleware('permission:crear_asignaciones');
+    
+    Route::get('/estadisticas', [App\Http\Controllers\AsignacionObraController::class, 'estadisticas'])
+        ->name('estadisticas')
+        ->middleware('permission:ver_asignaciones');
+});
+
 // Ruta para vista de usuario (datos estáticos)
 Route::get('/usuarios/{id}', function ($id) {
     return view('usuarios.show');

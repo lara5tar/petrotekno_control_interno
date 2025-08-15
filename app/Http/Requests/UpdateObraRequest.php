@@ -44,6 +44,12 @@ class UpdateObraRequest extends FormRequest
                 Rule::unique('obras', 'nombre_obra')->ignore($obraId),
                 'regex:/^[a-zA-ZÀ-ÿ\s\d\-\.\,\(\)]+$/',
             ],
+            'ubicacion' => [
+                'sometimes',
+                'nullable',
+                'string',
+                'max:500',
+            ],
             'estatus' => [
                 'sometimes',
                 'required',
@@ -83,6 +89,9 @@ class UpdateObraRequest extends FormRequest
             'nombre_obra.unique' => 'Ya existe una obra con este nombre.',
             'nombre_obra.regex' => 'El nombre de la obra contiene caracteres no permitidos.',
 
+            'ubicacion.string' => 'La ubicación debe ser un texto válido.',
+            'ubicacion.max' => 'La ubicación no puede exceder 500 caracteres.',
+
             'estatus.required' => 'El estatus de la obra es obligatorio.',
             'estatus.in' => 'El estatus seleccionado no es válido.',
 
@@ -105,6 +114,7 @@ class UpdateObraRequest extends FormRequest
     {
         return [
             'nombre_obra' => 'nombre de la obra',
+            'ubicacion' => 'ubicación',
             'estatus' => 'estatus',
             'avance' => 'avance',
             'fecha_inicio' => 'fecha de inicio',

@@ -12,9 +12,9 @@
 
 <div class="h-[calc(100vh-120px)] flex flex-col gap-4">
 
-    <!-- Contenido Principal en Grid 50/50 -->
-    <div class="flex-1 grid grid-cols-2 gap-4">
-        <!-- Panel Izquierdo -->
+    <!-- Contenido Principal en Grid 1/3 - 2/3 -->
+    <div class="flex-1 grid grid-cols-3 gap-4">
+        <!-- Panel Izquierdo - 1/3 del espacio -->
         <div class="flex flex-col gap-4">
             <!-- Datos Generales -->
             <div class="bg-white border border-gray-300 rounded-lg">
@@ -149,21 +149,21 @@
 
         </div>
 
-        <!-- Panel Derecho -->
-        <div class="flex flex-col gap-4">
-            <!-- Kilometraje y Estado en fila horizontal -->
-            <div class="grid grid-cols-2 gap-3">
+        <!-- Panel Derecho - 2/3 del espacio -->
+        <div class="col-span-2 flex flex-col gap-4">
+            <!-- Kilometraje y Estado - Pegados a los lados -->
+            <div class="flex justify-between">
                 <!-- Último Kilometraje -->
-                <div>
-                    <div class="text-sm font-medium text-gray-600 mb-1">Último Kilometraje</div>
-                    <div class="bg-gray-800 text-white p-2 rounded text-center">
-                        <div class="text-sm font-bold">{{ number_format($vehiculo->kilometraje_actual ?? 0) }} km</div>
+                <div class="flex-shrink-0">
+                    <div class="text-base font-medium text-gray-600 mb-1">Último Kilometraje</div>
+                    <div class="bg-gray-800 text-white p-2 rounded text-center min-w-[160px]">
+                        <div class="text-lg font-bold">{{ number_format($vehiculo->kilometraje_actual ?? 0) }} km</div>
                     </div>
                 </div>
 
                 <!-- Estatus Actual -->
-                <div>
-                    <div class="text-sm font-medium text-gray-600 mb-1">Estatus Actual</div>
+                <div class="flex-shrink-0">
+                    <div class="text-base font-medium text-gray-600 mb-1">Estatus Actual</div>
                     @php
                         $statusColors = [
                             'disponible' => 'bg-green-500',
@@ -179,40 +179,54 @@
                         $currentStatus = $estatusValue ?? 'disponible';
                         $colorClass = $statusColors[$currentStatus] ?? 'bg-gray-500';
                     @endphp
-                    <div class="{{ $colorClass }} text-white p-2 rounded text-center">
-                        <div class="text-sm font-medium">{{ ucfirst(str_replace('_', ' ', $currentStatus)) }}</div>
+                    <div class="{{ $colorClass }} text-white p-2 rounded text-center min-w-[160px]">
+                        <div class="text-lg font-medium">{{ ucfirst(str_replace('_', ' ', $currentStatus)) }}</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Pestañas de Información - Flexible para ocupar espacio restante -->
-            <div class="bg-white border border-gray-300 rounded-lg flex-1 flex flex-col" x-data="{ activeTab: 'operacion' }">
-                <div class="bg-gray-50 px-3 py-1 border-b border-gray-300">
-                    <nav class="flex">
+            <!-- Pestañas de Información - Diseño tipo carpetas -->
+            <div class="bg-white flex-1 flex flex-col" x-data="{ activeTab: 'operacion' }">
+                <div class="relative">
+                    <nav class="flex space-x-1 pr-3 pt-3">
                         <button @click="activeTab = 'operacion'" 
-                                :class="activeTab === 'operacion' ? 'border-gray-500 text-gray-700 bg-gray-100' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                                class="px-3 py-2 text-sm font-medium border-b-2 transition-colors duration-200">
-                            Operación
-                        </button>
-                        <button @click="activeTab = 'kilometraje'" 
-                                :class="activeTab === 'kilometraje' ? 'border-gray-500 text-gray-700 bg-gray-100' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                                class="px-3 py-2 text-sm font-medium border-b-2 transition-colors duration-200">
-                            Kilometraje
+                                :class="activeTab === 'operacion' ? 'bg-gray-50 border-gray-300 border-t border-l border-r text-gray-800 shadow-sm z-10' : 'bg-gray-100 border-gray-300 border-t border-l border-r text-gray-600 hover:bg-gray-200'"
+                                class="relative px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-0 ml-0">
+                            <span class="flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Operación
+                            </span>
                         </button>
                         <button @click="activeTab = 'documentos'" 
-                                :class="activeTab === 'documentos' ? 'border-gray-500 text-gray-700 bg-gray-100' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                                class="px-3 py-2 text-sm font-medium border-b-2 transition-colors duration-200">
-                            Documentos
+                                :class="activeTab === 'documentos' ? 'bg-gray-50 border-gray-300 border-t border-l border-r text-gray-800 shadow-sm z-10' : 'bg-gray-100 border-gray-300 border-t border-l border-r text-gray-600 hover:bg-gray-200'"
+                                class="relative px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-0">
+                            <span class="flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Documentos
+                            </span>
                         </button>
                         <button @click="activeTab = 'mantenimientos'" 
-                                :class="activeTab === 'mantenimientos' ? 'border-gray-500 text-gray-700 bg-gray-100' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                                class="px-3 py-2 text-sm font-medium border-b-2 transition-colors duration-200">
-                            Mantenimientos
+                                :class="activeTab === 'mantenimientos' ? 'bg-gray-50 border-gray-300 border-t border-l border-r text-gray-800 shadow-sm z-10' : 'bg-gray-100 border-gray-300 border-t border-l border-r text-gray-600 hover:bg-gray-200'"
+                                class="relative px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-0">
+                            <span class="flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                Mantenimientos
+                            </span>
                         </button>
                     </nav>
+                    <!-- Línea base que conecta con las pestañas -->
+                    <div class="absolute bottom-0 left-0 right-0 h-px bg-gray-300 z-0"></div>
                 </div>
 
-                <!-- Contenido de pestañas con scroll interno -->
+                <!-- Contenido de pestañas con bordes tipo carpeta -->
+                <div class="flex-1 overflow-hidden bg-gray-50 border-l border-r border-b border-gray-300 rounded-b-lg">
                 <div class="flex-1 overflow-hidden">
                     <!-- Contenido de Operación -->
                     <div x-show="activeTab === 'operacion'" class="p-6 bg-gray-50">
@@ -227,13 +241,13 @@
                                         Obra Actual
                                     </h5>
                                     @hasPermission('crear_asignaciones')
-                                    <a href="{{ route('obras.index') }}" 
-                                       class="bg-green-600 hover:bg-green-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                    <button onclick="openCambiarObraModal()" 
+                                       class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                                         </svg>
-                                        Ver Obras
-                                    </a>
+                                        Cambiar Obra
+                                    </button>
                                     @endhasPermission
                                 </div>
                                 
@@ -244,7 +258,7 @@
                                     // Verificar si el vehículo tiene el método asignacionesObraActivas
                                     if (method_exists($vehiculo, 'asignacionesObraActivas')) {
                                         try {
-                                            $asignacionActiva = $vehiculo->asignacionesObraActivas()->with(['obra.encargado', 'operador'])->first();
+                                            $asignacionActiva = $vehiculo->asignacionesObraActivas()->with(['obra.encargado'])->first();
                                         } catch (\Exception $e) {
                                             // Si hay error, simplemente continuar sin asignación
                                             $asignacionActiva = null;
@@ -254,50 +268,44 @@
                                 
                                 @if($asignacionActiva && $asignacionActiva->obra)
                                 <div class="space-y-4">
-                                    <!-- Nombre de la Obra -->
-                                    <div class="grid grid-cols-1 gap-3">
+                                    <!-- Nombre y Ubicación de la Obra -->
+                                    <div class="grid grid-cols-2 gap-3">
                                         <div>
                                             <label class="block text-sm text-gray-600">Nombre de la Obra</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                                 {{ $asignacionActiva->obra->nombre_obra }}
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    <!-- Estatus y Fecha de Asignación -->
-                                    <div class="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label class="block text-sm text-gray-600">Estatus de la Obra</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                                {{ ucfirst(str_replace('_', ' ', $asignacionActiva->obra->estatus)) }}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Fecha de Asignación</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                                {{ $asignacionActiva->fecha_asignacion ? \Carbon\Carbon::parse($asignacionActiva->fecha_asignacion)->format('d/m/Y') : 'No registrada' }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Operador en Obra y Encargado -->
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Operador en Obra</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                                {{ $asignacionActiva->operador ? $asignacionActiva->operador->nombre_completo : 'Sin operador específico' }}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Encargado de la Obra</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                                {{ $asignacionActiva->obra->encargado ? $asignacionActiva->obra->encargado->nombre_completo : 'Sin encargado asignado' }}
-                                            </div>
+                                            <label class="block text-sm text-gray-600">Ubicación de la Obra</label>
+                                            @if($asignacionActiva->obra->ubicacion)
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex items-center">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    </svg>
+                                                    {{ $asignacionActiva->obra->ubicacion }}
+                                                </div>
+                                            @else
+                                                <div class="bg-gray-400 text-white px-3 py-2 rounded text-sm font-medium flex items-center">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    </svg>
+                                                    Ubicación no especificada
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                     
-                                    <!-- Avance y Kilometraje Inicial -->
+                                    <!-- Responsable y Avance de la Obra -->
                                     <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Responsable de la Obra</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                {{ $asignacionActiva->obra->encargado ? $asignacionActiva->obra->encargado->nombre_completo : 'Sin responsable asignado' }}
+                                            </div>
+                                        </div>
                                         <div>
                                             <label class="block text-sm text-gray-600">Avance de la Obra</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex items-center">
@@ -309,57 +317,33 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                    
+                                    <!-- Fechas y Kilometrajes -->
+                                    <div class="grid grid-cols-4 gap-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Fecha de Inicio</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                {{ $asignacionActiva->obra->fecha_inicio ? \Carbon\Carbon::parse($asignacionActiva->obra->fecha_inicio)->format('d/m/Y') : 'No definida' }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Fecha de Fin</label>
+                                            <div class="bg-{{ $asignacionActiva->obra->fecha_fin && \Carbon\Carbon::now()->gt(\Carbon\Carbon::parse($asignacionActiva->obra->fecha_fin)) ? 'red' : 'gray' }}-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                {{ $asignacionActiva->obra->fecha_fin ? \Carbon\Carbon::parse($asignacionActiva->obra->fecha_fin)->format('d/m/Y') : 'No definida' }}
+                                            </div>
+                                        </div>
                                         <div>
                                             <label class="block text-sm text-gray-600">Kilometraje Inicial</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                                 {{ $asignacionActiva->kilometraje_inicial ? number_format($asignacionActiva->kilometraje_inicial) . ' km' : 'No registrado' }}
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    @if($asignacionActiva->observaciones)
-                                    <!-- Observaciones -->
-                                    <div class="grid grid-cols-1 gap-3">
                                         <div>
-                                            <label class="block text-sm text-gray-600">Observaciones de la Asignación</label>
+                                            <label class="block text-sm text-gray-600">Kilometraje Final</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                                {{ $asignacionActiva->observaciones }}
+                                                {{ $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) . ' km' : 'No registrado' }}
                                             </div>
-                                        </div>
-                                    </div>
-                                    @endif
-                                    
-                                    <!-- Acciones -->
-                                    <div class="flex justify-between items-center pt-3 border-t border-gray-200">
-                                        <a href="{{ route('obras.show', $asignacionActiva->obra->id) }}" 
-                                           class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                            <span>Ver detalles completos de la obra</span>
-                                        </a>
-                                        
-                                        <div class="flex space-x-2">
-                                            @hasPermission('editar_asignaciones')
-                                            <button onclick="alert('Función de edición en desarrollo')" 
-                                               class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded text-xs flex items-center">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                </svg>
-                                                Editar Asignación
-                                            </button>
-                                            @endhasPermission
-                                            
-                                            @hasPermission('liberar_asignaciones')
-                                            <button onclick="alert('Función de liberación en desarrollo')" 
-                                                    class="bg-orange-600 hover:bg-orange-700 text-white py-1 px-2 rounded text-xs flex items-center">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                                                </svg>
-                                                Liberar de Obra
-                                            </button>
-                                            @endhasPermission
                                         </div>
                                     </div>
                                 </div>
@@ -413,40 +397,57 @@
                                 
                                 @if(isset($vehiculo->operador) && $vehiculo->operador)
                                 <div class="space-y-3">
-                                    <div class="grid grid-cols-1 gap-3">
+                                    <!-- Nombre, NSS, RFC, INE en una fila -->
+                                    <div class="grid grid-cols-4 gap-3">
                                         <div>
                                             <label class="block text-sm text-gray-600">Nombre Completo</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
                                                 {{ $vehiculo->operador->nombre_completo }}
                                             </div>
                                         </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">NSS</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $vehiculo->operador->nss ?? 'No disponible' }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">RFC</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $vehiculo->operador->rfc ?? 'No disponible' }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">INE</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $vehiculo->operador->ine ?? 'No disponible' }}
+                                            </div>
+                                        </div>
                                     </div>
                                     
-                                    <div class="grid grid-cols-2 gap-3">
+                                    <!-- Licencia de Manejo, Domicilio, Teléfono en una fila -->
+                                    <div class="grid grid-cols-3 gap-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Licencia de Manejo</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $vehiculo->operador->licencia_manejo ?? 'No disponible' }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Domicilio</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $vehiculo->operador->domicilio ?? 'No disponible' }}
+                                            </div>
+                                        </div>
                                         <div>
                                             <label class="block text-sm text-gray-600">Teléfono</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
                                                 {{ $vehiculo->operador->telefono ?? 'No disponible' }}
                                             </div>
                                         </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Correo Electrónico</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                {{ $vehiculo->operador->email ?? 'No disponible' }}
-                                            </div>
-                                        </div>
                                     </div>
                                     
-                                    <div class="grid grid-cols-1">
-                                        @if(isset($vehiculo->operador) && $vehiculo->operador)
-                                        <a href="{{ route('personal.show', $vehiculo->operador->id) }}" class="text-blue-600 hover:text-blue-800 text-sm flex items-center justify-end">
-                                            <span>Ver perfil completo del operador</span>
-                                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                            </svg>
-                                        </a>
-                                        @endif
-                                    </div>
+
                                 </div>
                                 @else
                                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
@@ -465,13 +466,8 @@
                                 </div>
                                 @endif
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Contenido de Kilometraje -->
-                    <div x-show="activeTab === 'kilometraje'" class="p-6 bg-gray-50">
-                        <div class="space-y-6">
-                            <!-- Kilometrajes del Vehículo -->
+                            
+                            <!-- Sección: Registro de Kilometraje -->
                             <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
                                 <div class="flex justify-between items-center mb-4">
                                     <h5 class="text-base font-semibold text-gray-800 flex items-center">
@@ -498,12 +494,12 @@
                                             <tr>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Obra</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Registró</th>
-                                                <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
-                                            @forelse($vehiculo->kilometrajes()->with(['usuarioCaptura'])->orderBy('fecha_captura', 'desc')->limit(10)->get() as $kilometraje)
+                                            @forelse($vehiculo->kilometrajes()->with(['obra', 'usuarioCaptura.personal'])->orderBy('fecha_captura', 'desc')->limit(10)->get() as $kilometraje)
                                             <tr>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                                                     {{ number_format($kilometraje->kilometraje) }} km
@@ -512,19 +508,10 @@
                                                     {{ $kilometraje->fecha_captura?->format('d/m/Y') ?? 'Sin fecha' }}
                                                 </td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $kilometraje->usuarioCaptura?->name ?? 'Usuario no disponible' }}
+                                                    {{ $kilometraje->obra?->nombre_obra ?? 'Sin obra asignada' }}
                                                 </td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    @hasPermission('ver_kilometrajes')
-                                                    <a href="{{ route('vehiculos.kilometrajes.show.vehiculo', [$vehiculo->id, $kilometraje->id]) }}" 
-                                                       class="text-blue-600 hover:text-blue-900 transition-colors duration-200" 
-                                                       title="Ver detalles">
-                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                        </svg>
-                                                    </a>
-                                                    @endhasPermission
+                                                    {{ $kilometraje->usuarioCaptura?->nombre_completo ?? 'Usuario no disponible' }}
                                                 </td>
                                             </tr>
                                             @empty
@@ -943,6 +930,115 @@
     </div>
 </div>
 
+<!-- Modal para Cambiar Obra -->
+<div id="cambiar-obra-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Cambiar Obra Asignada</h3>
+            <button onclick="closeCambiarObraModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Información actual -->
+        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h4 class="font-medium text-gray-900 mb-2">Asignación Actual</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <span class="text-gray-600">Obra:</span>
+                    <span class="font-medium">{{ $asignacionActiva ? $asignacionActiva->nombre_obra : 'Sin obra asignada' }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-600">Operador:</span>
+                    <span class="font-medium">{{ $vehiculo->operador ? $vehiculo->operador->nombre_completo : 'Sin operador' }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-600">Fecha de asignación:</span>
+                    <span class="font-medium">{{ $asignacionActiva ? $asignacionActiva->fecha_asignacion?->format('d/m/Y') : 'N/A' }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-600">Kilometraje inicial:</span>
+                    <span class="font-medium">{{ $asignacionActiva ? number_format($asignacionActiva->kilometraje_inicial ?? 0) . ' km' : 'N/A' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <form id="cambiar-obra-form" method="POST" action="{{ route('asignaciones-obra.cambiar-obra', $vehiculo) }}">
+            @csrf
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Nueva Obra -->
+                <div>
+                    <label for="obra_id" class="block text-sm font-medium text-gray-700 mb-1">Nueva Obra</label>
+                    <select id="obra_id" name="obra_id" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Seleccionar obra...</option>
+                        @php
+                            // Obtener obras disponibles (que no tengan asignaciones activas)
+                            $obrasConAsignaciones = \App\Models\AsignacionObra::where('estado', 'activa')
+                                ->whereNull('fecha_liberacion')
+                                ->pluck('obra_id');
+                            
+                            $obrasDisponibles = \App\Models\Obra::where('estatus', 'planificada')
+                                ->orWhere('estatus', 'en_progreso')
+                                ->whereNotIn('id', $obrasConAsignaciones)
+                                ->orderBy('nombre_obra')
+                                ->get();
+                        @endphp
+                        @foreach($obrasDisponibles as $obra)
+                            <option value="{{ $obra->id }}">{{ $obra->nombre_obra }} - {{ $obra->ubicacion ?? 'Sin ubicación' }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Nuevo Operador -->
+                <div>
+                    <label for="operador_id" class="block text-sm font-medium text-gray-700 mb-1">Nuevo Operador</label>
+                    <select id="operador_id" name="operador_id" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Seleccionar operador...</option>
+                        @foreach(\App\Models\Personal::where('categoria_id', 1)->orderBy('nombre_completo')->get() as $operador)
+                            <option value="{{ $operador->id }}" {{ $vehiculo->operador_id == $operador->id ? 'selected' : '' }}>
+                                {{ $operador->nombre_completo }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Kilometraje Inicial -->
+                <div>
+                    <label for="kilometraje_inicial" class="block text-sm font-medium text-gray-700 mb-1">Kilometraje Inicial</label>
+                    <input type="number" id="kilometraje_inicial" name="kilometraje_inicial" 
+                           value="{{ $vehiculo->kilometraje_actual ?? 0 }}" min="0"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">Kilometraje actual: {{ number_format($vehiculo->kilometraje_actual ?? 0) }} km</p>
+                </div>
+
+                <!-- Observaciones -->
+                <div>
+                    <label for="observaciones_cambio" class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                    <textarea id="observaciones_cambio" name="observaciones" rows="3" 
+                             placeholder="Motivo del cambio de obra..."
+                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex justify-end space-x-3 mt-6 pt-4 border-t">
+                <button type="button" onclick="closeCambiarObraModal()" 
+                       class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-200">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                       class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200">
+                    Cambiar Obra
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -1122,5 +1218,59 @@
             }
         }, 5000);
     }
+
+    // Funciones para el modal de cambiar obra
+    function openCambiarObraModal() {
+        document.getElementById('cambiar-obra-modal').classList.remove('hidden');
+    }
+
+    function closeCambiarObraModal() {
+        document.getElementById('cambiar-obra-modal').classList.add('hidden');
+        // Limpiar el formulario
+        document.getElementById('cambiar-obra-form').reset();
+    }
+
+    // Manejar envío del formulario de cambiar obra
+    document.getElementById('cambiar-obra-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const submitButton = this.querySelector('button[type="submit"]');
+        
+        // Deshabilitar botón mientras se procesa
+        submitButton.disabled = true;
+        submitButton.textContent = 'Cambiando...';
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Obra cambiada exitosamente', 'success');
+                closeCambiarObraModal();
+                // Recargar la página para mostrar los cambios
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                showNotification(data.error || 'Error al cambiar la obra', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error al cambiar la obra', 'error');
+        })
+        .finally(() => {
+            // Rehabilitar botón
+            submitButton.disabled = false;
+            submitButton.textContent = 'Cambiar Obra';
+        });
+    });
 </script>
 @endpush

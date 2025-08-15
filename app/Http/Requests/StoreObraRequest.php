@@ -32,6 +32,12 @@ class StoreObraRequest extends FormRequest
                 'regex:/^[a-zA-ZÀ-ÿ\s\d\-\.\,\(\)]+$/',
             ],
 
+            'ubicacion' => [
+                'nullable',
+                'string',
+                'max:500',
+            ],
+
             'avance' => [
                 'nullable',
                 'integer',
@@ -63,7 +69,8 @@ class StoreObraRequest extends FormRequest
             'nombre_obra.unique' => 'Ya existe una obra con este nombre.',
             'nombre_obra.regex' => 'El nombre de la obra contiene caracteres no permitidos.',
 
-
+            'ubicacion.string' => 'La ubicación debe ser un texto válido.',
+            'ubicacion.max' => 'La ubicación no puede exceder 500 caracteres.',
 
             'avance.integer' => 'El avance debe ser un número entero.',
             'avance.min' => 'El avance no puede ser menor a 0%.',
@@ -85,7 +92,7 @@ class StoreObraRequest extends FormRequest
     {
         return [
             'nombre_obra' => 'nombre de la obra',
-
+            'ubicacion' => 'ubicación',
             'avance' => 'avance',
             'fecha_inicio' => 'fecha de inicio',
             'fecha_fin' => 'fecha de fin',

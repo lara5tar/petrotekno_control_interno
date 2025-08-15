@@ -16,6 +16,7 @@ class Kilometraje extends Model
 
     protected $fillable = [
         'vehiculo_id',
+        'obra_id',
         'kilometraje',
         'fecha_captura',
         'usuario_captura_id',
@@ -27,12 +28,17 @@ class Kilometraje extends Model
         'kilometraje' => 'integer',
     ];
 
-    protected $with = ['vehiculo', 'usuarioCaptura'];
+    protected $with = ['vehiculo', 'obra', 'usuarioCaptura.personal'];
 
     // Relaciones
     public function vehiculo(): BelongsTo
     {
         return $this->belongsTo(Vehiculo::class);
+    }
+
+    public function obra(): BelongsTo
+    {
+        return $this->belongsTo(Obra::class);
     }
 
     public function usuarioCaptura(): BelongsTo

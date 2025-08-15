@@ -218,6 +218,7 @@ class VehiculoController extends Controller
         // Cargar las relaciones a través del nuevo sistema de asignaciones
         $vehiculo->load([
             'asignacionesObra.obra.operador', 
+            'asignacionesObra.obra.encargado', 
             'asignacionesObra.operador', 
             'kilometrajes', 
             'mantenimientos', 
@@ -477,6 +478,9 @@ class VehiculoController extends Controller
                 $rutaImagen = $imagen->storeAs('kilometrajes', $nombreImagen, 'public');
             }
 
+            // Obtener la obra actual del vehículo para asignarla automáticamente
+            $obraActual = $vehiculo->obraActual()->first();
+
             // Crear el registro de kilometraje
             $kilometraje = $vehiculo->kilometrajes()->create([
                 'kilometraje' => $validatedData['kilometraje'],
@@ -484,6 +488,7 @@ class VehiculoController extends Controller
                 'observaciones' => $validatedData['observaciones'],
                 'imagen' => $rutaImagen,
                 'usuario_captura_id' => Auth::id(),
+                'obra_id' => $obraActual ? $obraActual->id : null,
             ]);
 
             // Actualizar el kilometraje actual del vehículo
@@ -524,7 +529,7 @@ class VehiculoController extends Controller
         $this->authorize('ver_vehiculos');
 
         $kilometraje = $vehiculo->kilometrajes()
-            ->with(['usuarioCaptura'])
+            ->with(['usuarioCaptura.personal'])
             ->findOrFail($kilometrajeId);
 
         return view('vehiculos.kilometrajes.show', compact('vehiculo', 'kilometraje'));

@@ -65,6 +65,7 @@ class Obra extends Model
      */
     protected $fillable = [
         'nombre_obra',
+        'ubicacion',
         'estatus',
         'avance',
         'fecha_inicio',

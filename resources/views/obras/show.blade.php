@@ -37,6 +37,17 @@
                         </div>
                     </div>
                     
+                    @if($obra->ubicacion)
+                    <div class="grid grid-cols-1 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Ubicación</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->ubicacion }}
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Fecha de Inicio</label>

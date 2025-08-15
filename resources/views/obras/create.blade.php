@@ -71,6 +71,22 @@
                     @enderror
                 </div>
 
+                {{-- Ubicación de la Obra --}}
+                <div class="md:col-span-2">
+                    <label for="ubicacion" class="block text-sm font-medium text-gray-700 mb-1">
+                        Ubicación de la Obra
+                    </label>
+                    <input type="text" 
+                           id="ubicacion" 
+                           name="ubicacion" 
+                           value="{{ old('ubicacion') }}"
+                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('ubicacion') border-red-500 @enderror"
+                           placeholder="Ingrese la ubicación donde se realizará la obra">
+                    @error('ubicacion')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 {{-- Estatus --}}
                 <div>
                     <label for="estatus" class="block text-sm font-medium text-gray-700 mb-1">
