@@ -29,10 +29,3 @@ _ide_helper.php
 _ide_helper_models.php
 .phpstorm.meta.php
 /.trae
-
-# Playwright
-node_modules/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/

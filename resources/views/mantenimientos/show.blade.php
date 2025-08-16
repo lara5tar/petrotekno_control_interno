@@ -196,9 +196,27 @@
                             <h3 class="text-sm font-medium text-gray-900 mb-1">Duración</h3>
                             <p class="text-sm text-gray-600">
                                 @if($mantenimiento->fecha_inicio && $mantenimiento->fecha_fin)
-                                    {{ \Carbon\Carbon::parse($mantenimiento->fecha_inicio)->diffInDays(\Carbon\Carbon::parse($mantenimiento->fecha_fin)) + 1 }} día(s)
+                                    @php
+                                        $fechaInicio = \Carbon\Carbon::parse($mantenimiento->fecha_inicio);
+                                        $fechaFin = \Carbon\Carbon::parse($mantenimiento->fecha_fin);
+                                        $diasCompletos = $fechaInicio->diffInDays($fechaFin);
+                                        // Si es el mismo día, mostrar como mínimo 1 día
+                                        if ($diasCompletos == 0) {
+                                            $diasCompletos = 1;
+                                        }
+                                    @endphp
+                                    {{ $diasCompletos }} {{ $diasCompletos == 1 ? 'día' : 'días' }}
                                 @elseif($mantenimiento->fecha_inicio)
-                                    {{ \Carbon\Carbon::parse($mantenimiento->fecha_inicio)->diffInDays(now()) + 1 }} día(s) hasta hoy
+                                    @php
+                                        $fechaInicio = \Carbon\Carbon::parse($mantenimiento->fecha_inicio);
+                                        $ahora = \Carbon\Carbon::now();
+                                        $diasCompletos = $fechaInicio->diffInDays($ahora);
+                                        // Si es el mismo día, mostrar como mínimo 1 día
+                                        if ($diasCompletos == 0) {
+                                            $diasCompletos = 1;
+                                        }
+                                    @endphp
+                                    {{ $diasCompletos }} {{ $diasCompletos == 1 ? 'día' : 'días' }} hasta hoy
                                 @else
                                     No calculable
                                 @endif

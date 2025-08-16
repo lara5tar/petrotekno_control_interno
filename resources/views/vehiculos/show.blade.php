@@ -186,12 +186,12 @@
             </div>
 
             <!-- Pestañas de Información - Diseño tipo carpetas -->
-            <div class="bg-white flex-1 flex flex-col" x-data="{ activeTab: 'operacion' }">
+            <div class="bg-white flex-1 flex flex-col" id="tabs-container">
                 <div class="relative">
                     <nav class="flex space-x-1 pr-3 pt-3">
-                        <button @click="activeTab = 'operacion'" 
-                                :class="activeTab === 'operacion' ? 'bg-gray-50 border-gray-300 border-t border-l border-r text-gray-800 shadow-sm z-10' : 'bg-gray-100 border-gray-300 border-t border-l border-r text-gray-600 hover:bg-gray-200'"
-                                class="relative px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-0 ml-0">
+                        <button onclick="changeTab('operacion')" 
+                                id="tab-operacion"
+                                class="relative px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-0 ml-0 bg-gray-50 border-gray-300 border-t border-l border-r text-gray-800 shadow-sm z-10">
                             <span class="flex items-center">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -199,9 +199,9 @@
                                 Operación
                             </span>
                         </button>
-                        <button @click="activeTab = 'documentos'" 
-                                :class="activeTab === 'documentos' ? 'bg-gray-50 border-gray-300 border-t border-l border-r text-gray-800 shadow-sm z-10' : 'bg-gray-100 border-gray-300 border-t border-l border-r text-gray-600 hover:bg-gray-200'"
-                                class="relative px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-0">
+                        <button onclick="changeTab('documentos')" 
+                                id="tab-documentos"
+                                class="relative px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-0 bg-gray-100 border-gray-300 border-t border-l border-r text-gray-600 hover:bg-gray-200">
                             <span class="flex items-center">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -209,9 +209,9 @@
                                 Documentos
                             </span>
                         </button>
-                        <button @click="activeTab = 'mantenimientos'" 
-                                :class="activeTab === 'mantenimientos' ? 'bg-gray-50 border-gray-300 border-t border-l border-r text-gray-800 shadow-sm z-10' : 'bg-gray-100 border-gray-300 border-t border-l border-r text-gray-600 hover:bg-gray-200'"
-                                class="relative px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-0">
+                        <button onclick="changeTab('mantenimientos')" 
+                                id="tab-mantenimientos"
+                                class="relative px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-0 bg-gray-100 border-gray-300 border-t border-l border-r text-gray-600 hover:bg-gray-200">
                             <span class="flex items-center">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -229,7 +229,7 @@
                 <div class="flex-1 overflow-hidden bg-gray-50 border-l border-r border-b border-gray-300 rounded-b-lg">
                 <div class="flex-1 overflow-hidden">
                     <!-- Contenido de Operación -->
-                    <div x-show="activeTab === 'operacion'" class="p-6 bg-gray-50">
+                    <div id="content-operacion" class="p-6 bg-gray-50 tab-content" style="display: block;">
                         <div class="space-y-6">
                             <!-- Sección: Obra Actual -->
                             <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm" id="obra-actual-section">
@@ -565,7 +565,7 @@
                     </div>
 
                     <!-- Contenido de Documentos -->
-                    <div x-show="activeTab === 'documentos'" class="p-6 bg-gray-50">
+                    <div id="content-documentos" class="p-6 bg-gray-50 tab-content" style="display: none;">
                         <div class="space-y-6">
                             <!-- Documentos del Vehículo -->
                             <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
@@ -667,7 +667,7 @@
                     </div>
 
                     <!-- Contenido de Mantenimientos -->
-                    <div x-show="activeTab === 'mantenimientos'" class="p-6 bg-gray-50">
+                    <div id="content-mantenimientos" class="p-6 bg-gray-50 tab-content" style="display: none;">
                         <div class="space-y-6">
                             <!-- Mantenimientos del Vehículo -->
                             <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
@@ -680,13 +680,13 @@
                                         Mantenimientos Recientes
                                     </h5>
                                     @hasPermission('crear_mantenimientos')
-                                    <a href="{{ route('mantenimientos.create') }}?vehiculo_id={{ $vehiculo->id }}" 
-                                       class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                        </svg>
-                                        Registrar Mantenimiento
-                                    </a>
+                                        <button onclick="openMantenimientoModal()" 
+                                                class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                            </svg>
+                                            Registrar Mantenimiento
+                                        </button>
                                     @endhasPermission
                                 </div>
                                 
@@ -753,10 +753,10 @@
                                                         <p class="font-medium">No hay mantenimientos registrados</p>
                                                         <p class="text-xs text-gray-400">Este vehículo no tiene historial de mantenimientos</p>
                                                         @hasPermission('crear_mantenimientos')
-                                                        <a href="{{ route('mantenimientos.create') }}?vehiculo_id={{ $vehiculo->id }}" 
-                                                           class="mt-2 text-blue-600 hover:text-blue-800 text-sm">
+                                                        <button onclick="openMantenimientoModal()" 
+                                                                class="mt-2 text-blue-600 hover:text-blue-800 text-sm underline">
                                                             Registrar primer mantenimiento
-                                                        </a>
+                                                        </button>
                                                         @endhasPermission
                                                     </div>
                                                 </td>
@@ -1051,6 +1051,7 @@
             </div>
         </form>
     </div>
+    </div>
 </div>
 
 <!-- Modal para Cambiar Operador -->
@@ -1148,6 +1149,120 @@
                     @else
                         Asignar Operador
                     @endif
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Registrar Mantenimiento -->
+<div id="registrar-mantenimiento-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[60]">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Registrar Nuevo Mantenimiento
+            </h3>
+            <button onclick="closeMantenimientoModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="mb-4 text-sm text-gray-600">
+            <p><strong>Vehículo:</strong> {{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->placas }})</p>
+        </div>
+
+        <form id="registrar-mantenimiento-form" method="POST" action="{{ route('mantenimientos.store') }}">
+            @csrf
+            <input type="hidden" name="vehiculo_id" value="{{ $vehiculo->id }}">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Tipo de Servicio -->
+                <div>
+                    <label for="tipo_servicio" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Servicio *</label>
+                    <select id="tipo_servicio" name="tipo_servicio" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Seleccionar tipo</option>
+                        <option value="PREVENTIVO">Preventivo</option>
+                        <option value="CORRECTIVO">Correctivo</option>
+                    </select>
+                </div>
+
+                <!-- Sistema del Vehículo -->
+                <div>
+                    <label for="sistema_vehiculo" class="block text-sm font-medium text-gray-700 mb-2">Sistema del Vehículo *</label>
+                    <select id="sistema_vehiculo" name="sistema_vehiculo" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Seleccionar sistema</option>
+                        <option value="motor">Motor</option>
+                        <option value="transmision">Transmisión</option>
+                        <option value="hidraulico">Hidráulico</option>
+                        <option value="general">General</option>
+                    </select>
+                </div>
+
+                <!-- Proveedor -->
+                <div>
+                    <label for="proveedor" class="block text-sm font-medium text-gray-700 mb-2">Proveedor *</label>
+                    <input type="text" id="proveedor" name="proveedor" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="Nombre del taller o proveedor">
+                </div>
+
+                <!-- Kilometraje -->
+                <div>
+                    <label for="kilometraje_servicio" class="block text-sm font-medium text-gray-700 mb-2">Kilometraje del Servicio *</label>
+                    <input type="number" id="kilometraje_servicio" name="kilometraje_servicio" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="ej: 15000">
+                </div>
+
+                <!-- Fecha de Inicio -->
+                <div>
+                    <label for="fecha_inicio" class="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio *</label>
+                    <input type="date" id="fecha_inicio" name="fecha_inicio" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                <!-- Fecha de Fin -->
+                <div>
+                    <label for="fecha_fin" class="block text-sm font-medium text-gray-700 mb-2">Fecha de Fin</label>
+                    <input type="date" id="fecha_fin" name="fecha_fin" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">Dejar vacío si el mantenimiento está en progreso</p>
+                </div>
+
+                <!-- Costo -->
+                <div class="md:col-span-2">
+                    <label for="costo" class="block text-sm font-medium text-gray-700 mb-2">Costo (opcional)</label>
+                    <input type="number" step="0.01" id="costo" name="costo" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="ej: 250.00">
+                </div>
+
+                <!-- Descripción -->
+                <div class="md:col-span-2">
+                    <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">Descripción *</label>
+                    <textarea id="descripcion" name="descripcion" required rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="Describe el mantenimiento realizado o por realizar..."></textarea>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex justify-end space-x-3 mt-6 pt-4 border-t">
+                <button type="button" onclick="closeMantenimientoModal()" 
+                       class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-200">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                       class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200">
+                    Registrar Mantenimiento
                 </button>
             </div>
         </form>
@@ -1396,8 +1511,29 @@
         });
     });
 
+    // Función para cerrar todos los modales
+    function closeAllModals() {
+        // Lista de IDs de todos los modales
+        const modalIds = [
+            'cambiar-operador-modal',
+            'cambiar-obra-modal',
+            'kilometraje-modal',
+            'add-kilometraje-modal',
+            'upload-document-modal',
+            'registrar-mantenimiento-modal'
+        ];
+        
+        modalIds.forEach(function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal && !modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+            }
+        });
+    }
+
     // Funciones para el modal de cambiar operador
     function openCambiarOperadorModal() {
+        closeAllModals(); // Cerrar todos los modales primero
         document.getElementById('cambiar-operador-modal').classList.remove('hidden');
     }
 
@@ -1421,12 +1557,6 @@
         @else
             submitButton.textContent = 'Asignando...';
         @endif
-        
-        // Debug: verificar que los datos se envían
-        console.log('Datos del formulario:');
-        for (let [key, value] of formData.entries()) {
-            console.log(key, value);
-        }
         
         fetch(this.action, {
             method: 'POST', // Cambiar a POST y usar _method en FormData
@@ -1463,6 +1593,152 @@
                 submitButton.textContent = 'Asignar Operador';
             @endif
         });
+    });
+
+    // Funciones para el modal de registrar mantenimiento
+    function openMantenimientoModal() {
+        console.log('🔧 [INICIO] openMantenimientoModal llamada');
+        
+        // Cerrar todos los modales primero
+        closeAllModals();
+        
+        // Obtener el modal específico
+        const modal = document.getElementById('registrar-mantenimiento-modal');
+        if (!modal) {
+            console.error('❌ Modal registrar-mantenimiento-modal no encontrado');
+            return;
+        }
+        
+        console.log('✅ [OK] Modal encontrado:', modal);
+        
+        // Asegurar que el modal esté visible
+        modal.classList.remove('hidden');
+        modal.style.display = 'block';
+        
+        // Establecer la fecha de hoy como valor por defecto
+        const today = new Date().toISOString().split('T')[0];
+        const fechaInput = document.getElementById('fecha_inicio');
+        if (fechaInput) {
+            fechaInput.value = today;
+            console.log('📅 [OK] Fecha establecida:', today);
+        }
+        
+        console.log('📊 [VERIFICACION] Estado del modal:');
+        console.log('   - Clases:', modal.className);
+        console.log('   - Hidden:', modal.classList.contains('hidden'));
+        console.log('   - Display:', getComputedStyle(modal).display);
+        console.log('🏁 [FIN] openMantenimientoModal completada');
+    }
+
+    function closeMantenimientoModal() {
+        console.log('🔒 [INICIO] closeMantenimientoModal llamada');
+        
+        const modal = document.getElementById('registrar-mantenimiento-modal');
+        if (!modal) {
+            console.error('❌ Modal registrar-mantenimiento-modal no encontrado');
+            return;
+        }
+        
+        // Cerrar el modal
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+        
+        // Limpiar el formulario
+        const form = document.getElementById('registrar-mantenimiento-form');
+        if (form) {
+            form.reset();
+            console.log('🧹 [OK] Formulario limpiado');
+        }
+        
+        console.log('🏁 [FIN] closeMantenimientoModal completada');
+    }
+
+    // Manejar envío del formulario de registrar mantenimiento
+    document.getElementById('registrar-mantenimiento-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const submitButton = this.querySelector('button[type="submit"]');
+        
+        // Deshabilitar botón mientras se procesa
+        submitButton.disabled = true;
+        submitButton.textContent = 'Registrando...';
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message || 'Mantenimiento registrado exitosamente', 'success');
+                closeMantenimientoModal();
+                
+                // Redirigir después de un breve delay
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showNotification(data.error || 'Error al registrar el mantenimiento', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error al registrar el mantenimiento', 'error');
+        })
+        .finally(() => {
+            // Rehabilitar botón
+            submitButton.disabled = false;
+            submitButton.textContent = 'Registrar Mantenimiento';
+        });
+    });
+
+    // Event listener para cerrar modal al hacer clic en el fondo
+    document.getElementById('registrar-mantenimiento-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeMantenimientoModal();
+        }
+    });
+
+    // Función para manejar el cambio de pestañas
+    function changeTab(tabName) {
+        // Ocultar todos los contenidos de pestañas
+        const tabContents = document.querySelectorAll('.tab-content');
+        tabContents.forEach(content => {
+            content.style.display = 'none';
+        });
+
+        // Remover clase activa de todos los botones
+        const tabButtons = document.querySelectorAll('[id^="tab-"]');
+        tabButtons.forEach(button => {
+            button.className = button.className.replace(
+                'bg-gray-50 border-gray-300 border-t border-l border-r text-gray-800 shadow-sm z-10',
+                'bg-gray-100 border-gray-300 border-t border-l border-r text-gray-600 hover:bg-gray-200'
+            );
+        });
+
+        // Mostrar el contenido de la pestaña activa
+        const activeContent = document.getElementById('content-' + tabName);
+        if (activeContent) {
+            activeContent.style.display = 'block';
+        }
+
+        // Agregar clase activa al botón clickeado
+        const activeButton = document.getElementById('tab-' + tabName);
+        if (activeButton) {
+            activeButton.className = activeButton.className.replace(
+                'bg-gray-100 border-gray-300 border-t border-l border-r text-gray-600 hover:bg-gray-200',
+                'bg-gray-50 border-gray-300 border-t border-l border-r text-gray-800 shadow-sm z-10'
+            );
+        }
+    }
+
+    // Inicializar la primera pestaña como activa al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        changeTab('operacion');
     });
 </script>
 @endpush

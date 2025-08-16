@@ -231,11 +231,23 @@ class Mantenimiento extends Model
      */
     public function getDuracionDiasAttribute(): ?int
     {
-        if (! $this->fecha_fin) {
+        if (! $this->fecha_inicio) {
             return null;
         }
 
-        return (int) $this->fecha_inicio->diffInDays($this->fecha_fin);
+        $fechaInicio = Carbon::parse($this->fecha_inicio);
+        
+        if ($this->fecha_fin) {
+            $fechaFin = Carbon::parse($this->fecha_fin);
+            $dias = (int) $fechaInicio->diffInDays($fechaFin);
+            // Si es el mismo día, contar como mínimo 1 día
+            return $dias == 0 ? 1 : $dias;
+        }
+
+        // Si no hay fecha_fin, calcular días hasta hoy
+        $dias = (int) $fechaInicio->diffInDays(Carbon::now());
+        // Si es el mismo día, contar como mínimo 1 día
+        return $dias == 0 ? 1 : $dias;
     }
 
     /**
