@@ -55,7 +55,7 @@
 
     <!-- Encabezado -->
     <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">Editar Vehículo</h2>
+        <h2 class="text-2xl font-bold text-gray-800">Editar Vehículo</h2>
         <a href="{{ route('vehiculos.index') }}" 
            class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -82,22 +82,19 @@
                         Información del Vehículo
                     </h3>
                     
-                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <x-form-input name="marca" label="Marca" required placeholder="Ej: Ford, Chevrolet, Toyota" :value="old('marca', $vehiculo->marca)" />
-                        <x-form-input name="modelo" label="Modelo" required placeholder="Ej: F-150, Silverado, Corolla" :value="old('modelo', $vehiculo->modelo)" />
-                        <x-form-input name="anio" label="Año" type="number" required placeholder="Ej: 2020" min="1900" :max="date('Y') + 1" :value="old('anio', $vehiculo->anio)" />
-                        
-                        <x-form-input name="numero_serie" label="Número de Serie (VIN)" required placeholder="Número de identificación del vehículo" :value="old('numero_serie', $vehiculo->numero_serie)" />
-                        <x-form-input name="placas" label="Placas" placeholder="Número de placas" :value="old('placas', $vehiculo->placas)" />
-                        <x-form-input name="kilometraje_actual" label="Kilometraje Actual (km)" type="number" required placeholder="Ej: 50000" min="0" :value="old('kilometraje_actual', $vehiculo->kilometraje_actual)" />
+                        <x-form-input name="modelo" label="Modelo" required placeholder="Ej: F-150, Silverado, Hilux" :value="old('modelo', $vehiculo->modelo)" />
+                        <x-form-input name="anio" label="Año" type="number" required min="1990" max="2025" placeholder="2023" :value="old('anio', $vehiculo->anio)" />
+                    </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                        <x-form-input name="n_serie" label="Número de Serie (VIN)" required placeholder="1FTFW1ET5DFA12345" />
-                        <x-form-input name="placas" label="Placas" required placeholder="ABC-123-A" />
+                        <x-form-input name="n_serie" label="Número de Serie (VIN)" required placeholder="1FTFW1ET5DFA12345" :value="old('n_serie', $vehiculo->n_serie)" />
+                        <x-form-input name="placas" label="Placas" required placeholder="ABC-123-A" :value="old('placas', $vehiculo->placas)" />
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
-                        <x-form-input name="kilometraje_actual" label="Kilometraje Actual (km)" type="number" required min="0" placeholder="15000" />
+                        <x-form-input name="kilometraje_actual" label="Kilometraje Actual (km)" type="number" required min="0" placeholder="15000" :value="old('kilometraje_actual', $vehiculo->kilometraje_actual)" />
                     </div>
 
                     <!-- Operador Asignado -->
@@ -106,17 +103,18 @@
                             <label for="operador_id" class="block text-sm font-medium text-gray-700 mb-2">
                                 Operador Asignado
                             </label>
-                                                            <select name="operador_id" 
-                                        id="operador_id"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('operador_id') border-red-500 @enderror">
-                                    <option value="">Seleccione un operador (opcional)</option>
-                                    @if(isset($personal) && $personal->count() > 0)
-                                        @foreach($personal as $persona)
-                                            <option value="{{ $persona->id }}" {{ old('operador_id', $vehiculo->personal_id) == $persona->id ? 'selected' : '' }}>
-                                                {{ $persona->nombre }} {{ $persona->apellido_paterno }} {{ $persona->apellido_materno }}
-                                            </option>
-                                        @endforeach
-                                    @endif
+                            <select name="operador_id" 
+                                    id="operador_id" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('operador_id') border-red-500 @enderror">
+                                <option value="">Seleccione un operador (opcional)</option>
+                                @if(isset($operadores) && $operadores->count() > 0)
+                                    @foreach($operadores as $operador)
+                                        <option value="{{ $operador->id }}" {{ old('operador_id', $vehiculo->personal_id) == $operador->id ? 'selected' : '' }}>
+                                            {{ $operador->nombre_completo }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
                             @error('operador_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             <p class="mt-1 text-xs text-gray-500">Persona encargada de operar el vehículo</p>
                         </div>
@@ -269,8 +267,6 @@
                     </div>
                 </div>
 
-
-
                 <!-- Configuración de Mantenimiento -->
                 <div class="bg-white border border-gray-200 rounded-lg p-6">
                     <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
@@ -323,7 +319,7 @@
                                    min="1000" 
                                    step="500"
                                    placeholder="10000"
-                                   value="{{ old('intervalo_km_hidraulico', $vehiculo->intervalo_km_diferencial) }}"
+                                   value="{{ old('intervalo_km_hidraulico', $vehiculo->intervalo_km_hidraulico) }}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('intervalo_km_hidraulico') border-red-500 @enderror">
                             @error('intervalo_km_hidraulico') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             <p class="mt-1 text-xs text-gray-500">Cada cuántos kilómetros cambiar aceite hidráulico (si aplica)</p>
@@ -355,13 +351,13 @@
             </div>
 
             <!-- Botones de acción -->
-            <div class="mt-12 mb-8 mr-6 flex justify-end space-x-6">
+            <div class="mt-8 flex justify-end space-x-4">
                 <a href="{{ route('vehiculos.index') }}" 
-                   class="px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors duration-200">
+                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
                     Cancelar
                 </a>
                 <button type="submit" 
-                        class="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-petrodark bg-petroyellow hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors duration-200">
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-petrodark bg-petroyellow hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-petroyellow">
                     Actualizar Vehículo
                 </button>
             </div>

@@ -267,7 +267,7 @@ class VehiculoController extends Controller
                 'max:20',
                 Rule::unique('vehiculos', 'placas')->ignore($vehiculo->id)
             ],
-            'estatus' => ['required', Rule::in(collect(EstadoVehiculo::cases())->pluck('value')->toArray())],
+            // Removido: 'estatus' ya no es requerido - tiene valor por defecto
             'kilometraje_actual' => 'required|integer|min:0',
             'intervalo_km_motor' => 'nullable|integer|min:1000',
             'intervalo_km_transmision' => 'nullable|integer|min:5000',
