@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\EstadoVehiculo;
 use App\Models\CategoriaPersonal;
+use App\Models\CatalogoTipoDocumento;
 use App\Models\LogAccion;
 use App\Models\Personal;
 use App\Models\Vehiculo;
@@ -238,8 +239,9 @@ class VehiculoController extends Controller
 
         $operadores = Personal::activos()->orderBy('nombre_completo')->get();
         $estados = EstadoVehiculo::cases();
+        $tiposDocumento = \App\Models\CatalogoTipoDocumento::all();
 
-        return view('vehiculos.edit', compact('vehiculo', 'operadores', 'estados'));
+        return view('vehiculos.edit', compact('vehiculo', 'operadores', 'estados', 'tiposDocumento'));
     }
 
     /**

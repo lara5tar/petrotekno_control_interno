@@ -16,14 +16,16 @@ class EnviarAlertaMantenimiento implements ShouldQueue
 
     public bool $esTest;
     public ?array $emailsTest;
+    public ?array $datosPersonalizados;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(bool $esTest = false, ?array $emailsTest = null)
+    public function __construct(bool $esTest = false, ?array $emailsTest = null, ?array $datosPersonalizados = null)
     {
         $this->esTest = $esTest;
         $this->emailsTest = $emailsTest;
+        $this->datosPersonalizados = $datosPersonalizados;
     }
 
     /**
@@ -32,12 +34,17 @@ class EnviarAlertaMantenimiento implements ShouldQueue
     public function handle(): void
     {
         try {
-            // Obtener las alertas del sistema
-            $alertasData = AlertasMantenimientoService::verificarTodosLosVehiculos();
+            // Usar datos personalizados si están disponibles, sino obtener del sistema
+            if ($this->datosPersonalizados) {
+                $alertasData = $this->datosPersonalizados;
+            } else {
+                // Obtener las alertas del sistema
+                $alertasData = AlertasMantenimientoService::verificarTodosLosVehiculos();
 
-            // Si es test y no hay alertas reales, crear datos simulados
-            if ($this->esTest && empty($alertasData['alertas'])) {
-                $alertasData = $this->generarDatosTest();
+                // Si es test y no hay alertas reales, crear datos simulados
+                if ($this->esTest && empty($alertasData['alertas'])) {
+                    $alertasData = $this->generarDatosTest();
+                }
             }
 
             // Obtener destinatarios de correo

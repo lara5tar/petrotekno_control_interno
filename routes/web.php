@@ -432,6 +432,12 @@ Route::middleware('auth')->prefix('kilometrajes')->name('kilometrajes.')->group(
     Route::get('/', [KilometrajeController::class, 'index'])
         ->name('index')
         ->middleware('permission:ver_kilometrajes');
+    Route::get('/create', [KilometrajeController::class, 'create'])
+        ->name('create')
+        ->middleware('permission:crear_kilometrajes');
+    Route::post('/', [KilometrajeController::class, 'store'])
+        ->name('store')
+        ->middleware('permission:crear_kilometrajes');
     Route::get('/vehiculo/{vehiculoId}/historial', [KilometrajeController::class, 'historialPorVehiculo'])
         ->name('historial')
         ->middleware('permission:ver_kilometrajes');

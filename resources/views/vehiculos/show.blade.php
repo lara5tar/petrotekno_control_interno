@@ -1269,6 +1269,37 @@
     </div>
 </div>
 
+<!-- Botones de Acción Flotantes -->
+<div class="fixed bottom-6 right-6 flex space-x-3 z-50">
+    <!-- Botón Editar -->
+    <a href="{{ route('vehiculos.edit', $vehiculo->id) }}" 
+       class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 flex items-center space-x-2 shadow-lg"
+       title="Editar Vehículo">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+        </svg>
+        <span>Editar</span>
+    </a>
+
+    <!-- Botón Eliminar -->
+    <form action="{{ route('vehiculos.destroy', $vehiculo->id) }}" 
+          method="POST" 
+          class="inline" 
+          onsubmit="return confirm('¿Estás seguro de que quieres eliminar este vehículo? Esta acción no se puede deshacer.')">
+        @csrf
+        @method('DELETE')
+        <button type="submit" 
+                class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 flex items-center space-x-2 shadow-lg"
+                title="Eliminar Vehículo">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+            </svg>
+            <span>Eliminar</span>
+        </button>
+    </form>
+</div>
+
 @endsection
 
 @push('scripts')

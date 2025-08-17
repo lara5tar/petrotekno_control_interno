@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Models\Mantenimiento;
+use App\Models\Vehiculo;
 use App\Observers\MantenimientoObserver;
+use App\Observers\VehiculoObserver;
 use App\View\Composers\AlertasComposer;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
@@ -26,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // Registrar observers
         Mantenimiento::observe(MantenimientoObserver::class);
+        Vehiculo::observe(VehiculoObserver::class);
 
         // Registrar View Composers
         View::composer('layouts.app', AlertasComposer::class);

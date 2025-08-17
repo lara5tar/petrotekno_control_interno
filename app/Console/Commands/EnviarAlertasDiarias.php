@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\AlertasMantenimientoService;
 use App\Services\ConfiguracionAlertasService;
+use App\Services\GeneradorReportesPDF;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -87,7 +88,7 @@ class EnviarAlertasDiarias extends Command
 
             // Generar y enviar reporte
             $this->info('📄 Generando reporte PDF...');
-            $rutaPDF = $this->generarReportePDF($todasLasAlertas);
+            $rutaPDF = GeneradorReportesPDF::generarReporteAlertas($todasLasAlertas, $resumen);
 
             $this->info('📧 Enviando emails...');
             $this->enviarEmails($todasLasAlertas, $emails, $rutaPDF);

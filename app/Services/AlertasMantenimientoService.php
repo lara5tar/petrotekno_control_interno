@@ -15,7 +15,7 @@ class AlertasMantenimientoService
     public static function verificarVehiculo(int $vehiculoId): array
     {
         try {
-            $vehiculo = Vehiculo::with(['estatus', 'kilometrajes', 'mantenimientos'])
+            $vehiculo = Vehiculo::with(['kilometrajes', 'mantenimientos'])
                 ->find($vehiculoId);
 
             if (!$vehiculo) {
@@ -23,12 +23,16 @@ class AlertasMantenimientoService
                 return [];
             }
 
-            // Solo procesar vehículos disponibles, en obra o activos
-            $estatusPermitidos = ['disponible', 'en_obra', 'activo'];
-            if (!in_array(strtolower($vehiculo->estatus->nombre_estatus), $estatusPermitidos)) {
+            // Solo procesar vehículos disponibles o asignados (activos)
+            $estatusPermitidos = ['disponible', 'asignado'];
+            $estatusVehiculo = $vehiculo->estatus instanceof \App\Enums\EstadoVehiculo 
+                ? $vehiculo->estatus->value 
+                : (string) $vehiculo->estatus;
+                
+            if (!in_array(strtolower($estatusVehiculo), $estatusPermitidos)) {
                 Log::info('Vehículo omitido por estatus', [
                     'vehiculo_id' => $vehiculoId,
-                    'estatus' => $vehiculo->estatus->nombre_estatus
+                    'estatus' => $estatusVehiculo
                 ]);
                 return [];
             }
@@ -214,9 +218,7 @@ class AlertasMantenimientoService
      */
     public static function verificarTodosLosVehiculos(): array
     {
-        $vehiculos = Vehiculo::whereHas('estatus', function ($query) {
-            $query->whereRaw('LOWER(nombre_estatus) IN (?, ?, ?)', ['disponible', 'en_obra', 'activo']);
-        })
+        $vehiculos = Vehiculo::whereIn('estatus', ['disponible', 'asignado'])
             ->get();
 
         $todasLasAlertas = [];
