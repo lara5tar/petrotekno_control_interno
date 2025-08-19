@@ -3,6 +3,7 @@
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\KilometrajeController;
 use App\Http\Controllers\MantenimientoController;
+use App\Http\Controllers\MantenimientoAlertasController;
 use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\PersonalCompleteController;
 use App\Http\Controllers\PersonalManagementController;
@@ -27,6 +28,11 @@ Auth::routes(['register' => false]);
 
 // Ruta del dashboard después de iniciar sesión
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('auth');
+
+// Ruta para alertas de mantenimiento
+Route::get('/alertas/mantenimiento', [MantenimientoAlertasController::class, 'index'])
+    ->name('alertas.mantenimiento')
+    ->middleware(['auth', 'permission:ver_mantenimientos']);
 
 // Rutas para Vehículos CRUD (usando VehiculoController)
 Route::middleware('auth')->prefix('vehiculos')->name('vehiculos.')->group(function () {
