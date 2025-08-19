@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('obras', function (Blueprint $table) {
             // Campos para archivos importantes de la obra
-            $table->string('archivo_contrato')->nullable()->after('observaciones')->comment('Ruta del archivo de contrato');
+            $table->string('archivo_contrato')->nullable()->comment('Ruta del archivo de contrato');
             $table->string('archivo_fianza')->nullable()->after('archivo_contrato')->comment('Ruta del archivo de fianza');
             $table->string('archivo_acta_entrega_recepcion')->nullable()->after('archivo_fianza')->comment('Ruta del archivo de acta entrega-recepción');
             

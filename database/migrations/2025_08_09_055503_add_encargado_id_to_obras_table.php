@@ -12,11 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('obras', function (Blueprint $table) {
-            // Agregar campo encargado_id
-            $table->unsignedBigInteger('encargado_id')->nullable()->after('observaciones');
-            
-            // Crear relación con la tabla users
-            $table->foreign('encargado_id')->references('id')->on('users')->onDelete('set null');
+            // Agregar campo encargado_id solo si no existe
+            if (!Schema::hasColumn('obras', 'encargado_id')) {
+                $table->unsignedBigInteger('encargado_id')->nullable();
+                
+                // Crear relación con la tabla users
+                $table->foreign('encargado_id')->references('id')->on('users')->onDelete('set null');
+            }
             
             // Agregar índice para optimizar consultas
             $table->index('encargado_id');

@@ -12,40 +12,67 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Paso 1: Agregar nuevas columnas a la tabla obras
+        // Paso 1: Agregar nuevas columnas a la tabla obras solo si no existen
         Schema::table('obras', function (Blueprint $table) {
             // Relaciones
-            $table->unsignedBigInteger('vehiculo_id')->nullable()->after('fecha_fin');
-            $table->unsignedBigInteger('operador_id')->nullable()->after('vehiculo_id')->comment('Operador asignado');
-            $table->unsignedBigInteger('encargado_id')->nullable()->after('operador_id')->comment('Usuario que creó la asignación');
+            if (!Schema::hasColumn('obras', 'vehiculo_id')) {
+                $table->unsignedBigInteger('vehiculo_id')->nullable()->after('fecha_fin');
+            }
+            if (!Schema::hasColumn('obras', 'operador_id')) {
+                $table->unsignedBigInteger('operador_id')->nullable()->after('vehiculo_id')->comment('Operador asignado');
+            }
+            if (!Schema::hasColumn('obras', 'encargado_id')) {
+                $table->unsignedBigInteger('encargado_id')->nullable()->after('operador_id')->comment('Usuario que creó la asignación');
+            }
 
             // Fechas de asignación
-            $table->timestamp('fecha_asignacion')->nullable()->after('encargado_id');
-            $table->timestamp('fecha_liberacion')->nullable()->after('fecha_asignacion');
+            if (!Schema::hasColumn('obras', 'fecha_asignacion')) {
+                $table->timestamp('fecha_asignacion')->nullable()->after('encargado_id');
+            }
+            if (!Schema::hasColumn('obras', 'fecha_liberacion')) {
+                $table->timestamp('fecha_liberacion')->nullable()->after('fecha_asignacion');
+            }
 
             // Kilometrajes
-            $table->integer('kilometraje_inicial')->nullable()->after('fecha_liberacion');
-            $table->integer('kilometraje_final')->nullable()->after('kilometraje_inicial');
+            if (!Schema::hasColumn('obras', 'kilometraje_inicial')) {
+                $table->integer('kilometraje_inicial')->nullable()->after('fecha_liberacion');
+            }
+            if (!Schema::hasColumn('obras', 'kilometraje_final')) {
+                $table->integer('kilometraje_final')->nullable()->after('kilometraje_inicial');
+            }
 
             // Combustible
-            $table->decimal('combustible_inicial', 8, 2)->nullable()->after('kilometraje_final');
-            $table->decimal('combustible_final', 8, 2)->nullable()->after('combustible_inicial');
-            $table->decimal('combustible_suministrado', 8, 2)->nullable()->after('combustible_final');
-            $table->decimal('costo_combustible', 10, 2)->nullable()->after('combustible_suministrado');
-            $table->json('historial_combustible')->nullable()->after('costo_combustible');
-
-            // Observaciones
-            $table->text('observaciones')->nullable()->after('historial_combustible');
-
-            // Índices y foreign keys
-            $table->foreign('vehiculo_id')->references('id')->on('vehiculos')->onDelete('set null');
-            $table->foreign('operador_id')->references('id')->on('personal')->onDelete('set null');
-            $table->foreign('encargado_id')->references('id')->on('users')->onDelete('set null');
-
-            // Índices para mejor rendimiento
-            $table->index(['vehiculo_id', 'operador_id']);
-            $table->index('fecha_asignacion');
+            if (!Schema::hasColumn('obras', 'combustible_inicial')) {
+                $table->decimal('combustible_inicial', 8, 2)->nullable()->after('kilometraje_final');
+            }
+            if (!Schema::hasColumn('obras', 'combustible_final')) {
+                $table->decimal('combustible_final', 8, 2)->nullable()->after('combustible_inicial');
+            }
+            if (!Schema::hasColumn('obras', 'combustible_suministrado')) {
+                $table->decimal('combustible_suministrado', 8, 2)->nullable()->after('combustible_final');
+            }
+            if (!Schema::hasColumn('obras', 'costo_combustible')) {
+                $table->decimal('costo_combustible', 10, 2)->nullable()->after('combustible_suministrado');
+            }
+            if (!Schema::hasColumn('obras', 'historial_combustible')) {
+                $table->json('historial_combustible')->nullable()->after('costo_combustible');
+            }
         });
+
+        // Agregar foreign keys solo si no existen
+        try {
+            Schema::table('obras', function (Blueprint $table) {
+                $table->foreign('vehiculo_id')->references('id')->on('vehiculos')->onDelete('set null');
+                $table->foreign('operador_id')->references('id')->on('personal')->onDelete('set null');
+                $table->foreign('encargado_id')->references('id')->on('users')->onDelete('set null');
+
+                // Índices para mejor rendimiento
+                $table->index(['vehiculo_id', 'operador_id']);
+                $table->index('fecha_asignacion');
+            });
+        } catch (\Exception $e) {
+            // Si las foreign keys ya existen, continuar
+        }
 
         // Paso 2: Migrar datos de asignaciones a obras usando un enfoque compatible con SQLite
         // Primero obtenemos las asignaciones más recientes por obra
@@ -102,17 +129,36 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('obras', function (Blueprint $table) {
-            // Eliminar foreign keys primero
-            $table->dropForeign(['vehiculo_id']);
-            $table->dropForeign(['operador_id']);
-            $table->dropForeign(['encargado_id']);
+            // Verificar y eliminar foreign keys solo si existen
+            $foreignKeys = [
+                'obras_vehiculo_id_foreign',
+                'obras_operador_id_foreign', 
+                'obras_encargado_id_foreign'
+            ];
+            
+            foreach ($foreignKeys as $foreignKey) {
+                try {
+                    DB::statement("ALTER TABLE obras DROP FOREIGN KEY {$foreignKey}");
+                } catch (\Exception $e) {
+                    // Si la clave foránea no existe, continuar
+                }
+            }
 
-            // Eliminar índices
-            $table->dropIndex(['vehiculo_id', 'operador_id']);
-            $table->dropIndex(['fecha_asignacion']);
+            // Eliminar índices si existen
+            try {
+                DB::statement("DROP INDEX obras_vehiculo_id_operador_id_index ON obras");
+            } catch (\Exception $e) {
+                // Si el índice no existe, continuar
+            }
+            
+            try {
+                DB::statement("DROP INDEX obras_fecha_asignacion_index ON obras");
+            } catch (\Exception $e) {
+                // Si el índice no existe, continuar
+            }
 
-            // Eliminar columnas
-            $table->dropColumn([
+            // Eliminar columnas si existen
+            $columns = [
                 'vehiculo_id',
                 'operador_id',
                 'encargado_id',
@@ -126,7 +172,13 @@ return new class extends Migration
                 'costo_combustible',
                 'historial_combustible',
                 'observaciones'
-            ]);
+            ];
+            
+            foreach ($columns as $column) {
+                if (Schema::hasColumn('obras', $column)) {
+                    $table->dropColumn($column);
+                }
+            }
         });
     }
 };
