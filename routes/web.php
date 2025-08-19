@@ -441,9 +441,6 @@ Route::middleware('auth')->prefix('kilometrajes')->name('kilometrajes.')->group(
     Route::get('/vehiculo/{vehiculoId}/historial', [KilometrajeController::class, 'historialPorVehiculo'])
         ->name('historial')
         ->middleware('permission:ver_kilometrajes');
-    Route::get('/alertas/mantenimiento', [KilometrajeController::class, 'alertasMantenimiento'])
-        ->name('alertas')
-        ->middleware('permission:ver_kilometrajes');
 });
 
 // Rutas para Mantenimientos (CRUD completo)
@@ -455,6 +452,19 @@ Route::middleware('auth')->prefix('mantenimientos')->name('mantenimientos.')->gr
     Route::get('/create', [MantenimientoController::class, 'create'])
         ->name('create')
         ->middleware('permission:crear_mantenimientos');
+
+    // Rutas adicionales específicas (DEBEN IR ANTES de las rutas con parámetros)
+    Route::get('/alertas', [MantenimientoController::class, 'alertas'])
+        ->name('alertas')
+        ->middleware('permission:ver_mantenimientos');
+
+    Route::get('/proximos/kilometraje', [MantenimientoController::class, 'proximosPorKilometraje'])
+        ->name('proximos.kilometraje')
+        ->middleware('permission:ver_mantenimientos');
+
+    Route::get('/estadisticas/general', [MantenimientoController::class, 'estadisticas'])
+        ->name('estadisticas')
+        ->middleware('permission:ver_mantenimientos');
 
     Route::post('/', [MantenimientoController::class, 'store'])
         ->name('store')
@@ -479,46 +489,37 @@ Route::middleware('auth')->prefix('mantenimientos')->name('mantenimientos.')->gr
     Route::post('/{id}/restore', [MantenimientoController::class, 'restore'])
         ->name('restore')
         ->middleware('permission:restaurar_mantenimientos');
-
-    // Rutas adicionales específicas
-    Route::get('/proximos/kilometraje', [MantenimientoController::class, 'proximosPorKilometraje'])
-        ->name('proximos.kilometraje')
-        ->middleware('permission:ver_mantenimientos');
-
-    Route::get('/estadisticas/general', [MantenimientoController::class, 'estadisticas'])
-        ->name('estadisticas')
-        ->middleware('permission:ver_mantenimientos');
 });
 
 // Rutas para Categorías de Personal (solo para administradores)
 Route::middleware('auth')->prefix('categorias-personal')->name('categorias-personal.')->group(function () {
     Route::get('/', [App\Http\Controllers\CategoriaPersonalController::class, 'index'])
         ->name('index')
-        ->middleware('permission:gestionar_categorias_personal');
+        ->middleware('permission:ver_catalogos');
 
     Route::get('/create', [App\Http\Controllers\CategoriaPersonalController::class, 'create'])
         ->name('create')
-        ->middleware('permission:gestionar_categorias_personal');
+        ->middleware('permission:crear_catalogos');
 
     Route::post('/', [App\Http\Controllers\CategoriaPersonalController::class, 'store'])
         ->name('store')
-        ->middleware('permission:gestionar_categorias_personal');
+        ->middleware('permission:crear_catalogos');
 
     Route::get('/{categoriaPersonal}', [App\Http\Controllers\CategoriaPersonalController::class, 'show'])
         ->name('show')
-        ->middleware('permission:gestionar_categorias_personal');
+        ->middleware('permission:ver_catalogos');
 
     Route::get('/{categoriaPersonal}/edit', [App\Http\Controllers\CategoriaPersonalController::class, 'edit'])
         ->name('edit')
-        ->middleware('permission:gestionar_categorias_personal');
+        ->middleware('permission:editar_catalogos');
 
     Route::put('/{categoriaPersonal}', [App\Http\Controllers\CategoriaPersonalController::class, 'update'])
         ->name('update')
-        ->middleware('permission:gestionar_categorias_personal');
+        ->middleware('permission:editar_catalogos');
 
     Route::delete('/{categoriaPersonal}', [App\Http\Controllers\CategoriaPersonalController::class, 'destroy'])
         ->name('destroy')
-        ->middleware('permission:gestionar_categorias_personal');
+        ->middleware('permission:eliminar_catalogos');
 });
 
 // Rutas para Asignaciones de Obra

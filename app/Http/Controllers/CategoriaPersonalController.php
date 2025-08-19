@@ -14,7 +14,11 @@ class CategoriaPersonalController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('permission:gestionar_categorias_personal');
+        // Use different permissions for different actions
+        $this->middleware('permission:ver_catalogos')->only(['index', 'show']);
+        $this->middleware('permission:crear_catalogos')->only(['create', 'store']);
+        $this->middleware('permission:editar_catalogos')->only(['edit', 'update']);
+        $this->middleware('permission:eliminar_catalogos')->only(['destroy']);
     }
 
     /**
@@ -61,9 +65,20 @@ class CategoriaPersonalController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nombre_categoria' => 'required|string|max:255|unique:categorias_personal,nombre_categoria'
-        ]);
+        try {
+            $validated = $request->validate([
+                'nombre_categoria' => 'required|string|max:255|unique:categorias_personal,nombre_categoria'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error de validación',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            throw $e;
+        }
 
         try {
             DB::beginTransaction();
@@ -135,6 +150,9 @@ class CategoriaPersonalController extends Controller
      */
     public function edit(Request $request, CategoriaPersonal $categoriaPersonal)
     {
+        // Load the count of associated staff
+        $categoriaPersonal->loadCount('personal');
+        
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
@@ -150,20 +168,18 @@ class CategoriaPersonalController extends Controller
      */
     public function update(Request $request, CategoriaPersonal $categoriaPersonal)
     {
-        $validated = $request->validate([
-            'nombre_categoria' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('categorias_personal', 'nombre_categoria')->ignore($categoriaPersonal->id)
-            ]
-        ]);
-
         try {
+            $validated = $request->validate([
+                'nombre_categoria' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('categorias_personal', 'nombre_categoria')->ignore($categoriaPersonal->id)
+                ]
+            ]);
+
             DB::beginTransaction();
 
-            $oldData = $categoriaPersonal->toArray();
-            
             $categoriaPersonal->update([
                 'nombre_categoria' => $validated['nombre_categoria']
             ]);
@@ -191,6 +207,20 @@ class CategoriaPersonalController extends Controller
                 ->route('categorias-personal.index')
                 ->with('success', 'Categoría actualizada exitosamente');
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error de validación',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors($e->errors());
+
         } catch (\Exception $e) {
             DB::rollBack();
             
@@ -214,9 +244,28 @@ class CategoriaPersonalController extends Controller
      */
     public function destroy(Request $request, CategoriaPersonal $categoriaPersonal)
     {
+        \Log::info('Attempting to delete category', [
+            'category_id' => $categoriaPersonal->id,
+            'category_name' => $categoriaPersonal->nombre_categoria,
+            'request_method' => $request->method(),
+            'user_id' => auth()->id()
+        ]);
+
         try {
             // Verificar si tiene personal asociado
-            if ($categoriaPersonal->personal()->count() > 0) {
+            $personalCount = $categoriaPersonal->personal()->count();
+            
+            \Log::info('Checking personal count for category', [
+                'category_id' => $categoriaPersonal->id,
+                'personal_count' => $personalCount
+            ]);
+
+            if ($personalCount > 0) {
+                \Log::warning('Cannot delete category - has associated staff', [
+                    'category_id' => $categoriaPersonal->id,
+                    'personal_count' => $personalCount
+                ]);
+
                 if ($request->expectsJson()) {
                     return response()->json([
                         'success' => false,

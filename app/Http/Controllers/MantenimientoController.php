@@ -6,6 +6,7 @@ use App\Http\Requests\StoreMantenimientoRequest;
 use App\Models\LogAccion;
 use App\Models\Mantenimiento;
 use App\Models\Vehiculo;
+use App\Services\AlertasMantenimientoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -597,6 +598,38 @@ class MantenimientoController extends Controller
             'success' => true,
             'data' => $estadisticas,
         ]);
+    }
+
+    /**
+     * Mostrar alertas de mantenimiento
+     */
+    public function alertas(Request $request)
+    {
+        // Verificar permisos
+        if (! $this->hasPermission('ver_mantenimientos')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para ver alertas de mantenimiento'], 403);
+            }
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para acceder a esta sección']);
+        }
+
+        // Obtener alertas de mantenimiento
+        $resultadoAlertas = AlertasMantenimientoService::verificarTodosLosVehiculos();
+        $alertas = $resultadoAlertas['alertas'] ?? [];
+        $resumen = $resultadoAlertas['resumen'] ?? [];
+        
+        // Para API
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $alertas,
+                'resumen' => $resumen,
+                'total' => count($alertas)
+            ]);
+        }
+
+        // Para Blade
+        return view('mantenimientos.alertas', compact('alertas', 'resumen'));
     }
 
     /**

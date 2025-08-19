@@ -23,13 +23,16 @@
                 </svg>
                 Volver al Personal
             </a>
-            <a href="{{ route('categorias-personal.create') }}" 
-               class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded flex items-center transition duration-200">
+            @hasPermission('crear_catalogos')
+            <button type="button" 
+                    onclick="openCreateCategoryModal()"
+                    class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded flex items-center transition duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                 </svg>
                 Nueva Categoría
-            </a>
+            </button>
+            @endhasPermission
         </div>
     </div>
 
@@ -226,12 +229,61 @@
             </div>
         @endif
     </div>
+
+    <!-- Modal para crear nueva categoría -->
+    <div id="createCategoryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <!-- Encabezado del modal -->
+                <div class="flex items-center justify-between pb-3">
+                    <h3 class="text-lg font-medium text-gray-900">Nueva Categoría de Personal</h3>
+                    <button type="button" onclick="closeCategoryModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Formulario -->
+                <form id="createCategoryForm" onsubmit="submitCreateCategory(event)">
+                    @csrf
+                    <div class="mb-4">
+                        <label for="modal_nombre_categoria" class="block text-sm font-medium text-gray-700 mb-2">
+                            Nombre de la Categoría <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="modal_nombre_categoria" 
+                               name="nombre_categoria" 
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-petrodark focus:border-petrodark" 
+                               placeholder="Ej: Supervisor, Operador, Técnico..."
+                               required
+                               maxlength="255">
+                        <div id="modal_error_message" class="text-red-500 text-sm mt-1 hidden"></div>
+                    </div>
+                    
+                    <!-- Botones -->
+                    <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                        <button type="button" 
+                                onclick="closeCategoryModal()" 
+                                class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition duration-200">
+                            Cancelar
+                        </button>
+                        <button type="submit" 
+                                id="modal_submit_btn"
+                                class="px-4 py-2 bg-petroyellow text-petrodark rounded-md hover:bg-yellow-500 transition duration-200">
+                            Crear Categoría
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Elementos del formulario
+    // Elementos del formulario de búsqueda
     const searchInput = document.getElementById('search');
     const form = document.getElementById('filtrosForm');
     
@@ -256,6 +308,103 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 2000);
         }
     });
+});
+
+// Funciones para el modal de crear categoría
+function openCreateCategoryModal() {
+    document.getElementById('createCategoryModal').classList.remove('hidden');
+    document.getElementById('modal_nombre_categoria').focus();
+    // Limpiar formulario
+    document.getElementById('createCategoryForm').reset();
+    document.getElementById('modal_error_message').classList.add('hidden');
+}
+
+function closeCategoryModal() {
+    document.getElementById('createCategoryModal').classList.add('hidden');
+}
+
+function submitCreateCategory(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const submitBtn = document.getElementById('modal_submit_btn');
+    const errorDiv = document.getElementById('modal_error_message');
+    const nombreInput = document.getElementById('modal_nombre_categoria');
+    
+    // Deshabilitar botón y mostrar loading
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creando...';
+    errorDiv.classList.add('hidden');
+    
+    // Preparar datos del formulario
+    const formData = new FormData(form);
+    
+    // Realizar petición AJAX
+    fetch('{{ route("categorias-personal.store") }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Éxito: cerrar modal y recargar página
+            closeCategoryModal();
+            
+            // Mostrar mensaje de éxito
+            showSuccessMessage('Categoría creada exitosamente');
+            
+            // Recargar la página para mostrar la nueva categoría
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            // Error: mostrar mensaje de error
+            if (data.errors && data.errors.nombre_categoria) {
+                errorDiv.textContent = data.errors.nombre_categoria[0];
+            } else {
+                errorDiv.textContent = data.message || 'Error al crear la categoría';
+            }
+            errorDiv.classList.remove('hidden');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        errorDiv.textContent = 'Error de conexión. Inténtalo de nuevo.';
+        errorDiv.classList.remove('hidden');
+    })
+    .finally(() => {
+        // Restaurar botón
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Crear Categoría';
+    });
+}
+
+function showSuccessMessage(message) {
+    // Crear elemento de mensaje de éxito
+    const successDiv = document.createElement('div');
+    successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50';
+    successDiv.innerHTML = message;
+    
+    // Agregar al DOM
+    document.body.appendChild(successDiv);
+    
+    // Remover después de 3 segundos
+    setTimeout(() => {
+        if (successDiv.parentNode) {
+            successDiv.parentNode.removeChild(successDiv);
+        }
+    }, 3000);
+}
+
+// Cerrar modal al hacer clic fuera de él
+document.getElementById('createCategoryModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+        closeCategoryModal();
+    }
 });
 </script>
 @endpush

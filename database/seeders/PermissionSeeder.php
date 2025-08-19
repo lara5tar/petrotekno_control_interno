@@ -75,6 +75,19 @@ class PermissionSeeder extends Seeder
             ['nombre_permiso' => 'editar_catalogos', 'descripcion' => 'Editar elementos de catálogos'],
             ['nombre_permiso' => 'eliminar_catalogos', 'descripcion' => 'Eliminar elementos de catálogos'],
 
+            // Kilometrajes
+            ['nombre_permiso' => 'ver_kilometrajes', 'descripcion' => 'Ver listado de kilometrajes'],
+            ['nombre_permiso' => 'crear_kilometrajes', 'descripcion' => 'Crear registros de kilometrajes'],
+            ['nombre_permiso' => 'editar_kilometrajes', 'descripcion' => 'Editar kilometrajes existentes'],
+            ['nombre_permiso' => 'eliminar_kilometrajes', 'descripcion' => 'Eliminar kilometrajes'],
+
+            // Alertas
+            ['nombre_permiso' => 'ver_alertas', 'descripcion' => 'Ver alertas del sistema'],
+            ['nombre_permiso' => 'crear_alertas', 'descripcion' => 'Crear nuevas alertas'],
+            ['nombre_permiso' => 'editar_alertas', 'descripcion' => 'Editar alertas existentes'],
+            ['nombre_permiso' => 'eliminar_alertas', 'descripcion' => 'Eliminar alertas'],
+            ['nombre_permiso' => 'gestionar_alertas', 'descripcion' => 'Gestión completa de alertas'],
+
             // Sistema
             ['nombre_permiso' => 'ver_logs', 'descripcion' => 'Ver logs del sistema'],
             ['nombre_permiso' => 'administrar_sistema', 'descripcion' => 'Administración completa del sistema'],

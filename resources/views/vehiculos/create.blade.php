@@ -285,8 +285,6 @@
                             <input type="number" 
                                    id="intervalo_km_motor" 
                                    name="intervalo_km_motor" 
-                                   min="1000" 
-                                   step="500"
                                    placeholder="5000"
                                    value="{{ old('intervalo_km_motor') }}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('intervalo_km_motor') border-red-500 @enderror">
@@ -301,8 +299,6 @@
                             <input type="number" 
                                    id="intervalo_km_transmision" 
                                    name="intervalo_km_transmision" 
-                                   min="5000" 
-                                   step="1000"
                                    placeholder="40000"
                                    value="{{ old('intervalo_km_transmision') }}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('intervalo_km_transmision') border-red-500 @enderror">
@@ -317,8 +313,6 @@
                             <input type="number" 
                                    id="intervalo_km_hidraulico" 
                                    name="intervalo_km_hidraulico" 
-                                   min="1000" 
-                                   step="500"
                                    placeholder="10000"
                                    value="{{ old('intervalo_km_hidraulico') }}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('intervalo_km_hidraulico') border-red-500 @enderror">

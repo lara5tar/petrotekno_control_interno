@@ -116,7 +116,6 @@
                                 @endif
                             </select>
                             @error('operador_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                            <p class="mt-1 text-xs text-gray-500">Persona encargada de operar el vehículo</p>
                         </div>
                     </div>
                 </div>
@@ -135,133 +134,195 @@
                         <div class="space-y-6">
                             <!-- 1. Póliza de Seguro -->
                             <div class="space-y-3">
-                                <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                <label class="flex text-sm font-medium text-gray-700 mb-3 items-center">
                                     <svg class="h-4 w-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                     </svg>
                                     Póliza de Seguro
                                 </label>
+                                
+                                @if($vehiculo->poliza_url)
+                                    <div class="mb-3 p-3 bg-green-50 border border-green-200 rounded-md">
+                                        <p class="text-sm text-green-700 mb-2">
+                                            <svg class="h-4 w-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                            Archivo actual:
+                                        </p>
+                                        <a href="{{ asset('storage/' . $vehiculo->poliza_url) }}" target="_blank" 
+                                           class="text-blue-600 hover:text-blue-800 underline text-sm">
+                                            Ver póliza actual
+                                        </a>
+                                    </div>
+                                @endif
+                                
                                 <div class="flex items-center justify-center">
                                     <div class="w-full">
                                         <input type="file" 
-                                               id="poliza_seguro_file" 
-                                               name="poliza_seguro_file" 
+                                               id="poliza_file" 
+                                               name="poliza_file" 
                                                accept=".pdf,.jpg,.jpeg,.png" 
                                                class="hidden" 
-                                               onchange="handleFileInput(event, 'poliza_seguro')" />
-                                        <label for="poliza_seguro_file" 
+                                               onchange="handleFileInput(event, 'poliza')" />
+                                        <label for="poliza_file" 
                                                class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                             <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                             </svg>
-                                            <span class="text-base">Subir Póliza de Seguro</span>
+                                            <span class="text-base">{{ $vehiculo->poliza_url ? 'Cambiar Póliza de Seguro' : 'Subir Póliza de Seguro' }}</span>
                                         </label>
                                     </div>
                                 </div>
-                                <div class="flex items-center space-x-3">
-                                    <input type="date" 
-                                           name="fecha_vencimiento_seguro" 
-                                           placeholder="Fecha de vencimiento"
-                                           value="{{ old('fecha_vencimiento_seguro') }}"
-                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                    <span class="text-sm text-gray-500 flex-shrink-0">Vencimiento</span>
+                                <div class="mt-3">
+                                    <x-form-input 
+                                        name="poliza_vencimiento" 
+                                        label="Fecha de Vencimiento" 
+                                        type="date" 
+                                        :value="old('poliza_vencimiento', $vehiculo->poliza_vencimiento ? $vehiculo->poliza_vencimiento->format('Y-m-d') : '')" />
                                 </div>
-                                <p class="text-xs text-gray-500 text-center file-status" id="poliza_seguro_status">PDF, JPG, PNG (máx. 5MB)</p>
+                                <p class="text-xs text-gray-500 text-center file-status" id="poliza_status">PDF, JPG, PNG (máx. 5MB)</p>
                             </div>
 
                             <!-- 2. Derecho Vehicular -->
                             <div class="space-y-3">
-                                <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                <label class="flex text-sm font-medium text-gray-700 mb-3 items-center">
                                     <svg class="h-4 w-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
                                     Derecho Vehicular
                                 </label>
+                                
+                                @if($vehiculo->derecho_url)
+                                    <div class="mb-3 p-3 bg-green-50 border border-green-200 rounded-md">
+                                        <p class="text-sm text-green-700 mb-2">
+                                            <svg class="h-4 w-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                            Archivo actual:
+                                        </p>
+                                        <a href="{{ asset('storage/' . $vehiculo->derecho_url) }}" target="_blank" 
+                                           class="text-blue-600 hover:text-blue-800 underline text-sm">
+                                            Ver derecho vehicular actual
+                                        </a>
+                                    </div>
+                                @endif
+                                
                                 <div class="flex items-center justify-center">
                                     <div class="w-full">
                                         <input type="file" 
-                                               id="derecho_vehicular_file" 
-                                               name="derecho_vehicular_file" 
+                                               id="derecho_file" 
+                                               name="derecho_file" 
                                                accept=".pdf,.jpg,.jpeg,.png" 
                                                class="hidden" 
-                                               onchange="handleFileInput(event, 'derecho_vehicular')" />
-                                        <label for="derecho_vehicular_file" 
+                                               onchange="handleFileInput(event, 'derecho')" />
+                                        <label for="derecho_file" 
                                                class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                             <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                             </svg>
-                                            <span class="text-base">Subir Derecho Vehicular</span>
+                                            <span class="text-base">{{ $vehiculo->derecho_url ? 'Cambiar Derecho Vehicular' : 'Subir Derecho Vehicular' }}</span>
                                         </label>
                                     </div>
                                 </div>
-                                <div class="flex items-center space-x-3">
-                                    <input type="date" 
-                                           name="fecha_vencimiento_derecho" 
-                                           placeholder="Fecha de vencimiento"
-                                           value="{{ old('fecha_vencimiento_derecho') }}"
-                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
-                                    <span class="text-sm text-gray-500 flex-shrink-0">Vencimiento</span>
+                                <div class="mt-3">
+                                    <x-form-input 
+                                        name="derecho_vencimiento" 
+                                        label="Fecha de Vencimiento" 
+                                        type="date" 
+                                        :value="old('derecho_vencimiento', $vehiculo->derecho_vencimiento ? $vehiculo->derecho_vencimiento->format('Y-m-d') : '')" />
                                 </div>
-                                <p class="text-xs text-gray-500 text-center file-status" id="derecho_vehicular_status">PDF, JPG, PNG (máx. 5MB)</p>
+                                <p class="text-xs text-gray-500 text-center file-status" id="derecho_status">PDF, JPG, PNG (máx. 5MB)</p>
                             </div>
                         </div>
 
                         <!-- Segunda columna -->
                         <div class="space-y-6">
-                            <!-- 3. Factura y/o Pedimento -->
+                            <!-- 3. Factura del Vehículo -->
                             <div class="space-y-3">
-                                <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                <label class="flex text-sm font-medium text-gray-700 mb-3 items-center">
                                     <svg class="h-4 w-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                     </svg>
-                                    Factura y/o Pedimento
+                                    Factura del Vehículo
                                 </label>
+                                
+                                @if($vehiculo->factura_url)
+                                    <div class="mb-3 p-3 bg-green-50 border border-green-200 rounded-md">
+                                        <p class="text-sm text-green-700 mb-2">
+                                            <svg class="h-4 w-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                            Archivo actual:
+                                        </p>
+                                        <a href="{{ asset('storage/' . $vehiculo->factura_url) }}" target="_blank" 
+                                           class="text-blue-600 hover:text-blue-800 underline text-sm">
+                                            Ver factura actual
+                                        </a>
+                                    </div>
+                                @endif
+                                
                                 <div class="flex items-center justify-center">
                                     <div class="w-full">
                                         <input type="file" 
-                                               id="factura_pedimento_file" 
-                                               name="factura_pedimento_file" 
+                                               id="factura_file" 
+                                               name="factura_file" 
                                                accept=".pdf,.jpg,.jpeg,.png" 
                                                class="hidden" 
-                                               onchange="handleFileInput(event, 'factura_pedimento')" />
-                                        <label for="factura_pedimento_file" 
+                                               onchange="handleFileInput(event, 'factura')" />
+                                        <label for="factura_file" 
                                                class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                             <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                             </svg>
-                                            <span class="text-base">Subir Factura y/o Pedimento</span>
+                                            <span class="text-base">{{ $vehiculo->factura_url ? 'Cambiar Factura' : 'Subir Factura' }}</span>
                                         </label>
                                     </div>
                                 </div>
-                                <p class="text-xs text-gray-500 text-center file-status" id="factura_pedimento_status">PDF, JPG, PNG (máx. 5MB)</p>
+                                <p class="text-xs text-gray-500 text-center file-status" id="factura_status">PDF, JPG, PNG (máx. 5MB)</p>
                             </div>
 
-                            <!-- 4. Fotografía del Vehículo -->
+                            <!-- 4. Imagen del Vehículo -->
                             <div class="space-y-3">
-                                <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                <label class="flex text-sm font-medium text-gray-700 mb-3 items-center">
                                     <svg class="h-4 w-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    Fotografía del Vehículo
+                                    Imagen del Vehículo
                                 </label>
+                                
+                                @if($vehiculo->url_imagen)
+                                    <div class="mb-3 p-3 bg-green-50 border border-green-200 rounded-md">
+                                        <p class="text-sm text-green-700 mb-2">
+                                            <svg class="h-4 w-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                            Imagen actual:
+                                        </p>
+                                        <a href="{{ asset('storage/' . $vehiculo->url_imagen) }}" target="_blank" 
+                                           class="text-blue-600 hover:text-blue-800 underline text-sm">
+                                            Ver imagen actual
+                                        </a>
+                                    </div>
+                                @endif
+                                
                                 <div class="flex items-center justify-center">
                                     <div class="w-full">
                                         <input type="file" 
-                                               id="fotografia_file" 
-                                               name="fotografia_file" 
+                                               id="imagen_file" 
+                                               name="imagen_file" 
                                                accept=".jpg,.jpeg,.png" 
                                                class="hidden" 
-                                               onchange="handleFileInput(event, 'fotografia')" />
-                                        <label for="fotografia_file" 
+                                               onchange="handleFileInput(event, 'imagen')" />
+                                        <label for="imagen_file" 
                                                class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                             <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
-                                            <span class="text-base">Subir Fotografía del Vehículo</span>
+                                            <span class="text-base">{{ $vehiculo->url_imagen ? 'Cambiar Imagen del Vehículo' : 'Subir Imagen del Vehículo' }}</span>
                                         </label>
                                     </div>
                                 </div>
-                                <p class="text-xs text-gray-500 text-center file-status" id="fotografia_status">JPG, PNG (máx. 5MB)</p>
+                                <p class="text-xs text-gray-500 text-center file-status" id="imagen_status">JPG, PNG (máx. 5MB)</p>
                             </div>
                         </div>
                     </div>
@@ -284,8 +345,6 @@
                             <input type="number" 
                                    id="intervalo_km_motor" 
                                    name="intervalo_km_motor" 
-                                   min="1000" 
-                                   step="500"
                                    placeholder="5000"
                                    value="{{ old('intervalo_km_motor', $vehiculo->intervalo_km_motor) }}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('intervalo_km_motor') border-red-500 @enderror">
@@ -300,8 +359,6 @@
                             <input type="number" 
                                    id="intervalo_km_transmision" 
                                    name="intervalo_km_transmision" 
-                                   min="5000" 
-                                   step="1000"
                                    placeholder="40000"
                                    value="{{ old('intervalo_km_transmision', $vehiculo->intervalo_km_transmision) }}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('intervalo_km_transmision') border-red-500 @enderror">
@@ -316,8 +373,6 @@
                             <input type="number" 
                                    id="intervalo_km_hidraulico" 
                                    name="intervalo_km_hidraulico" 
-                                   min="1000" 
-                                   step="500"
                                    placeholder="10000"
                                    value="{{ old('intervalo_km_hidraulico', $vehiculo->intervalo_km_hidraulico) }}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('intervalo_km_hidraulico') border-red-500 @enderror">

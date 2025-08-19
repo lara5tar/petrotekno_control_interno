@@ -73,20 +73,20 @@ class StoreVehiculoRequest extends FormRequest
             'intervalo_km_motor' => [
                 'nullable',
                 'integer',
-                'min:1000',
-                'max:50000',
+                'min:100',
+                'max:100000',
             ],
             'intervalo_km_transmision' => [
                 'nullable',
                 'integer',
-                'min:10000',
-                'max:200000',
+                'min:100',
+                'max:500000',
             ],
             'intervalo_km_hidraulico' => [
                 'nullable',
                 'integer',
-                'min:5000',
-                'max:100000',
+                'min:100',
+                'max:200000',
             ],
             'observaciones' => [
                 'nullable',
@@ -276,16 +276,16 @@ class StoreVehiculoRequest extends FormRequest
             'kilometraje_actual.max' => 'El kilometraje excede el límite permitido',
             
             'intervalo_km_motor.integer' => 'El intervalo de motor debe ser un número entero',
-            'intervalo_km_motor.min' => 'El intervalo de motor debe ser al menos 1,000 km',
-            'intervalo_km_motor.max' => 'El intervalo de motor no puede exceder 50,000 km',
+            'intervalo_km_motor.min' => 'El intervalo de motor debe ser al menos 100 km',
+            'intervalo_km_motor.max' => 'El intervalo de motor no puede exceder 100,000 km',
             
             'intervalo_km_transmision.integer' => 'El intervalo de transmisión debe ser un número entero',
-            'intervalo_km_transmision.min' => 'El intervalo de transmisión debe ser al menos 10,000 km',
-            'intervalo_km_transmision.max' => 'El intervalo de transmisión no puede exceder 200,000 km',
+            'intervalo_km_transmision.min' => 'El intervalo de transmisión debe ser al menos 100 km',
+            'intervalo_km_transmision.max' => 'El intervalo de transmisión no puede exceder 500,000 km',
             
             'intervalo_km_hidraulico.integer' => 'El intervalo hidráulico debe ser un número entero',
-            'intervalo_km_hidraulico.min' => 'El intervalo hidráulico debe ser al menos 5,000 km',
-            'intervalo_km_hidraulico.max' => 'El intervalo hidráulico no puede exceder 100,000 km',
+            'intervalo_km_hidraulico.min' => 'El intervalo hidráulico debe ser al menos 100 km',
+            'intervalo_km_hidraulico.max' => 'El intervalo hidráulico no puede exceder 200,000 km',
             
             'observaciones.string' => 'Las observaciones deben ser un texto válido',
             'observaciones.max' => 'Las observaciones no pueden exceder 1,000 caracteres',

@@ -578,90 +578,212 @@
                                     </h5>
                                 </div>
                                 
-                                <!-- Documentos Obligatorios -->
-                                <h6 class="text-sm font-medium text-gray-700 mb-2">Documentos Obligatorios</h6>
+                                <!-- Documentos del Vehículo -->
+                                <h6 class="text-sm font-medium text-gray-700 mb-2">Documentos del Vehículo</h6>
                                 <ul class="divide-y divide-gray-200 mb-6">
-                                    <!-- Tarjeta de Circulación -->
-                                    <li class="py-2 flex items-center justify-between">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
-                                            <div>
-                                                <span class="text-sm font-medium text-gray-800">Tarjeta de Circulación</span>
-                                                <p class="text-xs text-gray-500">Vence: 15/01/2025</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex space-x-2">
-                                            <button onclick="viewDocument('tarjeta')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                                Ver
-                                            </button>
-                                            <button onclick="downloadDocument('tarjeta')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                            </svg>
-                                                Descargar
-                                            </button>
-                                        </div>
-                                    </li>
                                     
                                     <!-- Póliza de Seguro -->
-                                    <li class="py-2 flex items-center justify-between">
+                                    <li class="py-3 flex items-center justify-between">
                                         <div class="flex items-center">
                                             <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                             </svg>
                                             <div>
                                                 <span class="text-sm font-medium text-gray-800">Póliza de Seguro</span>
-                                                <p class="text-xs text-gray-500">Vence: 30/06/2024</p>
+                                                @if($vehiculo->poliza_vencimiento)
+                                                    <p class="text-xs text-gray-500">
+                                                        Vence: {{ $vehiculo->poliza_vencimiento->format('d/m/Y') }}
+                                                        @if($vehiculo->poliza_vencimiento < now())
+                                                            <span class="text-red-600 font-medium">(Vencida)</span>
+                                                        @elseif($vehiculo->poliza_vencimiento <= now()->addDays(30))
+                                                            <span class="text-yellow-600 font-medium">(Por vencer)</span>
+                                                        @endif
+                                                    </p>
+                                                @else
+                                                    <p class="text-xs text-gray-400">Sin fecha de vencimiento</p>
+                                                @endif
                                             </div>
                                         </div>
                                         <div class="flex space-x-2">
-                                            <button onclick="viewDocument('poliza')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                                Ver
-                                            </button>
-                                            <button onclick="downloadDocument('poliza')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                </svg>
-                                                Descargar
-                                            </button>
+                                            @if($vehiculo->poliza_url)
+                                                <a href="{{ $vehiculo->poliza_url }}" target="_blank" 
+                                                   class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    </svg>
+                                                    Ver
+                                                </a>
+                                                <a href="{{ $vehiculo->poliza_url }}" download 
+                                                   class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                    </svg>
+                                                    Descargar
+                                                </a>
+                                            @else
+                                                <span class="text-xs text-gray-400 italic">No disponible</span>
+                                            @endif
                                         </div>
                                     </li>
                                     
-                                    <!-- Verificación Vehicular -->
-                                    <li class="py-2 flex items-center justify-between">
+                                    <!-- Derecho Vehicular -->
+                                    <li class="py-3 flex items-center justify-between">
                                         <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                             </svg>
                                             <div>
-                                                <span class="text-sm font-medium text-gray-800">Verificación Vehicular</span>
-                                                <p class="text-xs text-gray-500">Vence: 10/06/2024</p>
+                                                <span class="text-sm font-medium text-gray-800">Derecho Vehicular</span>
+                                                @if($vehiculo->derecho_vencimiento)
+                                                    <p class="text-xs text-gray-500">
+                                                        Vence: {{ $vehiculo->derecho_vencimiento->format('d/m/Y') }}
+                                                        @if($vehiculo->derecho_vencimiento < now())
+                                                            <span class="text-red-600 font-medium">(Vencido)</span>
+                                                        @elseif($vehiculo->derecho_vencimiento <= now()->addDays(30))
+                                                            <span class="text-yellow-600 font-medium">(Por vencer)</span>
+                                                        @endif
+                                                    </p>
+                                                @else
+                                                    <p class="text-xs text-gray-400">Sin fecha de vencimiento</p>
+                                                @endif
                                             </div>
                                         </div>
                                         <div class="flex space-x-2">
-                                            <button onclick="viewDocument('verificacion')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                                Ver
-                                            </button>
-                                            <button onclick="downloadDocument('verificacion')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                </svg>
-                                                Descargar
-                                            </button>
+                                            @if($vehiculo->derecho_url)
+                                                <a href="{{ $vehiculo->derecho_url }}" target="_blank" 
+                                                   class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    </svg>
+                                                    Ver
+                                                </a>
+                                                <a href="{{ $vehiculo->derecho_url }}" download 
+                                                   class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                    </svg>
+                                                    Descargar
+                                                </a>
+                                            @else
+                                                <span class="text-xs text-gray-400 italic">No disponible</span>
+                                            @endif
+                                        </div>
+                                    </li>
+                                    
+                                    <!-- Factura del Vehículo -->
+                                    <li class="py-3 flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <div>
+                                                <span class="text-sm font-medium text-gray-800">Factura/Pedimento</span>
+                                                <p class="text-xs text-gray-500">Documento de compra del vehículo</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            @if($vehiculo->factura_url)
+                                                <a href="{{ $vehiculo->factura_url }}" target="_blank" 
+                                                   class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    </svg>
+                                                    Ver
+                                                </a>
+                                                <a href="{{ $vehiculo->factura_url }}" download 
+                                                   class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                    </svg>
+                                                    Descargar
+                                                </a>
+                                            @else
+                                                <span class="text-xs text-gray-400 italic">No disponible</span>
+                                            @endif
                                         </div>
                                     </li>
                                 </ul>
+
+                                <!-- Imagen del Vehículo -->
+                                @if($vehiculo->url_imagen)
+                                <div class="mt-6">
+                                    <h6 class="text-sm font-medium text-gray-700 mb-3">Imagen del Vehículo</h6>
+                                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                        <img src="{{ $vehiculo->url_imagen }}" 
+                                             alt="Imagen del vehículo {{ $vehiculo->marca }} {{ $vehiculo->modelo }}"
+                                             class="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                             onclick="showImageModal('{{ $vehiculo->url_imagen }}', '{{ $vehiculo->marca }} {{ $vehiculo->modelo }}')" />
+                                    </div>
+                                    <div class="mt-2 flex justify-center">
+                                        <a href="{{ $vehiculo->url_imagen }}" download 
+                                           class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                            </svg>
+                                            Descargar Imagen
+                                        </a>
+                                    </div>
+                                </div>
+                                @endif
+
+                                <!-- Resumen de Documentos -->
+                                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                                    <h6 class="text-sm font-medium text-gray-700 mb-2">Estado de Documentación</h6>
+                                    <div class="grid grid-cols-2 gap-4 text-xs">
+                                        <div class="flex items-center">
+                                            @if($vehiculo->poliza_url)
+                                                <svg class="w-3 h-3 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span class="text-green-700">Póliza disponible</span>
+                                            @else
+                                                <svg class="w-3 h-3 mr-1 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span class="text-red-700">Póliza faltante</span>
+                                            @endif
+                                        </div>
+                                        <div class="flex items-center">
+                                            @if($vehiculo->derecho_url)
+                                                <svg class="w-3 h-3 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span class="text-green-700">Derecho disponible</span>
+                                            @else
+                                                <svg class="w-3 h-3 mr-1 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span class="text-red-700">Derecho faltante</span>
+                                            @endif
+                                        </div>
+                                        <div class="flex items-center">
+                                            @if($vehiculo->factura_url)
+                                                <svg class="w-3 h-3 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span class="text-green-700">Factura disponible</span>
+                                            @else
+                                                <svg class="w-3 h-3 mr-1 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span class="text-red-700">Factura faltante</span>
+                                            @endif
+                                        </div>
+                                        <div class="flex items-center">
+                                            @if($vehiculo->url_imagen)
+                                                <svg class="w-3 h-3 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span class="text-green-700">Imagen disponible</span>
+                                            @else
+                                                <svg class="w-3 h-3 mr-1 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span class="text-red-700">Imagen faltante</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1764,6 +1886,58 @@
                 'bg-gray-100 border-gray-300 border-t border-l border-r text-gray-600 hover:bg-gray-200',
                 'bg-gray-50 border-gray-300 border-t border-l border-r text-gray-800 shadow-sm z-10'
             );
+        }
+    }
+
+    // Función para mostrar modal de imagen
+    function showImageModal(imageUrl, vehicleDescription) {
+        // Crear modal dinámicamente si no existe
+        let modal = document.getElementById('image-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'image-modal';
+            modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75';
+            modal.innerHTML = `
+                <div class="relative max-w-4xl max-h-full p-4">
+                    <button onclick="closeImageModal()" class="absolute -top-4 -right-4 bg-white rounded-full p-2 text-gray-600 hover:text-gray-800 z-10">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    <img id="modal-image" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg shadow-lg" />
+                    <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-3 rounded-b-lg">
+                        <p id="modal-description" class="text-center text-sm font-medium"></p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Cerrar modal al hacer clic en el fondo
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeImageModal();
+                }
+            });
+        }
+        
+        // Actualizar contenido del modal
+        document.getElementById('modal-image').src = imageUrl;
+        document.getElementById('modal-image').alt = vehicleDescription;
+        document.getElementById('modal-description').textContent = vehicleDescription;
+        
+        // Mostrar modal
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Función para cerrar modal de imagen
+    function closeImageModal() {
+        const modal = document.getElementById('image-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
     }
 

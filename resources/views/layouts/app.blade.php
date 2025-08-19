@@ -112,7 +112,7 @@
             </div>
             <div class="flex items-center space-x-4">
                 <!-- Botón de Alertas -->
-                <a href="/kilometrajes/alertas/mantenimiento" 
+                <a href="{{ route('mantenimientos.alertas') }}" 
                    class="relative p-2 rounded-full hover:bg-gray-700 transition-colors duration-200 group"
                    title="Ver alertas de mantenimiento">
                     <!-- Icono de campana -->

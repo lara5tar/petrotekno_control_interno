@@ -15,7 +15,7 @@
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-800">Listado de Personal</h2>
         <div class="flex space-x-3">
-            @hasPermission('gestionar_categorias_personal')
+            @hasPermission('ver_catalogos')
             <a href="{{ route('categorias-personal.index') }}" 
                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center transition duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">

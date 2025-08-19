@@ -15,8 +15,9 @@ class TestAlertas extends Command
         $this->info('Probando servicio de alertas...');
         
         try {
-            $resumenCompleto = AlertasMantenimientoService::obtenerResumenAlertas();
-            $resumen = $resumenCompleto['resumen'] ?? [];
+            $resultadoCompleto = AlertasMantenimientoService::verificarTodosLosVehiculos();
+            $alertas = $resultadoCompleto['alertas'] ?? [];
+            $resumen = $resultadoCompleto['resumen'] ?? [];
             
             $this->info('Resumen de alertas:');
             $this->table(
@@ -29,6 +30,27 @@ class TestAlertas extends Command
                     ['Normales', $resumen['por_urgencia']['normal'] ?? 0]
                 ]
             );
+
+            if (!empty($alertas)) {
+                $this->info("\nDetalles de alertas:");
+                $filas = [];
+                foreach ($alertas as $index => $alerta) {
+                    $filas[] = [
+                        $index + 1,
+                        $alerta['vehiculo_info']['nombre_completo'] ?? 'N/A',
+                        number_format($alerta['kilometraje_actual'] ?? 0),
+                        $alerta['sistema_mantenimiento']['nombre_sistema'] ?? 'N/A',
+                        number_format($alerta['intervalo_alcanzado']['intervalo_configurado'] ?? 0),
+                        number_format($alerta['intervalo_alcanzado']['km_exceso'] ?? 0),
+                        $alerta['urgencia'] ?? 'N/A'
+                    ];
+                }
+                
+                $this->table(
+                    ['#', 'Vehículo', 'KM Actual', 'Sistema', 'Intervalo', 'KM Exceso', 'Urgencia'],
+                    $filas
+                );
+            }
             
         } catch (\Exception $e) {
             $this->error('Error: ' . $e->getMessage());

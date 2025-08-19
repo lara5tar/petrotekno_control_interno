@@ -87,15 +87,25 @@ class VehiculoController extends Controller
             'observaciones' => 'nullable|string|max:1000',
             'operador_id' => 'nullable|exists:personal,id',
             
-            // Archivos de documentos
+            // Fechas de vencimiento para nuevas columnas
+            'poliza_vencimiento' => 'nullable|date',
+            'derecho_vencimiento' => 'nullable|date',
+            
+            // Archivos de documentos (nuevos nombres)
+            'poliza_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'derecho_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'factura_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'imagen_file' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+            
+            // Archivos de documentos (compatibilidad con nombres anteriores)
             'poliza_seguro_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'derecho_vehicular_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'factura_pedimento_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'fotografia_file' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
             
-            // Fechas de vencimiento
-            'fecha_vencimiento_seguro' => 'nullable|date|after:today',
-            'fecha_vencimiento_derecho' => 'nullable|date|after:today',
+            // Fechas de vencimiento (compatibilidad)
+            'fecha_vencimiento_seguro' => 'nullable|date',
+            'fecha_vencimiento_derecho' => 'nullable|date',
         ], [
             'marca.required' => 'La marca es obligatoria.',
             'modelo.required' => 'El modelo es obligatorio.',
@@ -109,18 +119,24 @@ class VehiculoController extends Controller
             'kilometraje_actual.required' => 'El kilometraje actual es obligatorio.',
             'kilometraje_actual.min' => 'El kilometraje no puede ser negativo.',
             'operador_id.exists' => 'El operador seleccionado no es válido.',
+            
+            // Validaciones para archivos
+            'poliza_file.max' => 'La póliza de seguro no puede ser mayor a 5MB.',
+            'derecho_file.max' => 'El derecho vehicular no puede ser mayor a 5MB.',
+            'factura_file.max' => 'La factura no puede ser mayor a 5MB.',
+            'imagen_file.max' => 'La imagen no puede ser mayor a 5MB.',
+            
+            // Validaciones para archivos (compatibilidad)
             'poliza_seguro_file.max' => 'La póliza de seguro no puede ser mayor a 5MB.',
             'derecho_vehicular_file.max' => 'El derecho vehicular no puede ser mayor a 5MB.',
             'factura_pedimento_file.max' => 'La factura/pedimento no puede ser mayor a 5MB.',
             'fotografia_file.max' => 'La fotografía no puede ser mayor a 5MB.',
-            'fecha_vencimiento_seguro.after' => 'La fecha de vencimiento del seguro debe ser posterior a hoy.',
-            'fecha_vencimiento_derecho.after' => 'La fecha de vencimiento del derecho debe ser posterior a hoy.',
         ]);
 
         DB::beginTransaction();
 
         try {
-            // Crear el vehículo con estado inicial DISPONIBLE
+            // Crear el vehículo con estado inicial DISPONIBLE (sin las URLs primero)
             $vehiculo = Vehiculo::create([
                 'marca' => $validatedData['marca'],
                 'modelo' => $validatedData['modelo'],
@@ -134,7 +150,55 @@ class VehiculoController extends Controller
                 'intervalo_km_hidraulico' => $validatedData['intervalo_km_hidraulico'],
                 'observaciones' => $validatedData['observaciones'],
                 'operador_id' => $validatedData['operador_id'], // Agregar el operador_id
+                
+                // Fechas de vencimiento
+                'poliza_vencimiento' => $validatedData['poliza_vencimiento'] ?? $validatedData['fecha_vencimiento_seguro'] ?? null,
+                'derecho_vencimiento' => $validatedData['derecho_vencimiento'] ?? $validatedData['fecha_vencimiento_derecho'] ?? null,
             ]);
+
+            // Procesar archivos y generar URLs automáticamente
+            $urlsGeneradas = [];
+
+            // Mapeo de archivos con sus respectivas columnas URL
+            $archivosMapping = [
+                'poliza_file' => 'poliza_url',
+                'poliza_seguro_file' => 'poliza_url', // compatibilidad
+                'derecho_file' => 'derecho_url',
+                'derecho_vehicular_file' => 'derecho_url', // compatibilidad
+                'factura_file' => 'factura_url',
+                'factura_pedimento_file' => 'factura_url', // compatibilidad
+                'imagen_file' => 'url_imagen',
+                'fotografia_file' => 'url_imagen', // compatibilidad
+            ];
+
+            foreach ($archivosMapping as $campoArchivo => $columnaUrl) {
+                if ($request->hasFile($campoArchivo)) {
+                    $archivo = $request->file($campoArchivo);
+                    $tipoDocumento = str_replace(['_file', '_seguro', '_vehicular', '_pedimento', 'fotografia'], ['', '', '', '', 'imagen'], $campoArchivo);
+                    
+                    // Generar nombre único para el archivo
+                    $nombreArchivo = time() . '_' . $tipoDocumento . '_' . $vehiculo->id . '.' . $archivo->getClientOriginalExtension();
+                    
+                    // Determinar carpeta según tipo de archivo
+                    $carpeta = str_contains($tipoDocumento, 'imagen') ? 'vehiculos/imagenes' : 'vehiculos/documentos';
+                    
+                    // Guardar archivo en storage
+                    $rutaArchivo = $archivo->storeAs($carpeta, $nombreArchivo, 'public');
+                    
+                    // Generar URL para acceso público
+                    $urlPublica = Storage::url($rutaArchivo);
+                    
+                    // Guardar URL en el array para actualizar después
+                    $urlsGeneradas[$columnaUrl] = $urlPublica;
+                    
+                    break; // Solo procesar el primer archivo encontrado para cada tipo
+                }
+            }
+
+            // Actualizar el vehículo con las URLs generadas
+            if (!empty($urlsGeneradas)) {
+                $vehiculo->update($urlsGeneradas);
+            }
 
             // Procesar documentos
             $documentos = [];
@@ -273,6 +337,50 @@ class VehiculoController extends Controller
             'intervalo_km_transmision' => 'nullable|integer|min:5000',
             'intervalo_km_hidraulico' => 'nullable|integer|min:1000',
             'observaciones' => 'nullable|string|max:1000',
+            
+            // Fechas de vencimiento para nuevas columnas
+            'poliza_vencimiento' => 'nullable|date',
+            'derecho_vencimiento' => 'nullable|date',
+            
+            // Archivos de documentos (nuevos nombres)
+            'poliza_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'derecho_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'factura_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'imagen_file' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+            
+            // Archivos de documentos (compatibilidad con nombres anteriores)
+            'poliza_seguro_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'derecho_vehicular_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'factura_pedimento_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'fotografia_file' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+            
+            // Fechas de vencimiento (compatibilidad)
+            'fecha_vencimiento_seguro' => 'nullable|date',
+            'fecha_vencimiento_derecho' => 'nullable|date',
+        ], [
+            'marca.required' => 'La marca es obligatoria.',
+            'modelo.required' => 'El modelo es obligatorio.',
+            'anio.required' => 'El año es obligatorio.',
+            'anio.min' => 'El año debe ser mayor a 1990.',
+            'anio.max' => 'El año no puede ser mayor al año siguiente.',
+            'n_serie.required' => 'El número de serie es obligatorio.',
+            'n_serie.unique' => 'Este número de serie ya está registrado.',
+            'placas.required' => 'Las placas son obligatorias.',
+            'placas.unique' => 'Estas placas ya están registradas.',
+            'kilometraje_actual.required' => 'El kilometraje actual es obligatorio.',
+            'kilometraje_actual.min' => 'El kilometraje no puede ser negativo.',
+            
+            // Validaciones para archivos
+            'poliza_file.max' => 'La póliza de seguro no puede ser mayor a 5MB.',
+            'derecho_file.max' => 'El derecho vehicular no puede ser mayor a 5MB.',
+            'factura_file.max' => 'La factura no puede ser mayor a 5MB.',
+            'imagen_file.max' => 'La imagen no puede ser mayor a 5MB.',
+            
+            // Validaciones para archivos (compatibilidad)
+            'poliza_seguro_file.max' => 'La póliza de seguro no puede ser mayor a 5MB.',
+            'derecho_vehicular_file.max' => 'El derecho vehicular no puede ser mayor a 5MB.',
+            'factura_pedimento_file.max' => 'La factura/pedimento no puede ser mayor a 5MB.',
+            'fotografia_file.max' => 'La fotografía no puede ser mayor a 5MB.',
         ]);
 
         DB::beginTransaction();
@@ -280,7 +388,71 @@ class VehiculoController extends Controller
         try {
             $datosAnteriores = $vehiculo->toArray();
 
-            $vehiculo->update($validatedData);
+            // Preparar datos para actualizar (sin archivos)
+            $datosActualizar = [
+                'marca' => $validatedData['marca'],
+                'modelo' => $validatedData['modelo'],
+                'anio' => $validatedData['anio'],
+                'n_serie' => $validatedData['n_serie'],
+                'placas' => $validatedData['placas'],
+                'kilometraje_actual' => $validatedData['kilometraje_actual'],
+                'intervalo_km_motor' => $validatedData['intervalo_km_motor'],
+                'intervalo_km_transmision' => $validatedData['intervalo_km_transmision'],
+                'intervalo_km_hidraulico' => $validatedData['intervalo_km_hidraulico'],
+                'observaciones' => $validatedData['observaciones'],
+                
+                // Fechas de vencimiento
+                'poliza_vencimiento' => $validatedData['poliza_vencimiento'] ?? $validatedData['fecha_vencimiento_seguro'] ?? null,
+                'derecho_vencimiento' => $validatedData['derecho_vencimiento'] ?? $validatedData['fecha_vencimiento_derecho'] ?? null,
+            ];
+
+            // Procesar archivos y generar URLs automáticamente
+            $archivosMapping = [
+                'poliza_file' => 'poliza_url',
+                'poliza_seguro_file' => 'poliza_url', // compatibilidad
+                'derecho_file' => 'derecho_url',
+                'derecho_vehicular_file' => 'derecho_url', // compatibilidad
+                'factura_file' => 'factura_url',
+                'factura_pedimento_file' => 'factura_url', // compatibilidad
+                'imagen_file' => 'url_imagen',
+                'fotografia_file' => 'url_imagen', // compatibilidad
+            ];
+
+            foreach ($archivosMapping as $campoArchivo => $columnaUrl) {
+                if ($request->hasFile($campoArchivo)) {
+                    // Eliminar archivo anterior si existe
+                    $urlAnterior = $vehiculo->{$columnaUrl};
+                    if ($urlAnterior) {
+                        $rutaAnterior = str_replace('/storage/', '', $urlAnterior);
+                        if (Storage::disk('public')->exists($rutaAnterior)) {
+                            Storage::disk('public')->delete($rutaAnterior);
+                        }
+                    }
+                    
+                    $archivo = $request->file($campoArchivo);
+                    $tipoDocumento = str_replace(['_file', '_seguro', '_vehicular', '_pedimento', 'fotografia'], ['', '', '', '', 'imagen'], $campoArchivo);
+                    
+                    // Generar nombre único para el archivo
+                    $nombreArchivo = time() . '_' . $tipoDocumento . '_' . $vehiculo->id . '.' . $archivo->getClientOriginalExtension();
+                    
+                    // Determinar carpeta según tipo de archivo
+                    $carpeta = str_contains($tipoDocumento, 'imagen') ? 'vehiculos/imagenes' : 'vehiculos/documentos';
+                    
+                    // Guardar archivo en storage
+                    $rutaArchivo = $archivo->storeAs($carpeta, $nombreArchivo, 'public');
+                    
+                    // Generar URL para acceso público
+                    $urlPublica = Storage::url($rutaArchivo);
+                    
+                    // Agregar URL al array de datos a actualizar
+                    $datosActualizar[$columnaUrl] = $urlPublica;
+                    
+                    break; // Solo procesar el primer archivo encontrado para cada tipo
+                }
+            }
+
+            // Actualizar el vehículo con todos los datos
+            $vehiculo->update($datosActualizar);
 
             // Log de auditoría
             LogAccion::create([

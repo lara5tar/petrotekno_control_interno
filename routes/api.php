@@ -281,9 +281,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/vehiculo/{vehiculoId}/historial', [KilometrajeController::class, 'historialPorVehiculo'])
             ->middleware('permission:ver_kilometrajes');
 
-        Route::get('/alertas-mantenimiento', [KilometrajeController::class, 'alertasMantenimiento'])
-            ->middleware('permission:ver_kilometrajes');
-
         Route::get('/{kilometraje}', [KilometrajeController::class, 'show'])
             ->middleware('permission:ver_kilometrajes');
 

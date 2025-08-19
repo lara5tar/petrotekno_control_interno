@@ -93,6 +93,13 @@ class Vehiculo extends Model
         'observaciones',
         'imagen',
         'documentos_adicionales',
+        // Nuevas columnas agregadas
+        'poliza_url',
+        'poliza_vencimiento',
+        'factura_url',
+        'derecho_url',
+        'derecho_vencimiento',
+        'url_imagen',
     ];
 
     /**
@@ -107,6 +114,9 @@ class Vehiculo extends Model
         'fecha_eliminacion' => 'datetime',
         'documentos_adicionales' => 'array',
         'estatus' => EstadoVehiculo::class, // Cambio temporal: usar 'estatus'
+        // Nuevas fechas de vencimiento
+        'poliza_vencimiento' => 'date',
+        'derecho_vencimiento' => 'date',
     ];
 
     /**
