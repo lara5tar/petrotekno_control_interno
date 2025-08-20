@@ -637,3 +637,41 @@ Route::get('/debug-conteo', function () {
         ]
     ], JSON_PRETTY_PRINT);
 });
+
+// ================================
+// GESTIÓN DE ROLES Y PERMISOS
+// ================================
+
+// Rutas para gestión de roles (solo administradores)
+Route::middleware(['auth', 'permission:ver_roles'])->prefix('admin')->name('admin.')->group(function () {
+    // Gestión de Roles
+    Route::resource('roles', App\Http\Controllers\Admin\RoleController::class)->parameters([
+        'roles' => 'role'
+    ]);
+    
+    // Rutas adicionales para permisos
+    Route::get('roles/{role}/permissions', [App\Http\Controllers\Admin\RoleController::class, 'permissions'])
+        ->name('roles.permissions')
+        ->middleware('permission:editar_roles');
+        
+    Route::put('roles/{role}/permissions', [App\Http\Controllers\Admin\RoleController::class, 'updatePermissions'])
+        ->name('roles.permissions.update')
+        ->middleware('permission:editar_roles');
+        
+    // Ruta AJAX para obtener usuarios de un rol
+    Route::get('roles/{role}/users', [App\Http\Controllers\Admin\RoleController::class, 'users'])
+        ->name('roles.users')
+        ->middleware('permission:ver_roles');
+        
+    // Ruta AJAX para obtener información rápida de un rol (para configuración)
+    Route::get('roles/{role}/quick-info', [App\Http\Controllers\Admin\RoleController::class, 'quickInfo'])
+        ->name('roles.quick-info')
+        ->middleware('permission:ver_roles');
+});
+
+// Ruta para la sección de configuración (menú principal)
+Route::middleware(['auth', App\Http\Middleware\CanAccessConfiguration::class])->group(function () {
+    Route::get('/configuracion', function () {
+        return view('admin.configuracion.index');
+    })->name('configuracion.index');
+});
