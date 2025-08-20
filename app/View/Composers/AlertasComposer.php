@@ -2,8 +2,8 @@
 
 namespace App\View\Composers;
 
-use App\Services\AlertasService;
 use Illuminate\View\View;
+use App\Http\Controllers\MantenimientoAlertasController;
 
 class AlertasComposer
 {
@@ -12,10 +12,17 @@ class AlertasComposer
      */
     public function compose(View $view): void
     {
-        $view->with([
-            'alertasCount' => AlertasService::getAlertasCount(),
-            'alertasUrgentesCount' => AlertasService::getAlertasUrgentesCount(),
-            'tieneAlertasUrgentes' => AlertasService::tieneAlertasUrgentes(),
-        ]);
+        try {
+            $estadisticas = MantenimientoAlertasController::getEstadisticasAlertas();
+            
+            $view->with($estadisticas);
+            
+        } catch (\Exception $e) {
+            // En caso de error, no mostrar alertas
+            $view->with([
+                'alertasCount' => 0,
+                'tieneAlertasUrgentes' => false
+            ]);
+        }
     }
 }

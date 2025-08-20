@@ -25,15 +25,12 @@ class AlertasViewServiceProvider extends ServiceProvider
         View::composer('layouts.app', function ($view) {
             if (auth()->check()) {
                 try {
-                    $resumenCompleto = AlertasMantenimientoService::obtenerResumenAlertas();
-                    $resumen = $resumenCompleto['resumen'] ?? [];
-                    
-                    $totalAlertas = $resumen['total_alertas'] ?? 0;
-                    $alertasCriticas = $resumen['por_urgencia']['critica'] ?? 0;
+                    // Usar el mismo método que AlertasComposer para consistencia
+                    $estadisticas = \App\Http\Controllers\MantenimientoAlertasController::getEstadisticasAlertas();
                     
                     $view->with([
-                        'alertasCount' => $totalAlertas,
-                        'tieneAlertasUrgentes' => $alertasCriticas > 0
+                        'alertasCount' => $estadisticas['alertasCount'],
+                        'tieneAlertasUrgentes' => $estadisticas['tieneAlertasUrgentes']
                     ]);
                 } catch (\Exception $e) {
                     // En caso de error, no mostrar alertas

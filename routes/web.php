@@ -34,6 +34,16 @@ Route::get('/alertas/mantenimiento', [MantenimientoAlertasController::class, 'in
     ->name('alertas.mantenimiento')
     ->middleware(['auth', 'permission:ver_mantenimientos']);
 
+// Ruta para vista unificada de alertas
+Route::get('/alertas/unificada', [MantenimientoAlertasController::class, 'unificada'])
+    ->name('alertas.unificada')
+    ->middleware(['auth', 'permission:ver_mantenimientos']);
+
+// Ruta para centro de alertas (alias de unificada)
+Route::get('/alertas', [MantenimientoAlertasController::class, 'unificada'])
+    ->name('alertas.index')
+    ->middleware(['auth', 'permission:ver_mantenimientos']);
+
 // Rutas para Vehículos CRUD (usando VehiculoController)
 Route::middleware('auth')->prefix('vehiculos')->name('vehiculos.')->group(function () {
     Route::get('/', [App\Http\Controllers\VehiculoController::class, 'index'])
@@ -563,3 +573,67 @@ Route::middleware('auth')->prefix('asignaciones-obra')->name('asignaciones-obra.
 Route::get('/usuarios/{id}', function ($id) {
     return view('usuarios.show');
 })->name('usuarios.show');
+
+// Ruta de test para campanita
+Route::get('/test-campanita', function () {
+    return view('test-campanita');
+})->middleware('auth');
+
+// Ruta de debug para ViewComposer
+Route::get('/debug-composer', function () {
+    $estadisticas = App\Http\Controllers\MantenimientoAlertasController::getEstadisticasAlertas();
+    return response()->json([
+        'metodo_estatico' => $estadisticas,
+        'timestamp' => now()
+    ]);
+});
+
+// Ruta de debug para comparar ambos métodos
+Route::get('/debug-comparacion', function () {
+    $controller = new App\Http\Controllers\MantenimientoAlertasController();
+    $vista = $controller->unificada();
+    $datosVista = $vista->getData();
+    $metodoEstatico = App\Http\Controllers\MantenimientoAlertasController::getEstadisticasAlertas();
+    
+    return response()->json([
+        'vista_unificada' => $datosVista['estadisticas'],
+        'metodo_estatico' => $metodoEstatico,
+        'alertas_unificadas_count' => count($datosVista['alertasUnificadas']),
+        'timestamp' => now()
+    ]);
+});
+
+// Ruta de debug para conteo detallado
+Route::get('/debug-conteo', function () {
+    $controller = new App\Http\Controllers\MantenimientoAlertasController();
+    
+    // Obtener datos del método unificada
+    $vista = $controller->unificada();
+    $datosVista = $vista->getData();
+    $alertasUnificadas = $datosVista['alertasUnificadas'];
+    $estadisticasVista = $datosVista['estadisticas'];
+    
+    // Obtener datos del método estático
+    $estadisticasEstatico = App\Http\Controllers\MantenimientoAlertasController::getEstadisticasAlertas();
+    
+    return response()->json([
+        'metodo_unificada' => [
+            'total_alertas_array' => count($alertasUnificadas),
+            'estadisticas' => $estadisticasVista,
+            'alertas_detalle' => collect($alertasUnificadas)->map(function($alerta) {
+                return [
+                    'tipo' => $alerta['tipo'],
+                    'estado' => $alerta['estado'],
+                    'vehiculo' => $alerta['vehiculo_info']['placas'] ?? 'N/A',
+                    'descripcion' => substr($alerta['descripcion'], 0, 50) . '...'
+                ];
+            })
+        ],
+        'metodo_estatico' => $estadisticasEstatico,
+        'diferencia' => [
+            'vista_total' => $estadisticasVista['total'],
+            'estatico_total' => $estadisticasEstatico['alertasCount'],
+            'diferencia' => $estadisticasEstatico['alertasCount'] - $estadisticasVista['total']
+        ]
+    ], JSON_PRETTY_PRINT);
+});

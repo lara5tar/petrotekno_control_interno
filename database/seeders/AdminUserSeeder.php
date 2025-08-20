@@ -49,14 +49,14 @@ class AdminUserSeeder extends Seeder
             // Crear usuario administrador
             $adminUser = User::create([
                 'email' => 'admin@petrotekno.com',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('admin123'),
                 'rol_id' => $adminRole->id,
                 'personal_id' => $personal->id,
             ]);
 
             $this->command->info('✅ Usuario administrador creado exitosamente:');
             $this->command->info('   Email: admin@petrotekno.com');
-            $this->command->info('   Password: password');
+            $this->command->info('   Password: admin123');
             $this->command->info('   Personal: ' . $personal->nombre_completo);
             
             // Mostrar información de permisos
