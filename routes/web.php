@@ -406,6 +406,47 @@ Route::middleware('auth')->group(function () {
             ], 500);
         }
     })->name('web-api.personal')->middleware('permission:ver_personal');
+
+    // Ruta API para obtener datos de un personal específico (para tests)
+    Route::get('/web-api/personal/{personal}', function (\App\Models\Personal $personal) {
+        try {
+            $personal->load(['categoria', 'usuario', 'documentos.tipoDocumento']);
+            
+            return response()->json([
+                'success' => true,
+                'data' => $personal
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar personal'
+            ], 500);
+        }
+    })->name('web-api.personal.show')->middleware('permission:ver_personal');
+    Route::get('/api/personal/{id}', function ($id) {
+        try {
+            $personal = \App\Models\Personal::with([
+                'categoria',
+                'usuario.rol',
+                'documentos.tipoDocumento'
+            ])->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'data' => $personal
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Personal no encontrado'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cargar personal'
+            ], 500);
+        }
+    })->name('api.personal.show')->middleware('permission:ver_personal');
 });
 
 // Rutas para Obras

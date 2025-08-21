@@ -100,13 +100,13 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Identificación (INE)</label>
                         <div class="space-y-2">
-                            <input type="text" name="numero_ine" placeholder="Número de INE" 
-                                   value="{{ old('numero_ine') }}"
+                            <input type="text" name="ine" placeholder="Número de INE" 
+                                   value="{{ old('ine') }}"
                                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">
                             <div class="relative">
-                                <input type="file" name="archivo_ine" accept=".pdf,.jpg,.jpeg,.png" 
-                                       class="hidden" id="archivo_ine" x-on:change="handleFileInput($event, 'ine')">
-                                <label for="archivo_ine" 
+                                <input type="file" name="identificacion_file" accept=".pdf,.jpg,.jpeg,.png" 
+                                       class="hidden" id="identificacion_file" x-on:change="handleFileInput($event, 'ine')">
+                                <label for="identificacion_file" 
                                        class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                     <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -121,13 +121,13 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">CURP</label>
                         <div class="space-y-2">
-                            <input type="text" name="curp" placeholder="Ej: PEGJ801015HDFXXX01" 
-                                   value="{{ old('curp') }}"
+                            <input type="text" name="curp_numero" placeholder="Ej: PEGJ801015HDFXXX01" 
+                                   value="{{ old('curp_numero') }}"
                                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">
                             <div class="relative">
-                                <input type="file" name="archivo_curp" accept=".pdf,.jpg,.jpeg,.png" 
-                                       class="hidden" id="archivo_curp" x-on:change="handleFileInput($event, 'curp')">
-                                <label for="archivo_curp" 
+                                <input type="file" name="curp_file" accept=".pdf,.jpg,.jpeg,.png" 
+                                       class="hidden" id="curp_file" x-on:change="handleFileInput($event, 'curp')">
+                                <label for="curp_file" 
                                        class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                     <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -151,9 +151,9 @@
                                    value="{{ old('rfc') }}"
                                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">
                             <div class="relative">
-                                <input type="file" name="archivo_rfc" accept=".pdf,.jpg,.jpeg,.png" 
-                                       class="hidden" id="archivo_rfc" x-on:change="handleFileInput($event, 'rfc')">
-                                <label for="archivo_rfc" 
+                                <input type="file" name="rfc_file" accept=".pdf,.jpg,.jpeg,.png" 
+                                       class="hidden" id="rfc_file" x-on:change="handleFileInput($event, 'rfc')">
+                                <label for="rfc_file" 
                                        class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                     <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -172,9 +172,9 @@
                                    value="{{ old('nss') }}"
                                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">
                             <div class="relative">
-                                <input type="file" name="archivo_nss" accept=".pdf,.jpg,.jpeg,.png" 
-                                       class="hidden" id="archivo_nss" x-on:change="handleFileInput($event, 'nss')">
-                                <label for="archivo_nss" 
+                                <input type="file" name="nss_file" accept=".pdf,.jpg,.jpeg,.png" 
+                                       class="hidden" id="nss_file" x-on:change="handleFileInput($event, 'nss')">
+                                <label for="nss_file" 
                                        class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                     <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -194,13 +194,13 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Licencia de Manejo</label>
                         <div class="space-y-2">
-                            <input type="text" name="numero_licencia" placeholder="Número de Licencia" 
-                                   value="{{ old('numero_licencia') }}"
+                            <input type="text" name="no_licencia" placeholder="Número de Licencia" 
+                                   value="{{ old('no_licencia') }}"
                                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">
                             <div class="relative">
-                                <input type="file" name="archivo_licencia" accept=".pdf,.jpg,.jpeg,.png" 
-                                       class="hidden" id="archivo_licencia" x-on:change="handleFileInput($event, 'licencia')">
-                                <label for="archivo_licencia" 
+                                <input type="file" name="licencia_file" accept=".pdf,.jpg,.jpeg,.png" 
+                                       class="hidden" id="licencia_file" x-on:change="handleFileInput($event, 'licencia')">
+                                <label for="licencia_file" 
                                        class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                     <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -215,9 +215,9 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">CV Profesional</label>
                         <div class="relative">
-                            <input type="file" name="archivo_cv" accept=".pdf,.doc,.docx" 
-                                   class="hidden" id="archivo_cv" x-on:change="handleFileInput($event, 'cv')">
-                            <label for="archivo_cv" 
+                            <input type="file" name="cv_file" accept=".pdf,.doc,.docx" 
+                                   class="hidden" id="cv_file" x-on:change="handleFileInput($event, 'cv')">
+                            <label for="cv_file" 
                                    class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                 <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -234,17 +234,17 @@
             <div>
                 <div class="space-y-4">
                     <div>
-                        <label for="direccion_completa" class="block text-sm font-medium text-gray-700 mb-1">Dirección completa</label>
-                        <textarea id="direccion_completa" name="direccion_completa" rows="3" 
+                        <label for="direccion" class="block text-sm font-medium text-gray-700 mb-1">Dirección completa</label>
+                        <textarea id="direccion" name="direccion" rows="3" 
                                   placeholder="Calle, número, colonia, ciudad, estado, código postal..."
-                                  class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">{{ old('direccion_completa') }}</textarea>
+                                  class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">{{ old('direccion') }}</textarea>
                     </div>
                     <div>
 
                         <div class="relative">
-                            <input type="file" name="archivo_comprobante_domicilio" accept=".pdf,.jpg,.jpeg,.png" 
-                                   class="hidden" id="archivo_comprobante_domicilio" x-on:change="handleFileInput($event, 'comprobante')">
-                            <label for="archivo_comprobante_domicilio" 
+                            <input type="file" name="comprobante_file" accept=".pdf,.jpg,.jpeg,.png" 
+                                   class="hidden" id="comprobante_file" x-on:change="handleFileInput($event, 'comprobante')">
+                            <label for="comprobante_file" 
                                    class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                 <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -364,21 +364,83 @@
             return {
                 crearUsuario: false,
                 fileStatus: {
-                    ine: false,
-                    curp: false,
-                    rfc: false,
-                    nss: false,
-                    licencia: false,
-                    cv: false,
-                    comprobante: false
+                    ine: '',
+                    curp: '',
+                    rfc: '',
+                    nss: '',
+                    licencia: '',
+                    cv: '',
+                    comprobante: ''
                 },
                 
                 init() {
                     // Inicialización del componente
+                    console.log('FormController inicializado');
                 },
                 
                 toggleUsuario() {
                     this.crearUsuario = !this.crearUsuario;
+                },
+
+                handleFileInput(event, type) {
+                    console.log(`handleFileInput llamado para tipo: ${type}`);
+                    const file = event.target.files[0];
+                    
+                    if (file) {
+                        console.log(`Archivo seleccionado: ${file.name}, tamaño: ${file.size} bytes, tipo: ${file.type}`);
+                        
+                        // Validar tamaño del archivo (10MB máximo)
+                        const maxSize = 10 * 1024 * 1024; // 10MB en bytes
+                        if (file.size > maxSize) {
+                            alert('El archivo es demasiado grande. El tamaño máximo permitido es 10MB.');
+                            event.target.value = '';
+                            this.fileStatus[type] = '';
+                            return;
+                        }
+                        
+                        // Validar tipo de archivo según el campo
+                        const allowedTypes = {
+                            'ine': ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],
+                            'curp': ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],
+                            'rfc': ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],
+                            'nss': ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],
+                            'licencia': ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],
+                            'cv': ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+                            'comprobante': ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf']
+                        };
+                        
+                        if (allowedTypes[type] && !allowedTypes[type].includes(file.type)) {
+                            alert(`Tipo de archivo no válido para ${type}. Por favor selecciona un archivo válido.`);
+                            event.target.value = '';
+                            this.fileStatus[type] = '';
+                            return;
+                        }
+                        
+                        // Actualizar el estado del archivo
+                        const fileSize = (file.size / 1024 / 1024).toFixed(2); // Convertir a MB
+                        this.fileStatus[type] = `✓ ${file.name} (${fileSize} MB)`;
+                        
+                        console.log(`Estado del archivo actualizado: ${this.fileStatus[type]}`);
+                        
+                        // Cambiar el estilo del label para mostrar que se seleccionó un archivo
+                        const label = event.target.parentElement.querySelector('label');
+                        if (label) {
+                            label.classList.add('border-green-400', 'bg-green-50');
+                            label.classList.remove('border-gray-300');
+                        }
+                        
+                    } else {
+                        // Limpiar el estado si no hay archivo
+                        this.fileStatus[type] = '';
+                        console.log(`Archivo removido para tipo: ${type}`);
+                        
+                        // Restaurar el estilo original del label
+                        const label = event.target.parentElement.querySelector('label');
+                        if (label) {
+                            label.classList.remove('border-green-400', 'bg-green-50');
+                            label.classList.add('border-gray-300');
+                        }
+                    }
                 }
             }
         }

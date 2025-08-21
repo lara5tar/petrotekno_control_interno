@@ -161,24 +161,56 @@ class PersonalController extends Controller
             // Log para debugging
             \Log::info('Datos validados recibidos:', ['validated' => $validated]);
 
-            // Crear el personal con los datos básicos y documentos
+            // Crear el personal con los datos básicos primero - usando nombres exactos de la BD
             $personal = Personal::create([
                 'nombre_completo' => $validated['nombre_completo'],
                 'estatus' => 'activo',
                 'categoria_id' => $validated['categoria_personal_id'],
                 'ine' => $validated['ine'] ?? null,
-                'url_ine' => $validated['url_ine'] ?? null,
                 'curp_numero' => $validated['curp_numero'] ?? null,
-                'url_curp' => $validated['url_curp'] ?? null,
                 'rfc' => $validated['rfc'] ?? null,
-                'url_rfc' => $validated['url_rfc'] ?? null,
                 'nss' => $validated['nss'] ?? null,
-                'url_nss' => $validated['url_nss'] ?? null,
                 'no_licencia' => $validated['no_licencia'] ?? null,
-                'url_licencia' => $validated['url_licencia'] ?? null,
                 'direccion' => $validated['direccion'] ?? null,
-                'url_comprobante_domicilio' => $validated['url_comprobante_domicilio'] ?? null,
             ]);
+
+            // Procesar archivos de documentos
+            $archivosConfig = [
+                'archivo_ine' => ['tipo_id' => 8, 'campo_url' => 'url_ine', 'contenido' => 'Identificación Oficial (INE)'],
+                'archivo_curp' => ['tipo_id' => 9, 'campo_url' => 'url_curp', 'contenido' => 'CURP'],
+                'archivo_rfc' => ['tipo_id' => 10, 'campo_url' => 'url_rfc', 'contenido' => 'RFC'],
+                'archivo_nss' => ['tipo_id' => 11, 'campo_url' => 'url_nss', 'contenido' => 'NSS'],
+                'archivo_licencia' => ['tipo_id' => 7, 'campo_url' => 'url_licencia', 'contenido' => 'Licencia de Conducir'],
+                'archivo_comprobante_domicilio' => ['tipo_id' => 16, 'campo_url' => 'url_comprobante_domicilio', 'contenido' => 'Comprobante de Domicilio'],
+                'archivo_cv' => ['tipo_id' => 15, 'campo_url' => null, 'contenido' => 'CV Profesional']
+            ];
+
+            // Log para depuración
+            \Log::info('Archivos en request:', $request->allFiles());
+            
+            foreach ($archivosConfig as $campoArchivo => $config) {
+                \Log::info("Verificando archivo: {$campoArchivo}", ['hasFile' => $request->hasFile($campoArchivo)]);
+                
+                if ($request->hasFile($campoArchivo)) {
+                    \Log::info("Procesando archivo: {$campoArchivo}");
+                    $archivo = $request->file($campoArchivo);
+                    $nombreArchivo = time() . '_' . $personal->id . '_' . $archivo->getClientOriginalName();
+                    $rutaArchivo = $archivo->storeAs('personal/documentos', $nombreArchivo, 'public');
+                    \Log::info("Archivo guardado en: {$rutaArchivo}");
+
+                    // Crear nuevo documento
+                    $personal->documentos()->create([
+                        'tipo_documento_id' => $config['tipo_id'],
+                        'ruta_archivo' => $rutaArchivo,
+                        'contenido' => $config['contenido']
+                    ]);
+
+                    // Actualizar URL en la tabla personal (solo si el campo existe)
+                    if ($config['campo_url']) {
+                        $personal->update([$config['campo_url'] => $rutaArchivo]);
+                    }
+                }
+            }
 
             $personal->load('categoria');
 
@@ -458,36 +490,23 @@ class PersonalController extends Controller
                 'nombre_completo' => $validated['nombre_completo'],
                 'estatus' => $validated['estatus'],
                 'categoria_id' => $validated['categoria_id'],
-                'curp_numero' => $validated['curp_numero'] ?? $personal->curp_numero,
-                'ine' => $validated['ine'] ?? $personal->ine,
-                'url_ine' => $validated['url_ine'] ?? $personal->url_ine,
-                'url_curp' => $validated['url_curp'] ?? $personal->url_curp,
+                'curp_numero' => $validated['curp'] ?? $personal->curp_numero,
+                'ine' => $validated['numero_ine'] ?? $personal->ine,
                 'rfc' => $validated['rfc'] ?? $personal->rfc,
-                'url_rfc' => $validated['url_rfc'] ?? $personal->url_rfc,
                 'nss' => $validated['nss'] ?? $personal->nss,
-                'url_nss' => $validated['url_nss'] ?? $personal->url_nss,
-                'no_licencia' => $validated['no_licencia'] ?? $personal->no_licencia,
-                'url_licencia' => $validated['url_licencia'] ?? $personal->url_licencia,
-                'direccion' => $validated['direccion'] ?? $personal->direccion,
-                'url_comprobante_domicilio' => $validated['url_comprobante_domicilio'] ?? $personal->url_comprobante_domicilio,
+                'no_licencia' => $validated['numero_licencia'] ?? $personal->no_licencia,
+                'direccion' => $validated['direccion_completa'] ?? $personal->direccion,
             ]);
 
             // Manejar archivos de documentos
             $archivosConfig = [
-                'curp_file' => ['tipo_id' => 9, 'campo_url' => 'url_curp', 'contenido' => 'CURP'],
+                'archivo_ine' => ['tipo_id' => 8, 'campo_url' => 'url_ine', 'contenido' => 'Identificación Oficial (INE)'],
                 'archivo_curp' => ['tipo_id' => 9, 'campo_url' => 'url_curp', 'contenido' => 'CURP'],
-                'identificacion_file' => ['tipo_id' => 1, 'campo_url' => 'url_ine', 'contenido' => 'Identificación'],
-                'archivo_identificacion' => ['tipo_id' => 1, 'campo_url' => 'url_ine', 'contenido' => 'Identificación'],
-                'rfc_file' => ['tipo_id' => 2, 'campo_url' => 'url_rfc', 'contenido' => 'RFC'],
-                'archivo_rfc' => ['tipo_id' => 2, 'campo_url' => 'url_rfc', 'contenido' => 'RFC'],
-                'nss_file' => ['tipo_id' => 3, 'campo_url' => 'url_nss', 'contenido' => 'NSS'],
-                'archivo_nss' => ['tipo_id' => 3, 'campo_url' => 'url_nss', 'contenido' => 'NSS'],
-                'licencia_file' => ['tipo_id' => 4, 'campo_url' => 'url_licencia', 'contenido' => 'Licencia'],
-                'archivo_licencia' => ['tipo_id' => 4, 'campo_url' => 'url_licencia', 'contenido' => 'Licencia'],
-                'comprobante_file' => ['tipo_id' => 5, 'campo_url' => 'url_comprobante_domicilio', 'contenido' => 'Comprobante Domicilio'],
-                'archivo_comprobante_domicilio' => ['tipo_id' => 5, 'campo_url' => 'url_comprobante_domicilio', 'contenido' => 'Comprobante Domicilio'],
-                'cv_file' => ['tipo_id' => 28, 'campo_url' => null, 'contenido' => 'CV'],
-                'archivo_cv' => ['tipo_id' => 28, 'campo_url' => null, 'contenido' => 'CV']
+                'archivo_rfc' => ['tipo_id' => 10, 'campo_url' => 'url_rfc', 'contenido' => 'RFC'],
+                'archivo_nss' => ['tipo_id' => 11, 'campo_url' => 'url_nss', 'contenido' => 'NSS'],
+                'archivo_licencia' => ['tipo_id' => 7, 'campo_url' => 'url_licencia', 'contenido' => 'Licencia de Conducir'],
+                'archivo_comprobante_domicilio' => ['tipo_id' => 16, 'campo_url' => 'url_comprobante_domicilio', 'contenido' => 'Comprobante de Domicilio'],
+                'archivo_cv' => ['tipo_id' => 15, 'campo_url' => null, 'contenido' => 'CV Profesional']
             ];
 
             // Log para depuración

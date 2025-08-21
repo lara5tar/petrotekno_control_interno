@@ -378,9 +378,12 @@
     function handleFileInput(event, type) {
         const file = event.target.files[0];
         const statusElement = document.getElementById(`${type}_status`);
+        const labelElement = event.target.nextElementSibling;
         
         if (!file) {
             statusElement.textContent = type === 'fotografia' ? 'JPG, PNG (máx. 5MB)' : 'PDF, JPG, PNG (máx. 5MB)';
+            labelElement.classList.remove('border-green-300', 'bg-green-50');
+            labelElement.classList.add('border-gray-300', 'bg-white');
             fileStatus[type] = '';
             return;
         }
@@ -392,6 +395,8 @@
             alert(`El archivo es demasiado grande. Máximo ${maxSizeMB}`);
             event.target.value = '';
             statusElement.textContent = type === 'fotografia' ? 'JPG, PNG (máx. 5MB)' : 'PDF, JPG, PNG (máx. 5MB)';
+            labelElement.classList.remove('border-green-300', 'bg-green-50');
+            labelElement.classList.add('border-gray-300', 'bg-white');
             fileStatus[type] = '';
             return;
         }
@@ -409,12 +414,17 @@
             alert(`Formato de archivo no permitido. Solo se permiten: ${allowedExtensions}`);
             event.target.value = '';
             statusElement.textContent = type === 'fotografia' ? 'JPG, PNG (máx. 5MB)' : 'PDF, JPG, PNG (máx. 5MB)';
+            labelElement.classList.remove('border-green-300', 'bg-green-50');
+            labelElement.classList.add('border-gray-300', 'bg-white');
             fileStatus[type] = '';
             return;
         }
 
+        // Archivo válido - actualizar la UI
         const fileInfo = `✅ ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
         statusElement.textContent = fileInfo;
+        labelElement.classList.remove('border-gray-300', 'bg-white');
+        labelElement.classList.add('border-green-300', 'bg-green-50');
         fileStatus[type] = fileInfo;
     }
     

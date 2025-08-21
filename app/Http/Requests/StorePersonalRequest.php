@@ -58,10 +58,16 @@ class StorePersonalRequest extends FormRequest
                 Rule::in(['aleatoria'])  // Solo contraseña aleatoria
             ],
 
-            // Documentos - números (todos opcionales)
+            // Documentos - números (todos opcionales) - nombres exactos de la BD
+            'ine' => [
+                'nullable',
+                'string',
+                'max:20'
+            ],
             'curp_numero' => [
                 'nullable',
-                'string'
+                'string',
+                'max:18'
             ],
             'rfc' => [
                 'nullable',
@@ -82,48 +88,47 @@ class StorePersonalRequest extends FormRequest
             // Dirección
             'direccion' => [
                 'nullable',
-                'string',
-                'max:500'
+                'string'
             ],
 
             // Archivos de documentos
-            'identificacion_file' => [
+            'archivo_ine' => [
                 'nullable',
                 'file',
                 'mimes:pdf,jpg,jpeg,png',
-                'max:5120' // 5MB
+                'max:10240' // 10MB
             ],
-            'curp_file' => [
+            'archivo_curp' => [
                 'nullable',
                 'file',
                 'mimes:pdf,jpg,jpeg,png',
-                'max:5120' // 5MB
+                'max:10240' // 10MB
             ],
-            'rfc_file' => [
+            'archivo_rfc' => [
                 'nullable',
                 'file',
                 'mimes:pdf,jpg,jpeg,png',
-                'max:5120' // 5MB
+                'max:10240' // 10MB
             ],
-            'nss_file' => [
+            'archivo_nss' => [
                 'nullable',
                 'file',
                 'mimes:pdf,jpg,jpeg,png',
-                'max:5120' // 5MB
+                'max:10240' // 10MB
             ],
-            'licencia_file' => [
+            'archivo_licencia' => [
                 'nullable',
                 'file',
                 'mimes:pdf,jpg,jpeg,png',
-                'max:5120' // 5MB
+                'max:10240' // 10MB
             ],
-            'comprobante_file' => [
+            'archivo_comprobante_domicilio' => [
                 'nullable',
                 'file',
                 'mimes:pdf,jpg,jpeg,png',
-                'max:5120' // 5MB
+                'max:10240' // 10MB
             ],
-            'cv_file' => [
+            'archivo_cv' => [
                 'nullable',
                 'file',
                 'mimes:pdf,doc,docx',
@@ -161,15 +166,13 @@ class StorePersonalRequest extends FormRequest
             'tipo_password.in' => 'El tipo de contraseña debe ser aleatoria.',
 
             // Documentos - números
+            'ine.max' => 'El número de INE no puede exceder 20 caracteres.',
 
-            'curp_numero.size' => 'El CURP debe tener exactamente 18 caracteres.',
+            'curp_numero.max' => 'El CURP no puede exceder 18 caracteres.',
 
-            'rfc.min' => 'El RFC debe tener al menos 10 caracteres.',
             'rfc.max' => 'El RFC no puede exceder 13 caracteres.',
-            'rfc.regex' => 'El formato del RFC no es válido.',
 
-            'nss.size' => 'El NSS debe tener exactamente 11 dígitos.',
-            'nss.regex' => 'El NSS solo puede contener números.',
+            'nss.max' => 'El NSS no puede exceder 11 caracteres.',
 
             'no_licencia.max' => 'El número de licencia no puede exceder 20 caracteres.',
 
@@ -177,33 +180,39 @@ class StorePersonalRequest extends FormRequest
             'direccion.max' => 'La dirección no puede exceder 500 caracteres.',
 
             // Archivos
-            'identificacion_file.file' => 'Debe seleccionar un archivo válido para la identificación.',
-            'identificacion_file.mimes' => 'El archivo de identificación debe ser PDF, JPG, JPEG o PNG.',
-            'identificacion_file.max' => 'El archivo de identificación no puede exceder 5MB.',
+            'archivo_ine.file' => 'Debe seleccionar un archivo válido para la identificación.',
+            'archivo_ine.mimes' => 'El archivo de identificación debe ser PDF, JPG, JPEG o PNG.',
+            'archivo_ine.max' => 'El archivo de identificación no puede exceder 10MB.',
 
-            'curp_file.file' => 'Debe seleccionar un archivo válido para el CURP.',
-            'curp_file.mimes' => 'El archivo del CURP debe ser PDF, JPG, JPEG o PNG.',
-            'curp_file.max' => 'El archivo del CURP no puede exceder 5MB.',
+            'archivo_curp.file' => 'Debe seleccionar un archivo válido para el CURP.',
+            'archivo_curp.mimes' => 'El archivo del CURP debe ser PDF, JPG, JPEG o PNG.',
+            'archivo_curp.max' => 'El archivo del CURP no puede exceder 10MB.',
 
-            'rfc_file.file' => 'Debe seleccionar un archivo válido para el RFC.',
-            'rfc_file.mimes' => 'El archivo del RFC debe ser PDF, JPG, JPEG o PNG.',
-            'rfc_file.max' => 'El archivo del RFC no puede exceder 5MB.',
+            'archivo_rfc.file' => 'Debe seleccionar un archivo válido para el RFC.',
+            'archivo_rfc.mimes' => 'El archivo del RFC debe ser PDF, JPG, JPEG o PNG.',
+            'archivo_rfc.max' => 'El archivo del RFC no puede exceder 10MB.',
 
-            'nss_file.file' => 'Debe seleccionar un archivo válido para el NSS.',
-            'nss_file.mimes' => 'El archivo del NSS debe ser PDF, JPG, JPEG o PNG.',
-            'nss_file.max' => 'El archivo del NSS no puede exceder 5MB.',
+            'archivo_nss.file' => 'Debe seleccionar un archivo válido para el NSS.',
+            'archivo_nss.mimes' => 'El archivo del NSS debe ser PDF, JPG, JPEG o PNG.',
+            'archivo_nss.max' => 'El archivo del NSS no puede exceder 10MB.',
 
-            'licencia_file.file' => 'Debe seleccionar un archivo válido para la licencia.',
-            'licencia_file.mimes' => 'El archivo de la licencia debe ser PDF, JPG, JPEG o PNG.',
-            'licencia_file.max' => 'El archivo de la licencia no puede exceder 5MB.',
+            'archivo_licencia.file' => 'Debe seleccionar un archivo válido para la licencia.',
+            'archivo_licencia.mimes' => 'El archivo de la licencia debe ser PDF, JPG, JPEG o PNG.',
+            'archivo_licencia.max' => 'El archivo de la licencia no puede exceder 10MB.',
 
-            'comprobante_file.file' => 'Debe seleccionar un archivo válido para el comprobante.',
-            'comprobante_file.mimes' => 'El archivo del comprobante debe ser PDF, JPG, JPEG o PNG.',
-            'comprobante_file.max' => 'El archivo del comprobante no puede exceder 5MB.',
+            'archivo_comprobante_domicilio.file' => 'Debe seleccionar un archivo válido para el comprobante.',
+            'archivo_comprobante_domicilio.mimes' => 'El archivo del comprobante debe ser PDF, JPG, JPEG o PNG.',
+            'archivo_comprobante_domicilio.max' => 'El archivo del comprobante no puede exceder 10MB.',
 
-            'cv_file.file' => 'Debe seleccionar un archivo válido para el CV.',
-            'cv_file.mimes' => 'El archivo del CV debe ser PDF, DOC o DOCX.',
-            'cv_file.max' => 'El archivo del CV no puede exceder 10MB.',
+            'archivo_cv.file' => 'Debe seleccionar un archivo válido para el CV.',
+            'archivo_cv.mimes' => 'El archivo del CV debe ser PDF, DOC o DOCX.',
+            'archivo_cv.max' => 'El archivo del CV no puede exceder 10MB.',
+            'archivo_comprobante_domicilio.mimes' => 'El archivo del comprobante debe ser PDF, JPG, JPEG o PNG.',
+            'archivo_comprobante_domicilio.max' => 'El archivo del comprobante no puede exceder 10MB.',
+
+            'archivo_cv.file' => 'Debe seleccionar un archivo válido para el CV.',
+            'archivo_cv.mimes' => 'El archivo del CV debe ser PDF, DOC o DOCX.',
+            'archivo_cv.max' => 'El archivo del CV no puede exceder 10MB.',
         ];
     }
 
@@ -219,18 +228,19 @@ class StorePersonalRequest extends FormRequest
             'email_usuario' => 'email del usuario',
             'rol_usuario' => 'rol del usuario',
             'tipo_password' => 'tipo de contraseña',
+            'ine' => 'número de INE',
             'curp_numero' => 'CURP',
             'rfc' => 'RFC',
             'nss' => 'NSS',
             'no_licencia' => 'número de licencia',
             'direccion' => 'dirección',
-            'identificacion_file' => 'archivo de identificación',
-            'curp_file' => 'archivo del CURP',
-            'rfc_file' => 'archivo del RFC',
-            'nss_file' => 'archivo del NSS',
-            'licencia_file' => 'archivo de la licencia',
-            'comprobante_file' => 'archivo del comprobante',
-            'cv_file' => 'archivo del CV',
+            'archivo_ine' => 'archivo de identificación',
+            'archivo_curp' => 'archivo del CURP',
+            'archivo_rfc' => 'archivo del RFC',
+            'archivo_nss' => 'archivo del NSS',
+            'archivo_licencia' => 'archivo de la licencia',
+            'archivo_comprobante_domicilio' => 'archivo del comprobante',
+            'archivo_cv' => 'archivo del CV',
         ];
     }
 

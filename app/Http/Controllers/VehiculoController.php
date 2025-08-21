@@ -200,53 +200,6 @@ class VehiculoController extends Controller
                 $vehiculo->update($urlsGeneradas);
             }
 
-            // Procesar documentos
-            $documentos = [];
-
-            // Procesar fotografía del vehículo (se guarda en 'imagen')
-            if ($request->hasFile('fotografia_file')) {
-                $fotografia = $request->file('fotografia_file');
-                $nombreFotografia = time() . '_fotografia_' . $vehiculo->id . '.' . $fotografia->getClientOriginalExtension();
-                $rutaFotografia = $fotografia->storeAs('vehiculos/imagenes', $nombreFotografia, 'public');
-                
-                $vehiculo->update(['imagen' => $rutaFotografia]);
-            }
-
-            // Procesar otros documentos (se guardan en documentos_adicionales)
-            $tiposDocumentos = [
-                'poliza_seguro_file' => 'poliza_seguro',
-                'derecho_vehicular_file' => 'derecho_vehicular', 
-                'factura_pedimento_file' => 'factura_pedimento',
-            ];
-
-            foreach ($tiposDocumentos as $campo => $tipo) {
-                if ($request->hasFile($campo)) {
-                    $archivo = $request->file($campo);
-                    $nombreArchivo = time() . '_' . $tipo . '_' . $vehiculo->id . '.' . $archivo->getClientOriginalExtension();
-                    $rutaArchivo = $archivo->storeAs('vehiculos/documentos', $nombreArchivo, 'public');
-                    
-                    $documentos[$tipo] = [
-                        'nombre' => $archivo->getClientOriginalName(),
-                        'ruta' => $rutaArchivo,
-                        'tipo' => $tipo,
-                        'fecha_subida' => now()->toDateTimeString()
-                    ];
-
-                    // Agregar fecha de vencimiento si existe
-                    if ($tipo === 'poliza_seguro' && $request->filled('fecha_vencimiento_seguro')) {
-                        $documentos[$tipo]['fecha_vencimiento'] = $request->get('fecha_vencimiento_seguro');
-                    }
-                    if ($tipo === 'derecho_vehicular' && $request->filled('fecha_vencimiento_derecho')) {
-                        $documentos[$tipo]['fecha_vencimiento'] = $request->get('fecha_vencimiento_derecho');
-                    }
-                }
-            }
-
-            // Actualizar documentos si existen
-            if (!empty($documentos)) {
-                $vehiculo->update(['documentos_adicionales' => $documentos]);
-            }
-
             // Log de auditoría
             LogAccion::create([
                 'usuario_id' => Auth::id(),
@@ -254,7 +207,7 @@ class VehiculoController extends Controller
                 'tabla' => 'vehiculos',
                 'registro_id' => $vehiculo->id,
                 'datos_anteriores' => null,
-                'datos_nuevos' => $vehiculo->toArray(),
+                'datos_nuevos' => $vehiculo->fresh()->toArray(),
                 'fecha_hora' => now(),
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
