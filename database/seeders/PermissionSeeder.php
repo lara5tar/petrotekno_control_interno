@@ -88,6 +88,10 @@ class PermissionSeeder extends Seeder
             ['nombre_permiso' => 'eliminar_alertas', 'descripcion' => 'Eliminar alertas'],
             ['nombre_permiso' => 'gestionar_alertas', 'descripcion' => 'Gestión completa de alertas'],
 
+            // Reportes
+            ['nombre_permiso' => 'ver_reportes', 'descripcion' => 'Ver y generar reportes del sistema'],
+            ['nombre_permiso' => 'exportar_reportes', 'descripcion' => 'Exportar reportes en diferentes formatos'],
+
             // Sistema
             ['nombre_permiso' => 'ver_logs', 'descripcion' => 'Ver logs del sistema'],
             ['nombre_permiso' => 'administrar_sistema', 'descripcion' => 'Administración completa del sistema'],

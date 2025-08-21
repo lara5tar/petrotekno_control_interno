@@ -149,32 +149,41 @@
                 </div>
             </div>
 
-            <!-- Pestañas de Información - Flexible para ocupar espacio restante -->
-            <div class="bg-white border border-gray-300 rounded-lg flex-1 flex flex-col" x-data="{ activeTab: 'recursos' }">
-                <div class="bg-gray-50 px-3 py-1 border-b border-gray-300">
-                    <nav class="flex">
+            <!-- Pestañas de Información -->
+            <div class="bg-white border border-gray-300 rounded-lg" x-data="{ activeTab: 'recursos' }">
+                <div class="bg-gray-50 px-4 py-0 border-b border-gray-300">
+                    <div class="flex space-x-0" role="tablist">
                         <button @click="activeTab = 'recursos'" 
-                                :class="activeTab === 'recursos' ? 'border-gray-500 text-gray-700 bg-gray-100' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                                class="px-3 py-2 text-sm font-medium border-b-2 transition-colors duration-200">
+                                :class="activeTab === 'recursos' ? 'border-gray-600 text-gray-600 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                class="px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-200"
+                                role="tab" 
+                                aria-selected="true"
+                                aria-controls="recursos-content">
                             Recursos
                         </button>
                         <button @click="activeTab = 'documentos'" 
-                                :class="activeTab === 'documentos' ? 'border-gray-500 text-gray-700 bg-gray-100' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                                class="px-3 py-2 text-sm font-medium border-b-2 transition-colors duration-200">
+                                :class="activeTab === 'documentos' ? 'border-gray-600 text-gray-600 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                class="px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-200"
+                                role="tab" 
+                                aria-selected="false"
+                                aria-controls="documentos-content">
                             Documentos
                         </button>
                         <button @click="activeTab = 'asignaciones'" 
-                                :class="activeTab === 'asignaciones' ? 'border-gray-500 text-gray-700 bg-gray-100' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                                class="px-3 py-2 text-sm font-medium border-b-2 transition-colors duration-200">
+                                :class="activeTab === 'asignaciones' ? 'border-gray-600 text-gray-600 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                class="px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-200"
+                                role="tab" 
+                                aria-selected="false"
+                                aria-controls="asignaciones-content">
                             Asignaciones
                         </button>
-                    </nav>
+                    </div>
                 </div>
 
-                <!-- Contenido de pestañas con scroll interno -->
-                <div class="flex-1 overflow-hidden">
+                <!-- Contenido de pestañas -->
+                <div class="min-h-[400px]">
                     <!-- Contenido de Recursos -->
-                    <div x-show="activeTab === 'recursos'" class="p-6 bg-gray-50 overflow-y-auto h-full">
+                    <div x-show="activeTab === 'recursos'" class="tab-content p-4" role="tabpanel" aria-labelledby="recursos-tab">
                         <div class="space-y-6">
                             <!-- Sección: Encargado de la Obra -->
                             <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
@@ -563,7 +572,7 @@
                     </div>
 
                     <!-- Contenido de Documentos -->
-                    <div x-show="activeTab === 'documentos'" class="p-6 bg-gray-50 overflow-y-auto h-full">
+                    <div x-show="activeTab === 'documentos'" class="tab-content p-4" role="tabpanel" aria-labelledby="documentos-tab">
                         <div class="space-y-6">
                             <!-- Documentos del Proyecto -->
                             <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
@@ -690,7 +699,7 @@
                     </div>
 
                     <!-- Contenido de Asignaciones -->
-                    <div x-show="activeTab === 'asignaciones'" class="p-6 bg-gray-50 overflow-y-auto h-full">
+                    <div x-show="activeTab === 'asignaciones'" class="tab-content p-4" role="tabpanel" aria-labelledby="asignaciones-tab">
                         <div class="space-y-6">
                             <!-- Asignaciones Activas -->
                             <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">

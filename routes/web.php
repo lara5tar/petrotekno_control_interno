@@ -681,3 +681,33 @@ Route::middleware(['auth', App\Http\Middleware\CanAccessConfiguration::class])->
         return view('admin.configuracion.index');
     })->name('admin.configuracion.index');
 });
+
+// ================================
+// MÓDULO DE REPORTES
+// ================================
+
+Route::middleware(['auth'])->prefix('reportes')->name('reportes.')->group(function () {
+    // Página principal de reportes
+    Route::get('/', [App\Http\Controllers\ReporteController::class, 'index'])
+        ->name('index');
+    
+    // Reporte de inventario de vehículos (general)
+    Route::get('/inventario-vehiculos', [App\Http\Controllers\ReporteController::class, 'inventarioVehiculos'])
+        ->name('inventario-vehiculos');
+    
+    // Reportes específicos por estado de vehículos
+    Route::get('/vehiculos-disponibles', [App\Http\Controllers\ReporteController::class, 'vehiculosDisponibles'])
+        ->name('vehiculos-disponibles');
+    
+    Route::get('/vehiculos-asignados', [App\Http\Controllers\ReporteController::class, 'vehiculosAsignados'])
+        ->name('vehiculos-asignados');
+    
+    Route::get('/vehiculos-mantenimiento', [App\Http\Controllers\ReporteController::class, 'vehiculosEnMantenimiento'])
+        ->name('vehiculos-mantenimiento');
+    
+    Route::get('/vehiculos-fuera-servicio', [App\Http\Controllers\ReporteController::class, 'vehiculosFueraServicio'])
+        ->name('vehiculos-fuera-servicio');
+    
+    Route::get('/vehiculos-baja', [App\Http\Controllers\ReporteController::class, 'vehiculosBaja'])
+        ->name('vehiculos-baja');
+});
