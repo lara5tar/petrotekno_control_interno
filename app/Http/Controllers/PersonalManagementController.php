@@ -52,10 +52,6 @@ class PersonalManagementController extends Controller
                         'temp_personal_id' => $tempPersonalId
                     ]);
 
-                    // Usar ID temporal para crear la estructura de carpetas
-                    $path = $this->handleDocumentUpload($request->file($requestKey), $tempPersonalId);
-                    \Log::info("File uploaded to: {$path}");
-
                     // Obtener el número de identificación correspondiente según el tipo de documento
                     $descripcion = match ($requestKey) {
                         'identificacion_file' => $request->input('ine'),
@@ -68,10 +64,15 @@ class PersonalManagementController extends Controller
                         default => null
                     };
 
+                    // Usar ID temporal para crear la estructura de carpetas
+                    $path = $this->handleDocumentUpload($request->file($requestKey), $tempPersonalId, $requestKey, $descripcion);
+                    \Log::info("File uploaded to: {$path}");
+
                     $documentosData[] = [
                         'tipo_documento_id' => $tipoId,
                         'ruta_archivo' => $path,
                         'descripcion' => $descripcion,
+                        'tipo_archivo' => $requestKey, // Agregar tipo de archivo para usar en renombrado
                     ];
 
                     // Mapear URLs para incluir en la creación del personal (solo ruta relativa)
@@ -82,6 +83,7 @@ class PersonalManagementController extends Controller
                         'nss_file' => 'url_nss',
                         'licencia_file' => 'url_licencia',
                         'comprobante_file' => 'url_comprobante_domicilio',
+                        'cv_file' => 'url_cv',
                         default => null
                     };
 
@@ -122,14 +124,17 @@ class PersonalManagementController extends Controller
                 $documentosDataUpdated = [];
                 foreach ($documentosData as $docData) {
                     $oldPath = $docData['ruta_archivo'];
-                    $newPath = str_replace($tempPersonalId, $personal->id, $oldPath);
+                    
+                    // Simplemente reemplazar el ID temporal con el ID real en el nombre del archivo
+                    $newPath = str_replace("personal/{$tempPersonalId}/", "personal/{$personal->id}/", $oldPath);
+                    $newPath = str_replace($tempPersonalId, $personal->id, $newPath);
 
-                    // Mover archivo físico
+                    // Mover archivo físico con nuevo nombre
                     Storage::disk('public')->move($oldPath, $newPath);
 
                     // Actualizar URL en personal (solo ruta relativa)
-                    foreach ($urlsPersonal as $urlField => $oldPath) {
-                        if ($oldPath === $docData['ruta_archivo']) {
+                    foreach ($urlsPersonal as $urlField => $urlOldPath) {
+                        if ($urlOldPath === $docData['ruta_archivo']) {
                             $personal->update([$urlField => $newPath]);
                             break;
                         }
@@ -310,10 +315,41 @@ class PersonalManagementController extends Controller
         return $documentos;
     }
 
-    private function handleDocumentUpload(\Illuminate\Http\UploadedFile $file, int|string $personalId): string
+    private function handleDocumentUpload(\Illuminate\Http\UploadedFile $file, int|string $personalId, string $fileType = null, string $descripcion = null): string
     {
-        $fileName = time() . '_' . $file->getClientOriginalName();
-        return $file->storeAs("personal/{$personalId}/documentos", $fileName, 'public');
+        // Generar nombre de archivo con formato: ID_TIPODOCUMENTO_DESCRIPCION.extension
+        $extension = $file->getClientOriginalExtension();
+        
+        // Mapear tipos de archivo a nombres legibles
+        $tipoDocumentoNombres = [
+            'identificacion_file' => 'INE',
+            'curp_file' => 'CURP',
+            'rfc_file' => 'RFC',
+            'nss_file' => 'NSS',
+            'licencia_file' => 'LICENCIA',
+            'comprobante_file' => 'COMPROBANTE',
+            'cv_file' => 'CV'
+        ];
+        
+        $tipoNombre = $tipoDocumentoNombres[$fileType] ?? 'DOCUMENTO';
+        
+        // Limpiar la descripción: solo caracteres alfanuméricos, máximo 15 caracteres
+        $descripcionLimpia = '';
+        if ($descripcion) {
+            $descripcionLimpia = preg_replace('/[^A-Za-z0-9]/', '', $descripcion);
+            $descripcionLimpia = substr($descripcionLimpia, 0, 15);
+        }
+        
+        // Construir nombre: ID_TIPO_DESCRIPCION.extension
+        $nombreArchivo = $personalId . '_' . $tipoNombre;
+        if (!empty($descripcionLimpia)) {
+            $nombreArchivo .= '_' . $descripcionLimpia;
+        }
+        $nombreArchivo .= '.' . $extension;
+        
+        \Log::info("Generated filename: {$nombreArchivo} for fileType: {$fileType}, personalId: {$personalId}");
+        
+        return $file->storeAs("personal/{$personalId}/documentos", $nombreArchivo, 'public');
     }
 
     /**

@@ -336,13 +336,14 @@ class PersonalController extends Controller
             // Organizar documentos por tipo con mapeo para la vista
             $documentosPorTipo = [];
             $tiposDocumentoMap = [
-                8 => 'identificacion',  // Identificación Oficial
+                8 => 'identificacion',  // Identificación Oficial (INE)
                 9 => 'curp',           // CURP
                 10 => 'rfc',           // RFC
                 11 => 'nss',           // NSS
                 7 => 'licencia',       // Licencia de Conducir
-                15 => 'cv',            // CV Profesional
-                16 => 'domicilio'      // Comprobante de Domicilio
+                28 => 'cv',            // CV Profesional
+                30 => 'domicilio',     // Comprobante Domicilio Original (campo dirección)
+                16 => 'domicilio_actual' // Comprobante Domicilio Actual
             ];
 
             foreach ($personal->documentos as $documento) {
@@ -354,8 +355,14 @@ class PersonalController extends Controller
 
                 // Mantener compatibilidad con nombres antiguos para la vista
                 $tipoNombre = $documento->tipoDocumento->nombre_tipo_documento;
-                if ($tipoNombre === 'Identificación Oficial') {
+                if ($tipoNombre === 'Identificación Oficial (INE)') {
                     $documentosPorTipo['INE'] = $documento;
+                } elseif ($tipoNombre === 'CV Profesional') {
+                    $documentosPorTipo['CV Profesional'] = $documento;
+                } elseif ($tipoNombre === 'Licencia de Conducir') {
+                    $documentosPorTipo['Licencia de Conducir'] = $documento;
+                } elseif (str_contains($tipoNombre, 'Comprobante')) {
+                    $documentosPorTipo['Comprobante de Domicilio'] = $documento;
                 } else {
                     // Solo asignar si no existe ya para evitar arrays
                     if (!isset($documentosPorTipo[$tipoNombre])) {

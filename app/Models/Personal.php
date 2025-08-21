@@ -59,6 +59,7 @@ class Personal extends Model
         'url_nss',
         'url_licencia',
         'url_comprobante_domicilio',
+        'url_cv',
     ];
 
     /**

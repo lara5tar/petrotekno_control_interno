@@ -434,11 +434,31 @@
                                     @php
                                         $documento = $documentosPorTipo[$tipoDoc] ?? null;
                                         $tieneDocumento = !is_null($documento) && is_object($documento);
+                                        
+                                        // También verificar URLs directas en el modelo personal
+                                        $urlField = '';
+                                        switch($tipoDoc) {
+                                            case 'INE':
+                                                $urlField = $personal->url_ine;
+                                                break;
+                                            case 'CURP':
+                                                $urlField = $personal->url_curp;
+                                                break;
+                                            case 'RFC':
+                                                $urlField = $personal->url_rfc;
+                                                break;
+                                            case 'NSS':
+                                                $urlField = $personal->url_nss;
+                                                break;
+                                        }
+                                        
+                                        $tieneArchivoDirecto = !empty($urlField);
+                                        $tieneAlgunArchivo = $tieneDocumento || $tieneArchivoDirecto;
                                     @endphp
                                     
                                     <li class="py-2 flex items-center justify-between">
                                         <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2 text-{{ $tieneDocumento ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4 mr-2 text-{{ $tieneAlgunArchivo ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                             </svg>
                                             <div>
@@ -455,6 +475,8 @@
                                                     <p class="text-xs text-gray-500">Vence: {{ \Carbon\Carbon::parse($documento->fecha_vencimiento)->format('d/m/Y') }}</p>
                                                 @elseif($tieneDocumento)
                                                     <p class="text-xs text-gray-500">{{ $documento->descripcion ?? 'Documento disponible' }}</p>
+                                                @elseif($tieneArchivoDirecto)
+                                                    <p class="text-xs text-gray-500">Documento disponible</p>
                                                 @else
                                                     <p class="text-xs text-red-500">No disponible</p>
                                                 @endif
@@ -475,6 +497,17 @@
                                                     Descargar
                                                 </button>
                                             </div>
+                                        @elseif($tieneArchivoDirecto)
+                                            <div class="flex space-x-2">
+                                                <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200" 
+                                                        onclick="viewPersonalDocument('{{ asset('storage/' . $urlField) }}')"
+                                                        title="Ver documento">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    </svg>
+                                                    Ver
+                                                </button>
+                                            </div>
                                         @else
                                             <div class="text-xs text-red-500">
                                                 Faltante
@@ -487,10 +520,12 @@
                                 @php
                                     $documentoLicencia = $documentosPorTipo['licencia'] ?? $documentosPorTipo['Licencia de Conducir'] ?? null;
                                     $tieneDocumentoLicencia = !is_null($documentoLicencia) && is_object($documentoLicencia);
+                                    $tieneArchivoLicencia = !empty($personal->url_licencia);
+                                    $tieneAlgunaLicencia = $tieneDocumentoLicencia || $tieneArchivoLicencia;
                                 @endphp
                                     <li class="py-2 flex items-center justify-between">
                                         <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2 text-{{ $tieneDocumentoLicencia ? 'green' : 'orange' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4 mr-2 text-{{ $tieneAlgunaLicencia ? 'green' : 'orange' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                             </svg>
                                             <div>
@@ -500,6 +535,8 @@
                                                 </p>
                                                 @if($tieneDocumentoLicencia && isset($documentoLicencia->fecha_vencimiento) && $documentoLicencia->fecha_vencimiento)
                                                     <p class="text-xs text-gray-500">Vence: {{ \Carbon\Carbon::parse($documentoLicencia->fecha_vencimiento)->format('d/m/Y') }}</p>
+                                                @elseif($tieneAlgunaLicencia)
+                                                    <p class="text-xs text-gray-500">Documento disponible</p>
                                                 @endif
                                             </div>
                                         </div>
@@ -593,18 +630,22 @@
                                     @php
                                         $documentoCV = $documentosPorTipo['cv'] ?? $documentosPorTipo['CV Profesional'] ?? null;
                                         $tieneDocumentoCV = !is_null($documentoCV) && is_object($documentoCV);
+                                        $tieneArchivoCV = !empty($personal->url_cv);
+                                        $tieneAlgunCV = $tieneDocumentoCV || $tieneArchivoCV;
                                     @endphp
                                     <li class="py-2 flex items-center justify-between">
                                         <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2 text-{{ $tieneDocumentoCV ? 'green' : 'orange' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4 mr-2 text-{{ $tieneAlgunCV ? 'green' : 'orange' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                             </svg>
                                             <div>
                                                 <span class="text-sm font-medium text-gray-800">CV Profesional</span>
                                                 @if($tieneDocumentoCV && isset($documentoCV->descripcion))
                                                     <p class="text-xs text-gray-500">{{ $documentoCV->descripcion }}</p>
-                                                @else
+                                                @elseif($tieneAlgunCV)
                                                     <p class="text-xs text-gray-500">Curriculum vitae del empleado</p>
+                                                @else
+                                                    <p class="text-xs text-gray-500">No disponible</p>
                                                 @endif
                                                 @if($tieneDocumentoCV && isset($documentoCV->fecha_vencimiento) && $documentoCV->fecha_vencimiento)
                                                     <p class="text-xs text-gray-500">Actualizado: {{ \Carbon\Carbon::parse($documentoCV->created_at)->format('d/m/Y') }}</p>
@@ -626,6 +667,17 @@
                                                     Descargar
                                                 </button>
                                             </div>
+                                        @elseif($tieneArchivoCV)
+                                            <div class="flex space-x-2">
+                                                <button class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200" 
+                                                        onclick="viewPersonalDocument('{{ asset('storage/' . $personal->url_cv) }}')"
+                                                        title="Ver CV">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    </svg>
+                                                    Ver
+                                                </button>
+                                            </div>
                                         @else
                                             <div class="text-xs text-gray-500">
                                                 No disponible
@@ -633,57 +685,6 @@
                                         @endif
                                     </li>
                                 </ul>
-
-                                <!-- Otros documentos adicionales del sistema -->
-                                @php
-                                    $documentosAdicionales = array_diff_key($documentosPorTipo, array_flip(['INE', 'CURP', 'RFC', 'NSS', 'identificacion', 'curp', 'rfc', 'nss', 'licencia', 'Licencia de Conducir', 'domicilio', 'Comprobante de Domicilio', 'cv', 'CV Profesional']));
-                                @endphp
-                                
-                                @if(count($documentosAdicionales) > 0)
-                                    <h6 class="text-sm font-medium text-gray-700 mb-2 mt-4">Otros Documentos</h6>
-                                    <ul class="divide-y divide-gray-200 mb-4">
-                                        @foreach($documentosAdicionales as $tipoDocumento => $documento)
-                                            <li class="py-2 flex items-center justify-between">
-                                                <div class="flex items-center">
-                                                    <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                    </svg>
-                                                    <div>
-                                                        <span class="text-sm font-medium text-gray-800">{{ $tipoDocumento }}</span>
-                                                        @if(is_object($documento) && isset($documento->descripcion) && $documento->descripcion)
-                                                            <p class="text-xs text-gray-500">{{ $documento->descripcion }}</p>
-                                                        @endif
-                                                        @if(is_object($documento) && isset($documento->fecha_vencimiento) && $documento->fecha_vencimiento)
-                                                            <p class="text-xs text-gray-500">Vence: {{ \Carbon\Carbon::parse($documento->fecha_vencimiento)->format('d/m/Y') }}</p>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                @if(is_object($documento))
-                                                    <div class="flex space-x-2">
-                                                        <button data-document-id="{{ $documento->id }}" class="btn-view-document bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                            </svg>
-                                                            Ver
-                                                        </button>
-                                                        <button data-document-id="{{ $documento->id }}" class="btn-download-document bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                            </svg>
-                                                            Descargar
-                                                        </button>
-                                                    </div>
-                                                @endif
-                                            </li>
-                                        @endforeach
-                                @endif
-                            </ul>
-
-                            @if(count($documentosAdicionales) === 0)
-                                <div class="mt-4 py-4 text-center text-gray-500 text-sm bg-gray-50 rounded-md">
-                                    No hay documentos adicionales del sistema registrados
-                                </div>
-                            @endif
                         </div>
                     </div>
 
