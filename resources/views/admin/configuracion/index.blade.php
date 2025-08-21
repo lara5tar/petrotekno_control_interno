@@ -46,10 +46,7 @@
                             </div>
                             <div class="flex-1">
                                 <h4 class="text-lg font-semibold text-gray-900">Categorías de Personal</h4>
-                                <div class="flex items-center mt-2 space-x-4">
-                                    <span class="text-sm text-gray-500">1 categorías</span>
-                                    <span class="text-sm text-gray-500">18 personal registrado</span>
-                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Administra las categorías y clasificaciones de personal</p>
                             </div>
                         </div>
                         <div class="ml-6">
@@ -75,11 +72,7 @@
                             </div>
                             <div class="flex-1">
                                 <h4 class="text-lg font-semibold text-gray-900">Gestión de Roles</h4>
-                                <div class="flex items-center mt-2 space-x-4">
-                                    <span class="text-sm text-gray-500">{{ \App\Models\Role::count() }} roles definidos</span>
-                                    <span class="text-sm text-gray-500">{{ \App\Models\User::count() }} usuarios en el sistema</span>
-                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">Control Activo</span>
-                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Configura roles de usuario y permisos del sistema</p>
                             </div>
                         </div>
                         <div class="ml-6">
@@ -125,17 +118,7 @@
                             </div>
                             <div class="flex-1">
                                 <h4 class="text-lg font-semibold text-gray-900">Logs del Sistema</h4>
-                                <div class="flex items-center mt-2 space-x-6">
-                                    <span class="text-sm text-gray-500">
-                                        Eventos hoy <span class="font-medium text-gray-700">127</span>
-                                    </span>
-                                    <span class="text-sm text-gray-500">
-                                        Errores <span class="font-medium text-red-600">3</span>
-                                    </span>
-                                    <span class="text-sm text-gray-500">
-                                        Advertencias <span class="font-medium text-orange-600">8</span>
-                                    </span>
-                                </div>
+                                <p class="text-sm text-gray-500 mt-1">Consulta y gestiona los logs del sistema</p>
                             </div>
                         </div>
                         <div class="ml-6">

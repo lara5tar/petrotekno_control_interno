@@ -65,34 +65,70 @@
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Derecho Vehicular</label>
-                            <div class="flex items-center space-x-2">
-                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    {{ $vehiculo->derecho_vehicular ?? 'DV-2025-001234' }}
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2">
+                                    <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                        @if($vehiculo->derecho_url)
+                                            <span class="text-green-200">✓ Documento cargado</span>
+                                        @else
+                                            <span class="text-yellow-200">⚠ Sin documento</span>
+                                        @endif
+                                    </div>
+                                    @if($vehiculo->derecho_url)
+                                        <button onclick="viewDocument('{{ $vehiculo->derecho_url }}')" 
+                                                class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-2 rounded text-sm transition duration-200"
+                                                title="Ver documento">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </button>
+                                    @endif
                                 </div>
-                                <button onclick="viewDocument('derecho_vehicular.pdf')" 
-                                        class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-2 rounded text-sm transition duration-200"
-                                        title="Ver documento">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </button>
+                                @if($vehiculo->derecho_vencimiento)
+                                    <div class="text-xs text-gray-500">
+                                        Vence: {{ $vehiculo->derecho_vencimiento->format('d/m/Y') }}
+                                        @if($vehiculo->derecho_vencimiento < now())
+                                            <span class="text-red-600 font-semibold">(VENCIDO)</span>
+                                        @elseif($vehiculo->derecho_vencimiento < now()->addDays(30))
+                                            <span class="text-yellow-600 font-semibold">(PRÓXIMO A VENCER)</span>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Póliza de Seguro</label>
-                            <div class="flex items-center space-x-2">
-                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    {{ $vehiculo->poliza_seguro ?? 'PS-2025-567890' }}
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2">
+                                    <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                        @if($vehiculo->poliza_url)
+                                            <span class="text-green-200">✓ Documento cargado</span>
+                                        @else
+                                            <span class="text-yellow-200">⚠ Sin documento</span>
+                                        @endif
+                                    </div>
+                                    @if($vehiculo->poliza_url)
+                                        <button onclick="viewDocument('{{ $vehiculo->poliza_url }}')" 
+                                                class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-2 rounded text-sm transition duration-200"
+                                                title="Ver documento">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </button>
+                                    @endif
                                 </div>
-                                <button onclick="viewDocument('poliza_seguro.pdf')" 
-                                        class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-2 rounded text-sm transition duration-200"
-                                        title="Ver documento">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </button>
+                                @if($vehiculo->poliza_vencimiento)
+                                    <div class="text-xs text-gray-500">
+                                        Vence: {{ $vehiculo->poliza_vencimiento->format('d/m/Y') }}
+                                        @if($vehiculo->poliza_vencimiento < now())
+                                            <span class="text-red-600 font-semibold">(VENCIDO)</span>
+                                        @elseif($vehiculo->poliza_vencimiento < now()->addDays(30))
+                                            <span class="text-yellow-600 font-semibold">(PRÓXIMO A VENCER)</span>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
