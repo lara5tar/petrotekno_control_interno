@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\EstadoVehiculo;
 use App\Models\CategoriaPersonal;
 use App\Models\CatalogoTipoDocumento;
+use App\Models\Documento;
 use App\Models\LogAccion;
 use App\Models\Personal;
 use App\Models\Vehiculo;
@@ -76,6 +77,7 @@ class VehiculoController extends Controller
 
         $validatedData = $request->validate([
             'marca' => 'required|string|max:50',
+            'numero_poliza' => 'nullable|string|max:20',
             'modelo' => 'required|string|max:100',
             'anio' => 'required|integer|min:1990|max:' . (date('Y') + 1),
             'n_serie' => 'required|string|max:100|unique:vehiculos,n_serie',
@@ -139,6 +141,7 @@ class VehiculoController extends Controller
             // Crear el vehículo con estado inicial DISPONIBLE (sin las URLs primero)
             $vehiculo = Vehiculo::create([
                 'marca' => $validatedData['marca'],
+                'numero_poliza' => $validatedData['numero_poliza'] ?? null,
                 'modelo' => $validatedData['modelo'],
                 'anio' => $validatedData['anio'],
                 'n_serie' => $validatedData['n_serie'],
@@ -156,42 +159,96 @@ class VehiculoController extends Controller
                 'derecho_vencimiento' => $validatedData['derecho_vencimiento'] ?? $validatedData['fecha_vencimiento_derecho'] ?? null,
             ]);
 
-            // Procesar archivos y generar URLs automáticamente
+            // Procesar archivos usando el mismo sistema descriptivo que personal
             $urlsGeneradas = [];
+            $documentosCreados = [];
 
-            // Mapeo de archivos con sus respectivas columnas URL
+            // Mapeo de archivos con sus respectivas columnas URL, descripción y tipo de documento
             $archivosMapping = [
-                'poliza_file' => 'poliza_url',
-                'poliza_seguro_file' => 'poliza_url', // compatibilidad
-                'derecho_file' => 'derecho_url',
-                'derecho_vehicular_file' => 'derecho_url', // compatibilidad
-                'factura_file' => 'factura_url',
-                'factura_pedimento_file' => 'factura_url', // compatibilidad
-                'imagen_file' => 'url_imagen',
-                'fotografia_file' => 'url_imagen', // compatibilidad
+                'poliza_file' => [
+                    'url' => 'poliza_url', 
+                    'descripcion' => $validatedData['placas'],
+                    'tipo_documento_nombre' => 'Póliza de Seguro'
+                ],
+                'poliza_seguro_file' => [
+                    'url' => 'poliza_url', 
+                    'descripcion' => $validatedData['placas'],
+                    'tipo_documento_nombre' => 'Póliza de Seguro'
+                ], // compatibilidad
+                'derecho_file' => [
+                    'url' => 'derecho_url', 
+                    'descripcion' => $validatedData['placas'],
+                    'tipo_documento_nombre' => 'Derecho Vehicular'
+                ],
+                'derecho_vehicular_file' => [
+                    'url' => 'derecho_url', 
+                    'descripcion' => $validatedData['placas'],
+                    'tipo_documento_nombre' => 'Derecho Vehicular'
+                ], // compatibilidad
+                'factura_file' => [
+                    'url' => 'factura_url', 
+                    'descripcion' => $validatedData['n_serie'],
+                    'tipo_documento_nombre' => 'Factura'
+                ],
+                'factura_pedimento_file' => [
+                    'url' => 'factura_url', 
+                    'descripcion' => $validatedData['n_serie'],
+                    'tipo_documento_nombre' => 'Factura'
+                ], // compatibilidad
+                'imagen_file' => [
+                    'url' => 'url_imagen', 
+                    'descripcion' => $validatedData['marca'] . $validatedData['modelo'],
+                    'tipo_documento_nombre' => 'Fotografía Vehículo'
+                ],
+                'fotografia_file' => [
+                    'url' => 'url_imagen', 
+                    'descripcion' => $validatedData['marca'] . $validatedData['modelo'],
+                    'tipo_documento_nombre' => 'Fotografía Vehículo'
+                ], // compatibilidad
             ];
 
-            foreach ($archivosMapping as $campoArchivo => $columnaUrl) {
+            // Procesar TODOS los archivos que se suban (remover break)
+            foreach ($archivosMapping as $campoArchivo => $config) {
                 if ($request->hasFile($campoArchivo)) {
                     $archivo = $request->file($campoArchivo);
-                    $tipoDocumento = str_replace(['_file', '_seguro', '_vehicular', '_pedimento', 'fotografia'], ['', '', '', '', 'imagen'], $campoArchivo);
+                    $descripcion = $config['descripcion'];
                     
-                    // Generar nombre único para el archivo
-                    $nombreArchivo = time() . '_' . $tipoDocumento . '_' . $vehiculo->id . '.' . $archivo->getClientOriginalExtension();
+                    // Verificar que no se procese el mismo tipo de archivo dos veces
+                    // (para evitar duplicados con compatibilidad)
+                    if (isset($urlsGeneradas[$config['url']])) {
+                        continue; // Ya procesamos este tipo de archivo
+                    }
                     
-                    // Determinar carpeta según tipo de archivo
-                    $carpeta = str_contains($tipoDocumento, 'imagen') ? 'vehiculos/imagenes' : 'vehiculos/documentos';
-                    
-                    // Guardar archivo en storage
-                    $rutaArchivo = $archivo->storeAs($carpeta, $nombreArchivo, 'public');
+                    // Usar el método handleDocumentUpload para naming descriptivo
+                    $rutaArchivo = $this->handleDocumentUpload($archivo, $vehiculo->id, $campoArchivo, $descripcion);
                     
                     // Generar URL para acceso público
                     $urlPublica = Storage::url($rutaArchivo);
                     
                     // Guardar URL en el array para actualizar después
-                    $urlsGeneradas[$columnaUrl] = $urlPublica;
+                    $urlsGeneradas[$config['url']] = $urlPublica;
                     
-                    break; // Solo procesar el primer archivo encontrado para cada tipo
+                    // Crear registro en tabla documentos
+                    $tipoDocumento = $this->getOrCreateTipoDocumento($config['tipo_documento_nombre']);
+                    
+                    $documento = Documento::create([
+                        'vehiculo_id' => $vehiculo->id,
+                        'tipo_documento_id' => $tipoDocumento->id,
+                        'descripcion' => $config['tipo_documento_nombre'] . ' - ' . $descripcion,
+                        'ruta_archivo' => $rutaArchivo,
+                        'fecha_vencimiento' => $this->getFechaVencimiento($campoArchivo, $validatedData),
+                    ]);
+                    
+                    $documentosCreados[] = $documento;
+                    
+                    \Log::info("Vehicle document created", [
+                        'vehiculo_id' => $vehiculo->id,
+                        'documento_id' => $documento->id,
+                        'tipo' => $config['tipo_documento_nombre'],
+                        'archivo' => basename($rutaArchivo)
+                    ]);
+                    
+                    // NO usar break aquí - procesar todos los archivos
                 }
             }
 
@@ -270,6 +327,7 @@ class VehiculoController extends Controller
 
         $validatedData = $request->validate([
             'marca' => 'required|string|max:50',
+            'numero_poliza' => 'nullable|string|max:20',
             'modelo' => 'required|string|max:100',
             'anio' => 'required|integer|min:1990|max:' . (date('Y') + 1),
             'n_serie' => [
@@ -344,6 +402,7 @@ class VehiculoController extends Controller
             // Preparar datos para actualizar (sin archivos)
             $datosActualizar = [
                 'marca' => $validatedData['marca'],
+                'numero_poliza' => $validatedData['numero_poliza'] ?? null,
                 'modelo' => $validatedData['modelo'],
                 'anio' => $validatedData['anio'],
                 'n_serie' => $validatedData['n_serie'],
@@ -359,22 +418,61 @@ class VehiculoController extends Controller
                 'derecho_vencimiento' => $validatedData['derecho_vencimiento'] ?? $validatedData['fecha_vencimiento_derecho'] ?? null,
             ];
 
-            // Procesar archivos y generar URLs automáticamente
+            // Procesar archivos con naming descriptivo como en PersonalManagementController
             $archivosMapping = [
-                'poliza_file' => 'poliza_url',
-                'poliza_seguro_file' => 'poliza_url', // compatibilidad
-                'derecho_file' => 'derecho_url',
-                'derecho_vehicular_file' => 'derecho_url', // compatibilidad
-                'factura_file' => 'factura_url',
-                'factura_pedimento_file' => 'factura_url', // compatibilidad
-                'imagen_file' => 'url_imagen',
-                'fotografia_file' => 'url_imagen', // compatibilidad
+                'poliza_file' => [
+                    'url' => 'poliza_url', 
+                    'descripcion' => $validatedData['placas'],
+                    'tipo_documento_nombre' => 'Póliza de Seguro'
+                ],
+                'poliza_seguro_file' => [
+                    'url' => 'poliza_url', 
+                    'descripcion' => $validatedData['placas'],
+                    'tipo_documento_nombre' => 'Póliza de Seguro'
+                ], // compatibilidad
+                'derecho_file' => [
+                    'url' => 'derecho_url', 
+                    'descripcion' => $validatedData['placas'],
+                    'tipo_documento_nombre' => 'Derecho Vehicular'
+                ],
+                'derecho_vehicular_file' => [
+                    'url' => 'derecho_url', 
+                    'descripcion' => $validatedData['placas'],
+                    'tipo_documento_nombre' => 'Derecho Vehicular'
+                ], // compatibilidad
+                'factura_file' => [
+                    'url' => 'factura_url', 
+                    'descripcion' => $validatedData['n_serie'],
+                    'tipo_documento_nombre' => 'Factura'
+                ],
+                'factura_pedimento_file' => [
+                    'url' => 'factura_url', 
+                    'descripcion' => $validatedData['n_serie'],
+                    'tipo_documento_nombre' => 'Factura'
+                ], // compatibilidad
+                'imagen_file' => [
+                    'url' => 'url_imagen', 
+                    'descripcion' => $validatedData['marca'] . $validatedData['modelo'],
+                    'tipo_documento_nombre' => 'Fotografía Vehículo'
+                ],
+                'fotografia_file' => [
+                    'url' => 'url_imagen', 
+                    'descripcion' => $validatedData['marca'] . $validatedData['modelo'],
+                    'tipo_documento_nombre' => 'Fotografía Vehículo'
+                ], // compatibilidad
             ];
 
-            foreach ($archivosMapping as $campoArchivo => $columnaUrl) {
+            $archivosActualizados = [];
+            foreach ($archivosMapping as $campoArchivo => $config) {
                 if ($request->hasFile($campoArchivo)) {
+                    
+                    // Verificar que no se procese el mismo tipo de archivo dos veces
+                    if (isset($archivosActualizados[$config['url']])) {
+                        continue; // Ya procesamos este tipo de archivo
+                    }
+                    
                     // Eliminar archivo anterior si existe
-                    $urlAnterior = $vehiculo->{$columnaUrl};
+                    $urlAnterior = $vehiculo->{$config['url']};
                     if ($urlAnterior) {
                         $rutaAnterior = str_replace('/storage/', '', $urlAnterior);
                         if (Storage::disk('public')->exists($rutaAnterior)) {
@@ -383,24 +481,44 @@ class VehiculoController extends Controller
                     }
                     
                     $archivo = $request->file($campoArchivo);
-                    $tipoDocumento = str_replace(['_file', '_seguro', '_vehicular', '_pedimento', 'fotografia'], ['', '', '', '', 'imagen'], $campoArchivo);
+                    $descripcion = $config['descripcion'];
                     
-                    // Generar nombre único para el archivo
-                    $nombreArchivo = time() . '_' . $tipoDocumento . '_' . $vehiculo->id . '.' . $archivo->getClientOriginalExtension();
-                    
-                    // Determinar carpeta según tipo de archivo
-                    $carpeta = str_contains($tipoDocumento, 'imagen') ? 'vehiculos/imagenes' : 'vehiculos/documentos';
-                    
-                    // Guardar archivo en storage
-                    $rutaArchivo = $archivo->storeAs($carpeta, $nombreArchivo, 'public');
+                    // Usar el método handleDocumentUpload para naming descriptivo
+                    $rutaArchivo = $this->handleDocumentUpload($archivo, $vehiculo->id, $campoArchivo, $descripcion);
                     
                     // Generar URL para acceso público
                     $urlPublica = Storage::url($rutaArchivo);
                     
                     // Agregar URL al array de datos a actualizar
-                    $datosActualizar[$columnaUrl] = $urlPublica;
+                    $datosActualizar[$config['url']] = $urlPublica;
+                    $archivosActualizados[$config['url']] = true;
                     
-                    break; // Solo procesar el primer archivo encontrado para cada tipo
+                    // Eliminar documento anterior de la tabla documentos y crear nuevo
+                    Documento::where('vehiculo_id', $vehiculo->id)
+                            ->whereHas('tipoDocumento', function($query) use ($config) {
+                                $query->where('nombre_tipo_documento', $config['tipo_documento_nombre']);
+                            })
+                            ->delete();
+                    
+                    // Crear nuevo registro en tabla documentos
+                    $tipoDocumento = $this->getOrCreateTipoDocumento($config['tipo_documento_nombre']);
+                    
+                    $documento = Documento::create([
+                        'vehiculo_id' => $vehiculo->id,
+                        'tipo_documento_id' => $tipoDocumento->id,
+                        'descripcion' => $config['tipo_documento_nombre'] . ' - ' . $descripcion,
+                        'ruta_archivo' => $rutaArchivo,
+                        'fecha_vencimiento' => $this->getFechaVencimiento($campoArchivo, $validatedData),
+                    ]);
+                    
+                    \Log::info("Vehicle document updated", [
+                        'vehiculo_id' => $vehiculo->id,
+                        'documento_id' => $documento->id,
+                        'tipo' => $config['tipo_documento_nombre'],
+                        'archivo' => basename($rutaArchivo)
+                    ]);
+                    
+                    // NO usar break aquí - procesar todos los archivos
                 }
             }
 
@@ -878,5 +996,79 @@ class VehiculoController extends Controller
                 'error' => 'Error al cambiar el operador: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Manejar la subida de documentos con naming descriptivo (igual que PersonalManagementController)
+     */
+    private function handleDocumentUpload(\Illuminate\Http\UploadedFile $file, int|string $vehiculoId, string $fileType = null, string $descripcion = null): string
+    {
+        // Generar nombre de archivo con formato: ID_TIPODOCUMENTO_DESCRIPCION.extension
+        $extension = $file->getClientOriginalExtension();
+        
+        // Mapear tipos de archivo a nombres legibles
+        $tipoDocumentoNombres = [
+            'poliza_file' => 'POLIZA',
+            'poliza_seguro_file' => 'POLIZA',
+            'derecho_file' => 'DERECHO',
+            'derecho_vehicular_file' => 'DERECHO',
+            'factura_file' => 'FACTURA',
+            'factura_pedimento_file' => 'FACTURA',
+            'imagen_file' => 'IMAGEN',
+            'fotografia_file' => 'IMAGEN'
+        ];
+        
+        $tipoNombre = $tipoDocumentoNombres[$fileType] ?? 'DOCUMENTO';
+        
+        // Limpiar la descripción: solo caracteres alfanuméricos, máximo 15 caracteres
+        $descripcionLimpia = '';
+        if ($descripcion) {
+            $descripcionLimpia = preg_replace('/[^A-Za-z0-9]/', '', $descripcion);
+            $descripcionLimpia = substr($descripcionLimpia, 0, 15);
+        }
+        
+        // Construir nombre: ID_TIPO_DESCRIPCION.extension
+        $nombreArchivo = $vehiculoId . '_' . $tipoNombre;
+        if (!empty($descripcionLimpia)) {
+            $nombreArchivo .= '_' . $descripcionLimpia;
+        }
+        $nombreArchivo .= '.' . $extension;
+        
+        \Log::info("Generated vehicle filename: {$nombreArchivo} for fileType: {$fileType}, vehiculoId: {$vehiculoId}");
+        
+        // Determinar carpeta según tipo de archivo
+        $carpeta = str_contains($tipoNombre, 'IMAGEN') ? 'vehiculos/imagenes' : 'vehiculos/documentos';
+        
+        return $file->storeAs($carpeta, $nombreArchivo, 'public');
+    }
+
+    /**
+     * Obtener o crear tipo de documento en el catálogo
+     */
+    private function getOrCreateTipoDocumento(string $nombre): CatalogoTipoDocumento
+    {
+        return CatalogoTipoDocumento::firstOrCreate(
+            ['nombre_tipo_documento' => $nombre],
+            [
+                'descripcion' => 'Tipo de documento para vehículos: ' . $nombre,
+                'requiere_vencimiento' => in_array($nombre, ['Póliza de Seguro', 'Derecho Vehicular'])
+            ]
+        );
+    }
+
+    /**
+     * Obtener fecha de vencimiento según el tipo de documento
+     */
+    private function getFechaVencimiento(string $campoArchivo, array $validatedData): ?string
+    {
+        if (str_contains($campoArchivo, 'poliza')) {
+            return $validatedData['poliza_vencimiento'] ?? $validatedData['fecha_vencimiento_seguro'] ?? null;
+        }
+        
+        if (str_contains($campoArchivo, 'derecho')) {
+            return $validatedData['derecho_vencimiento'] ?? $validatedData['fecha_vencimiento_derecho'] ?? null;
+        }
+        
+        return null; // Facturas e imágenes normalmente no tienen vencimiento
     }
 }

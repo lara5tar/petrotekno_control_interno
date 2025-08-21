@@ -31,14 +31,20 @@
                             </div>
                         </div>
                         <div>
+                            <label class="block text-sm font-medium text-gray-600">Póliza</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $vehiculo->numero_poliza ?? 'Sin póliza' }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
                             <label class="block text-sm font-medium text-gray-600">Modelo</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ $vehiculo->modelo ?? 'NP300' }}
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 gap-4 mt-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Año</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
@@ -69,7 +75,7 @@
                                 <div class="flex items-center space-x-2">
                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
                                         @if($vehiculo->derecho_url)
-                                            <span class="text-green-200">✓ Documento cargado</span>
+                                            <span class="text-green-200">✓ Año {{ \Carbon\Carbon::parse($vehiculo->created_at)->format('Y') }}</span>
                                         @else
                                             <span class="text-yellow-200">⚠ Sin documento</span>
                                         @endif
@@ -102,10 +108,10 @@
                             <div class="space-y-1">
                                 <div class="flex items-center space-x-2">
                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                        @if($vehiculo->poliza_url)
-                                            <span class="text-green-200">✓ Documento cargado</span>
+                                        @if($vehiculo->numero_poliza)
+                                            <span class="text-green-200">{{ $vehiculo->numero_poliza }}</span>
                                         @else
-                                            <span class="text-yellow-200">⚠ Sin documento</span>
+                                            <span class="text-yellow-200">⚠ Sin número de póliza</span>
                                         @endif
                                     </div>
                                     @if($vehiculo->poliza_url)
@@ -136,9 +142,9 @@
                     <!-- Fotografía del Vehículo ahora al final -->
                     <div class="mt-6">
                         <div class="relative">
-                            @if(!empty($vehiculo->imagen) && $vehiculo->imagen !== null && $vehiculo->imagen !== '')
+                            @if(!empty($vehiculo->url_imagen) && $vehiculo->url_imagen !== null && $vehiculo->url_imagen !== '')
                                 <div class="bg-gray-100 rounded overflow-hidden mb-2" id="image-container">
-                                    <img src="{{ $vehiculo->imagen }}" 
+                                    <img src="{{ $vehiculo->url_imagen }}" 
                                          alt="Vehículo {{ $vehiculo->marca ?? 'Nissan' }} {{ $vehiculo->modelo ?? 'NP300' }}" 
                                          class="w-full h-auto object-contain max-h-64"
                                          id="vehicle-image"
@@ -761,65 +767,6 @@
                                     </div>
                                 </div>
                                 @endif
-
-                                <!-- Resumen de Documentos -->
-                                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                                    <h6 class="text-sm font-medium text-gray-700 mb-2">Estado de Documentación</h6>
-                                    <div class="grid grid-cols-2 gap-4 text-xs">
-                                        <div class="flex items-center">
-                                            @if($vehiculo->poliza_url)
-                                                <svg class="w-3 h-3 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                                </svg>
-                                                <span class="text-green-700">Póliza disponible</span>
-                                            @else
-                                                <svg class="w-3 h-3 mr-1 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                                </svg>
-                                                <span class="text-red-700">Póliza faltante</span>
-                                            @endif
-                                        </div>
-                                        <div class="flex items-center">
-                                            @if($vehiculo->derecho_url)
-                                                <svg class="w-3 h-3 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                                </svg>
-                                                <span class="text-green-700">Derecho disponible</span>
-                                            @else
-                                                <svg class="w-3 h-3 mr-1 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                                </svg>
-                                                <span class="text-red-700">Derecho faltante</span>
-                                            @endif
-                                        </div>
-                                        <div class="flex items-center">
-                                            @if($vehiculo->factura_url)
-                                                <svg class="w-3 h-3 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                                </svg>
-                                                <span class="text-green-700">Factura disponible</span>
-                                            @else
-                                                <svg class="w-3 h-3 mr-1 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                                </svg>
-                                                <span class="text-red-700">Factura faltante</span>
-                                            @endif
-                                        </div>
-                                        <div class="flex items-center">
-                                            @if($vehiculo->url_imagen)
-                                                <svg class="w-3 h-3 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                                </svg>
-                                                <span class="text-green-700">Imagen disponible</span>
-                                            @else
-                                                <svg class="w-3 h-3 mr-1 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                                </svg>
-                                                <span class="text-red-700">Imagen faltante</span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>

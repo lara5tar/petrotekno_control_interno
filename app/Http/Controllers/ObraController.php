@@ -80,7 +80,9 @@ class ObraController extends Controller
 
             Log::info('Ejecutando paginación', ['per_page' => $perPage, 'page' => $page]);
 
-            $obras = $query->orderBy('id', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            $obras = $query->with(['vehiculo', 'operador', 'encargado'])
+                           ->orderBy('id', 'asc')
+                           ->paginate($perPage, ['*'], 'page', $page);
 
             Log::info('Query ejecutada exitosamente', ['total_obras' => $obras->total()]);
 

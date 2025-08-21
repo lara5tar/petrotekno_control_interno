@@ -80,6 +80,7 @@ class Vehiculo extends Model
      */
     protected $fillable = [
         'marca',
+        'numero_poliza',
         'modelo',
         'anio',
         'n_serie',
