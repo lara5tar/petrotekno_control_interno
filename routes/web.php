@@ -669,9 +669,15 @@ Route::middleware(['auth', 'permission:ver_roles'])->prefix('admin')->name('admi
         ->middleware('permission:ver_roles');
 });
 
+// Rutas para logs del sistema (solo usuarios con permisos)
+Route::middleware(['auth', 'permission:ver_logs'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/logs', [App\Http\Controllers\Admin\LogController::class, 'index'])
+        ->name('logs.index');
+});
+
 // Ruta para la sección de configuración (menú principal)
 Route::middleware(['auth', App\Http\Middleware\CanAccessConfiguration::class])->group(function () {
     Route::get('/configuracion', function () {
         return view('admin.configuracion.index');
-    })->name('configuracion.index');
+    })->name('admin.configuracion.index');
 });

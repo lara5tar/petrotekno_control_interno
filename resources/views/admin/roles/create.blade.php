@@ -8,7 +8,7 @@
     {{-- Breadcrumb --}}
     <x-breadcrumb :items="[
         ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
-        ['label' => 'Configuración', 'url' => route('configuracion.index')],
+        ['label' => 'Configuración', 'url' => route('admin.configuracion.index')],
         ['label' => 'Gestión de Roles', 'url' => route('admin.roles.index')],
         ['label' => 'Crear Rol']
     ]" />

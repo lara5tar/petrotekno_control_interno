@@ -29,7 +29,6 @@
             </div>
             <div>
                 <h3 class="text-xl font-bold text-gray-800">Gestión de Personal</h3>
-                <p class="text-gray-600">Administra categorías operativas y roles de usuario del sistema</p>
             </div>
         </div>
 
@@ -47,7 +46,6 @@
                             </div>
                             <div class="flex-1">
                                 <h4 class="text-lg font-semibold text-gray-900">Categorías de Personal</h4>
-                                <p class="text-gray-600">Clasificaciones operativas del personal de campo y administrativo</p>
                                 <div class="flex items-center mt-2 space-x-4">
                                     <span class="text-sm text-gray-500">1 categorías</span>
                                     <span class="text-sm text-gray-500">18 personal registrado</span>
@@ -55,11 +53,11 @@
                             </div>
                         </div>
                         <div class="ml-6">
-                            <a href="{{ route('personal.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 inline-flex items-center">
+                            <a href="{{ route('categorias-personal.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 inline-flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
                                 </svg>
-                                Gestionar Personal
+                                Gestionar
                             </a>
                         </div>
                     </div>
@@ -77,7 +75,6 @@
                             </div>
                             <div class="flex-1">
                                 <h4 class="text-lg font-semibold text-gray-900">Gestión de Roles</h4>
-                                <p class="text-gray-600">Administra roles de usuario y permisos de acceso al sistema</p>
                                 <div class="flex items-center mt-2 space-x-4">
                                     <span class="text-sm text-gray-500">{{ \App\Models\Role::count() }} roles definidos</span>
                                     <span class="text-sm text-gray-500">{{ \App\Models\User::count() }} usuarios en el sistema</span>
@@ -86,11 +83,11 @@
                             </div>
                         </div>
                         <div class="ml-6">
-                            <a href="{{ route('admin.roles.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2.5 px-5 rounded-lg transition duration-200 inline-flex items-center justify-center text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            <a href="{{ route('admin.roles.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 inline-flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
                                 </svg>
-                                Ver Todos los Roles
+                                Gestionar
                             </a>
                         </div>
                     </div>
@@ -111,96 +108,79 @@
             </div>
             <div>
                 <h3 class="text-xl font-bold text-gray-800">Configuración del Sistema</h3>
-                <p class="text-gray-600">Ajustes globales y parámetros de funcionamiento</p>
             </div>
         </div>
 
         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div class="p-6">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center flex-1">
-                        <div class="bg-gray-100 p-3 rounded-lg mr-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="text-lg font-semibold text-gray-900">Configuración General</h4>
-                            <p class="text-gray-600">Administra los parámetros globales y configuraciones centrales</p>
-                            <div class="flex items-center mt-2 space-x-6">
-                                <span class="text-sm text-gray-500">
-                                    Versión <span class="font-medium text-gray-700">{{ config('app.version', '1.0.0') }}</span>
-                                </span>
-                                <span class="text-sm text-gray-500">
-                                    Entorno <span class="font-medium text-gray-700 capitalize">{{ config('app.env') }}</span>
-                                </span>
-                                <div class="flex items-center">
-                                    <div class="h-2 w-2 bg-green-500 rounded-full mr-1"></div>
-                                    <span class="text-xs text-gray-600">Sistema Operativo</span>
+            <div class="divide-y divide-gray-200">
+                <!-- Configuración General -->
+                <div class="p-6 hover:bg-gray-50 transition duration-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center flex-1">
+                            <div class="bg-gray-100 p-3 rounded-lg mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-lg font-semibold text-gray-900">Configuración General</h4>
+                                <div class="flex items-center mt-2 space-x-6">
+                                    <span class="text-sm text-gray-500">
+                                        Versión <span class="font-medium text-gray-700">{{ config('app.version', '1.0.0') }}</span>
+                                    </span>
+                                    <span class="text-sm text-gray-500">
+                                        Entorno <span class="font-medium text-gray-700 capitalize">{{ config('app.env') }}</span>
+                                    </span>
+                                    <div class="flex items-center">
+                                        <div class="h-2 w-2 bg-green-500 rounded-full mr-1"></div>
+                                        <span class="text-xs text-gray-600">Sistema Operativo</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="ml-6">
-                        <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 inline-flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
-                            </svg>
-                            Configurar Sistema
-                        </button>
+                        <div class="ml-6">
+                            <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 inline-flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                                </svg>
+                                Configurar Sistema
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- SECCIÓN 3: MONITOREO Y LOGS -->
-    <div class="mb-10">
-        <div class="mb-4 flex items-center">
-            <div class="bg-gray-100 p-2 rounded-lg mr-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
-                </svg>
-            </div>
-            <div>
-                <h3 class="text-xl font-bold text-gray-800">Monitoreo y Registros</h3>
-                <p class="text-gray-600">Supervisa la actividad del sistema y revisa los logs</p>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div class="p-6">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center flex-1">
-                        <div class="bg-gray-100 p-3 rounded-lg mr-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="text-lg font-semibold text-gray-900">Logs del Sistema</h4>
-                            <p class="text-gray-600">Revisa eventos, errores y actividad del sistema</p>
-                            <div class="flex items-center mt-2 space-x-6">
-                                <span class="text-sm text-gray-500">
-                                    Eventos hoy <span class="font-medium text-gray-700">127</span>
-                                </span>
-                                <span class="text-sm text-gray-500">
-                                    Errores <span class="font-medium text-red-600">3</span>
-                                </span>
-                                <span class="text-sm text-gray-500">
-                                    Advertencias <span class="font-medium text-orange-600">8</span>
-                                </span>
+                <!-- Logs del Sistema -->
+                <div class="p-6 hover:bg-gray-50 transition duration-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center flex-1">
+                            <div class="bg-gray-100 p-3 rounded-lg mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-lg font-semibold text-gray-900">Logs del Sistema</h4>
+                                <div class="flex items-center mt-2 space-x-6">
+                                    <span class="text-sm text-gray-500">
+                                        Eventos hoy <span class="font-medium text-gray-700">127</span>
+                                    </span>
+                                    <span class="text-sm text-gray-500">
+                                        Errores <span class="font-medium text-red-600">3</span>
+                                    </span>
+                                    <span class="text-sm text-gray-500">
+                                        Advertencias <span class="font-medium text-orange-600">8</span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="ml-6">
-                        <button class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 inline-flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
-                            </svg>
-                            Ver Logs del Sistema
-                        </button>
+                        <div class="ml-6">
+                            <a href="{{ route('admin.logs.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 inline-flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                                </svg>
+                                Gestionar
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
