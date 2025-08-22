@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 class CatalogoTipoDocumentoSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Run the database seeds. test
      */
     public function run(): void
     {
