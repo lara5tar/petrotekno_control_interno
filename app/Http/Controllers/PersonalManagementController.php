@@ -32,13 +32,13 @@ class PersonalManagementController extends Controller
             $documentosData = [];
             $urlsPersonal = []; // URLs que se incluirán directamente en la creación del personal
             $tiposDocumento = [
-                'identificacion_file' => 8,    // INE - Identificación Oficial
-                'curp_file' => 9,              // CURP
-                'rfc_file' => 10,              // RFC
-                'nss_file' => 11,              // NSS - Número de Seguro Social
-                'licencia_file' => 7,          // Licencia de Conducir
-                'comprobante_file' => 30,      // Comprobante de Domicilio
-                'cv_file' => 28,               // CV Profesional
+                'identificacion_file' => 9,    // INE - Identificación Oficial
+                'curp_file' => 10,             // CURP
+                'rfc_file' => 11,              // RFC
+                'nss_file' => 12,              // NSS - Número de Seguro Social
+                'licencia_file' => 8,          // Licencia de Conducir
+                'comprobante_file' => 16,      // Comprobante de Domicilio
+                'cv_file' => 1,                // CV Profesional
             ]; // Mapeo de campos a IDs reales de la BD
 
             // Crear un ID temporal para el personal (usaremos timestamp + random)

@@ -140,10 +140,10 @@ class ObraController extends Controller
             }
             
             if ($request->expectsJson()) {
-                return response()->json(['error' => 'Error al obtener las obras: ' . $e->getMessage()], 500);
+                return response()->json(['error' => 'Hubo un problema al cargar las obras. Intente nuevamente.'], 500);
             }
 
-            return redirect()->back()->with('error', 'Error al obtener las obras: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Hubo un problema al cargar las obras. Intente nuevamente.');
         }
     }
 
@@ -175,16 +175,13 @@ class ObraController extends Controller
             // Obtener estados disponibles para obras
             $estados = ['planificada', 'en_progreso', 'suspendida', 'completada', 'cancelada'];
             
-            // Obtener encargados (PERSONAL con categoría "Responsable de obra")
-            Log::info('=== OBTENIENDO PERSONAL RESPONSABLE DE OBRA ===');
+            // Obtener encargados (TODO EL PERSONAL ACTIVO puede ser responsable de obra)
+            Log::info('=== OBTENIENDO PERSONAL PARA RESPONSABLE DE OBRA ===');
             try {
                 $encargados = collect();
                 if (class_exists(Personal::class)) {
-                    // Obtener personal activo con categoría "Responsable de obra"
+                    // Obtener todo el personal activo (cualquiera puede ser responsable de obra)
                     $encargados = Personal::where('estatus', 'activo')
-                        ->whereHas('categoria', function($query) {
-                            $query->where('nombre_categoria', 'Responsable de obra');
-                        })
                         ->with('categoria:id,nombre_categoria')
                         ->whereNotNull('nombre_completo')
                         ->where('nombre_completo', '!=', '')
@@ -199,13 +196,13 @@ class ObraController extends Controller
                         });
                 }
                 
-                Log::info('Personal responsable de obra obtenido exitosamente', [
+                Log::info('Personal para responsable de obra obtenido exitosamente', [
                     'total_count' => $encargados->count(),
                     'encargados' => $encargados->toArray()
                 ]);
                 
                 if ($encargados->isEmpty()) {
-                    Log::warning('No se encontró personal activo con categoría "Responsable de obra"');
+                    Log::warning('No se encontró personal activo para asignar como responsable de obra');
                 }
                 
             } catch (Exception $e) {
@@ -474,8 +471,14 @@ class ObraController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
+            // Log del error técnico para debugging
+            \App\Services\UserFriendlyErrorService::logTechnicalError($e, 'ObraController@store');
+
+            // Mensaje amigable para el usuario
+            $userMessage = \App\Services\UserFriendlyErrorService::getOperationMessage('crear_obra', $e);
+
             return back()
-                ->with('error', 'Error al crear obra: ' . $e->getMessage())
+                ->with('error', $userMessage)
                 ->withInput();
         }
     }
@@ -545,14 +548,9 @@ class ObraController extends Controller
                 'detalles' => 'Usuario visualizó obra: ' . ($obra->nombre_obra ?? 'ID: ' . $obra->id),
             ]);
 
-            // Cargar responsables disponibles para el modal
-            Log::info('Cargando responsables disponibles para el modal');
+            // Cargar todo el personal activo disponible para el modal
+            Log::info('Cargando personal activo disponible para el modal');
             $responsables = Personal::with('categoria')
-                ->whereHas('categoria', function ($query) {
-                    $query->where('nombre_categoria', 'like', '%responsable%')
-                          ->orWhere('nombre_categoria', 'like', '%supervisor%')
-                          ->orWhere('nombre_categoria', 'like', '%encargado%');
-                })
                 ->where('estatus', 'activo')
                 ->orderBy('nombre_completo')
                 ->get();
@@ -738,10 +736,10 @@ class ObraController extends Controller
                     ];
                 });
 
-                // Obtener personal encargado (que no sean usuarios del sistema)
+                // Obtener todo el personal activo (que no sean usuarios del sistema)
                 $personalEncargados = collect();
                 if (class_exists(Personal::class)) {
-                    $personalEncargados = Personal::encargados()
+                    $personalEncargados = Personal::where('estatus', 'activo')
                         ->whereDoesntHave('usuario') // Excluir personal que ya es usuario
                         ->with('categoria:id,nombre_categoria')
                         ->whereNotNull('nombre_completo') // Solo personal con nombre completo

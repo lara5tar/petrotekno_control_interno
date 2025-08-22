@@ -176,13 +176,13 @@ class PersonalController extends Controller
 
             // Procesar archivos de documentos
             $archivosConfig = [
-                'archivo_ine' => ['tipo_id' => 8, 'campo_url' => 'url_ine', 'contenido' => 'Identificación Oficial (INE)'],
-                'archivo_curp' => ['tipo_id' => 9, 'campo_url' => 'url_curp', 'contenido' => 'CURP'],
-                'archivo_rfc' => ['tipo_id' => 10, 'campo_url' => 'url_rfc', 'contenido' => 'RFC'],
-                'archivo_nss' => ['tipo_id' => 11, 'campo_url' => 'url_nss', 'contenido' => 'NSS'],
-                'archivo_licencia' => ['tipo_id' => 7, 'campo_url' => 'url_licencia', 'contenido' => 'Licencia de Conducir'],
+                'archivo_ine' => ['tipo_id' => 9, 'campo_url' => 'url_ine', 'contenido' => 'Identificación Oficial (INE)'],
+                'archivo_curp' => ['tipo_id' => 10, 'campo_url' => 'url_curp', 'contenido' => 'CURP'],
+                'archivo_rfc' => ['tipo_id' => 11, 'campo_url' => 'url_rfc', 'contenido' => 'RFC'],
+                'archivo_nss' => ['tipo_id' => 12, 'campo_url' => 'url_nss', 'contenido' => 'NSS'],
+                'archivo_licencia' => ['tipo_id' => 8, 'campo_url' => 'url_licencia', 'contenido' => 'Licencia de Conducir'],
                 'archivo_comprobante_domicilio' => ['tipo_id' => 16, 'campo_url' => 'url_comprobante_domicilio', 'contenido' => 'Comprobante de Domicilio'],
-                'archivo_cv' => ['tipo_id' => 15, 'campo_url' => null, 'contenido' => 'CV Profesional']
+                'archivo_cv' => ['tipo_id' => 1, 'campo_url' => null, 'contenido' => 'CV Profesional']
             ];
 
             // Log para depuración
@@ -288,19 +288,24 @@ class PersonalController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
+            // Log del error técnico para debugging
+            \App\Services\UserFriendlyErrorService::logTechnicalError($e, 'PersonalController@store');
+
+            // Mensaje amigable para el usuario
+            $userMessage = \App\Services\UserFriendlyErrorService::getOperationMessage('crear_personal', $e);
+
             // Respuesta de error híbrida
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al crear el personal',
-                    'error' => $e->getMessage(),
+                    'message' => $userMessage,
                 ], 500);
             }
 
             return redirect()
                 ->back()
                 ->withInput()
-                ->withErrors(['error' => 'Error al crear el personal: ' . $e->getMessage()]);
+                ->withErrors(['error' => $userMessage]);
         }
     }
 
@@ -514,13 +519,13 @@ class PersonalController extends Controller
 
             // Manejar archivos de documentos
             $archivosConfig = [
-                'archivo_ine' => ['tipo_id' => 8, 'campo_url' => 'url_ine', 'contenido' => 'Identificación Oficial (INE)'],
-                'archivo_curp' => ['tipo_id' => 9, 'campo_url' => 'url_curp', 'contenido' => 'CURP'],
-                'archivo_rfc' => ['tipo_id' => 10, 'campo_url' => 'url_rfc', 'contenido' => 'RFC'],
-                'archivo_nss' => ['tipo_id' => 11, 'campo_url' => 'url_nss', 'contenido' => 'NSS'],
-                'archivo_licencia' => ['tipo_id' => 7, 'campo_url' => 'url_licencia', 'contenido' => 'Licencia de Conducir'],
+                'archivo_ine' => ['tipo_id' => 9, 'campo_url' => 'url_ine', 'contenido' => 'Identificación Oficial (INE)'],
+                'archivo_curp' => ['tipo_id' => 10, 'campo_url' => 'url_curp', 'contenido' => 'CURP'],
+                'archivo_rfc' => ['tipo_id' => 11, 'campo_url' => 'url_rfc', 'contenido' => 'RFC'],
+                'archivo_nss' => ['tipo_id' => 12, 'campo_url' => 'url_nss', 'contenido' => 'NSS'],
+                'archivo_licencia' => ['tipo_id' => 8, 'campo_url' => 'url_licencia', 'contenido' => 'Licencia de Conducir'],
                 'archivo_comprobante_domicilio' => ['tipo_id' => 16, 'campo_url' => 'url_comprobante_domicilio', 'contenido' => 'Comprobante de Domicilio'],
-                'archivo_cv' => ['tipo_id' => 15, 'campo_url' => null, 'contenido' => 'CV Profesional']
+                'archivo_cv' => ['tipo_id' => 1, 'campo_url' => null, 'contenido' => 'CV Profesional']
             ];
 
             // Log para depuración
@@ -603,19 +608,24 @@ class PersonalController extends Controller
                 ->route('personal.index')
                 ->withErrors(['error' => 'Personal no encontrado']);
         } catch (\Exception $e) {
+            // Log del error técnico para debugging
+            \App\Services\UserFriendlyErrorService::logTechnicalError($e, 'PersonalController@update');
+
+            // Mensaje amigable para el usuario
+            $userMessage = \App\Services\UserFriendlyErrorService::getOperationMessage('actualizar_personal', $e);
+
             // Respuesta de error híbrida
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al actualizar el personal',
-                    'error' => $e->getMessage(),
+                    'message' => $userMessage,
                 ], 500);
             }
 
             return redirect()
                 ->back()
                 ->withInput()
-                ->withErrors(['error' => 'Error al actualizar el personal: ' . $e->getMessage()]);
+                ->withErrors(['error' => $userMessage]);
         }
     }
 

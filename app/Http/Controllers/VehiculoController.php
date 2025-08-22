@@ -62,7 +62,7 @@ class VehiculoController extends Controller
     {
         $this->authorize('crear_vehiculos');
 
-        // Obtener operadores disponibles (personal activo)
+        // Obtener todo el personal activo (cualquiera puede ser operador/responsable)
         $operadores = Personal::activos()->orderBy('nombre_completo')->get();
 
         return view('vehiculos.create', compact('operadores'));
@@ -278,9 +278,15 @@ class VehiculoController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
+            // Log del error técnico para debugging
+            \App\Services\UserFriendlyErrorService::logTechnicalError($e, 'VehiculoController@store');
+
+            // Mensaje amigable para el usuario
+            $userMessage = \App\Services\UserFriendlyErrorService::getOperationMessage('crear_vehiculo', $e);
+            
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Error al crear el vehículo: ' . $e->getMessage());
+                ->with('error', $userMessage);
         }
     }
 
@@ -311,6 +317,7 @@ class VehiculoController extends Controller
     {
         $this->authorize('editar_vehiculos');
 
+        // Obtener todo el personal activo (cualquiera puede ser operador/responsable)
         $operadores = Personal::activos()->orderBy('nombre_completo')->get();
         $estados = EstadoVehiculo::cases();
         $tiposDocumento = \App\Models\CatalogoTipoDocumento::all();
@@ -546,9 +553,15 @@ class VehiculoController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
+            // Log del error técnico para debugging
+            \App\Services\UserFriendlyErrorService::logTechnicalError($e, 'VehiculoController@update');
+
+            // Mensaje amigable para el usuario
+            $userMessage = \App\Services\UserFriendlyErrorService::getOperationMessage('actualizar_vehiculo', $e);
+            
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Error al actualizar el vehículo: ' . $e->getMessage());
+                ->with('error', $userMessage);
         }
     }
 
@@ -917,18 +930,15 @@ class VehiculoController extends Controller
             'observaciones' => 'nullable|string|max:500'
         ]);
 
-        // Verificar que el operador sea de la categoría correcta y esté activo
-        $categoriaOperador = \App\Models\CategoriaPersonal::where('nombre_categoria', 'Operador')->first();
-        
+        // Verificar que el operador esté activo (cualquier personal puede ser operador)
         $nuevoOperador = Personal::where('id', $request->operador_id)
-            ->where('categoria_id', $categoriaOperador?->id)
             ->where('estatus', 'activo')
             ->first();
 
         if (!$nuevoOperador) {
             return response()->json([
                 'success' => false,
-                'error' => 'El operador seleccionado no es válido o no está activo.'
+                'error' => 'El personal seleccionado no es válido o no está activo.'
             ], 400);
         }
 

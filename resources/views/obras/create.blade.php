@@ -182,7 +182,7 @@
                     @error('encargado_id')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                    <p class="mt-1 text-xs text-gray-500">Personal con categoría "Responsable de obra" para supervisión del proyecto</p>
+                    <p class="mt-1 text-xs text-gray-500">Personal activo disponible para supervisión del proyecto (puede ser cualquier categoría)</p>
                 </div>
 
                 {{-- Observaciones --}}

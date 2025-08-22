@@ -96,16 +96,16 @@
                         <x-form-input name="kilometraje_actual" label="Kilometraje Actual (km)" type="number" required min="0" placeholder="15000" />
                     </div>
 
-                    <!-- Operador Asignado -->
+                    <!-- Responsable Asignado -->
                     <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
                         <div class="form-group">
                             <label for="operador_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                Operador Asignado
+                                Responsable Asignado
                             </label>
                             <select name="operador_id" 
                                     id="operador_id" 
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('operador_id') border-red-500 @enderror">
-                                <option value="">Seleccione un operador (opcional)</option>
+                                <option value="">Seleccione un responsable (opcional)</option>
                                 @if(isset($operadores) && $operadores->count() > 0)
                                     @foreach($operadores as $operador)
                                         <option value="{{ $operador->id }}" {{ old('operador_id') == $operador->id ? 'selected' : '' }}>
@@ -115,7 +115,7 @@
                                 @endif
                             </select>
                             @error('operador_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                            <p class="mt-1 text-xs text-gray-500">Persona encargada de operar el vehículo</p>
+                            <p class="mt-1 text-xs text-gray-500">Persona responsable del vehículo (puede ser cualquier personal activo)</p>
                         </div>
                     </div>
                 </div>

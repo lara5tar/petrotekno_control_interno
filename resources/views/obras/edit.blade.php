@@ -223,7 +223,7 @@
                         @error('encargado_id')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-gray-500">Personal con categoría "Responsable de obra" para supervisión del proyecto</p>
+                        <p class="mt-1 text-xs text-gray-500">Personal activo disponible para supervisión del proyecto (puede ser cualquier categoría)</p>
                     </div>
 
                     {{-- Observaciones --}}
@@ -337,95 +337,47 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {{-- Contrato --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Contrato</label>
-                        @if($obra->archivo_contrato)
-                            <div class="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                <div class="flex justify-between items-center">
-                                    <div class="flex items-center">
-                                        <svg class="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
-                                        </svg>
-                                        <span class="text-sm text-blue-800">Archivo actual</span>
-                                    </div>
-                                    <a href="{{ $obra->getUrlContrato() }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">Ver archivo</a>
-                                </div>
-                            </div>
-                        @endif
-                        <div class="relative">
-                            <input type="file" name="archivo_contrato" accept=".pdf,.doc,.docx" class="hidden" id="archivo_contrato">
-                            <label for="archivo_contrato" class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
-                                <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                </svg>
-                                <span class="text-base">{{ $obra->archivo_contrato ? 'Reemplazar Contrato' : 'Subir Contrato' }}</span>
-                            </label>
-                            <p class="text-xs text-gray-500 text-center mt-2">PDF, DOC, DOCX (máx. 10MB)</p>
-                        </div>
-                        @error('archivo_contrato')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <x-file-upload 
+                            name="archivo_contrato"
+                            label="Contrato"
+                            accept=".pdf,.doc,.docx"
+                            max-size="10MB"
+                            :existing-file="$obra->getUrlContrato()"
+                            existing-file-label="Ver contrato actual"
+                            change-text="Reemplazar Contrato"
+                            upload-text="Subir Contrato"
+                            help-text="PDF, DOC, DOCX (máx. 10MB)"
+                        />
                     </div>
 
                     {{-- Fianza --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Fianza</label>
-                        @if($obra->archivo_fianza)
-                            <div class="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                                <div class="flex justify-between items-center">
-                                    <div class="flex items-center">
-                                        <svg class="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
-                                        </svg>
-                                        <span class="text-sm text-green-800">Archivo actual</span>
-                                    </div>
-                                    <a href="{{ $obra->getUrlFianza() }}" target="_blank" class="text-green-600 hover:text-green-800 text-sm">Ver archivo</a>
-                                </div>
-                            </div>
-                        @endif
-                        <div class="relative">
-                            <input type="file" name="archivo_fianza" accept=".pdf,.doc,.docx" class="hidden" id="archivo_fianza">
-                            <label for="archivo_fianza" class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
-                                <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                </svg>
-                                <span class="text-base">{{ $obra->archivo_fianza ? 'Reemplazar Fianza' : 'Subir Fianza' }}</span>
-                            </label>
-                            <p class="text-xs text-gray-500 text-center mt-2">PDF, DOC, DOCX (máx. 10MB)</p>
-                        </div>
-                        @error('archivo_fianza')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <x-file-upload 
+                            name="archivo_fianza"
+                            label="Fianza"
+                            accept=".pdf,.doc,.docx"
+                            max-size="10MB"
+                            :existing-file="$obra->getUrlFianza()"
+                            existing-file-label="Ver fianza actual"
+                            change-text="Reemplazar Fianza"
+                            upload-text="Subir Fianza"
+                            help-text="PDF, DOC, DOCX (máx. 10MB)"
+                        />
                     </div>
 
                     {{-- Acta de Entrega-Recepción --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Acta de Entrega-Recepción</label>
-                        @if($obra->archivo_acta_entrega_recepcion)
-                            <div class="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                <div class="flex justify-between items-center">
-                                    <div class="flex items-center">
-                                        <svg class="w-4 h-4 mr-2 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
-                                        </svg>
-                                        <span class="text-sm text-yellow-800">Archivo actual</span>
-                                    </div>
-                                    <a href="{{ $obra->getUrlActaEntregaRecepcion() }}" target="_blank" class="text-yellow-600 hover:text-yellow-800 text-sm">Ver archivo</a>
-                                </div>
-                            </div>
-                        @endif
-                        <div class="relative">
-                            <input type="file" name="archivo_acta_entrega_recepcion" accept=".pdf,.doc,.docx" class="hidden" id="archivo_acta_entrega_recepcion">
-                            <label for="archivo_acta_entrega_recepcion" class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
-                                <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                </svg>
-                                <span class="text-base">{{ $obra->archivo_acta_entrega_recepcion ? 'Reemplazar Acta' : 'Subir Acta' }}</span>
-                            </label>
-                            <p class="text-xs text-gray-500 text-center mt-2">PDF, DOC, DOCX (máx. 10MB)</p>
-                        </div>
-                        @error('archivo_acta_entrega_recepcion')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <x-file-upload 
+                            name="archivo_acta_entrega_recepcion"
+                            label="Acta de Entrega-Recepción"
+                            accept=".pdf,.doc,.docx"
+                            max-size="10MB"
+                            :existing-file="$obra->getUrlActaEntregaRecepcion()"
+                            existing-file-label="Ver acta actual"
+                            change-text="Reemplazar Acta"
+                            upload-text="Subir Acta"
+                            help-text="PDF, DOC, DOCX (máx. 10MB)"
+                        />
                     </div>
                 </div>
             </div>
