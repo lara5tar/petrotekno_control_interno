@@ -414,10 +414,15 @@ class PersonalController extends Controller
         }
 
         try {
-            $personal = Personal::with(['categoria', 'documentos.tipoDocumento'])->findOrFail($id);
+            $personal = Personal::with(['categoria', 'documentos.tipoDocumento', 'usuario.rol'])->findOrFail($id);
 
             $categorias = CategoriaPersonal::select('id', 'nombre_categoria')
                 ->orderBy('nombre_categoria')
+                ->get();
+
+            // Obtener roles disponibles
+            $roles = \App\Models\Role::select('id', 'nombre_rol')
+                ->orderBy('nombre_rol')
                 ->get();
 
             // Organizar documentos por tipo con mapeo para la vista
@@ -447,12 +452,14 @@ class PersonalController extends Controller
                     'data' => [
                         'personal' => $personal,
                         'categorias' => $categorias,
+                        'roles' => $roles,
                     ],
                 ]);
             }
 
-            return view('personal.edit', compact('personal', 'categorias', 'documentosPorTipo'));
+            return view('personal.edit', compact('personal', 'categorias', 'documentosPorTipo', 'roles'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            \Log::error('Personal no encontrado en edit:', ['id' => $id]);
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,

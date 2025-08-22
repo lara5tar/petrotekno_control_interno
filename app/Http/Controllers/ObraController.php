@@ -545,8 +545,47 @@ class ObraController extends Controller
                 'detalles' => 'Usuario visualizó obra: ' . ($obra->nombre_obra ?? 'ID: ' . $obra->id),
             ]);
 
-            Log::info('Renderizando vista obras.show');
-            return view('obras.show', compact('obra'));
+            // Cargar responsables disponibles para el modal
+            Log::info('Cargando responsables disponibles para el modal');
+            $responsables = Personal::with('categoria')
+                ->whereHas('categoria', function ($query) {
+                    $query->where('nombre_categoria', 'like', '%responsable%')
+                          ->orWhere('nombre_categoria', 'like', '%supervisor%')
+                          ->orWhere('nombre_categoria', 'like', '%encargado%');
+                })
+                ->where('estatus', 'activo')
+                ->orderBy('nombre_completo')
+                ->get();
+
+            // Cargar vehículos disponibles para el modal (incluye todos los vehículos activos)
+            Log::info('Cargando vehículos para el modal');
+            $vehiculosDisponibles = \App\Models\Vehiculo::with('obraActual')
+                ->whereIn('estatus', [
+                    \App\Enums\EstadoVehiculo::DISPONIBLE,
+                    \App\Enums\EstadoVehiculo::ASIGNADO
+                ])
+                ->orderBy('marca')
+                ->orderBy('modelo')
+                ->get();
+
+            // Obtener permisos del usuario actual
+            $permisos = collect([]);
+            if (Auth::check()) {
+                // Verificar permisos específicos que necesita la vista
+                if ($this->hasPermission('actualizar_obras')) {
+                    $permisos->push('editar_obras'); // Mantener nombre para compatibilidad con vista
+                }
+                if ($this->hasPermission('eliminar_obras')) {
+                    $permisos->push('eliminar_obras');
+                }
+            }
+
+            Log::info('Renderizando vista obras.show', [
+                'responsables_count' => $responsables->count(),
+                'vehiculos_count' => $vehiculosDisponibles->count(),
+                'permisos_count' => $permisos->count()
+            ]);
+            return view('obras.show', compact('obra', 'responsables', 'vehiculosDisponibles', 'permisos'));
         } catch (Exception $e) {
             Log::error('=== ERROR EN ObraController@show ===', [
                 'message' => $e->getMessage(),
@@ -1008,5 +1047,176 @@ class ObraController extends Controller
         }
 
         return $user->hasPermission($permission);
+    }
+
+    /**
+     * Cambiar encargado de una obra
+     */
+    public function cambiarEncargado(Request $request, Obra $obra)
+    {
+        try {
+            Log::info('=== INICIO ObraController@cambiarEncargado ===', [
+                'obra_id' => $obra->id,
+                'user_id' => Auth::id(),
+                'datos_recibidos' => $request->all()
+            ]);
+
+            // Verificar permisos
+            if (!$this->hasPermission('actualizar_obras')) {
+                Log::warning('Usuario sin permisos para cambiar encargado de obra', [
+                    'user_id' => Auth::id(),
+                    'obra_id' => $obra->id
+                ]);
+                return redirect()->back()->with('error', 'No tienes permisos para cambiar el encargado de esta obra.');
+            }
+
+            // Validar datos
+            $validated = $request->validate([
+                'responsable_id' => 'required|exists:personal,id',
+                'observaciones' => 'nullable|string|max:500'
+            ]);
+
+            $encargadoAnterior = $obra->encargado;
+            $nuevoEncargado = Personal::find($validated['responsable_id']);
+
+            // Actualizar encargado
+            $obra->encargado_id = $validated['responsable_id'];
+            $obra->save();
+
+            // Registrar acción en logs
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'cambiar_encargado_obra',
+                'tabla_afectada' => 'obras',
+                'registro_id' => $obra->id,
+                'detalles' => sprintf(
+                    'Encargado cambiado de "%s" a "%s". Observaciones: %s',
+                    $encargadoAnterior ? $encargadoAnterior->nombre_completo : 'Sin encargado',
+                    $nuevoEncargado->nombre_completo,
+                    $validated['observaciones'] ?? 'Ninguna'
+                ),
+            ]);
+
+            Log::info('Encargado de obra cambiado exitosamente', [
+                'obra_id' => $obra->id,
+                'encargado_anterior' => $encargadoAnterior ? $encargadoAnterior->nombre_completo : 'Sin encargado',
+                'nuevo_encargado' => $nuevoEncargado->nombre_completo
+            ]);
+
+            return redirect()->route('obras.show', $obra)
+                ->with('success', sprintf(
+                    'Responsable %s exitosamente. Nuevo responsable: %s',
+                    $encargadoAnterior ? 'cambiado' : 'asignado',
+                    $nuevoEncargado->nombre_completo
+                ));
+
+        } catch (Exception $e) {
+            Log::error('=== ERROR EN ObraController@cambiarEncargado ===', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'obra_id' => $obra->id,
+                'user_id' => Auth::id()
+            ]);
+
+            return redirect()->back()->with('error', 'Error al cambiar el encargado: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Asignar vehículos a una obra
+     */
+    public function asignarVehiculos(Request $request, Obra $obra)
+    {
+        try {
+            Log::info('=== INICIO ObraController@asignarVehiculos ===', [
+                'obra_id' => $obra->id,
+                'user_id' => Auth::id(),
+                'datos_recibidos' => $request->all()
+            ]);
+
+            // Verificar permisos
+            if (!$this->hasPermission('actualizar_obras')) {
+                Log::warning('Usuario sin permisos para asignar vehículos a obra', [
+                    'user_id' => Auth::id(),
+                    'obra_id' => $obra->id
+                ]);
+                return redirect()->back()->with('error', 'No tienes permisos para asignar vehículos a esta obra.');
+            }
+
+            // Validar datos
+            $validated = $request->validate([
+                'vehiculos' => 'nullable|array',
+                'vehiculos.*' => 'exists:vehiculos,id',
+                'observaciones' => 'nullable|string|max:500'
+            ]);
+
+            $vehiculosSeleccionados = $validated['vehiculos'] ?? [];
+            $vehiculosAnteriores = $obra->vehiculos->pluck('id')->toArray();
+
+            // Sincronizar vehículos usando la tabla pivot
+            $obra->vehiculos()->detach(); // Remover todas las asignaciones actuales
+            
+            // Asignar nuevos vehículos si hay seleccionados
+            if (!empty($vehiculosSeleccionados)) {
+                $asignacionesData = [];
+                foreach ($vehiculosSeleccionados as $vehiculoId) {
+                    $asignacionesData[$vehiculoId] = [
+                        'fecha_asignacion' => now(),
+                        'fecha_liberacion' => null,
+                        'observaciones' => $validated['observaciones'] ?? null,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+                }
+                $obra->vehiculos()->attach($asignacionesData);
+            }
+
+            // Registrar acción en logs
+            $vehiculosNuevos = array_diff($vehiculosSeleccionados, $vehiculosAnteriores);
+            $vehiculosADesasignar = array_diff($vehiculosAnteriores, $vehiculosSeleccionados);
+            
+            $detalles = sprintf(
+                'Vehículos asignados: %d. Anteriores: %d, Nuevos: %d, Desasignados: %d. Observaciones: %s',
+                count($vehiculosSeleccionados),
+                count($vehiculosAnteriores),
+                count($vehiculosNuevos),
+                count($vehiculosADesasignar),
+                $validated['observaciones'] ?? 'Ninguna'
+            );
+
+            \App\Models\LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'asignar_vehiculos_obra',
+                'tabla_afectada' => 'obras',
+                'registro_id' => $obra->id,
+                'detalles' => $detalles,
+            ]);
+
+            Log::info('Vehículos asignados a obra exitosamente', [
+                'obra_id' => $obra->id,
+                'vehiculos_seleccionados' => $vehiculosSeleccionados,
+                'vehiculos_nuevos' => $vehiculosNuevos,
+                'vehiculos_desasignados' => $vehiculosADesasignar
+            ]);
+
+            $mensaje = sprintf(
+                'Vehículos actualizados exitosamente. Total asignados: %d',
+                count($vehiculosSeleccionados)
+            );
+
+            return redirect()->route('obras.show', $obra)->with('success', $mensaje);
+
+        } catch (Exception $e) {
+            Log::error('=== ERROR EN ObraController@asignarVehiculos ===', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'obra_id' => $obra->id,
+                'user_id' => Auth::id()
+            ]);
+
+            return redirect()->back()->with('error', 'Error al asignar vehículos: ' . $e->getMessage());
+        }
     }
 }

@@ -347,7 +347,18 @@
                                     <!-- Responsable y Avance de la Obra -->
                                     <div class="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label class="block text-sm text-gray-600">Responsable de la Obra</label>
+                                            <div class="flex justify-between items-center mb-1">
+                                                <label class="block text-sm text-gray-600">Responsable de la Obra</label>
+                                                @hasPermission('editar_obras')
+                                                <button id="btn-responsable-obra" 
+                                                   class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    </svg>
+                                                    {{ $asignacionActiva->obra->encargado ? 'Cambiar' : 'Asignar' }}
+                                                </button>
+                                                @endhasPermission
+                                            </div>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                                 {{ $asignacionActiva->obra->encargado ? $asignacionActiva->obra->encargado->nombre_completo : 'Sin responsable asignado' }}
                                             </div>
@@ -745,28 +756,6 @@
                                         </div>
                                     </li>
                                 </ul>
-
-                                <!-- Imagen del Vehículo -->
-                                @if($vehiculo->url_imagen)
-                                <div class="mt-6">
-                                    <h6 class="text-sm font-medium text-gray-700 mb-3">Imagen del Vehículo</h6>
-                                    <div class="border border-gray-200 rounded-lg overflow-hidden">
-                                        <img src="{{ $vehiculo->url_imagen }}" 
-                                             alt="Imagen del vehículo {{ $vehiculo->marca }} {{ $vehiculo->modelo }}"
-                                             class="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                             onclick="showImageModal('{{ $vehiculo->url_imagen }}', '{{ $vehiculo->marca }} {{ $vehiculo->modelo }}')" />
-                                    </div>
-                                    <div class="mt-2 flex justify-center">
-                                        <a href="{{ $vehiculo->url_imagen }}" download 
-                                           class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                            </svg>
-                                            Descargar Imagen
-                                        </a>
-                                    </div>
-                                </div>
-                                @endif
                             </div>
                         </div>
                     </div>
@@ -1374,6 +1363,108 @@
     </div>
 </div>
 
+<!-- Modal para Asignar/Cambiar Responsable de Obra -->
+<div id="responsable-obra-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[100]" style="display: none;">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                @if($asignacionActiva && $asignacionActiva->obra && $asignacionActiva->obra->encargado)
+                    Cambiar Responsable de Obra
+                @else
+                    Asignar Responsable de Obra
+                @endif
+            </h3>
+            <button onclick="closeResponsableObraModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        @if($asignacionActiva && $asignacionActiva->obra)
+            <!-- Información actual -->
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h4 class="font-medium text-gray-900 mb-2">Información Actual</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="text-gray-600">Obra:</span>
+                        <span class="font-medium">{{ $asignacionActiva->obra->nombre_obra }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Responsable actual:</span>
+                        <span class="font-medium">
+                            {{ $asignacionActiva->obra->encargado ? $asignacionActiva->obra->encargado->nombre_completo : 'Sin responsable asignado' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <form id="responsable-obra-form" method="POST" action="{{ route('obras.cambiar-encargado', $asignacionActiva->obra) }}">
+                @csrf
+                @method('PATCH')
+                
+                <div class="mb-4">
+                    <label for="personal_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        Seleccionar Responsable *
+                    </label>
+                    <select id="personal_id" name="personal_id" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Seleccionar responsable...</option>
+                        @php
+                            $personalDisponible = \App\Models\Personal::where('estatus', 'activo')
+                                ->orderBy('nombre_completo')
+                                ->get();
+                        @endphp
+                        @foreach($personalDisponible as $persona)
+                            <option value="{{ $persona->id }}" 
+                                    {{ ($asignacionActiva->obra->encargado && $asignacionActiva->obra->encargado->id == $persona->id) ? 'selected' : '' }}>
+                                {{ $persona->nombre_completo }} - {{ $persona->puesto ?? 'Sin puesto' }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="observaciones_responsable" class="block text-sm font-medium text-gray-700 mb-2">
+                        Observaciones (opcional)
+                    </label>
+                    <textarea id="observaciones_responsable" name="observaciones" rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="Observaciones sobre el cambio de responsable..."></textarea>
+                </div>
+
+                <!-- Botones -->
+                <div class="flex justify-end space-x-3 mt-6 pt-4 border-t">
+                    <button type="button" onclick="closeResponsableObraModal()" 
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-200">
+                        Cancelar
+                    </button>
+                    <button type="submit" 
+                           class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200">
+                        @if($asignacionActiva->obra->encargado)
+                            Cambiar Responsable
+                        @else
+                            Asignar Responsable
+                        @endif
+                    </button>
+                </div>
+            </form>
+        @else
+            <div class="text-center py-8">
+                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <h4 class="text-lg font-medium text-gray-900 mb-2">Sin obra asignada</h4>
+                <p class="text-gray-600 mb-4">Este vehículo no está asignado a ninguna obra actualmente.</p>
+                <p class="text-sm text-gray-500">Primero debe asignar el vehículo a una obra para poder designar un responsable.</p>
+            </div>
+        @endif
+    </div>
+</div>
+
 <!-- Botones de Acción Flotantes -->
 <div class="fixed bottom-6 right-6 flex space-x-3 z-50">
     <!-- Botón Editar -->
@@ -1656,13 +1747,18 @@
             'kilometraje-modal',
             'add-kilometraje-modal',
             'upload-document-modal',
-            'registrar-mantenimiento-modal'
+            'registrar-mantenimiento-modal',
+            'responsable-obra-modal'
         ];
         
         modalIds.forEach(function(modalId) {
             const modal = document.getElementById(modalId);
-            if (modal && !modal.classList.contains('hidden')) {
+            if (modal) {
                 modal.classList.add('hidden');
+                modal.style.display = 'none';
+                console.log(`Modal ${modalId} cerrado`);
+            } else {
+                console.warn(`Modal ${modalId} no encontrado`);
             }
         });
     }
@@ -1839,6 +1935,112 @@
         }
     });
 
+    // Funciones para el modal del responsable de obra
+    function openResponsableObraModal() {
+        console.log('👤 [INICIO] openResponsableObraModal llamada');
+        
+        // Cerrar todos los modales primero
+        closeAllModals();
+        
+        // Obtener el modal específico
+        const modal = document.getElementById('responsable-obra-modal');
+        if (!modal) {
+            console.error('❌ Modal responsable-obra-modal no encontrado');
+            alert('Error: Modal de responsable de obra no encontrado');
+            return;
+        }
+        
+        console.log('✅ [OK] Modal encontrado:', modal);
+        
+        // Asegurar que el modal esté visible
+        modal.classList.remove('hidden');
+        modal.style.display = 'block';
+        
+        // Verificar si el modal está realmente visible
+        console.log('📊 [VERIFICACION] Estado del modal:');
+        console.log('   - Clases:', modal.className);
+        console.log('   - Hidden:', modal.classList.contains('hidden'));
+        console.log('   - Display:', getComputedStyle(modal).display);
+        
+        console.log('🏁 [FIN] openResponsableObraModal completada');
+    }
+
+    function closeResponsableObraModal() {
+        console.log('🔒 [INICIO] closeResponsableObraModal llamada');
+        
+        const modal = document.getElementById('responsable-obra-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            
+            // Limpiar el formulario
+            const form = document.getElementById('responsable-obra-form');
+            if (form) {
+                form.reset();
+            }
+        }
+        
+        console.log('🏁 [FIN] closeResponsableObraModal completada');
+    }
+
+    // Manejar envío del formulario de cambiar responsable
+    const responsableForm = document.getElementById('responsable-obra-form');
+    if (responsableForm) {
+        responsableForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            
+            // Deshabilitar botón mientras se procesa
+            submitButton.disabled = true;
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Actualizando...';
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message || 'Responsable asignado exitosamente', 'success');
+                    closeResponsableObraModal();
+                    
+                    // Recargar la página para mostrar los cambios
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showNotification(data.error || 'Error al asignar el responsable', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al asignar el responsable', 'error');
+            })
+            .finally(() => {
+                // Rehabilitar botón
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            });
+        });
+    }
+
+    // Event listener para cerrar modal al hacer clic en el fondo
+    const responsableModal = document.getElementById('responsable-obra-modal');
+    if (responsableModal) {
+        responsableModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeResponsableObraModal();
+            }
+        });
+    }
+
     // Función para manejar el cambio de pestañas
     function changeTab(tabName) {
         // Ocultar todos los contenidos de pestañas
@@ -1927,6 +2129,27 @@
     // Inicializar la primera pestaña como activa al cargar la página
     document.addEventListener('DOMContentLoaded', function() {
         changeTab('operacion');
+        
+        // Asegurarse de que los event listeners para los modales estén configurados correctamente
+        const btnResponsableObra = document.getElementById('btn-responsable-obra');
+        if (btnResponsableObra) {
+            console.log('Encontrado botón de responsable de obra, configurando evento');
+            btnResponsableObra.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Clic en botón de responsable obra');
+                openResponsableObraModal();
+            });
+        } else {
+            console.warn('No se encontró el botón de responsable de obra');
+        }
+        
+        // Asegurarse de que el modal existe
+        const modalResponsable = document.getElementById('responsable-obra-modal');
+        if (modalResponsable) {
+            console.log('Modal de responsable encontrado');
+        } else {
+            console.warn('Modal de responsable NO encontrado');
+        }
     });
 </script>
 @endpush

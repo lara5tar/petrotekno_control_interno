@@ -109,7 +109,7 @@
                                 <option value="">Seleccione un operador (opcional)</option>
                                 @if(isset($operadores) && $operadores->count() > 0)
                                     @foreach($operadores as $operador)
-                                        <option value="{{ $operador->id }}" {{ old('operador_id', $vehiculo->personal_id) == $operador->id ? 'selected' : '' }}>
+                                        <option value="{{ $operador->id }}" {{ old('operador_id', $vehiculo->operador_id) == $operador->id ? 'selected' : '' }}>
                                             {{ $operador->nombre_completo }}
                                         </option>
                                     @endforeach

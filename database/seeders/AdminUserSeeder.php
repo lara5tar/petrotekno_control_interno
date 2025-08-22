@@ -14,19 +14,19 @@ class AdminUserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     * Crea ÚNICAMENTE el usuario administrador con TODOS los permisos del sistema.
      */
     public function run(): void
     {
+        $this->command->info('👤 Creando usuario administrador del sistema...');
+        
         // Crear solo el personal y usuario administrador
         if (!User::where('email', 'admin@petrotekno.com')->exists()) {
-            // Buscar la categoría de Administrador
-            $categoriaAdmin = CategoriaPersonal::where('nombre_categoria', 'Administrador')->first();
+            // Buscar la categoría de Admin (que ya debe existir)
+            $categoriaAdmin = CategoriaPersonal::where('nombre_categoria', 'Admin')->first();
             
             if (!$categoriaAdmin) {
-                // Si no existe, crear la categoría
-                $categoriaAdmin = CategoriaPersonal::create([
-                    'nombre_categoria' => 'Administrador'
-                ]);
+                throw new \Exception('❌ La categoría "Admin" no existe. Asegúrate de ejecutar CategoriaPersonalSeeder primero.');
             }
 
             // Crear personal administrador (solo con campos que existen en la tabla)
@@ -40,7 +40,7 @@ class AdminUserSeeder extends Seeder
             $adminRole = Role::where('nombre_rol', 'Admin')->first();
             
             if (!$adminRole) {
-                throw new \Exception('El rol Admin no existe. Asegúrate de ejecutar RoleSeeder primero.');
+                throw new \Exception('❌ El rol Admin no existe. Asegúrate de ejecutar RoleSeeder primero.');
             }
 
             // ASEGURAR QUE EL ROL ADMIN TIENE ABSOLUTAMENTE TODOS LOS PERMISOS

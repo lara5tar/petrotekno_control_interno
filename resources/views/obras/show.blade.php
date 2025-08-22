@@ -195,14 +195,18 @@
                                         Encargado de la Obra
                                     </h5>
                                     
-                                    @if(isset($permisos) && $permisos->contains('editar_obras'))
-                                    <a href="{{ route('obras.edit', ['obra' => $obra->id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                    <button onclick="openCambiarResponsableModal()" 
+                                       class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs"
+                                       id="btn-cambiar-responsable">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                         </svg>
-                                        Cambiar Encargado
-                                    </a>
-                                    @endif
+                                        @if($obra->encargado)
+                                            Cambiar Responsable
+                                        @else
+                                            Asignar Responsable
+                                        @endif
+                                    </button>
                                 </div>
                                 
                                 @if($obra->encargado)
@@ -298,14 +302,8 @@
                                     <svg class="w-12 h-12 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                                     </svg>
-                                    <h5 class="text-lg font-medium text-red-800 mb-2">No hay encargado asignado</h5>
-                                    <p class="text-sm text-red-600 mb-3">Esta obra no tiene un encargado asignado actualmente.</p>
-                                    
-                                    @if(isset($permisos) && $permisos->contains('editar_obras'))
-                                    <a href="{{ route('obras.edit', ['obra' => $obra->id]) }}" class="inline-block bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md text-sm transition-colors duration-200">
-                                        Asignar Encargado
-                                    </a>
-                                    @endif
+                                    <h5 class="text-lg font-medium text-red-800 mb-2">No hay responsable asignado</h5>
+                                    <p class="text-sm text-red-600">Esta obra no tiene un responsable asignado actualmente.</p>
                                 </div>
                                 @endif
                             </div>
@@ -321,12 +319,14 @@
                                     </h5>
                                     
                                     @if(isset($permisos) && $permisos->contains('editar_obras'))
-                                    <a href="{{ route('obras.edit', ['obra' => $obra->id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                    <button onclick="openAsignarVehiculosModal()" 
+                                       class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs"
+                                       id="btn-asignar-vehiculos">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                         </svg>
-                                        Asignar Vehículo
-                                    </a>
+                                        Asignar Vehículos
+                                    </button>
                                     @endif
                                 </div>
                                 
@@ -912,28 +912,388 @@
 
 @endsection
 
-@section('scripts')
+<!-- Modal para Cambiar Responsable de la Obra -->
+<div id="cambiar-responsable-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="modal-responsable-title" class="text-lg font-semibold text-gray-900">
+                @if($obra->encargado)
+                    Cambiar Responsable de la Obra
+                @else
+                    Asignar Responsable a la Obra
+                @endif
+            </h3>
+            <button onclick="closeCambiarResponsableModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="mb-4 text-sm text-gray-600">
+            <p><strong>Obra:</strong> {{ $obra->nombre_obra }}</p>
+            @if($obra->encargado)
+                <p><strong>Responsable Actual:</strong> {{ $obra->encargado->nombre_completo }}</p>
+            @else
+                <p><strong>Estado:</strong> Sin responsable asignado</p>
+            @endif
+        </div>
+
+        <form id="cambiar-responsable-form" method="POST" action="{{ route('obras.cambiar-encargado', $obra) }}">
+            @csrf
+            @method('PATCH')
+            
+            <!-- Selección de Nuevo Responsable -->
+            <div class="mb-4">
+                <label for="responsable_id" class="block text-sm font-medium text-gray-700 mb-1">
+                    @if($obra->encargado)
+                        Nuevo Responsable
+                    @else
+                        Responsable a Asignar
+                    @endif
+                </label>
+                <select id="responsable_id" name="responsable_id" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                    <option value="">Seleccionar responsable...</option>
+                    @foreach($responsables ?? [] as $responsable)
+                        <option value="{{ $responsable->id }}" 
+                                {{ ($obra->encargado && $obra->encargado->id == $responsable->id) ? 'selected' : '' }}>
+                            {{ $responsable->nombre_completo }} 
+                            @if($responsable->categoria)
+                                - {{ $responsable->categoria->nombre_categoria }}
+                            @endif
+                        </option>
+                    @endforeach
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Selecciona el personal con categoría "Responsable de obra" para supervisión del proyecto</p>
+            </div>
+            
+            <!-- Observaciones -->
+            <div class="mb-4">
+                <label for="observaciones_responsable" class="block text-sm font-medium text-gray-700 mb-1">
+                    Observaciones (opcional)
+                </label>
+                <textarea id="observaciones_responsable" 
+                         name="observaciones" 
+                         rows="3" 
+                         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                         placeholder="Motivo del cambio u observaciones adicionales..."></textarea>
+            </div>
+            
+            <!-- Botones -->
+            <div class="flex justify-end space-x-3">
+                <button type="button" 
+                        onclick="closeCambiarResponsableModal()" 
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                        id="submit-responsable-btn"
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    @if($obra->encargado)
+                        Cambiar Responsable
+                    @else
+                        Asignar Responsable
+                    @endif
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Asignar Vehículos a la Obra -->
+<div id="asignar-vehiculos-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="modal-vehiculos-title" class="text-lg font-semibold text-gray-900">
+                Asignar Vehículos a la Obra
+            </h3>
+            <button onclick="closeAsignarVehiculosModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="mb-4 text-sm text-gray-600">
+            <p><strong>Obra:</strong> {{ $obra->nombre_obra }}</p>
+            <p><strong>Vehículos Actuales:</strong> {{ $obra->vehiculos ? $obra->vehiculos->count() : 0 }}</p>
+        </div>
+
+        <form id="asignar-vehiculos-form" method="POST" action="{{ route('obras.asignar-vehiculos', $obra) }}">
+            @csrf
+            @method('PATCH')
+            
+            <!-- Lista de Vehículos Disponibles -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Seleccionar Vehículos Disponibles
+                </label>
+                <div class="max-h-64 overflow-y-auto border border-gray-300 rounded-md p-3 bg-gray-50">
+                    <div class="space-y-2" id="vehiculos-disponibles">
+                        @php
+                            // Separar vehículos disponibles y no disponibles
+                            $vehiculosOrdenados = collect($vehiculosDisponibles ?? [])->sortBy(function($vehiculo) use ($obra) {
+                                $obraActual = $vehiculo->obraActual()->first();
+                                $yaAsignadoAOtraObra = $obraActual && $obraActual->id !== $obra->id;
+                                // Los disponibles (false) van primero, los no disponibles (true) van al final
+                                return $yaAsignadoAOtraObra ? 1 : 0;
+                            });
+                        @endphp
+                        @php
+                            // Separar vehículos disponibles y no disponibles
+                            $vehiculosOrdenados = collect($vehiculosDisponibles ?? [])->sortBy(function($vehiculo) use ($obra) {
+                                $obraActual = $vehiculo->obraActual()->first();
+                                $yaAsignadoAOtraObra = $obraActual && $obraActual->id !== $obra->id;
+                                // Los disponibles (false) van primero, los no disponibles (true) van al final
+                                return $yaAsignadoAOtraObra ? 1 : 0;
+                            });
+                            
+                            $vehiculosDisponiblesReales = $vehiculosOrdenados->filter(function($vehiculo) use ($obra) {
+                                $obraActual = $vehiculo->obraActual()->first();
+                                return !($obraActual && $obraActual->id !== $obra->id);
+                            });
+                            
+                            $vehiculosNoDisponibles = $vehiculosOrdenados->filter(function($vehiculo) use ($obra) {
+                                $obraActual = $vehiculo->obraActual()->first();
+                                return $obraActual && $obraActual->id !== $obra->id;
+                            });
+                        @endphp
+                        
+                        @if($vehiculosDisponiblesReales->count() > 0)
+                            <!-- Encabezado para vehículos disponibles -->
+                            <div class="bg-green-50 border border-green-200 rounded p-2 mb-2">
+                                <h6 class="text-sm font-semibold text-green-800 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Vehículos Disponibles ({{ $vehiculosDisponiblesReales->count() }})
+                                </h6>
+                            </div>
+                            
+                            @foreach($vehiculosDisponiblesReales as $vehiculo)
+                                @php
+                                    $obraActual = $vehiculo->obraActual()->first();
+                                    $yaAsignadoAOtraObra = $obraActual && $obraActual->id !== $obra->id;
+                                    $yaAsignadoAEstaObra = $obra->vehiculos && $obra->vehiculos->contains($vehiculo->id);
+                                @endphp
+                                <label class="flex items-center space-x-3 p-2 rounded hover:bg-white cursor-pointer">
+                                    <input type="checkbox" 
+                                           name="vehiculos[]" 
+                                           value="{{ $vehiculo->id }}"
+                                           class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                           {{ $yaAsignadoAEstaObra ? 'checked' : '' }}>
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-900">
+                                            {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            Placas: {{ $vehiculo->placas }} | 
+                                            Año: {{ $vehiculo->anio }} | 
+                                            Kilometraje: {{ number_format($vehiculo->kilometraje_actual ?? 0) }} km
+                                        </div>
+                                        @if($yaAsignadoAEstaObra)
+                                            <div class="text-xs text-green-600 font-medium">
+                                                Asignado a esta obra
+                                            </div>
+                                        @endif
+                                    </div>
+                                </label>
+                            @endforeach
+                        @endif
+                        
+                        @if($vehiculosNoDisponibles->count() > 0)
+                            <!-- Separador -->
+                            @if($vehiculosDisponiblesReales->count() > 0)
+                                <div class="border-t border-gray-300 my-3"></div>
+                            @endif
+                            
+                            <!-- Encabezado para vehículos no disponibles -->
+                            <div class="bg-red-50 border border-red-200 rounded p-2 mb-2">
+                                <h6 class="text-sm font-semibold text-red-800 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Vehículos No Disponibles ({{ $vehiculosNoDisponibles->count() }})
+                                </h6>
+                                <p class="text-xs text-red-600 mt-1">Estos vehículos están asignados a otras obras</p>
+                            </div>
+                            
+                            @foreach($vehiculosNoDisponibles as $vehiculo)
+                                @php
+                                    $obraActual = $vehiculo->obraActual()->first();
+                                    $yaAsignadoAOtraObra = $obraActual && $obraActual->id !== $obra->id;
+                                    $yaAsignadoAEstaObra = $obra->vehiculos && $obra->vehiculos->contains($vehiculo->id);
+                                @endphp
+                                <label class="flex items-center space-x-3 p-2 rounded bg-gray-100 cursor-not-allowed opacity-60">
+                                    <input type="checkbox" 
+                                           name="vehiculos[]" 
+                                           value="{{ $vehiculo->id }}"
+                                           class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                           {{ $yaAsignadoAEstaObra ? 'checked' : '' }}
+                                           disabled>
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-500">
+                                            {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
+                                            <span class="text-xs text-red-600 ml-2">(No disponible)</span>
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            Placas: {{ $vehiculo->placas }} | 
+                                            Año: {{ $vehiculo->anio }} | 
+                                            Kilometraje: {{ number_format($vehiculo->kilometraje_actual ?? 0) }} km
+                                        </div>
+                                        @if($obraActual)
+                                            <div class="text-xs text-red-600 font-medium">
+                                                Asignado a: {{ $obraActual->nombre_obra }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                </label>
+                            @endforeach
+                        @endif
+                        
+                        @if($vehiculosDisponiblesReales->count() === 0 && $vehiculosNoDisponibles->count() === 0)
+                            <p class="text-sm text-gray-500 text-center py-4">No hay vehículos disponibles</p>
+                        @endif
+                    </div>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Selecciona uno o más vehículos para asignar a esta obra. Los vehículos ya asignados aparecen marcados.</p>
+            </div>
+            
+            <!-- Observaciones -->
+            <div class="mb-4">
+                <label for="observaciones_vehiculos" class="block text-sm font-medium text-gray-700 mb-1">
+                    Observaciones (opcional)
+                </label>
+                <textarea id="observaciones_vehiculos" 
+                         name="observaciones" 
+                         rows="3" 
+                         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                         placeholder="Motivo de la asignación u observaciones adicionales..."></textarea>
+            </div>
+            
+            <!-- Botones -->
+            <div class="flex justify-end space-x-3">
+                <button type="button" 
+                        onclick="closeAsignarVehiculosModal()" 
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                        id="submit-vehiculos-btn"
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Asignar Vehículos
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@push('scripts')
 <script>
     function handleImageLoad() {
-        const container = document.getElementById('image-container');
-        const errorPlaceholder = document.getElementById('image-error-placeholder');
-        if (container && errorPlaceholder) {
-            container.classList.remove('bg-gray-100', 'border-2', 'border-dashed', 'border-gray-300');
-            errorPlaceholder.classList.add('hidden');
-        }
+// ... (código existente)
     }
 
     function handleImageError() {
-        const container = document.getElementById('image-container');
-        const errorPlaceholder = document.getElementById('image-error-placeholder');
-        if (container && errorPlaceholder) {
-            container.classList.add('hidden');
-            errorPlaceholder.classList.remove('hidden');
-        }
+        // ... (código existente)
     }
     
     function numberWithCommas(x) {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
+
+    // Funciones para el modal de cambiar responsable
+    function openCambiarResponsableModal() {
+        const modal = document.getElementById('cambiar-responsable-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeCambiarResponsableModal() {
+        const modal = document.getElementById('cambiar-responsable-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            
+            const form = document.getElementById('cambiar-responsable-form');
+            if (form) {
+                form.reset();
+            }
+        }
+    }
+
+    // Funciones para el modal de asignar vehículos
+    function openAsignarVehiculosModal() {
+        const modal = document.getElementById('asignar-vehiculos-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeAsignarVehiculosModal() {
+        const modal = document.getElementById('asignar-vehiculos-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            
+            const form = document.getElementById('asignar-vehiculos-form');
+            if (form) {
+                form.reset();
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('cambiar-responsable-modal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeCambiarResponsableModal();
+                }
+            });
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeCambiarResponsableModal();
+                closeAsignarVehiculosModal();
+            }
+        });
+
+        const form = document.getElementById('cambiar-responsable-form');
+        if(form) {
+            form.addEventListener('submit', function(e){
+                const submitBtn = document.getElementById('submit-responsable-btn');
+                if(submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Guardando...';
+                }
+            });
+        }
+
+        // Event listeners para modal de vehículos
+        const modalVehiculos = document.getElementById('asignar-vehiculos-modal');
+        if (modalVehiculos) {
+            modalVehiculos.addEventListener('click', function(e) {
+                if (e.target === modalVehiculos) {
+                    closeAsignarVehiculosModal();
+                }
+            });
+        }
+
+        const formVehiculos = document.getElementById('asignar-vehiculos-form');
+        if(formVehiculos) {
+            formVehiculos.addEventListener('submit', function(e){
+                const submitBtn = document.getElementById('submit-vehiculos-btn');
+                if(submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Asignando...';
+                }
+            });
+        }
+    });
 </script>
-@endsection
+@endpush

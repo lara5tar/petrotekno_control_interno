@@ -298,24 +298,10 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         }
     })->name('documents.upload')->middleware('permission:editar_personal');
 
-    // Ruta para mostrar formulario de editar personal - usando categorías reales de BD
-    Route::get('/{id}/edit', function ($id) {
-        $personal = \App\Models\Personal::findOrFail($id);
-
-        // Obtener categorías reales de la base de datos
-        $categorias = \App\Models\CategoriaPersonal::select('id', 'nombre_categoria')
-            ->orderBy('nombre_categoria')
-            ->get();
-
-        // Usuarios estáticos (mantenemos estos)
-        $usuarios = collect([
-            (object)['id' => 1, 'nombre_usuario' => 'Administrador del Sistema'],
-            (object)['id' => 2, 'nombre_usuario' => 'Juan Pérez Supervisor'],
-            (object)['id' => 3, 'nombre_usuario' => 'Ana Patricia']
-        ]);
-
-        return view('personal.edit', compact('personal', 'categorias', 'usuarios'));
-    })->name('edit')->middleware('permission:editar_personal');
+    // Ruta para mostrar formulario de editar personal - usando PersonalController
+    Route::get('/{id}/edit', [\App\Http\Controllers\PersonalController::class, 'edit'])
+        ->name('edit')
+        ->middleware('permission:editar_personal');
 
     // Ruta para actualizar personal - Usando PersonalController para manejar archivos
     Route::put('/{id}', [\App\Http\Controllers\PersonalController::class, 'update'])
@@ -478,6 +464,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/obras/{obra}', [\App\Http\Controllers\ObraController::class, 'destroy'])
         ->name('obras.destroy')
         ->middleware('permission:eliminar_obras');
+
+    Route::patch('/obras/{obra}/cambiar-encargado', [\App\Http\Controllers\ObraController::class, 'cambiarEncargado'])
+        ->name('obras.cambiar-encargado')
+        ->middleware('permission:actualizar_obras');
+
+    Route::patch('/obras/{obra}/asignar-vehiculos', [\App\Http\Controllers\ObraController::class, 'asignarVehiculos'])
+        ->name('obras.asignar-vehiculos')
+        ->middleware('permission:actualizar_obras');
 
     Route::post('/obras/{id}/restore', [\App\Http\Controllers\ObraController::class, 'restore'])
         ->name('obras.restore')

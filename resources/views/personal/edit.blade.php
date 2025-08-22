@@ -394,7 +394,10 @@
                                 <option value="">Seleccione un rol</option>
                                 @if(isset($roles))
                                     @foreach($roles as $rol)
-                                        <option value="{{ $rol->id }}">{{ $rol->nombre_rol }}</option>
+                                        <option value="{{ $rol->id }}" 
+                                                {{ old('rol_usuario', $personal->usuario?->rol_id) == $rol->id ? 'selected' : '' }}>
+                                            {{ $rol->nombre_rol }}
+                                        </option>
                                     @endforeach
                                 @endif
                             </select>

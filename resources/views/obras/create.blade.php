@@ -215,28 +215,33 @@
 
             @if($vehiculos->isNotEmpty())
                 <div class="flex justify-between items-center mb-4">
-                    <p class="text-sm text-gray-600">Puede asignar múltiples vehículos a esta obra para su seguimiento.</p>
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-sm text-gray-600">Use el modal para seleccionar vehículos disponibles</p>
+                    </div>
                     <button type="button" 
-                            onclick="openVehicleModal()" 
-                            class="bg-petroyellow hover:bg-yellow-500 text-petrodark px-4 py-2 rounded-md transition-colors duration-200 flex items-center font-medium">
+                            onclick="openAsignarVehiculosModal()" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors duration-200 flex items-center font-medium">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
-                        Agregar Vehículo
+                        Seleccionar Vehículos
                     </button>
                 </div>
                 
-                {{-- Lista de vehículos asignados --}}
-                <div id="assigned-vehicles-list" class="space-y-3">
+                {{-- Lista de vehículos seleccionados para mostrar al usuario --}}
+                <div id="selected-vehicles-display" class="space-y-3">
                     <div class="text-gray-600 text-sm" id="no-vehicles-message">
-                        Ningún vehículo asignado. Use el botón "Agregar Vehículo" para agregar vehículos a esta obra.
+                        Ningún vehículo seleccionado. Use el botón "Seleccionar Vehículos" para asignar vehículos a esta obra.
                     </div>
                 </div>
                 
-                {{-- Área de checkboxes para el envío del formulario (ocultos) --}}
-                <div id="vehicle-checkboxes" class="hidden"></div>
+                {{-- Inputs ocultos para enviar los vehículos seleccionados --}}
+                <div id="vehicle-inputs" class="hidden"></div>
                 
-                @error('vehiculos_seleccionados')
+                @error('vehiculos')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             @else
@@ -248,7 +253,15 @@
                             </svg>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm text-yellow-700">No hay vehículos disponibles para asignar en este momento.</p>
+                            <h3 class="text-sm font-medium text-yellow-800">No hay vehículos registrados</h3>
+                            <div class="mt-2 text-sm text-yellow-700">
+                                <p>Debe registrar vehículos antes de poder asignarlos a una obra.</p>
+                                <p class="mt-1">
+                                    <a href="{{ route('vehiculos.create') }}" class="font-medium underline hover:text-yellow-600">
+                                        Registrar nuevo vehículo →
+                                    </a>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -271,14 +284,27 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Contrato</label>
                     <div class="relative">
                         <input type="file" name="archivo_contrato" accept=".pdf,.doc,.docx" 
-                               class="hidden" id="archivo_contrato">
-                        <label for="archivo_contrato" 
+                               class="hidden" id="archivo_contrato" onchange="updateFileLabel('archivo_contrato')">
+                        <label for="archivo_contrato" id="label_archivo_contrato"
                                class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
-                            <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="icon_archivo_contrato">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
-                            <span class="text-base">Subir Contrato</span>
+                            <span class="text-base" id="text_archivo_contrato">Subir Contrato</span>
                         </label>
+                        <div id="file_info_archivo_contrato" class="hidden mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                            <div class="flex items-center text-sm text-green-800">
+                                <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span id="filename_archivo_contrato"></span>
+                                <button type="button" onclick="clearFile('archivo_contrato')" class="ml-auto text-red-600 hover:text-red-800">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                         <p class="text-xs text-gray-500 text-center mt-2">PDF, DOC, DOCX (máx. 10MB)</p>
                     </div>
                     @error('archivo_contrato')
@@ -291,14 +317,27 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Fianza</label>
                     <div class="relative">
                         <input type="file" name="archivo_fianza" accept=".pdf,.doc,.docx" 
-                               class="hidden" id="archivo_fianza">
-                        <label for="archivo_fianza" 
+                               class="hidden" id="archivo_fianza" onchange="updateFileLabel('archivo_fianza')">
+                        <label for="archivo_fianza" id="label_archivo_fianza"
                                class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
-                            <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="icon_archivo_fianza">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
-                            <span class="text-base">Subir Fianza</span>
+                            <span class="text-base" id="text_archivo_fianza">Subir Fianza</span>
                         </label>
+                        <div id="file_info_archivo_fianza" class="hidden mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                            <div class="flex items-center text-sm text-green-800">
+                                <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span id="filename_archivo_fianza"></span>
+                                <button type="button" onclick="clearFile('archivo_fianza')" class="ml-auto text-red-600 hover:text-red-800">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                         <p class="text-xs text-gray-500 text-center mt-2">PDF, DOC, DOCX (máx. 10MB)</p>
                     </div>
                     @error('archivo_fianza')
@@ -311,14 +350,27 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Acta de Entrega-Recepción</label>
                     <div class="relative">
                         <input type="file" name="archivo_acta_entrega_recepcion" accept=".pdf,.doc,.docx" 
-                               class="hidden" id="archivo_acta_entrega_recepcion">
-                        <label for="archivo_acta_entrega_recepcion" 
+                               class="hidden" id="archivo_acta_entrega_recepcion" onchange="updateFileLabel('archivo_acta_entrega_recepcion')">
+                        <label for="archivo_acta_entrega_recepcion" id="label_archivo_acta_entrega_recepcion"
                                class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
-                            <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="icon_archivo_acta_entrega_recepcion">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
-                            <span class="text-base">Subir Acta</span>
+                            <span class="text-base" id="text_archivo_acta_entrega_recepcion">Subir Acta</span>
                         </label>
+                        <div id="file_info_archivo_acta_entrega_recepcion" class="hidden mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                            <div class="flex items-center text-sm text-green-800">
+                                <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span id="filename_archivo_acta_entrega_recepcion"></span>
+                                <button type="button" onclick="clearFile('archivo_acta_entrega_recepcion')" class="ml-auto text-red-600 hover:text-red-800">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                         <p class="text-xs text-gray-500 text-center mt-2">PDF, DOC, DOCX (máx. 10MB)</p>
                     </div>
                     @error('archivo_acta_entrega_recepcion')
@@ -338,450 +390,390 @@
                     class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md transition duration-200">
                 Crear Obra
             </button>
-        </div>
     </form>
 
-    <!-- Modal para asignar vehículos -->
-    <div id="vehicle-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
-        <!-- Overlay con efecto blur -->
-        <div class="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300"></div>
+<!-- Modal para Asignar Vehículos a la Obra -->
+<div id="asignar-vehiculos-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="modal-vehiculos-title" class="text-lg font-semibold text-gray-900">
+                Asignar Vehículos a la Nueva Obra
+            </h3>
+            <button onclick="closeAsignarVehiculosModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
         
-        <!-- Contenedor del modal -->
-        <div class="relative bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col mx-4 border border-gray-200 overflow-hidden">
-            <!-- Header del modal -->
-            <div class="relative px-6 py-5 bg-petrodark text-white">
-                <div class="relative flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
-                        <div class="flex items-center justify-center w-10 h-10 bg-petroyellow rounded-lg shadow-lg">
-                            <svg class="w-5 h-5 text-petrodark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                            </svg>
+        <div class="mb-4 text-sm text-gray-600">
+            <p><strong>Crear nueva obra:</strong> Seleccione vehículos para asignar</p>
+            <p><strong>Vehículos seleccionados:</strong> <span id="vehicles-selected-count">0</span></p>
+        </div>
+
+        <!-- Lista de Vehículos Disponibles -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                Seleccionar Vehículos Disponibles
+            </label>
+            <div class="max-h-64 overflow-y-auto border border-gray-300 rounded-md p-3 bg-gray-50">
+                <div class="space-y-2" id="vehiculos-disponibles-create">
+                    @php
+                        // Para create, organizamos los vehículos por disponibilidad
+                        $vehiculosOrdenados = collect($vehiculos ?? [])->sortBy(function($vehiculo) {
+                            // Los disponibles (false) van primero, los no disponibles (true) van al final
+                            return $vehiculo->esta_asignado ? 1 : 0;
+                        });
+                        
+                        $vehiculosDisponiblesReales = $vehiculosOrdenados->filter(function($vehiculo) {
+                            return !$vehiculo->esta_asignado;
+                        });
+                        
+                        $vehiculosNoDisponibles = $vehiculosOrdenados->filter(function($vehiculo) {
+                            return $vehiculo->esta_asignado;
+                        });
+                    @endphp
+                    
+                    @if($vehiculosDisponiblesReales->count() > 0)
+                        <!-- Encabezado para vehículos disponibles -->
+                        <div class="bg-green-50 border border-green-200 rounded p-2 mb-2">
+                            <h6 class="text-sm font-semibold text-green-800 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Vehículos Disponibles ({{ $vehiculosDisponiblesReales->count() }})
+                            </h6>
                         </div>
+                        
+                        @foreach($vehiculosDisponiblesReales as $vehiculo)
+                            <label class="flex items-center space-x-3 p-2 rounded hover:bg-white cursor-pointer">
+                                <input type="checkbox" 
+                                       name="vehiculos_create[]" 
+                                       value="{{ $vehiculo->id }}"
+                                       class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                       onchange="updateVehicleCount()">
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-900">
+                                        {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        Placas: {{ $vehiculo->placas }} | 
+                                        Año: {{ $vehiculo->anio }} | 
+                                        Kilometraje: {{ number_format($vehiculo->kilometraje_actual ?? 0) }} km
+                                    </div>
+                                </div>
+                            </label>
+                        @endforeach
+                    @endif
+                    
+                    @if($vehiculosNoDisponibles->count() > 0)
+                        <!-- Separador -->
+                        @if($vehiculosDisponiblesReales->count() > 0)
+                            <div class="border-t border-gray-300 my-3"></div>
+                        @endif
+                        
+                        <!-- Encabezado para vehículos no disponibles -->
+                        <div class="bg-red-50 border border-red-200 rounded p-2 mb-2">
+                            <h6 class="text-sm font-semibold text-red-800 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                                Vehículos No Disponibles ({{ $vehiculosNoDisponibles->count() }})
+                            </h6>
+                            <p class="text-xs text-red-600 mt-1">Estos vehículos están asignados a otras obras</p>
+                        </div>
+                        
+                        @foreach($vehiculosNoDisponibles as $vehiculo)
+                            <label class="flex items-center space-x-3 p-2 rounded bg-gray-100 cursor-not-allowed opacity-60">
+                                <input type="checkbox" 
+                                       name="vehiculos_create[]" 
+                                       value="{{ $vehiculo->id }}"
+                                       class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                       disabled>
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-500">
+                                        {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
+                                        <span class="text-xs text-red-600 ml-2">(No disponible)</span>
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        Placas: {{ $vehiculo->placas }} | 
+                                        Año: {{ $vehiculo->anio }} | 
+                                        Kilometraje: {{ number_format($vehiculo->kilometraje_actual ?? 0) }} km
+                                    </div>
+                                    @if($vehiculo->obra_asignada)
+                                        <div class="text-xs text-red-600 font-medium">
+                                            Asignado a: {{ $vehiculo->obra_asignada }}
+                                        </div>
+                                    @endif
+                                </div>
+                            </label>
+                        @endforeach
+                    @endif
+                    
+                    @if($vehiculosDisponiblesReales->count() === 0 && $vehiculosNoDisponibles->count() === 0)
+                        <p class="text-sm text-gray-500 text-center py-4">No hay vehículos disponibles</p>
+                    @endif
+                </div>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Selecciona los vehículos que deseas asignar a esta nueva obra. Los vehículos seleccionados se asignarán al crear la obra.</p>
+        </div>
+        
+        <!-- Botones -->
+        <div class="flex justify-end space-x-3">
+            <button type="button" 
+                    onclick="closeAsignarVehiculosModal()" 
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Cancelar
+            </button>
+            <button type="button" 
+                    onclick="aplicarSeleccionVehiculos()"
+                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Aplicar Selección
+            </button>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    // Variables para el modal de vehículos
+    let vehiculosSeleccionados = [];
+
+    // Funciones para el modal de asignar vehículos
+    function openAsignarVehiculosModal() {
+        const modal = document.getElementById('asignar-vehiculos-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeAsignarVehiculosModal() {
+        const modal = document.getElementById('asignar-vehiculos-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    function updateVehicleCount() {
+        const checkboxes = document.querySelectorAll('input[name="vehiculos_create[]"]:checked');
+        const count = checkboxes.length;
+        document.getElementById('vehicles-selected-count').textContent = count;
+    }
+
+    function aplicarSeleccionVehiculos() {
+        const checkboxes = document.querySelectorAll('input[name="vehiculos_create[]"]:checked');
+        const vehicleInputs = document.getElementById('vehicle-inputs');
+        const selectedDisplay = document.getElementById('selected-vehicles-display');
+        const noVehiclesMessage = document.getElementById('no-vehicles-message');
+        
+        // Limpiar inputs anteriores
+        vehicleInputs.innerHTML = '';
+        selectedDisplay.innerHTML = '';
+        vehiculosSeleccionados = [];
+        
+        if (checkboxes.length > 0) {
+            noVehiclesMessage.style.display = 'none';
+            
+            checkboxes.forEach(checkbox => {
+                const vehicleId = checkbox.value;
+                vehiculosSeleccionados.push(vehicleId);
+                
+                // Crear input oculto para el formulario principal
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'vehiculos_seleccionados[]';
+                hiddenInput.value = vehicleId;
+                vehicleInputs.appendChild(hiddenInput);
+                
+                // Obtener información del vehículo para mostrar
+                const vehicleLabel = checkbox.closest('label');
+                const vehicleInfo = vehicleLabel.querySelector('.font-medium').textContent;
+                const vehiclePlacas = vehicleLabel.querySelector('.text-sm').textContent;
+                
+                // Crear elemento visual
+                const vehicleDisplay = document.createElement('div');
+                vehicleDisplay.className = 'flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-md';
+                vehicleDisplay.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
                         <div>
-                            <h3 class="text-xl font-bold text-white mb-1">Asignación de Vehículos</h3>
-                            <p class="text-gray-300 text-sm">Seleccione vehículos para asignar a esta obra</p>
+                            <div class="font-medium text-gray-900">${vehicleInfo}</div>
+                            <div class="text-sm text-gray-600">${vehiclePlacas}</div>
                         </div>
                     </div>
-                    
-                    <button type="button" onclick="closeVehicleModal()" 
-                            class="flex items-center justify-center w-10 h-10 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button type="button" onclick="removerVehiculo('${vehicleId}')" class="text-red-600 hover:text-red-800">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
-                </div>
-            </div>
-
-            <!-- Contenido del modal -->
-            <div class="flex-1 overflow-y-auto p-6">
-                <!-- Panel de instrucciones simplificado -->
-                <div class="mb-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <div class="flex items-start space-x-3">
-                        <svg class="w-5 h-5 text-gray-700 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <div>
-                            <p class="text-sm text-gray-600 leading-relaxed">
-                                Busque y seleccione vehículos por sus características (marca, modelo, placas). 
-                                Puede seleccionar múltiples vehículos. Solo los vehículos disponibles pueden ser seleccionados.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Selector de vehículo con búsqueda -->
-                <div class="mb-6">
-                    <label for="vehiculo-search" class="block text-sm font-medium text-gray-700 mb-2">
-                        Buscar vehículo
-                    </label>
-                    <div class="relative">
-                        <input type="text" 
-                               id="vehiculo-search" 
-                               class="w-full p-2 pl-10 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow"
-                               placeholder="Buscar por marca, modelo, placas..."
-                               oninput="filterVehicles(this.value)">
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Lista de vehículos disponibles -->
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Seleccione vehículos (haga clic para seleccionar/deseleccionar)
-                    </label>
-                    <div id="vehicle-options" class="max-h-60 overflow-y-auto border border-gray-300 rounded-md divide-y divide-gray-200">
-                        @if($vehiculos->count() > 0)
-                            {{-- Vehículos disponibles primero --}}
-                            @foreach($vehiculos->where('esta_asignado', false) as $vehiculo)
-                                <div class="vehicle-option p-3 hover:bg-gray-50 cursor-pointer" 
-                                     data-id="{{ $vehiculo->id }}"
-                                     data-marca="{{ $vehiculo->marca }}"
-                                     data-modelo="{{ $vehiculo->modelo }}"
-                                     data-anio="{{ $vehiculo->anio }}"
-                                     data-placas="{{ $vehiculo->placas }}"
-                                     data-km="{{ $vehiculo->kilometraje_actual }}"
-                                     onclick="toggleVehicleSelection(this)">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-3">
-                                            <div class="vehicle-checkbox w-5 h-5 border-2 border-gray-300 rounded flex items-center justify-center bg-white">
-                                                <!-- Checkmark will be added here when selected -->
-                                            </div>
-                                            <div>
-                                                <h4 class="font-medium text-gray-900">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
-                                                <p class="text-xs text-gray-500">
-                                                    Año: {{ $vehiculo->anio }} | Placas: <span class="font-mono">{{ $vehiculo->placas }}</span> | 
-                                                    {{ number_format($vehiculo->kilometraje_actual) }} km
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium border border-green-200">
-                                            Disponible
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                            
-                            {{-- Separador para vehículos no disponibles --}}
-                            @if($vehiculos->where('esta_asignado', true)->count() > 0)
-                                <div class="p-3 bg-gray-100 border-b border-gray-300">
-                                    <p class="text-sm font-medium text-gray-500 text-center">Vehículos no disponibles (solo referencia)</p>
-                                </div>
-                                
-                                @foreach($vehiculos->where('esta_asignado', true) as $vehiculo)
-                                    <div class="vehicle-option p-3 bg-gray-50 opacity-70 cursor-not-allowed" 
-                                        data-id="{{ $vehiculo->id }}"
-                                        data-marca="{{ $vehiculo->marca }}"
-                                        data-modelo="{{ $vehiculo->modelo }}"
-                                        data-anio="{{ $vehiculo->anio }}"
-                                        data-placas="{{ $vehiculo->placas }}"
-                                        data-km="{{ $vehiculo->kilometraje_actual }}">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center space-x-3">
-                                                <div class="w-5 h-5 border-2 border-gray-400 rounded bg-gray-200"></div>
-                                                <div>
-                                                    <h4 class="font-medium text-gray-600">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</h4>
-                                                    <p class="text-xs text-gray-500">
-                                                        Año: {{ $vehiculo->anio }} | Placas: <span class="font-mono">{{ $vehiculo->placas }}</span>
-                                                    </p>
-                                                    @if($vehiculo->obra_asignada)
-                                                        <p class="text-xs text-gray-500 mt-1 italic">
-                                                            Asignado a: {{ $vehiculo->obra_asignada }}
-                                                        </p>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                            <div class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium border border-red-200">
-                                                En uso
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @endif
-                        @else
-                            <div class="p-4 text-center">
-                                <div class="flex flex-col items-center space-y-2">
-                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                                    </svg>
-                                    <p class="text-gray-500 text-sm">No hay vehículos registrados en el sistema</p>
-                                    <p class="text-gray-400 text-xs">Agregue vehículos primero para poder asignarlos</p>
-                                </div>
-                            </div>
-                        @endif
-                        
-                        <!-- Mensaje de no resultados (oculto inicialmente) -->
-                        <div id="no-vehicle-results" class="p-4 text-center hidden">
-                            <p class="text-gray-500 text-sm">No se encontraron vehículos que coincidan con su búsqueda</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Vehículos seleccionados -->
-                <div id="selected-vehicles-container" class="hidden mb-6 bg-blue-50 rounded-lg border border-blue-200 p-4">
-                    <h4 class="font-medium text-blue-900 mb-2">Vehículos seleccionados:</h4>
-                    <div id="selected-vehicles-list" class="space-y-2"></div>
-                </div>
-            </div>
-
-            <!-- Footer del modal -->
-            <div class="px-6 py-4 bg-gray-100 border-t border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div class="text-sm text-gray-600">
-                        <span id="selected-count">0</span> vehículo(s) seleccionado(s)
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <button type="button" 
-                                onclick="closeVehicleModal()" 
-                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 text-sm font-medium">
-                            Cancelar
-                        </button>
-                        <button type="button" 
-                                id="confirm-vehicles-btn"
-                                onclick="assignSelectedVehicles()" 
-                                class="px-4 py-2 bg-petroyellow text-petrodark rounded-md hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-petroyellow focus:ring-offset-2 transition-all duration-200 text-sm font-medium disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
-                                disabled>
-                            Agregar Vehículos
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-<script>
-    // Variables para almacenar los vehículos seleccionados
-    let selectedVehicles = new Set();
-    let assignedVehicles = new Set(); // Para evitar duplicados
-    
-    function openVehicleModal() {
-        document.getElementById('vehicle-modal').classList.remove('hidden');
-        // No limpiar selecciones para permitir múltiples selecciones
-        updateSelectedVehiclesDisplay();
-    }
-
-    function closeVehicleModal() {
-        document.getElementById('vehicle-modal').classList.add('hidden');
-        // Limpiar selecciones temporales del modal
-        selectedVehicles.clear();
-        clearModalSelections();
-    }
-
-    function filterVehicles(searchText) {
-        searchText = searchText.toLowerCase().trim();
-        const vehicleOptions = document.querySelectorAll('.vehicle-option');
-        let hasResults = false;
-        
-        vehicleOptions.forEach(option => {
-            const marca = option.dataset.marca?.toLowerCase() || '';
-            const modelo = option.dataset.modelo?.toLowerCase() || '';
-            const placas = option.dataset.placas?.toLowerCase() || '';
-            const anio = option.dataset.anio?.toLowerCase() || '';
-            
-            // Buscar en múltiples campos
-            const matchesSearch = marca.includes(searchText) || 
-                                  modelo.includes(searchText) || 
-                                  placas.includes(searchText) ||
-                                  anio.includes(searchText);
-            
-            const isDisabled = option.classList.contains('cursor-not-allowed');
-            
-            if (matchesSearch) {
-                option.style.display = 'block';
-                hasResults = true;
-            } else {
-                option.style.display = 'none';
-            }
-        });
-        
-        // Mostrar/ocultar mensaje de "no hay resultados"
-        document.getElementById('no-vehicle-results').style.display = hasResults ? 'none' : 'block';
-    }
-    
-    function toggleVehicleSelection(element) {
-        // No permitir seleccionar vehículos no disponibles
-        if (element.classList.contains('cursor-not-allowed')) {
-            return;
-        }
-        
-        const vehicleId = element.dataset.id;
-        const checkbox = element.querySelector('.vehicle-checkbox');
-        
-        if (selectedVehicles.has(vehicleId)) {
-            // Deseleccionar
-            selectedVehicles.delete(vehicleId);
-            checkbox.innerHTML = '';
-            checkbox.classList.remove('bg-petroyellow', 'border-petroyellow');
-            checkbox.classList.add('bg-white', 'border-gray-300');
-            element.classList.remove('bg-blue-50');
-        } else {
-            // Seleccionar (solo si no está ya asignado)
-            if (!assignedVehicles.has(vehicleId)) {
-                selectedVehicles.add(vehicleId);
-                checkbox.innerHTML = '<svg class="w-3 h-3 text-petrodark" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
-                checkbox.classList.remove('bg-white', 'border-gray-300');
-                checkbox.classList.add('bg-petroyellow', 'border-petroyellow');
-                element.classList.add('bg-blue-50');
-            }
-        }
-        
-        updateSelectedVehiclesDisplay();
-    }
-    
-    function updateSelectedVehiclesDisplay() {
-        const container = document.getElementById('selected-vehicles-container');
-        const list = document.getElementById('selected-vehicles-list');
-        const count = document.getElementById('selected-count');
-        const confirmBtn = document.getElementById('confirm-vehicles-btn');
-        
-        count.textContent = selectedVehicles.size;
-        confirmBtn.disabled = selectedVehicles.size === 0;
-        
-        if (selectedVehicles.size > 0) {
-            container.classList.remove('hidden');
-            list.innerHTML = '';
-            
-            selectedVehicles.forEach(vehicleId => {
-                const vehicleElement = document.querySelector(`.vehicle-option[data-id="${vehicleId}"]`);
-                if (vehicleElement) {
-                    const marca = vehicleElement.dataset.marca;
-                    const modelo = vehicleElement.dataset.modelo;
-                    const placas = vehicleElement.dataset.placas;
-                    
-                    const item = document.createElement('div');
-                    item.className = 'flex items-center justify-between text-sm';
-                    item.innerHTML = `
-                        <span class="text-blue-800">${marca} ${modelo} - Placas: ${placas}</span>
-                        <button type="button" onclick="removeFromSelection('${vehicleId}')" 
-                                class="text-red-600 hover:text-red-800 ml-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    `;
-                    list.appendChild(item);
-                }
+                `;
+                selectedDisplay.appendChild(vehicleDisplay);
             });
         } else {
-            container.classList.add('hidden');
-        }
-    }
-    
-    function removeFromSelection(vehicleId) {
-        selectedVehicles.delete(vehicleId);
-        
-        // Actualizar visual del vehículo en la lista
-        const vehicleElement = document.querySelector(`.vehicle-option[data-id="${vehicleId}"]`);
-        if (vehicleElement) {
-            const checkbox = vehicleElement.querySelector('.vehicle-checkbox');
-            checkbox.innerHTML = '';
-            checkbox.classList.remove('bg-petroyellow', 'border-petroyellow');
-            checkbox.classList.add('bg-white', 'border-gray-300');
-            vehicleElement.classList.remove('bg-blue-50');
+            noVehiclesMessage.style.display = 'block';
         }
         
-        updateSelectedVehiclesDisplay();
+        // Cerrar modal
+        closeAsignarVehiculosModal();
     }
-    
-    function clearModalSelections() {
-        // Limpiar todas las selecciones visuales en el modal
-        document.querySelectorAll('.vehicle-option').forEach(element => {
-            const checkbox = element.querySelector('.vehicle-checkbox');
-            if (checkbox) {
-                checkbox.innerHTML = '';
-                checkbox.classList.remove('bg-petroyellow', 'border-petroyellow');
-                checkbox.classList.add('bg-white', 'border-gray-300');
-            }
-            element.classList.remove('bg-blue-50');
-        });
+
+    function removerVehiculo(vehicleId) {
+        // Remover del array
+        vehiculosSeleccionados = vehiculosSeleccionados.filter(id => id !== vehicleId);
         
-        document.getElementById('selected-vehicles-container').classList.add('hidden');
-        document.getElementById('vehiculo-search').value = '';
-        filterVehicles('');
-    }
-    
-    function assignSelectedVehicles() {
-        if (selectedVehicles.size === 0) {
-            return;
+        // Remover input oculto
+        const hiddenInput = document.querySelector(`input[name="vehiculos_seleccionados[]"][value="${vehicleId}"]`);
+        if (hiddenInput) {
+            hiddenInput.remove();
         }
         
-        const vehicleList = document.getElementById('assigned-vehicles-list');
+        // Remover elemento visual
+        const vehicleDisplay = event.target.closest('.flex.items-center.justify-between');
+        if (vehicleDisplay) {
+            vehicleDisplay.remove();
+        }
+        
+        // Mostrar mensaje si no hay vehículos
+        const selectedDisplay = document.getElementById('selected-vehicles-display');
         const noVehiclesMessage = document.getElementById('no-vehicles-message');
-        const vehicleCheckboxes = document.getElementById('vehicle-checkboxes');
         
-        // Ocultar mensaje de "no hay vehículos" si hay selecciones
-        if (selectedVehicles.size > 0 || assignedVehicles.size > 0) {
-            noVehiclesMessage.classList.add('hidden');
-            vehicleCheckboxes.classList.remove('hidden');
+        if (vehiculosSeleccionados.length === 0) {
+            noVehiclesMessage.style.display = 'block';
         }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Event listeners para modal de vehículos
+        const modalVehiculos = document.getElementById('asignar-vehiculos-modal');
+        if (modalVehiculos) {
+            modalVehiculos.addEventListener('click', function(e) {
+                if (e.target === modalVehiculos) {
+                    closeAsignarVehiculosModal();
+                }
+            });
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAsignarVehiculosModal();
+            }
+        });
+    });
+
+    // Funciones para manejar la subida de archivos con feedback visual
+    function updateFileLabel(fieldName) {
+        const fileInput = document.getElementById(fieldName);
+        const label = document.getElementById('label_' + fieldName);
+        const textSpan = document.getElementById('text_' + fieldName);
+        const icon = document.getElementById('icon_' + fieldName);
+        const fileInfo = document.getElementById('file_info_' + fieldName);
+        const filenameSpan = document.getElementById('filename_' + fieldName);
         
-        // Agregar nuevos vehículos seleccionados
-        selectedVehicles.forEach(vehicleId => {
-            if (!assignedVehicles.has(vehicleId)) {
-                const vehicleElement = document.querySelector(`.vehicle-option[data-id="${vehicleId}"]`);
-                if (vehicleElement) {
-                    const marca = vehicleElement.dataset.marca;
-                    const modelo = vehicleElement.dataset.modelo;
-                    const placas = vehicleElement.dataset.placas;
-                    
-                    // Agregar vehículo a la lista visual
-                    const vehicleItem = document.createElement('div');
-                    vehicleItem.className = 'flex items-center justify-between p-4 bg-gray-50 border border-gray-300 rounded-lg shadow-sm';
-                    vehicleItem.setAttribute('data-vehicle-id', vehicleId);
-                    vehicleItem.innerHTML = `
-                        <div class="flex items-center space-x-3">
-                            <div class="flex items-center justify-center w-8 h-8 bg-petroyellow rounded-lg">
-                                <svg class="w-4 h-4 text-petrodark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <span class="text-sm font-semibold text-gray-900">${marca} ${modelo}</span>
-                                <p class="text-xs text-gray-700">Placas: ${placas}</p>
-                            </div>
-                        </div>
-                        <button type="button" onclick="removeVehicle('${vehicleId}')" 
-                                class="flex items-center justify-center w-8 h-8 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    `;
-                    
-                    vehicleList.appendChild(vehicleItem);
-                    
-                    // Agregar checkbox oculto para el formulario
-                    const hiddenCheckbox = document.createElement('input');
-                    hiddenCheckbox.type = 'checkbox';
-                    hiddenCheckbox.name = 'vehiculos_seleccionados[]';
-                    hiddenCheckbox.value = vehicleId;
-                    hiddenCheckbox.checked = true;
-                    hiddenCheckbox.classList.add('hidden');
-                    hiddenCheckbox.setAttribute('data-vehicle-checkbox', vehicleId);
-                    vehicleCheckboxes.appendChild(hiddenCheckbox);
-                    
-                    // Agregar a la lista de vehículos asignados
-                    assignedVehicles.add(vehicleId);
+        if (fileInput.files && fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const fileName = file.name;
+            const fileSize = (file.size / 1024 / 1024).toFixed(2); // Tamaño en MB
+            
+            // Actualizar el estilo del label para mostrar que hay un archivo
+            label.classList.remove('border-gray-300', 'text-gray-700');
+            label.classList.add('border-green-400', 'text-green-700', 'bg-green-50');
+            
+            // Cambiar el icono a uno de check
+            icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
+            icon.classList.remove('text-gray-400');
+            icon.classList.add('text-green-600');
+            
+            // Actualizar el texto
+            textSpan.textContent = 'Archivo seleccionado';
+            
+            // Mostrar información del archivo
+            filenameSpan.textContent = `${fileName} (${fileSize} MB)`;
+            fileInfo.classList.remove('hidden');
+            
+        } else {
+            // Resetear al estado original si no hay archivo
+            clearFile(fieldName);
+        }
+    }
+    
+    function clearFile(fieldName) {
+        const fileInput = document.getElementById(fieldName);
+        const label = document.getElementById('label_' + fieldName);
+        const textSpan = document.getElementById('text_' + fieldName);
+        const icon = document.getElementById('icon_' + fieldName);
+        const fileInfo = document.getElementById('file_info_' + fieldName);
+        
+        // Limpiar el input
+        fileInput.value = '';
+        
+        // Restaurar estilo original
+        label.classList.remove('border-green-400', 'text-green-700', 'bg-green-50');
+        label.classList.add('border-gray-300', 'text-gray-700');
+        
+        // Restaurar icono original
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />';
+        icon.classList.remove('text-green-600');
+        icon.classList.add('text-gray-400');
+        
+        // Restaurar texto original
+        const originalTexts = {
+            'archivo_contrato': 'Subir Contrato',
+            'archivo_fianza': 'Subir Fianza',
+            'archivo_acta_entrega_recepcion': 'Subir Acta'
+        };
+        textSpan.textContent = originalTexts[fieldName] || 'Subir Archivo';
+        
+        // Ocultar información del archivo
+        fileInfo.classList.add('hidden');
+    }
+    
+    // Validación de archivos antes del envío
+    function validateFiles() {
+        const fileInputs = ['archivo_contrato', 'archivo_fianza', 'archivo_acta_entrega_recepcion'];
+        let isValid = true;
+        
+        fileInputs.forEach(fieldName => {
+            const fileInput = document.getElementById(fieldName);
+            if (fileInput.files && fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const maxSize = 10 * 1024 * 1024; // 10MB en bytes
+                const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                
+                // Validar tamaño
+                if (file.size > maxSize) {
+                    alert(`El archivo ${file.name} es demasiado grande. Máximo permitido: 10MB`);
+                    isValid = false;
+                    return;
+                }
+                
+                // Validar tipo de archivo
+                if (!allowedTypes.includes(file.type)) {
+                    alert(`El archivo ${file.name} no es un tipo válido. Solo se permiten archivos PDF, DOC y DOCX`);
+                    isValid = false;
+                    return;
                 }
             }
         });
         
-        // Cerrar modal y limpiar selecciones temporales
-        closeVehicleModal();
+        return isValid;
     }
     
-    function removeVehicle(vehicleId) {
-        // Remover de la lista visual
-        const vehicleItem = document.querySelector(`[data-vehicle-id="${vehicleId}"]`);
-        if (vehicleItem) {
-            vehicleItem.remove();
+    // Agregar validación al envío del formulario
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!validateFiles()) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
         }
-        
-        // Remover checkbox oculto
-        const checkbox = document.querySelector(`[data-vehicle-checkbox="${vehicleId}"]`);
-        if (checkbox) {
-            checkbox.remove();
-        }
-        
-        // Remover de la lista de asignados
-        assignedVehicles.delete(vehicleId);
-        
-        // Si no hay más vehículos, mostrar mensaje
-        const vehicleList = document.getElementById('assigned-vehicles-list');
-        const noVehiclesMessage = document.getElementById('no-vehicles-message');
-        const vehicleCheckboxes = document.getElementById('vehicle-checkboxes');
-        
-        if (assignedVehicles.size === 0) {
-            noVehiclesMessage.classList.remove('hidden');
-            vehicleCheckboxes.classList.add('hidden');
-        }
-    }
-    
-    function numberWithCommas(x) {
-        return new Intl.NumberFormat().format(x);
-    }
+    });
 </script>
+@endpush
 @endsection

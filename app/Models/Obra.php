@@ -151,6 +151,16 @@ class Obra extends Model
     }
 
     /**
+     * Relación many-to-many con vehículos
+     */
+    public function vehiculos()
+    {
+        return $this->belongsToMany(Vehiculo::class, 'asignaciones_obra', 'obra_id', 'vehiculo_id')
+                   ->whereNull('asignaciones_obra.deleted_at')
+                   ->whereNull('fecha_liberacion');
+    }
+
+    /**
      * Relación con operadores actualmente asignados (a través de asignaciones activas)
      */
     public function operadoresAsignados()
@@ -422,7 +432,26 @@ class Obra extends Model
             $ruta = $archivo->store('obras/contratos', 'public');
             $this->archivo_contrato = $ruta;
             $this->fecha_subida_contrato = now();
-            return $this->save();
+            
+            // Guardar en tabla obras
+            $saved = $this->save();
+            
+            if ($saved) {
+                // También crear registro en tabla documentos
+                $this->documentos()->create([
+                    'tipo_documento_id' => 21, // Contrato de Obra
+                    'descripcion' => 'Contrato de la obra: ' . $this->nombre_obra,
+                    'ruta_archivo' => $ruta,
+                    'contenido' => [
+                        'nombre_original' => $archivo->getClientOriginalName(),
+                        'tamaño' => $archivo->getSize(),
+                        'tipo_mime' => $archivo->getMimeType(),
+                        'fecha_subida' => now()->format('Y-m-d H:i:s')
+                    ]
+                ]);
+            }
+            
+            return $saved;
         }
         return false;
     }
@@ -436,7 +465,26 @@ class Obra extends Model
             $ruta = $archivo->store('obras/fianzas', 'public');
             $this->archivo_fianza = $ruta;
             $this->fecha_subida_fianza = now();
-            return $this->save();
+            
+            // Guardar en tabla obras
+            $saved = $this->save();
+            
+            if ($saved) {
+                // También crear registro en tabla documentos
+                $this->documentos()->create([
+                    'tipo_documento_id' => 26, // Póliza de Fianza
+                    'descripcion' => 'Póliza de fianza de la obra: ' . $this->nombre_obra,
+                    'ruta_archivo' => $ruta,
+                    'contenido' => [
+                        'nombre_original' => $archivo->getClientOriginalName(),
+                        'tamaño' => $archivo->getSize(),
+                        'tipo_mime' => $archivo->getMimeType(),
+                        'fecha_subida' => now()->format('Y-m-d H:i:s')
+                    ]
+                ]);
+            }
+            
+            return $saved;
         }
         return false;
     }
@@ -450,7 +498,26 @@ class Obra extends Model
             $ruta = $archivo->store('obras/actas', 'public');
             $this->archivo_acta_entrega_recepcion = $ruta;
             $this->fecha_subida_acta = now();
-            return $this->save();
+            
+            // Guardar en tabla obras
+            $saved = $this->save();
+            
+            if ($saved) {
+                // También crear registro en tabla documentos
+                $this->documentos()->create([
+                    'tipo_documento_id' => 28, // Acta de Entrega-Recepción
+                    'descripcion' => 'Acta de entrega-recepción de la obra: ' . $this->nombre_obra,
+                    'ruta_archivo' => $ruta,
+                    'contenido' => [
+                        'nombre_original' => $archivo->getClientOriginalName(),
+                        'tamaño' => $archivo->getSize(),
+                        'tipo_mime' => $archivo->getMimeType(),
+                        'fecha_subida' => now()->format('Y-m-d H:i:s')
+                    ]
+                ]);
+            }
+            
+            return $saved;
         }
         return false;
     }
