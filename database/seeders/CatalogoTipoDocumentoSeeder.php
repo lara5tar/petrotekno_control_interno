@@ -49,7 +49,6 @@ class CatalogoTipoDocumentoSeeder extends Seeder
                 'descripcion' => 'Manual de usuario y mantenimiento del vehículo',
                 'requiere_vencimiento' => false,
             ],
-
             // Documentos de personal
             [
                 'nombre_tipo_documento' => 'Licencia de Conducir',
