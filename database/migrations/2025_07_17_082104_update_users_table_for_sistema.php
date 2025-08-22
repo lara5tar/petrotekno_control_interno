@@ -26,11 +26,38 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('name')->after('id');
-            $table->dropForeign(['personal_id']);
-            $table->dropForeign(['rol_id']);
-            $table->dropColumn(['nombre_usuario', 'personal_id', 'rol_id']);
-            $table->dropSoftDeletes();
+            // Agregar columna 'name' solo si no existe
+            if (!Schema::hasColumn('users', 'name')) {
+                $table->string('name')->after('id');
+            }
+            
+            // Eliminar foreign key de personal_id si existe
+            try {
+                $table->dropForeign(['personal_id']);
+            } catch (\Exception $e) {
+                // Ignorar si la foreign key no existe
+            }
+            
+            // Eliminar columnas solo si existen
+            $columnsToRemove = [];
+            if (Schema::hasColumn('users', 'nombre_usuario')) {
+                $columnsToRemove[] = 'nombre_usuario';
+            }
+            if (Schema::hasColumn('users', 'personal_id')) {
+                $columnsToRemove[] = 'personal_id';
+            }
+            if (Schema::hasColumn('users', 'rol_id')) {
+                $columnsToRemove[] = 'rol_id';
+            }
+            
+            if (!empty($columnsToRemove)) {
+                $table->dropColumn($columnsToRemove);
+            }
+            
+            // Eliminar soft deletes si existe
+            if (Schema::hasColumn('users', 'deleted_at')) {
+                $table->dropSoftDeletes();
+            }
         });
     }
 };

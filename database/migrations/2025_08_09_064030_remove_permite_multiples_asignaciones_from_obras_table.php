@@ -23,8 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('obras', function (Blueprint $table) {
-            // Restaurar el campo en caso de rollback
-            $table->boolean('permite_multiples_asignaciones')->default(true)->after('observaciones');
+            // Restaurar el campo en caso de rollback (sin especificar after para evitar dependencias)
+            $table->boolean('permite_multiples_asignaciones')->default(true);
         });
     }
 };
