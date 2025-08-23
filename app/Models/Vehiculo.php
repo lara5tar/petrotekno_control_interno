@@ -202,6 +202,44 @@ class Vehiculo extends Model
     }
 
     /**
+     * Relación: Un vehículo tiene muchos registros en el historial de operadores
+     */
+    public function historialOperadores(): HasMany
+    {
+        return $this->hasMany(HistorialOperadorVehiculo::class);
+    }
+
+    /**
+     * Obtener el historial de operadores ordenado por fecha más reciente
+     */
+    public function getHistorialOperadoresOrdenadoAttribute()
+    {
+        return $this->historialOperadores()
+            ->with(['operadorAnterior', 'operadorNuevo', 'usuarioAsigno'])
+            ->recientes()
+            ->get();
+    }
+
+    /**
+     * Obtener el último cambio de operador
+     */
+    public function getUltimoCambioOperadorAttribute()
+    {
+        return $this->historialOperadores()
+            ->with(['operadorAnterior', 'operadorNuevo', 'usuarioAsigno'])
+            ->recientes()
+            ->first();
+    }
+
+    /**
+     * Verificar si el vehículo ha tenido operadores asignados anteriormente
+     */
+    public function haTenidoOperadoresAttribute(): bool
+    {
+        return $this->historialOperadores()->exists();
+    }
+
+    /**
      * Scope para filtrar por marca
      */
     public function scopePorMarca($query, $marca)

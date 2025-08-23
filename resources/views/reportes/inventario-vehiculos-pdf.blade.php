@@ -202,6 +202,34 @@
             color: #6c757d;
         }
         
+        .filtros-aplicados {
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filtros-aplicados h4 {
+            color: #495057;
+            font-size: 12px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #adb5bd;
+            padding-bottom: 3px;
+        }
+        
+        .filtro-item {
+            display: inline-block;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 3px;
+            padding: 3px 8px;
+            margin-right: 8px;
+            margin-bottom: 5px;
+            font-size: 10px;
+            color: #495057;
+        }
+        
         .page-break {
             page-break-before: always;
         }
@@ -248,6 +276,53 @@
             </div>
         </div>
     </div>
+
+    @php
+        $filtrosActivos = collect($filtros ?? [])->filter(function($valor) {
+            return !empty($valor) && $valor !== null;
+        });
+    @endphp
+
+    @if($filtrosActivos->count() > 0)
+        <div class="filtros-aplicados">
+            <h4>Filtros Aplicados</h4>
+            @foreach($filtrosActivos as $tipo => $valor)
+                @if($tipo === 'estatus' || $tipo === 'estado')
+                    <span class="filtro-item">
+                        <strong>Estado:</strong> 
+                        @switch($valor)
+                            @case('disponible')
+                                Disponible
+                                @break
+                            @case('asignado')
+                                Asignado
+                                @break
+                            @case('en_mantenimiento')
+                                En Mantenimiento
+                                @break
+                            @case('fuera_de_servicio')
+                                Fuera de Servicio
+                                @break
+                            @case('baja')
+                                Dado de Baja
+                                @break
+                            @default
+                                {{ ucfirst(str_replace('_', ' ', $valor)) }}
+                        @endswitch
+                    </span>
+                @elseif($tipo === 'marca')
+                    <span class="filtro-item"><strong>Marca:</strong> {{ $valor }}</span>
+                @elseif($tipo === 'anio' || $tipo === 'año')
+                    <span class="filtro-item"><strong>Año:</strong> {{ $valor }}</span>
+                @else
+                    <span class="filtro-item"><strong>{{ ucfirst(str_replace('_', ' ', $tipo)) }}:</strong> {{ $valor }}</span>
+                @endif
+            @endforeach
+            <div style="clear: both; margin-top: 8px; font-size: 9px; color: #6c757d; font-style: italic;">
+                Los datos mostrados en este reporte están filtrados según los criterios indicados arriba.
+            </div>
+        </div>
+    @endif
 
     <table class="vehiculos-table">
         <thead>

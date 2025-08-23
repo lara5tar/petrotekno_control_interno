@@ -6,6 +6,7 @@ use App\Enums\EstadoVehiculo;
 use App\Models\CategoriaPersonal;
 use App\Models\CatalogoTipoDocumento;
 use App\Models\Documento;
+use App\Models\HistorialOperadorVehiculo;
 use App\Models\LogAccion;
 use App\Models\Personal;
 use App\Models\Vehiculo;
@@ -960,6 +961,22 @@ class VehiculoController extends Controller
                 'operador_id' => $request->operador_id
             ]);
 
+            // Determinar el tipo de movimiento
+            $tipoMovimiento = $operadorAnterior 
+                ? HistorialOperadorVehiculo::TIPO_CAMBIO_OPERADOR 
+                : HistorialOperadorVehiculo::TIPO_ASIGNACION_INICIAL;
+
+            // Registrar en el historial de operadores
+            HistorialOperadorVehiculo::registrarMovimiento(
+                vehiculoId: $vehiculo->id,
+                operadorAnteriorId: $operadorAnterior?->id,
+                operadorNuevoId: $nuevoOperador->id,
+                usuarioAsignoId: Auth::id(),
+                tipoMovimiento: $tipoMovimiento,
+                observaciones: $request->observaciones,
+                motivo: $request->motivo ?? 'Cambio manual de operador'
+            );
+
             // Registrar la acción en los logs
             $mensaje = $operadorAnterior 
                 ? "Operador cambiado de {$operadorAnterior->nombre_completo} a {$nuevoOperador->nombre_completo}"
@@ -1004,6 +1021,89 @@ class VehiculoController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => 'Error al cambiar el operador: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Remover el operador asignado a un vehículo
+     */
+    public function removerOperador(Request $request, Vehiculo $vehiculo)
+    {
+        $this->authorize('editar_vehiculos');
+
+        // Validar la solicitud
+        $request->validate([
+            'observaciones' => 'nullable|string|max:500',
+            'motivo' => 'nullable|string|max:255'
+        ]);
+
+        // Verificar que el vehículo tenga un operador asignado
+        if (!$vehiculo->operador_id) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Este vehículo no tiene un operador asignado.'
+            ], 400);
+        }
+
+        DB::beginTransaction();
+        
+        try {
+            $operadorAnterior = $vehiculo->operador;
+            
+            // Remover el operador del vehículo
+            $vehiculo->update([
+                'operador_id' => null
+            ]);
+
+            // Registrar en el historial de operadores
+            HistorialOperadorVehiculo::registrarMovimiento(
+                vehiculoId: $vehiculo->id,
+                operadorAnteriorId: $operadorAnterior->id,
+                operadorNuevoId: null,
+                usuarioAsignoId: Auth::id(),
+                tipoMovimiento: HistorialOperadorVehiculo::TIPO_REMOCION_OPERADOR,
+                observaciones: $request->observaciones,
+                motivo: $request->motivo ?? 'Remoción manual de operador'
+            );
+
+            // Registrar la acción en los logs
+            $mensaje = "Operador removido: {$operadorAnterior->nombre_completo}";
+            
+            if ($request->observaciones) {
+                $mensaje .= ". Observaciones: {$request->observaciones}";
+            }
+
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'remocion_operador_vehiculo',
+                'tabla_afectada' => 'vehiculos',
+                'registro_id' => $vehiculo->id,
+                'detalles' => [
+                    'mensaje' => $mensaje,
+                    'operador_removido' => [
+                        'id' => $operadorAnterior->id,
+                        'nombre' => $operadorAnterior->nombre_completo
+                    ],
+                    'observaciones' => $request->observaciones,
+                    'motivo' => $request->motivo
+                ]
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Operador removido exitosamente',
+                'redirect' => route('vehiculos.show', $vehiculo)
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al remover el operador: ' . $e->getMessage()
             ], 500);
         }
     }

@@ -107,6 +107,11 @@ Route::middleware('auth')->prefix('vehiculos')->name('vehiculos.')->group(functi
     Route::patch('/{vehiculo}/cambiar-operador', [App\Http\Controllers\VehiculoController::class, 'cambiarOperador'])
         ->name('cambiar-operador')
         ->middleware('permission:editar_vehiculos');
+        
+    // Ruta para remover operador del vehículo
+    Route::patch('/{vehiculo}/remover-operador', [App\Http\Controllers\VehiculoController::class, 'removerOperador'])
+        ->name('remover-operador')
+        ->middleware('permission:editar_vehiculos');
 });
 
 // Ruta para crear personal (fuera del grupo para evitar conflictos con PUT personal/{id})
@@ -745,4 +750,7 @@ Route::middleware(['auth'])->prefix('reportes')->name('reportes.')->group(functi
     
     Route::get('/vehiculos-baja', [App\Http\Controllers\ReporteController::class, 'vehiculosBaja'])
         ->name('vehiculos-baja');
+    
+    Route::get('/historial-obras-vehiculo', [App\Http\Controllers\ReporteController::class, 'historialObrasVehiculo'])
+        ->name('historial-obras-vehiculo');
 });

@@ -3,6 +3,79 @@
 @section('title', 'Detalles del Vehículo')
 
 @section('content')
+<style>
+/* Estilos para modales - asegurar que estén ocultos por defecto */
+[id$="-modal"] {
+    display: none !important;
+}
+
+[id$="-modal"]:not(.hidden) {
+    display: flex !important;
+}
+
+/* Estilos para optimizar modales cuando están abiertos */
+.modal-dialog-auto {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+}
+
+.modal-content-compact {
+    padding: 24px !important;
+    margin: 20px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.modal-backdrop {
+    overflow-y: auto !important;
+    padding: 40px !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Espaciado mejorado para formularios en modales */
+.modal-form-group {
+    margin-bottom: 20px !important;
+}
+
+.modal-form-group label {
+    margin-bottom: 8px !important;
+    display: block !important;
+    font-weight: 500 !important;
+}
+
+.modal-form-group input,
+.modal-form-group select,
+.modal-form-group textarea {
+    padding: 12px !important;
+    border-radius: 8px !important;
+    border: 1px solid #d1d5db !important;
+    margin-bottom: 4px !important;
+}
+
+.modal-form-group textarea {
+    min-height: 80px !important;
+    resize: vertical !important;
+}
+
+/* Espaciado para botones en modales */
+.modal-buttons {
+    margin-top: 24px !important;
+    padding-top: 20px !important;
+    border-top: 1px solid #e5e7eb !important;
+    gap: 12px !important;
+}
+
+/* Títulos de modales con mejor espaciado */
+.modal-title {
+    margin-bottom: 20px !important;
+    padding-bottom: 12px !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+</style>
+
 <!-- Breadcrumb -->
 <x-breadcrumb :items="[
     ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
@@ -871,6 +944,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -1040,9 +1114,9 @@
 </div>
 
 <!-- Modal para Cambiar Obra -->
-<div id="cambiar-obra-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-        <div class="flex justify-between items-center mb-4">
+<div id="cambiar-obra-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 modal-backdrop">
+    <div class="relative top-10 mx-auto border w-96 max-w-md shadow-lg rounded-md bg-white modal-dialog-auto modal-content-compact">
+        <div class="flex justify-between items-center modal-title">
             <h3 id="modal-title" class="text-lg font-semibold text-gray-900">
                 @if($asignacionActiva && $asignacionActiva->obra)
                     Cambiar Obra Asignada
@@ -1058,8 +1132,8 @@
         </div>
 
         <!-- Información actual -->
-        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-            <h4 class="font-medium text-gray-900 mb-2">Asignación Actual</h4>
+        <div class="modal-form-group p-4 bg-gray-50 rounded-lg">
+            <h4 class="font-medium text-gray-900 mb-3">Asignación Actual</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                     <span class="text-gray-600">Obra:</span>
@@ -1084,8 +1158,8 @@
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Nueva Obra -->
-                <div>
-                    <label for="obra_id" class="block text-sm font-medium text-gray-700 mb-1">Nueva Obra</label>
+                <div class="modal-form-group">
+                    <label for="obra_id" class="block text-sm font-medium text-gray-700">Nueva Obra</label>
                     <select id="obra_id" name="obra_id" required 
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">Seleccionar obra...</option>
@@ -1111,8 +1185,8 @@
                 </div>
 
                 <!-- Kilometraje Inicial -->
-                <div>
-                    <label for="kilometraje_inicial" class="block text-sm font-medium text-gray-700 mb-1">Kilometraje Inicial</label>
+                <div class="modal-form-group">
+                    <label for="kilometraje_inicial" class="block text-sm font-medium text-gray-700">Kilometraje Inicial</label>
                     <input type="number" id="kilometraje_inicial" name="kilometraje_inicial" 
                            value="{{ $vehiculo->kilometraje_actual ?? 0 }}" min="0"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -1120,16 +1194,16 @@
                 </div>
 
                 <!-- Observaciones -->
-                <div>
-                    <label for="observaciones_cambio" class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                <div class="modal-form-group col-span-2">
+                    <label for="observaciones_cambio" class="block text-sm font-medium text-gray-700">Observaciones</label>
                     <textarea id="observaciones_cambio" name="observaciones" rows="3" 
                              placeholder="Motivo del cambio de obra..."
-                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"></textarea>
                 </div>
             </div>
 
             <!-- Botones -->
-            <div class="flex justify-end space-x-3 mt-6 pt-4 border-t">
+            <div class="flex justify-end space-x-3 modal-buttons">
                 <button type="button" onclick="closeCambiarObraModal()" 
                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-200">
                     Cancelar
@@ -1149,14 +1223,14 @@
 </div>
 
 <!-- Modal para Cambiar Operador -->
-<div id="cambiar-operador-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-        <div class="flex justify-between items-center mb-4">
+<div id="cambiar-operador-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 modal-backdrop">
+    <div class="relative top-10 mx-auto border w-96 max-w-md shadow-lg rounded-md bg-white modal-dialog-auto modal-content-compact">
+        <div class="flex justify-between items-center modal-title">
             <h3 id="modal-operador-title" class="text-lg font-semibold text-gray-900">
                 @if(isset($vehiculo->operador) && $vehiculo->operador)
                     Cambiar Operador del Vehículo
                 @else
-                    Asignar Operador al Vehículo
+                    Asignar Personal como Operador
                 @endif
             </h3>
             <button onclick="closeCambiarOperadorModal()" class="text-gray-400 hover:text-gray-600">
@@ -1166,12 +1240,12 @@
             </button>
         </div>
         
-        <div class="mb-4 text-sm text-gray-600">
+        <div class="modal-form-group p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
             <p><strong>Vehículo:</strong> {{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->placas }})</p>
             @if(isset($vehiculo->operador) && $vehiculo->operador)
-                <p><strong>Operador Actual:</strong> {{ $vehiculo->operador->nombre_completo }}</p>
+                <p class="mt-2"><strong>Operador Actual:</strong> {{ $vehiculo->operador->nombre_completo }}</p>
             @else
-                <p><strong>Estado:</strong> Sin operador asignado</p>
+                <p class="mt-2"><strong>Estado:</strong> Sin operador asignado</p>
             @endif
         </div>
 
@@ -1179,18 +1253,18 @@
             @csrf
             @method('PATCH')
             
-            <!-- Selección de Nuevo Operador -->
-            <div class="mb-4">
-                <label for="operador_id" class="block text-sm font-medium text-gray-700 mb-1">
+            <!-- Selección de Personal como Operador -->
+            <div class="modal-form-group">
+                <label for="operador_id" class="block text-sm font-medium text-gray-700">
                     @if(isset($vehiculo->operador) && $vehiculo->operador)
-                        Nuevo Operador
+                        Nuevo Personal como Operador
                     @else
-                        Operador a Asignar
+                        Personal a Asignar como Operador
                     @endif
                 </label>
                 <select id="operador_id" name="operador_id" required 
                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">Seleccionar operador...</option>
+                    <option value="">Seleccionar personal...</option>
                     @php
                         // Obtener operadores disponibles (excluyendo el operador actual del vehículo)
                         $operadorActualId = null;
@@ -1198,40 +1272,43 @@
                             $operadorActualId = $vehiculo->operador->id;
                         }
                         
-                        // Obtener ID de la categoría "Operador"
-                        $categoriaOperador = \App\Models\CategoriaPersonal::where('nombre_categoria', 'Operador')->first();
-                        
-                        $operadoresDisponibles = \App\Models\Personal::where('categoria_id', $categoriaOperador?->id)
-                            ->where('estatus', 'activo')
+                        // Obtener todo el personal activo (no solo operadores)
+                        $personalDisponible = \App\Models\Personal::where('estatus', 'activo')
                             ->when($operadorActualId, function($query, $operadorActualId) {
                                 return $query->where('id', '!=', $operadorActualId);
                             })
+                            ->with('categoria') // Incluir la categoría para mostrarla
                             ->orderBy('nombre_completo')
                             ->get();
                     @endphp
-                    @foreach($operadoresDisponibles as $operador)
-                        <option value="{{ $operador->id }}">{{ $operador->nombre_completo }} - {{ $operador->nss ?? 'Sin NSS' }}</option>
+                    @foreach($personalDisponible as $persona)
+                        <option value="{{ $persona->id }}">
+                            {{ $persona->nombre_completo }}
+                            @if($persona->categoria)
+                                ({{ $persona->categoria->nombre_categoria }})
+                            @endif
+                        </option>
                     @endforeach
                 </select>
                 <p class="text-xs text-gray-500 mt-1">
                     @if(isset($vehiculo->operador) && $vehiculo->operador)
-                        Selecciona el nuevo operador que reemplazará al actual
+                        Selecciona la nueva persona que operará este vehículo
                     @else
-                        Selecciona el operador que será asignado a este vehículo
+                        Selecciona la persona que será asignada como operador de este vehículo
                     @endif
                 </p>
             </div>
 
             <!-- Observaciones (opcional) -->
-            <div class="mb-4">
-                <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-1">Observaciones (opcional)</label>
+            <div class="modal-form-group">
+                <label for="observaciones" class="block text-sm font-medium text-gray-700">Observaciones (opcional)</label>
                 <textarea id="observaciones" name="observaciones" rows="3" 
                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                          placeholder="Motivo del cambio u observaciones adicionales..."></textarea>
             </div>
 
             <!-- Botones -->
-            <div class="flex justify-end space-x-3 mt-6 pt-4 border-t">
+            <div class="flex justify-end space-x-3 modal-buttons">
                 <button type="button" onclick="closeCambiarOperadorModal()" 
                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-200">
                     Cancelar
@@ -1241,7 +1318,7 @@
                     @if(isset($vehiculo->operador) && $vehiculo->operador)
                         Cambiar Operador
                     @else
-                        Asignar Operador
+                        Asignar como Operador
                     @endif
                 </button>
             </div>
@@ -1251,8 +1328,8 @@
 
 <!-- Modal para Registrar Mantenimiento -->
 <div id="registrar-mantenimiento-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[60]">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-        <div class="flex justify-between items-center mb-4">
+    <div class="relative top-10 mx-auto border w-96 max-w-md shadow-lg rounded-md bg-white modal-dialog-auto modal-content-compact">
+        <div class="flex justify-between items-center modal-title">
             <h3 class="text-lg font-semibold text-gray-900 flex items-center">
                 <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -1365,7 +1442,7 @@
 
 <!-- Modal para Asignar/Cambiar Responsable de Obra -->
 <div id="responsable-obra-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-[100]" style="display: none;">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+    <div class="relative top-10 mx-auto p-3 border w-96 max-w-md shadow-lg rounded-md bg-white" style="height: auto; min-height: auto;">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold text-gray-900 flex items-center">
                 <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1500,6 +1577,122 @@
 
 @push('scripts')
 <script>
+    // ===== FUNCIONES GLOBALES DE MODALES =====
+    
+    // Función para cerrar todos los modales
+    function closeAllModals() {
+        const modalIds = [
+            'cambiar-operador-modal',
+            'cambiar-obra-modal',
+            'kilometraje-modal',
+            'add-kilometraje-modal',
+            'upload-document-modal',
+            'registrar-mantenimiento-modal',
+            'responsable-obra-modal'
+        ];
+        
+        modalIds.forEach(function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }
+        });
+    }
+
+    // Funciones para el modal de cambiar operador
+    function openCambiarOperadorModal() {
+        closeAllModals();
+        const modal = document.getElementById('cambiar-operador-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+        } else {
+            console.error('Modal cambiar-operador-modal no encontrado');
+        }
+    }
+
+    function closeCambiarOperadorModal() {
+        const modal = document.getElementById('cambiar-operador-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+        // Limpiar el formulario
+        const form = document.getElementById('cambiar-operador-form');
+        if (form) form.reset();
+    }
+
+    // Funciones para el modal de cambiar obra
+    function openCambiarObraModal() {
+        closeAllModals();
+        const modal = document.getElementById('cambiar-obra-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+        } else {
+            console.error('Modal cambiar-obra-modal no encontrado');
+        }
+    }
+
+    function closeCambiarObraModal() {
+        const modal = document.getElementById('cambiar-obra-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+        // Limpiar el formulario
+        const form = document.getElementById('cambiar-obra-form');
+        if (form) form.reset();
+    }
+
+    // Funciones para el modal de mantenimiento
+    function openMantenimientoModal() {
+        closeAllModals();
+        const modal = document.getElementById('registrar-mantenimiento-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+        }
+    }
+
+    function closeMantenimientoModal() {
+        const modal = document.getElementById('registrar-mantenimiento-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    }
+
+    // ===== EVENTOS GLOBALES =====
+    
+    // Manejar tecla Escape para cerrar modales
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeAllModals();
+        }
+    });
+    
+    // Cerrar modales al hacer clic fuera de ellos
+    document.addEventListener('click', function(e) {
+        const modales = [
+            'cambiar-operador-modal',
+            'cambiar-obra-modal', 
+            'registrar-mantenimiento-modal'
+        ];
+        
+        modales.forEach(modalId => {
+            const modal = document.getElementById(modalId);
+            if (modal && e.target === modal) {
+                closeAllModals();
+            }
+        });
+    });
+
+    // ===== FIN EVENTOS GLOBALES =====
+
+    // ===== FIN FUNCIONES GLOBALES =====
+
     // Funciones para el modal de kilometraje
     function openKilometrajeModal() {
         document.getElementById('kilometraje-modal').classList.remove('hidden');
@@ -1676,17 +1869,6 @@
         }, 5000);
     }
 
-    // Funciones para el modal de cambiar obra
-    function openCambiarObraModal() {
-        document.getElementById('cambiar-obra-modal').classList.remove('hidden');
-    }
-
-    function closeCambiarObraModal() {
-        document.getElementById('cambiar-obra-modal').classList.add('hidden');
-        // Limpiar el formulario
-        document.getElementById('cambiar-obra-form').reset();
-    }
-
     // Manejar envío del formulario de cambiar obra
     document.getElementById('cambiar-obra-form').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -1737,43 +1919,6 @@
             @endif
         });
     });
-
-    // Función para cerrar todos los modales
-    function closeAllModals() {
-        // Lista de IDs de todos los modales
-        const modalIds = [
-            'cambiar-operador-modal',
-            'cambiar-obra-modal',
-            'kilometraje-modal',
-            'add-kilometraje-modal',
-            'upload-document-modal',
-            'registrar-mantenimiento-modal',
-            'responsable-obra-modal'
-        ];
-        
-        modalIds.forEach(function(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.add('hidden');
-                modal.style.display = 'none';
-                console.log(`Modal ${modalId} cerrado`);
-            } else {
-                console.warn(`Modal ${modalId} no encontrado`);
-            }
-        });
-    }
-
-    // Funciones para el modal de cambiar operador
-    function openCambiarOperadorModal() {
-        closeAllModals(); // Cerrar todos los modales primero
-        document.getElementById('cambiar-operador-modal').classList.remove('hidden');
-    }
-
-    function closeCambiarOperadorModal() {
-        document.getElementById('cambiar-operador-modal').classList.add('hidden');
-        // Limpiar el formulario
-        document.getElementById('cambiar-operador-form').reset();
-    }
 
     // Manejar envío del formulario de cambiar operador
     document.getElementById('cambiar-operador-form').addEventListener('submit', function(e) {
@@ -1826,64 +1971,6 @@
             @endif
         });
     });
-
-    // Funciones para el modal de registrar mantenimiento
-    function openMantenimientoModal() {
-        console.log('🔧 [INICIO] openMantenimientoModal llamada');
-        
-        // Cerrar todos los modales primero
-        closeAllModals();
-        
-        // Obtener el modal específico
-        const modal = document.getElementById('registrar-mantenimiento-modal');
-        if (!modal) {
-            console.error('❌ Modal registrar-mantenimiento-modal no encontrado');
-            return;
-        }
-        
-        console.log('✅ [OK] Modal encontrado:', modal);
-        
-        // Asegurar que el modal esté visible
-        modal.classList.remove('hidden');
-        modal.style.display = 'block';
-        
-        // Establecer la fecha de hoy como valor por defecto
-        const today = new Date().toISOString().split('T')[0];
-        const fechaInput = document.getElementById('fecha_inicio');
-        if (fechaInput) {
-            fechaInput.value = today;
-            console.log('📅 [OK] Fecha establecida:', today);
-        }
-        
-        console.log('📊 [VERIFICACION] Estado del modal:');
-        console.log('   - Clases:', modal.className);
-        console.log('   - Hidden:', modal.classList.contains('hidden'));
-        console.log('   - Display:', getComputedStyle(modal).display);
-        console.log('🏁 [FIN] openMantenimientoModal completada');
-    }
-
-    function closeMantenimientoModal() {
-        console.log('🔒 [INICIO] closeMantenimientoModal llamada');
-        
-        const modal = document.getElementById('registrar-mantenimiento-modal');
-        if (!modal) {
-            console.error('❌ Modal registrar-mantenimiento-modal no encontrado');
-            return;
-        }
-        
-        // Cerrar el modal
-        modal.classList.add('hidden');
-        modal.style.display = 'none';
-        
-        // Limpiar el formulario
-        const form = document.getElementById('registrar-mantenimiento-form');
-        if (form) {
-            form.reset();
-            console.log('🧹 [OK] Formulario limpiado');
-        }
-        
-        console.log('🏁 [FIN] closeMantenimientoModal completada');
-    }
 
     // Manejar envío del formulario de registrar mantenimiento
     document.getElementById('registrar-mantenimiento-form').addEventListener('submit', function(e) {
@@ -2150,6 +2237,29 @@
         } else {
             console.warn('Modal de responsable NO encontrado');
         }
+        
+        // CORRECCIÓN: Asegurar que todos los modales estén ocultos al cargar la página
+        const modalIds = [
+            'cambiar-operador-modal',
+            'cambiar-obra-modal', 
+            'registrar-mantenimiento-modal',
+            'responsable-obra-modal',
+            'kilometraje-modal'
+        ];
+        
+        modalIds.forEach(modalId => {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+                console.log(`Modal ${modalId} forzado a oculto`);
+            }
+        });
+        
+        // Asegurar que el body no tenga overflow hidden
+        document.body.style.overflow = 'auto';
+        
+        console.log('Inicialización de modales completada - todos ocultos');
     });
 </script>
 @endpush
