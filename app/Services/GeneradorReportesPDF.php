@@ -2,14 +2,16 @@
 
 namespace App\Services;
 
+use App\Traits\PdfGeneratorTrait;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 class GeneradorReportesPDF
 {
+    use PdfGeneratorTrait;
     /**
-     * Generar reporte PDF de alertas de mantenimiento
+     * Generar reporte PDF de alertas de mantenimiento - Versión Unificada
      */
     public static function generarReporteAlertas(array $alertas, array $resumen): string
     {
@@ -24,28 +26,11 @@ class GeneradorReportesPDF
                 mkdir($directorioReportes, 0755, true);
             }
 
-            // Configurar datos para la vista
-            $data = [
-                'alertas' => $alertas,
-                'resumen' => $resumen,
-                'fechaGeneracion' => $fechaGeneracion,
-                'totalPaginas' => ceil(count($alertas) / 2) ?: 1
-            ];
-
-            // Generar PDF
-            $pdf = PDF::loadView('pdf.alertas-mantenimiento', $data);
-            
-            // Configurar opciones del PDF
-            $pdf->setPaper('A4', 'portrait');
-            $pdf->setOptions([
-                'defaultFont' => 'Arial',
-                'isHtml5ParserEnabled' => true,
-                'isPhpEnabled' => true,
-                'isRemoteEnabled' => true,
-                'dpi' => 150,
-                'defaultMediaType' => 'print',
-                'isFontSubsettingEnabled' => true
-            ]);
+            // Usar trait para crear PDF con configuración estándar
+            $instance = new static();
+            $pdf = $instance->createStandardPdf('pdf.reportes.alertas-mantenimiento', compact(
+                'alertas', 'resumen', 'fechaGeneracion'
+            ), 'portrait');
 
             // Guardar el PDF
             $pdf->save($rutaCompleta);

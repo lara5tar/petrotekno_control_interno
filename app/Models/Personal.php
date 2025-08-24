@@ -156,6 +156,38 @@ class Personal extends Model
     }
 
     /**
+     * Relación con historial de operadores (como operador nuevo)
+     */
+    public function historialOperadorVehiculo(): HasMany
+    {
+        return $this->hasMany(HistorialOperadorVehiculo::class, 'operador_nuevo_id');
+    }
+
+    /**
+     * Relación con historial de operadores donde aparece como operador anterior
+     */
+    public function historialComoOperadorAnterior(): HasMany
+    {
+        return $this->hasMany(HistorialOperadorVehiculo::class, 'operador_anterior_id');
+    }
+
+    /**
+     * Relación con historial de operadores donde aparece como operador nuevo
+     */
+    public function historialComoOperadorNuevo(): HasMany
+    {
+        return $this->hasMany(HistorialOperadorVehiculo::class, 'operador_nuevo_id');
+    }
+
+    /**
+     * Obtener vehículo actualmente asignado a este operador
+     */
+    public function vehiculoActual()
+    {
+        return Vehiculo::where('operador_id', $this->id)->first();
+    }
+
+    /**
      * Obtener la asignación de obra activa actual
      */
     public function asignacionObraActual()

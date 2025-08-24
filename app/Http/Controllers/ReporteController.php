@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 use App\Enums\EstadoVehiculo;
 use App\Models\Vehiculo;
 use App\Models\Kilometraje;
+use App\Traits\PdfGeneratorTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReporteController extends Controller
 {
+    use PdfGeneratorTrait;
     /**
      * Mostrar el índice de reportes disponibles
      */
@@ -25,7 +28,12 @@ class ReporteController extends Controller
             ->orderBy('modelo')
             ->get();
 
-        return view('reportes.index', compact('vehiculosDisponibles'));
+        // Obtener operadores disponibles para el dropdown de PDF
+        $operadoresDisponibles = \App\Models\Personal::where('estatus', 'activo')
+            ->orderBy('nombre_completo')
+            ->get();
+
+        return view('reportes.index', compact('vehiculosDisponibles', 'operadoresDisponibles'));
     }
 
     /**
@@ -202,88 +210,18 @@ class ReporteController extends Controller
      */
     private function exportarInventarioExcel($vehiculos, $estadisticas)
     {
-        // Esta funcionalidad se puede implementar con Laravel Excel
-        // Por ahora devolvemos un CSV básico
-        
-        $headers = [
-            'Content-Type' => 'text/csv; charset=utf-8',
-            'Content-Disposition' => 'attachment; filename="inventario_vehiculos_' . date('Y-m-d_H-i-s') . '.csv"',
-        ];
-
-        $callback = function() use ($vehiculos) {
-            $file = fopen('php://output', 'w');
-            
-            // BOM para UTF-8
-            fputs($file, "\xEF\xBB\xBF");
-            
-            // Encabezados
-            fputcsv($file, [
-                'ID',
-                'Marca',
-                'Modelo',
-                'Año',
-                'Placas',
-                'No. Serie',
-                'Estatus',
-                'Kilometraje Actual',
-                'Último Km Registrado',
-                'Fecha Último Registro',
-                'Diferencia Km',
-                'Días Sin Registro',
-                'Necesita Registro'
-            ], ';');
-
-            // Datos
-            foreach ($vehiculos as $vehiculo) {
-                fputcsv($file, [
-                    $vehiculo->id,
-                    $vehiculo->marca,
-                    $vehiculo->modelo,
-                    $vehiculo->anio,
-                    $vehiculo->placas,
-                    $vehiculo->n_serie,
-                    $vehiculo->estado_enum->nombre(),
-                    number_format($vehiculo->kilometraje_actual, 0, ',', '.'),
-                    $vehiculo->ultimo_kilometraje_registrado ? number_format($vehiculo->ultimo_kilometraje_registrado, 0, ',', '.') : 'Sin registro',
-                    $vehiculo->fecha_ultimo_kilometraje ? $vehiculo->fecha_ultimo_kilometraje->format('d/m/Y') : 'Sin registro',
-                    $vehiculo->diferencia_kilometraje !== null ? number_format($vehiculo->diferencia_kilometraje, 0, ',', '.') : 'N/A',
-                    $vehiculo->dias_sin_registro ?? 'Sin registro',
-                    $vehiculo->necesita_registro_km ? 'Sí' : 'No'
-                ], ';');
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\InventarioVehiculosExport($vehiculos), 
+            'inventario_vehiculos_' . date('Y-m-d_H-i-s') . '.xlsx'
+        );
     }
 
     /**
-     * Exportar inventario a PDF
+     * Exportar inventario a PDF - Usando Trait Unificado
      */
     private function exportarInventarioPdf($vehiculos, $estadisticas, $filtros = [])
     {
-        // Configurar DomPDF
-        $pdf = Pdf::loadView('reportes.inventario-vehiculos-pdf', compact(
-            'vehiculos',
-            'estadisticas',
-            'filtros'
-        ));
-        
-        // Configurar opciones del PDF
-        $pdf->setPaper('A4', 'landscape'); // Horizontal para mejor visualización de la tabla
-        $pdf->setOptions([
-            'isHtml5ParserEnabled' => true,
-            'isPhpEnabled' => true,
-            'defaultFont' => 'Arial'
-        ]);
-        
-        // Generar nombre del archivo con fecha
-        $fecha = now()->format('Y-m-d_H-i-s');
-        $nombreArchivo = "inventario_vehiculos_{$fecha}.pdf";
-        
-        // Descargar el PDF
-        return $pdf->download($nombreArchivo);
+        return $this->createInventarioPdf($vehiculos, $estadisticas, $filtros);
     }
 
     /**
@@ -350,8 +288,8 @@ class ReporteController extends Controller
         $query = \App\Models\AsignacionObra::with([
             'vehiculo:id,marca,modelo,anio,placas,n_serie',
             'obra:id,nombre_obra,estatus,fecha_inicio,fecha_fin,encargado_id',
-            'obra.encargado:id,nombre,apellido_paterno,apellido_materno',
-            'operador:id,nombre,apellido_paterno,apellido_materno'
+            'obra.encargado:id,nombre_completo',
+            'operador:id,nombre_completo'
         ]);
 
         // Aplicar filtros
@@ -512,65 +450,14 @@ class ReporteController extends Controller
      */
     private function exportarHistorialObrasExcel($asignaciones, $estadisticas)
     {
-        $headers = [
-            'Content-Type' => 'text/csv; charset=utf-8',
-            'Content-Disposition' => 'attachment; filename="historial_obras_vehiculo_' . date('Y-m-d_H-i-s') . '.csv"',
-        ];
-
-        $callback = function() use ($asignaciones) {
-            $file = fopen('php://output', 'w');
-            
-            // BOM para UTF-8
-            fputs($file, "\xEF\xBB\xBF");
-            
-            // Encabezados
-            fputcsv($file, [
-                'ID Asignación',
-                'Vehículo',
-                'Placas',
-                'Obra',
-                'Encargado',
-                'Operador',
-                'Fecha Asignación',
-                'Fecha Liberación',
-                'Estado',
-                'Duración (días)',
-                'Km Inicial',
-                'Km Final',
-                'Km Recorrido',
-                'Observaciones'
-            ], ';');
-
-            // Datos
-            foreach ($asignaciones as $asignacion) {
-                fputcsv($file, [
-                    $asignacion->id,
-                    $asignacion->vehiculo ? "{$asignacion->vehiculo->marca} {$asignacion->vehiculo->modelo} {$asignacion->vehiculo->anio}" : 'Sin vehículo',
-                    $asignacion->vehiculo->placas ?? 'Sin placas',
-                    $asignacion->obra->nombre_obra ?? 'Sin obra',
-                    $asignacion->obra && $asignacion->obra->encargado ? 
-                        "{$asignacion->obra->encargado->nombre} {$asignacion->obra->encargado->apellido_paterno}" : 'Sin encargado',
-                    $asignacion->operador ? 
-                        "{$asignacion->operador->nombre} {$asignacion->operador->apellido_paterno}" : 'Sin operador',
-                    $asignacion->fecha_asignacion ? $asignacion->fecha_asignacion->format('d/m/Y') : 'Sin fecha',
-                    $asignacion->fecha_liberacion ? $asignacion->fecha_liberacion->format('d/m/Y') : 'Sin fecha',
-                    $asignacion->estado_formateado,
-                    $asignacion->duracion_dias ?? 'N/A',
-                    $asignacion->kilometraje_inicial ?? 'Sin registro',
-                    $asignacion->kilometraje_final ?? 'Sin registro',
-                    $asignacion->kilometraje_recorrido ? number_format($asignacion->kilometraje_recorrido, 0, ',', '.') : 'N/A',
-                    $asignacion->observaciones ?? 'Sin observaciones'
-                ], ';');
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\HistorialObrasExport($asignaciones), 
+            'historial_obras_vehiculo_' . date('Y-m-d_H-i-s') . '.xlsx'
+        );
     }
 
     /**
-     * Exportar historial de obras a PDF
+     * Exportar historial de obras a PDF - Usando Trait Unificado
      */
     private function exportarHistorialObrasPdf($asignaciones, $estadisticas, $filtros = [])
     {
@@ -580,34 +467,136 @@ class ReporteController extends Controller
             $vehiculo = \App\Models\Vehiculo::find($filtros['vehiculo_id']);
         }
         
-        // Configurar DomPDF
-        $pdf = Pdf::loadView('reportes.historial-obras-vehiculo-pdf', compact(
+        return $this->createHistorialObrasVehiculoPdf($asignaciones, $estadisticas, $filtros, $vehiculo);
+    }
+
+    /**
+     * Reporte de historial de obras por operador
+     */
+    public function historialObrasPorOperador(Request $request)
+    {
+        $this->checkPermission('ver_reportes');
+
+        // Obtener filtros
+        $operadorId = $request->get('operador_id');
+        $fechaInicio = $request->get('fecha_inicio');
+        $fechaFin = $request->get('fecha_fin');
+        $estadoAsignacion = $request->get('estado_asignacion');
+        $obraId = $request->get('obra_id');
+        $formato = $request->get('formato', 'html');
+
+        // Query base para obtener historial del operador usando la tabla historial_operador_vehiculo
+        $query = \App\Models\HistorialOperadorVehiculo::with([
+            'vehiculo:id,marca,modelo,anio,placas,n_serie',
+            'operadorNuevo:id,nombre_completo',
+            'operadorAnterior:id,nombre_completo',
+            'usuarioAsigno:id,email',
+            'obra:id,nombre_obra,estatus'
+        ]);
+
+        // Aplicar filtros
+        if ($operadorId) {
+            $query->where(function($q) use ($operadorId) {
+                $q->where('operador_nuevo_id', $operadorId)
+                  ->orWhere('operador_anterior_id', $operadorId);
+            });
+        }
+
+        if ($fechaInicio) {
+            $query->whereDate('fecha_asignacion', '>=', $fechaInicio);
+        }
+
+        if ($fechaFin) {
+            $query->whereDate('fecha_asignacion', '<=', $fechaFin);
+        }
+
+        if ($obraId) {
+            $query->where('obra_id', $obraId);
+        }
+
+        // Ordenar por fecha más reciente
+        $query->orderBy('fecha_asignacion', 'desc');
+
+        $asignaciones = $query->get();
+
+        // Calcular estadísticas
+        $estadisticas = [
+            'total_movimientos' => $asignaciones->count(),
+            'asignaciones_iniciales' => $asignaciones->where('tipo_movimiento', 'asignacion_inicial')->count(),
+            'cambios_operador' => $asignaciones->where('tipo_movimiento', 'cambio_operador')->count(),
+            'remociones' => $asignaciones->where('tipo_movimiento', 'remocion_operador')->count(),
+            'vehiculos_diferentes' => $asignaciones->pluck('vehiculo_id')->unique()->count(),
+            'obras_diferentes' => $asignaciones->whereNotNull('obra_id')->pluck('obra_id')->unique()->count()
+        ];
+
+        // Obtener datos para los filtros
+        $operadoresDisponibles = \App\Models\Personal::where('estatus', 'activo')
+            ->whereHas('historialComoOperadorNuevo')
+            ->orWhereHas('historialComoOperadorAnterior')
+            ->orderBy('nombre_completo')
+            ->get();
+
+        $obrasDisponibles = \App\Models\Obra::whereIn('id', 
+            $asignaciones->whereNotNull('obra_id')->pluck('obra_id')->unique()
+        )->orderBy('nombre_obra')->get();
+
+        // Manejar exportación
+        if ($formato === 'excel') {
+            return $this->exportarHistorialOperadorExcel($asignaciones, $estadisticas);
+        }
+
+        if ($formato === 'pdf') {
+            return $this->exportarHistorialOperadorPdf($asignaciones, $estadisticas, [
+                'operador_id' => $operadorId,
+                'fecha_inicio' => $fechaInicio,
+                'fecha_fin' => $fechaFin,
+                'estado_asignacion' => $estadoAsignacion,
+                'obra_id' => $obraId
+            ]);
+        }
+
+        // Filtros aplicados para la vista
+        $filtrosAplicados = [
+            'operador_id' => $operadorId,
+            'fecha_inicio' => $fechaInicio,
+            'fecha_fin' => $fechaFin,
+            'estado_asignacion' => $estadoAsignacion,
+            'obra_id' => $obraId,
+            'total_filtros' => collect([$operadorId, $fechaInicio, $fechaFin, $estadoAsignacion, $obraId])->filter()->count()
+        ];
+
+        return view('reportes.historial-obras-operador', compact([
             'asignaciones',
             'estadisticas',
-            'filtros',
-            'vehiculo'
-        ));
-        
-        // Configurar opciones del PDF
-        $pdf->setPaper('A4', 'landscape');
-        $pdf->setOptions([
-            'isHtml5ParserEnabled' => true,
-            'isPhpEnabled' => true,
-            'defaultFont' => 'Arial'
-        ]);
-        
-        // Generar nombre del archivo específico para el vehículo
-        $fecha = now()->format('Y-m-d_H-i-s');
-        if ($vehiculo) {
-            $vehiculoInfo = $vehiculo->marca . '_' . $vehiculo->modelo . '_' . $vehiculo->placas;
-            $vehiculoInfo = str_replace([' ', '-', '.'], '_', $vehiculoInfo);
-            $nombreArchivo = "historial_obras_{$vehiculoInfo}_{$fecha}.pdf";
-        } else {
-            $nombreArchivo = "historial_obras_vehiculo_{$fecha}.pdf";
+            'operadoresDisponibles',
+            'obrasDisponibles',
+            'filtrosAplicados'
+        ]));
+    }
+
+    /**
+     * Exportar historial de operador a Excel
+     */
+    private function exportarHistorialOperadorExcel($asignaciones, $estadisticas)
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\HistorialOperadorExport($asignaciones), 
+            'historial_obras_operador_' . date('Y-m-d_H-i-s') . '.xlsx'
+        );
+    }
+
+    /**
+     * Exportar historial de operador a PDF - Usando Trait Unificado
+     */
+    private function exportarHistorialOperadorPdf($asignaciones, $estadisticas, $filtros = [])
+    {
+        // Obtener información del operador para el PDF
+        $operador = null;
+        if (isset($filtros['operador_id'])) {
+            $operador = \App\Models\Personal::find($filtros['operador_id']);
         }
         
-        // Descargar el PDF
-        return $pdf->download($nombreArchivo);
+        return $this->createHistorialObrasOperadorPdf($asignaciones, $estadisticas, $filtros, $operador);
     }
 
     /**
@@ -618,5 +607,278 @@ class ReporteController extends Controller
         if (!Auth::user()->hasPermission($ability)) {
             abort(403, 'No tienes permisos para acceder a los reportes.');
         }
+    }
+
+    public function historialMantenimientosPorVehiculo(Request $request)
+    {
+        $this->checkPermission('ver_reportes');
+
+        // Obtener filtros
+        $vehiculoId = $request->get('vehiculo_id');
+        $fechaInicio = $request->get('fecha_inicio');
+        $fechaFin = $request->get('fecha_fin');
+        $tipoServicio = $request->get('tipo_servicio'); // Cambio: usar tipo_servicio en lugar de tipo_mantenimiento
+        $formato = $request->get('formato', 'html');
+
+        // Query base para obtener mantenimientos
+        $query = \App\Models\Mantenimiento::with([
+            'vehiculo:id,marca,modelo,anio,placas,n_serie'
+        ]);
+
+        // Aplicar filtros
+        if ($vehiculoId) {
+            $query->where('vehiculo_id', $vehiculoId);
+        }
+
+        if ($fechaInicio) {
+            $query->whereDate('fecha_inicio', '>=', $fechaInicio); // Cambio: usar fecha_inicio
+        }
+
+        if ($fechaFin) {
+            $query->whereDate('fecha_fin', '<=', $fechaFin); // Cambio: usar fecha_fin
+        }
+
+        if ($tipoServicio) {
+            $query->where('tipo_servicio', $tipoServicio); // Cambio: usar tipo_servicio
+        }
+
+        // Ordenar por fecha más reciente
+        $query->orderBy('fecha_inicio', 'desc'); // Cambio: usar fecha_inicio
+
+        $mantenimientos = $query->get();
+
+        // Calcular estadísticas
+        $estadisticas = [
+            'total_mantenimientos' => $mantenimientos->count(),
+            'mantenimiento_preventivo' => $mantenimientos->where('tipo_servicio', 'PREVENTIVO')->count(),
+            'mantenimiento_correctivo' => $mantenimientos->where('tipo_servicio', 'CORRECTIVO')->count(),
+            'costo_total' => $mantenimientos->sum('costo'),
+            'costo_promedio' => $mantenimientos->count() > 0 ? $mantenimientos->average('costo') : 0,
+        ];
+
+        // Obtener vehículos disponibles para los filtros
+        $vehiculosDisponibles = \App\Models\Vehiculo::orderBy('marca')->orderBy('modelo')->get();
+
+        if ($formato === 'pdf') {
+            // Obtener información del vehículo si se especifica
+            $vehiculoInfo = null;
+            if ($vehiculoId) {
+                $vehiculoInfo = \App\Models\Vehiculo::find($vehiculoId);
+            }
+
+            // Usar trait unificado para generar PDF
+            return $this->createHistorialMantenimientosPdf(
+                $mantenimientos,
+                $estadisticas,
+                compact('fechaInicio', 'fechaFin') + ['tipo_mantenimiento' => $tipoServicio],
+                $vehiculoInfo
+            );
+        }
+
+        if ($formato === 'excel') {
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\MantenimientosExport($mantenimientos), 
+                'historial_mantenimientos_vehiculo_' . now()->format('Y_m_d_H_i_s') . '.xlsx'
+            );
+        }
+
+        return view('reportes.historial-mantenimientos-vehiculo', compact(
+            'mantenimientos',
+            'estadisticas',
+            'vehiculosDisponibles',
+            'vehiculoId',
+            'fechaInicio',
+            'fechaFin',
+            'tipoServicio'
+        ));
+    }
+
+    /**
+     * Reporte de kilometrajes de vehículos
+     */
+    public function kilometrajes(Request $request)
+    {
+        $this->checkPermission('ver_reportes');
+
+        // Obtener filtros
+        $vehiculoId = $request->get('vehiculo_id');
+        $fechaInicio = $request->get('fecha_inicio');
+        $fechaFin = $request->get('fecha_fin');
+        $formato = $request->get('formato', 'html');
+
+        // Query base
+        $query = Kilometraje::with(['vehiculo', 'obra'])
+            ->join('vehiculos', 'kilometrajes.vehiculo_id', '=', 'vehiculos.id')
+            ->select('kilometrajes.*');
+
+        // Aplicar filtros
+        if ($vehiculoId) {
+            $query->where('kilometrajes.vehiculo_id', $vehiculoId);
+        }
+
+        if ($fechaInicio) {
+            $query->where('kilometrajes.fecha_captura', '>=', $fechaInicio);
+        }
+
+        if ($fechaFin) {
+            $query->where('kilometrajes.fecha_captura', '<=', $fechaFin);
+        }
+
+        // Ordenar por fecha descendente
+        $kilometrajes = $query->orderBy('kilometrajes.fecha_captura', 'desc')
+            ->orderBy('vehiculos.marca')
+            ->orderBy('vehiculos.modelo')
+            ->paginate(50);
+
+        // Obtener vehículos disponibles para el filtro
+        $vehiculosDisponibles = Vehiculo::select('id', 'marca', 'modelo', 'anio', 'placas')
+            ->orderBy('marca')
+            ->orderBy('modelo')
+            ->get();
+
+        // Estadísticas generales
+        $estadisticas = [
+            'total_registros' => $kilometrajes->total(),
+            'vehiculos_con_kilometraje' => Kilometraje::distinct('vehiculo_id')->count(),
+            'kilometraje_promedio' => Kilometraje::avg('kilometraje'),
+            'ultimo_registro' => Kilometraje::latest('fecha_captura')->first()
+        ];
+
+        // Si se solicita Excel, generar y retornar
+        if ($formato === 'excel') {
+            return Excel::download(
+                new \App\Exports\KilometrajesExport($kilometrajes), 
+                'reporte_kilometrajes_' . date('Y-m-d_H-i-s') . '.xlsx'
+            );
+        }
+
+        // Si se solicita PDF, generar y retornar
+        if ($formato === 'pdf') {
+            $pdf = Pdf::loadView('pdf.reportes.kilometrajes', compact(
+                'kilometrajes',
+                'estadisticas',
+                'vehiculoId',
+                'fechaInicio',
+                'fechaFin'
+            ))->setPaper('a4', 'landscape');
+
+            return $pdf->download('reporte-kilometrajes-' . date('Y-m-d') . '.pdf');
+        }
+
+        return view('reportes.kilometrajes', compact(
+            'kilometrajes',
+            'estadisticas',
+            'vehiculosDisponibles',
+            'vehiculoId',
+            'fechaInicio',
+            'fechaFin'
+        ));
+    }
+
+    /**
+     * Reporte de mantenimientos pendientes
+     */
+    public function mantenimientosPendientes(Request $request)
+    {
+        $this->checkPermission('ver_reportes');
+
+        // Obtener filtros
+        $vehiculoId = $request->get('vehiculo_id');
+        $tipoServicio = $request->get('tipo_servicio');
+        $sistemaVehiculo = $request->get('sistema_vehiculo');
+        $proveedor = $request->get('proveedor');
+        $formato = $request->get('formato', 'html');
+
+        // Query base para mantenimientos pendientes
+        $query = \App\Models\Mantenimiento::with(['vehiculo'])
+            ->pending()  // Solo mantenimientos sin fecha_fin
+            ->join('vehiculos', 'mantenimientos.vehiculo_id', '=', 'vehiculos.id')
+            ->select('mantenimientos.*');
+
+        // Aplicar filtros
+        if ($vehiculoId) {
+            $query->where('mantenimientos.vehiculo_id', $vehiculoId);
+        }
+
+        if ($tipoServicio) {
+            $query->where('mantenimientos.tipo_servicio', $tipoServicio);
+        }
+
+        if ($sistemaVehiculo) {
+            $query->where('mantenimientos.sistema_vehiculo', $sistemaVehiculo);
+        }
+
+        if ($proveedor) {
+            $query->where('mantenimientos.proveedor', 'LIKE', '%' . $proveedor . '%');
+        }
+
+        // Ordenar por fecha de inicio descendente (más recientes primero)
+        $mantenimientos = $query->orderBy('mantenimientos.fecha_inicio', 'desc')
+            ->orderBy('vehiculos.marca')
+            ->orderBy('vehiculos.modelo')
+            ->paginate(50);
+
+        // Obtener datos para filtros
+        $vehiculosDisponibles = Vehiculo::select('id', 'marca', 'modelo', 'anio', 'placas')
+            ->orderBy('marca')
+            ->orderBy('modelo')
+            ->get();
+
+        $tiposServicio = \App\Models\Mantenimiento::getTiposServicio();
+        $sistemasVehiculo = \App\Models\Mantenimiento::getSistemasVehiculo();
+        
+        $proveedoresDisponibles = \App\Models\Mantenimiento::select('proveedor')
+            ->whereNotNull('proveedor')
+            ->where('proveedor', '!=', '')
+            ->distinct()
+            ->orderBy('proveedor')
+            ->pluck('proveedor');
+
+        // Estadísticas generales
+        $estadisticas = [
+            'total_pendientes' => $mantenimientos->total(),
+            'mantenimientos_correctivos' => \App\Models\Mantenimiento::pending()->where('tipo_servicio', 'CORRECTIVO')->count(),
+            'mantenimientos_preventivos' => \App\Models\Mantenimiento::pending()->where('tipo_servicio', 'PREVENTIVO')->count(),
+            'vehiculos_en_mantenimiento' => \App\Models\Mantenimiento::pending()->distinct('vehiculo_id')->count(),
+            'costo_estimado' => \App\Models\Mantenimiento::pending()->sum('costo'),
+            'dias_promedio_pendiente' => \App\Models\Mantenimiento::pending()
+                ->selectRaw('AVG(DATEDIFF(CURDATE(), fecha_inicio)) as promedio')
+                ->value('promedio') ?? 0
+        ];
+
+        // Si se solicita Excel, generar y retornar
+        if ($formato === 'excel') {
+            return Excel::download(
+                new \App\Exports\MantenimientosPendientesExport($mantenimientos), 
+                'mantenimientos_pendientes_' . date('Y-m-d_H-i-s') . '.xlsx'
+            );
+        }
+
+        // Si se solicita PDF, generar y retornar
+        if ($formato === 'pdf') {
+            $pdf = Pdf::loadView('pdf.reportes.mantenimientos-pendientes', compact(
+                'mantenimientos',
+                'estadisticas',
+                'vehiculoId',
+                'tipoServicio',
+                'sistemaVehiculo',
+                'proveedor'
+            ))->setPaper('a4', 'landscape');
+
+            return $pdf->download('reporte-mantenimientos-pendientes-' . date('Y-m-d') . '.pdf');
+        }
+
+        return view('reportes.mantenimientos-pendientes', compact(
+            'mantenimientos',
+            'estadisticas',
+            'vehiculosDisponibles',
+            'tiposServicio',
+            'sistemasVehiculo',
+            'proveedoresDisponibles',
+            'vehiculoId',
+            'tipoServicio',
+            'sistemaVehiculo',
+            'proveedor'
+        ));
     }
 }

@@ -76,17 +76,33 @@
 
                 <!-- Tipo de Servicio -->
                 <div>
-                    <label for="tipo_servicio_id" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Servicio *</label>
-                    <select id="tipo_servicio_id" name="tipo_servicio_id" required
-                            class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('tipo_servicio_id') border-red-300 @enderror">
+                    <label for="tipo_servicio" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Servicio *</label>
+                    <select id="tipo_servicio" name="tipo_servicio" required
+                            class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('tipo_servicio') border-red-300 @enderror">
                         <option value="">Seleccione un tipo de servicio</option>
                         @foreach($tiposServicioOptions as $tipo)
-                            <option value="{{ $tipo->id }}" {{ old('tipo_servicio_id') == $tipo->id ? 'selected' : '' }}>
+                            <option value="{{ $tipo->id }}" {{ old('tipo_servicio') == $tipo->id ? 'selected' : '' }}>
                                 {{ $tipo->nombre_tipo_servicio }}
                             </option>
                         @endforeach
                     </select>
-                    @error('tipo_servicio_id')
+                    @error('tipo_servicio')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Sistema del Vehículo -->
+                <div>
+                    <label for="sistema_vehiculo" class="block text-sm font-medium text-gray-700 mb-1">Sistema del Vehículo *</label>
+                    <select id="sistema_vehiculo" name="sistema_vehiculo" required
+                            class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('sistema_vehiculo') border-red-300 @enderror">
+                        <option value="">Seleccione un sistema</option>
+                        <option value="motor" {{ old('sistema_vehiculo') == 'motor' ? 'selected' : '' }}>Motor</option>
+                        <option value="transmision" {{ old('sistema_vehiculo') == 'transmision' ? 'selected' : '' }}>Transmisión</option>
+                        <option value="hidraulico" {{ old('sistema_vehiculo') == 'hidraulico' ? 'selected' : '' }}>Hidráulico</option>
+                        <option value="general" {{ old('sistema_vehiculo') == 'general' ? 'selected' : '' }}>General</option>
+                    </select>
+                    @error('sistema_vehiculo')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -105,20 +121,20 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Proveedor -->
                 <div>
-                    <label for="proveedor_servicio" class="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
-                    <input id="proveedor_servicio" type="text" name="proveedor_servicio" 
-                           value="{{ old('proveedor_servicio') }}" 
+                    <label for="proveedor" class="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
+                    <input id="proveedor" type="text" name="proveedor" 
+                           value="{{ old('proveedor') }}" 
                            placeholder="Nombre del proveedor o taller"
-                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('proveedor_servicio') border-red-300 @enderror">
-                    @error('proveedor_servicio')
+                           class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('proveedor') border-red-300 @enderror">
+                    @error('proveedor')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <!-- Kilometraje -->
                 <div>
-                    <label for="kilometraje_servicio" class="block text-sm font-medium text-gray-700 mb-1">Kilometraje</label>
-                    <input id="kilometraje_servicio" type="number" name="kilometraje_servicio" 
+                    <label for="kilometraje_servicio" class="block text-sm font-medium text-gray-700 mb-1">Kilometraje *</label>
+                    <input id="kilometraje_servicio" type="number" name="kilometraje_servicio" required
                            value="{{ old('kilometraje_servicio') }}" 
                            min="0" 
                            placeholder="Kilometraje al momento del servicio"
@@ -131,11 +147,11 @@
 
             <!-- Descripción -->
             <div class="mt-6">
-                <label for="descripcion_servicio" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                <textarea id="descripcion_servicio" name="descripcion_servicio" rows="3" 
+                <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                <textarea id="descripcion" name="descripcion" rows="3" 
                           placeholder="Descripción del servicio realizado"
-                          class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('descripcion_servicio') border-red-300 @enderror">{{ old('descripcion_servicio') }}</textarea>
-                @error('descripcion_servicio')
+                          class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('descripcion') border-red-300 @enderror">{{ old('descripcion') }}</textarea>
+                @error('descripcion')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>

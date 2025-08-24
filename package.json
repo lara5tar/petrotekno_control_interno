@@ -29,5 +29,10 @@
     "control-interno"
   ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "main": "playwright.config.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  }
 }

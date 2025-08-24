@@ -751,6 +751,47 @@ Route::middleware(['auth'])->prefix('reportes')->name('reportes.')->group(functi
     Route::get('/vehiculos-baja', [App\Http\Controllers\ReporteController::class, 'vehiculosBaja'])
         ->name('vehiculos-baja');
     
+    Route::get('/kilometrajes', [App\Http\Controllers\ReporteController::class, 'kilometrajes'])
+        ->name('kilometrajes');
+    
+    Route::get('/mantenimientos-pendientes', [App\Http\Controllers\ReporteController::class, 'mantenimientosPendientes'])
+        ->name('mantenimientos-pendientes');
+    
     Route::get('/historial-obras-vehiculo', [App\Http\Controllers\ReporteController::class, 'historialObrasVehiculo'])
         ->name('historial-obras-vehiculo');
+    
+    Route::get('/historial-obras-operador', [App\Http\Controllers\ReporteController::class, 'historialObrasPorOperador'])
+        ->name('historial-obras-operador');
+    
+    Route::get('/historial-mantenimientos-vehiculo', [App\Http\Controllers\ReporteController::class, 'historialMantenimientosPorVehiculo'])
+        ->name('historial-mantenimientos-vehiculo');
+});
+
+// Rutas para funcionalidad de Obras por Operador
+Route::middleware('auth')->prefix('operadores')->name('operadores.')->group(function () {
+    // Vista principal de obras por operador
+    Route::get('/obras-por-operador', [App\Http\Controllers\OperadorObraController::class, 'index'])
+        ->name('obras-por-operador')
+        ->middleware('permission:ver_personal');
+    
+    // Detalle de obras de un operador específico
+    Route::get('/{operador}/obras', [App\Http\Controllers\OperadorObraController::class, 'show'])
+        ->name('obras-operador.show')
+        ->middleware('permission:ver_personal');
+    
+    // Filtrar operadores por obra específica
+    Route::get('/filtrar-por-obra', [App\Http\Controllers\OperadorObraController::class, 'filtrarPorObra'])
+        ->name('filtrar-por-obra')
+        ->middleware('permission:ver_personal');
+});
+
+// Rutas API para funcionalidad de Obras por Operador
+Route::middleware('auth')->prefix('api/operadores')->group(function () {
+    // API: Obtener obras de un operador específico
+    Route::get('/{operador}/obras', [App\Http\Controllers\OperadorObraController::class, 'apiObrasOperador'])
+        ->middleware('permission:ver_personal');
+    
+    // API: Obtener estadísticas de operador en obra específica
+    Route::get('/{operador}/obras/{obraId}/estadisticas', [App\Http\Controllers\OperadorObraController::class, 'apiEstadisticasOperadorEnObra'])
+        ->middleware('permission:ver_personal');
 });

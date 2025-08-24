@@ -1,0 +1,199 @@
+@extends('pdf.layouts.base')
+
+@section('title', 'Inventario de Vehículos')
+@section('report-title', 'Inventario General de Vehículos')
+@section('report-subtitle', 'Reporte completo del inventario vehicular con último kilometraje registrado')
+
+@section('content')
+    <!-- Sección de Estadísticas -->
+    @if(isset($estadisticas) && count($estadisticas) > 0)
+        <div class="pdf-stats-section">
+            <h3 class="stats-title">Resumen Ejecutivo</h3>
+            <div class="stats-grid">
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $estadisticas['total'] ?? 0 }}</span>
+                        <span class="stat-label">Total Vehículos</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $estadisticas['por_estado']['disponible'] ?? 0 }}</span>
+                        <span class="stat-label">Disponibles</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $estadisticas['por_estado']['asignado'] ?? 0 }}</span>
+                        <span class="stat-label">Asignados</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $estadisticas['por_estado']['mantenimiento'] ?? 0 }}</span>
+                        <span class="stat-label">Mantenimiento</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $estadisticas['por_estado']['fuera_servicio'] ?? 0 }}</span>
+                        <span class="stat-label">Fuera Servicio</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $estadisticas['por_estado']['baja'] ?? 0 }}</span>
+                        <span class="stat-label">Dados de Baja</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Información de Filtros Aplicados -->
+    @if(isset($filtros) && count($filtros) > 0)
+        <div class="pdf-info-section">
+            <div class="info-grid">
+                @if(isset($filtros['estatus']) && $filtros['estatus'])
+                    <div class="info-row">
+                        <div class="info-label">Estado Filtrado:</div>
+                        <div class="info-value">{{ ucfirst(str_replace('_', ' ', $filtros['estatus'])) }}</div>
+                    </div>
+                @endif
+                @if(isset($filtros['marca']) && $filtros['marca'])
+                    <div class="info-row">
+                        <div class="info-label">Marca Filtrada:</div>
+                        <div class="info-value">{{ $filtros['marca'] }}</div>
+                    </div>
+                @endif
+                @if(isset($filtros['anio']) && $filtros['anio'])
+                    <div class="info-row">
+                        <div class="info-label">Año Filtrado:</div>
+                        <div class="info-value">{{ $filtros['anio'] }}</div>
+                    </div>
+                @endif
+                <div class="info-row">
+                    <div class="info-label">Total de Registros:</div>
+                    <div class="info-value">{{ count($vehiculos) }} vehículos</div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Tabla Principal de Vehículos -->
+    <table class="pdf-table">
+        <thead>
+            <tr>
+                <th style="width: 8%;">#</th>
+                <th style="width: 15%;">Marca/Modelo</th>
+                <th style="width: 8%;">Año</th>
+                <th style="width: 12%;">Placas</th>
+                <th style="width: 15%;">No. Serie</th>
+                <th style="width: 10%;">Estado</th>
+                <th style="width: 12%;">Km Actual</th>
+                <th style="width: 12%;">Último Registro</th>
+                <th style="width: 8%;">Diferencia</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($vehiculos as $index => $vehiculo)
+                <tr>
+                    <td class="text-center">{{ $index + 1 }}</td>
+                    <td class="text-bold">
+                        {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
+                    </td>
+                    <td class="text-center">{{ $vehiculo->anio }}</td>
+                    <td class="text-center no-wrap">{{ $vehiculo->placas ?: 'N/A' }}</td>
+                    <td class="font-small break-word">{{ $vehiculo->n_serie ?: 'N/A' }}</td>
+                    <td class="text-center">
+                        @php
+                            $statusValue = $vehiculo->estatus->value ?? $vehiculo->estatus;
+                            $statusClass = match($statusValue) {
+                                'disponible' => 'status-disponible',
+                                'asignado' => 'status-asignado',
+                                'mantenimiento' => 'status-mantenimiento',
+                                'fuera_servicio' => 'status-fuera-servicio',
+                                'baja' => 'status-baja',
+                                default => 'status-disponible'
+                            };
+                        @endphp
+                        <span class="status-badge {{ $statusClass }}">
+                            {{ ucfirst(str_replace('_', ' ', $statusValue)) }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        @if($vehiculo->kilometraje_actual)
+                            <span class="text-bold">{{ number_format($vehiculo->kilometraje_actual) }} km</span>
+                        @else
+                            <span class="text-muted font-small">Sin registro</span>
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        @if($vehiculo->ultimo_kilometraje_registrado)
+                            <div class="text-bold">{{ number_format($vehiculo->ultimo_kilometraje_registrado) }} km</div>
+                            @if($vehiculo->fecha_ultimo_kilometraje)
+                                <div class="font-small text-muted">
+                                    {{ \Carbon\Carbon::parse($vehiculo->fecha_ultimo_kilometraje)->format('d/m/Y') }}
+                                </div>
+                            @endif
+                        @else
+                            <span class="text-muted font-small">Sin registro</span>
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        @if($vehiculo->kilometraje_actual && $vehiculo->ultimo_kilometraje_registrado)
+                            @php
+                                $diferencia = $vehiculo->ultimo_kilometraje_registrado - $vehiculo->kilometraje_actual;
+                                $diferenciaClass = $diferencia > 0 ? 'text-success' : ($diferencia < 0 ? 'text-danger' : 'text-muted');
+                                $diferenciaIcon = $diferencia > 0 ? '+' : '';
+                            @endphp
+                            <span class="text-bold {{ $diferenciaClass }}">
+                                {{ $diferenciaIcon }}{{ number_format($diferencia) }} km
+                            </span>
+                        @else
+                            <span class="text-muted font-small">N/A</span>
+                        @endif
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="9" class="text-center text-muted p-15">
+                        No se encontraron vehículos con los criterios especificados
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    <!-- Resumen de Kilometrajes -->
+    @if(count($vehiculos) > 0)
+        <div class="pdf-stats-section mt-20">
+            <h3 class="stats-title">Resumen de Kilometrajes</h3>
+            <div class="stats-grid">
+                <div class="stats-row">
+                    @php
+                        $vehiculosConKm = $vehiculos->whereNotNull('kilometraje_actual');
+                        $promedioKm = $vehiculosConKm->avg('kilometraje_actual');
+                        $maxKm = $vehiculosConKm->max('kilometraje_actual');
+                        $minKm = $vehiculosConKm->min('kilometraje_actual');
+                        $vehiculosSinRegistro = $vehiculos->whereNull('ultimo_kilometraje_registrado')->count();
+                    @endphp
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $vehiculosConKm->count() }}</span>
+                        <span class="stat-label">Con Kilometraje</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $promedioKm ? number_format($promedioKm, 0) : '0' }}</span>
+                        <span class="stat-label">Promedio Km</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $maxKm ? number_format($maxKm, 0) : '0' }}</span>
+                        <span class="stat-label">Mayor Km</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $minKm ? number_format($minKm, 0) : '0' }}</span>
+                        <span class="stat-label">Menor Km</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number text-warning">{{ $vehiculosSinRegistro }}</span>
+                        <span class="stat-label">Sin Último Registro</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+@endsection
+
+@section('footer-info')
+    Inventario generado el {{ now()->format('d/m/Y H:i:s') }} - Total: {{ count($vehiculos) }} vehículos
+@endsection

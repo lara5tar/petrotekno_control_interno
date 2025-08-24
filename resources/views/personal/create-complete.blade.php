@@ -12,7 +12,45 @@
                         <i class="fas fa-user-plus me-2"></i>
                         Crear Personal Completo
                     </h3>
-                    <a href="{{ route('personal.index') }}" class="btn btn-secondary">
+                    <a href="{{ route('pers    function loadSavedFiles() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            console.log('📂 Archivos guardados encontrados:', Object.keys(saved).length);
+            
+            if (Object.keys(saved).length > 0) {
+                Object.keys(saved).forEach(inputId => {
+                    const fileInfo = saved[inputId];
+                    console.log('🔄 Restaurando:', inputId, fileInfo.name);
+                    showFileStatus(inputId, fileInfo.name, fileInfo.size, false);
+                });
+                
+                // Mostrar mensaje de archivos recuperados
+                showRecoveryMessage();
+            }
+        } catch (e) {
+            console.error('❌ Error cargando archivos:', e);
+        }
+    }
+    
+    function showRecoveryMessage() {
+        // Solo mostrar si hay errores de validación
+        if (document.querySelector('.alert-danger')) {
+            const existingMsg = document.querySelector('.recovery-message');
+            if (existingMsg) return; // Ya existe
+            
+            const alertContainer = document.querySelector('.alert-danger').parentElement;
+            const recoveryAlert = document.createElement('div');
+            recoveryAlert.className = 'alert alert-info recovery-message mt-2';
+            recoveryAlert.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Archivos recuperados:</strong> Tus archivos seleccionados anteriormente se han mantenido.
+                    Solo corrige los errores y envía el formulario nuevamente.
+                </div>
+            `;
+            alertContainer.appendChild(recoveryAlert);
+        }
+    }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-1"></i>
                         Volver
                     </a>
@@ -27,6 +65,18 @@
                                     <li>{{ $error }}</li>
                                 @endforeach
                             </ul>
+                        </div>
+                        
+                        <!-- Mensaje informativo sobre archivos conservados -->
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <div>
+                                    <strong>Archivos conservados:</strong> Los archivos que seleccionaste anteriormente se mantienen. 
+                                    Solo necesitas corregir los campos marcados con error y enviar el formulario nuevamente.
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
 
@@ -486,7 +536,156 @@
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+// SISTEMA DE PERSISTENCIA DE ARCHIVOS - VERSIÓN MEJORADA
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Sistema de persistencia iniciado');
+    
+    const STORAGE_KEY = 'personal_files_backup';
+    
+    // Funciones de persistencia
+    function saveFileInfo(inputId, fileName, fileSize) {
+        try {
+            let saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            saved[inputId] = {
+                name: fileName,
+                size: fileSize,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+            console.log('💾 Archivo guardado:', inputId, fileName);
+            showFileStatus(inputId, fileName, fileSize, true);
+        } catch (e) {
+            console.error('❌ Error guardando archivo:', e);
+        }
+    }
+    
+    function loadSavedFiles() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            console.log('📂 Archivos guardados encontrados:', Object.keys(saved).length);
+            
+            Object.keys(saved).forEach(inputId => {
+                const fileInfo = saved[inputId];
+                console.log('� Restaurando:', inputId, fileInfo.name);
+                showFileStatus(inputId, fileInfo.name, fileInfo.size, false);
+            });
+        } catch (e) {
+            console.error('❌ Error cargando archivos:', e);
+        }
+    }
+    
+    function showFileStatus(inputId, fileName, fileSize, isNew = true) {
+        const input = document.getElementById(inputId);
+        if (!input) {
+            console.warn('⚠️ Input no encontrado:', inputId);
+            return;
+        }
+        
+        console.log('👁️ Mostrando status para:', inputId, fileName);
+        
+        // Remover status anterior
+        const oldStatus = input.parentElement.querySelector('.file-status');
+        if (oldStatus) {
+            console.log('🗑️ Removiendo status anterior');
+            oldStatus.remove();
+        }
+        
+        // Crear nuevo status
+        const status = document.createElement('div');
+        status.className = 'file-status mt-2 p-2 border rounded ' + (isNew ? 'border-success bg-success-light' : 'border-warning bg-warning-light');
+        status.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-file text-primary me-2"></i>
+                    <strong>${fileName}</strong>
+                    <small class="text-muted ms-2">(${formatFileSize(fileSize)})</small>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile('${inputId}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <small class="text-muted d-block mt-1">
+                ${isNew ? '✅ Archivo seleccionado correctamente' : '⚠️ Archivo recuperado - vuelve a seleccionar si necesitas cambiarlo'}
+            </small>
+        `;
+        
+        // Insertar después del input
+        const parentDiv = input.parentElement;
+        parentDiv.appendChild(status);
+        
+        console.log('✅ Status mostrado para:', inputId);
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Función global para remover archivos
+    window.removeFile = function(inputId) {
+        try {
+            let saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            delete saved[inputId];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+            
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.value = '';
+                const status = input.parentElement.querySelector('.file-status');
+                if (status) status.remove();
+            }
+            console.log('🗑️ Archivo removido:', inputId);
+        } catch (e) {
+            console.error('❌ Error removiendo archivo:', e);
+        }
+    };
+    
+    // Manejar selección de archivos
+    document.querySelectorAll('input[type="file"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                // Validar tamaño
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Archivo demasiado grande. Máximo 10MB.');
+                    this.value = '';
+                    return;
+                }
+                
+                saveFileInfo(this.id, file.name, file.size);
+            }
+        });
+    });
+    
+    // Cargar archivos guardados al inicio
+    console.log('⏰ Programando carga de archivos guardados...');
+    setTimeout(() => {
+        console.log('🔄 Cargando archivos guardados...');
+        loadSavedFiles();
+    }, 500); // Dar tiempo para que el DOM se complete
+    
+    // Limpiar al salir exitosamente
+    const form = document.getElementById('personalCompleteForm');
+    if (form) {
+        form.addEventListener('submit', function() {
+            // Solo limpiar si no hay errores después del submit
+            setTimeout(() => {
+                if (window.location.href.includes('/personal/') && !window.location.href.includes('/create')) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    console.log('🧹 Archivos limpiados por éxito');
+                }
+            }, 1000);
+        });
+    }
+});
+
+// FUNCIONALIDAD ORIGINAL DEL FORMULARIO
 $(document).ready(function() {
+    console.log('🔧 Funciones del formulario cargadas');
+    
     // Mostrar/ocultar campos de usuario
     $('#crear_usuario').change(function() {
         if ($(this).is(':checked')) {
@@ -509,7 +708,7 @@ $(document).ready(function() {
         let isValid = true;
         let errorMessage = '';
 
-        // Validar que al menos un documento esté seleccionado
+        // Validar que al menos un documento esté seleccionado O guardado
         const documentos = [
             '#documento_identificacion',
             '#documento_curp',
@@ -521,11 +720,25 @@ $(document).ready(function() {
         ];
 
         let tieneDocumento = false;
+        
+        // Verificar archivos actuales
         documentos.forEach(function(selector) {
             if ($(selector)[0].files.length > 0) {
                 tieneDocumento = true;
             }
         });
+        
+        // Verificar archivos guardados
+        if (!tieneDocumento) {
+            try {
+                const saved = JSON.parse(localStorage.getItem('personal_files_backup') || '{}');
+                if (Object.keys(saved).length > 0) {
+                    tieneDocumento = true;
+                }
+            } catch (e) {
+                console.error('Error verificando archivos guardados');
+            }
+        }
 
         if (!tieneDocumento) {
             isValid = false;
@@ -561,16 +774,19 @@ $(document).ready(function() {
         // Deshabilitar botón de envío para evitar doble envío
         $('#submitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Creando...');
     });
-
-    // Validación de tamaño de archivo
-    $('input[type="file"]').change(function() {
-        const file = this.files[0];
-        if (file && file.size > 10 * 1024 * 1024) { // 10MB
-            alert('El archivo es demasiado grande. El tamaño máximo permitido es 10MB.');
-            $(this).val('');
-        }
-    });
 });
 </script>
+
+<style>
+.bg-success-light {
+    background-color: #d1edff !important;
+}
+.bg-warning-light {
+    background-color: #fff3cd !important;
+}
+.file-status {
+    font-size: 0.9em;
+}
+</style>
 @endpush
 @endsection

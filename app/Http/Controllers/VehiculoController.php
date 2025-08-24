@@ -956,23 +956,35 @@ class VehiculoController extends Controller
         try {
             $operadorAnterior = $vehiculo->operador;
             
+            // Obtener la obra actual del vehículo (si tiene una)
+            $asignacionActiva = $vehiculo->asignacionesObraActivas()->first();
+            $obraActual = $asignacionActiva?->obra;
+            
             // Actualizar el operador del vehículo
             $vehiculo->update([
                 'operador_id' => $request->operador_id
             ]);
+            
+            // Actualizar la asignación de obra si existe
+            if ($asignacionActiva) {
+                $asignacionActiva->update([
+                    'operador_id' => $request->operador_id
+                ]);
+            }
 
             // Determinar el tipo de movimiento
             $tipoMovimiento = $operadorAnterior 
                 ? HistorialOperadorVehiculo::TIPO_CAMBIO_OPERADOR 
                 : HistorialOperadorVehiculo::TIPO_ASIGNACION_INICIAL;
 
-            // Registrar en el historial de operadores
+            // Registrar en el historial de operadores CON LA OBRA
             HistorialOperadorVehiculo::registrarMovimiento(
                 vehiculoId: $vehiculo->id,
                 operadorAnteriorId: $operadorAnterior?->id,
                 operadorNuevoId: $nuevoOperador->id,
                 usuarioAsignoId: Auth::id(),
                 tipoMovimiento: $tipoMovimiento,
+                obraId: $obraActual?->id, // ← NUEVA LÍNEA: Incluir obra actual
                 observaciones: $request->observaciones,
                 motivo: $request->motivo ?? 'Cambio manual de operador'
             );
@@ -981,6 +993,11 @@ class VehiculoController extends Controller
             $mensaje = $operadorAnterior 
                 ? "Operador cambiado de {$operadorAnterior->nombre_completo} a {$nuevoOperador->nombre_completo}"
                 : "Operador asignado: {$nuevoOperador->nombre_completo}";
+            
+            // Incluir información de obra si existe
+            if ($obraActual) {
+                $mensaje .= " para obra: {$obraActual->nombre_obra}";
+            }
             
             if ($request->observaciones) {
                 $mensaje .= ". Observaciones: {$request->observaciones}";
@@ -1001,6 +1018,10 @@ class VehiculoController extends Controller
                         'id' => $nuevoOperador->id,
                         'nombre' => $nuevoOperador->nombre_completo
                     ],
+                    'obra_actual' => $obraActual ? [
+                        'id' => $obraActual->id,
+                        'nombre' => $obraActual->nombre_obra
+                    ] : null,
                     'observaciones' => $request->observaciones
                 ]
             ]);

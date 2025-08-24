@@ -23,8 +23,19 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('asignaciones_obra', function (Blueprint $table) {
-            // Revertir operador_id a no nullable (pero esto podría fallar si hay registros con NULL)
+            // Primero eliminamos la restricción de clave foránea temporalmente
+            $table->dropForeign(['operador_id']);
+        });
+        
+        // Actualizamos los valores NULL a un valor válido o eliminamos los registros
+        \DB::table('asignaciones_obra')->whereNull('operador_id')->delete();
+        
+        Schema::table('asignaciones_obra', function (Blueprint $table) {
+            // Luego revertimos operador_id a no nullable
             $table->unsignedBigInteger('operador_id')->nullable(false)->change();
+            
+            // Restauramos la clave foránea
+            $table->foreign('operador_id')->references('id')->on('personal')->onDelete('cascade');
         });
     }
 };

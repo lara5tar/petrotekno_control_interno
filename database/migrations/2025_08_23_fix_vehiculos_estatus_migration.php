@@ -1,10 +1,9 @@
 <?php
 
-use App\Enums\EstadoVehiculo;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -13,16 +12,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Solo agregar la columna si no existe
+        // Si la columna estatus no existe, la creamos y migramos los datos
         if (!Schema::hasColumn('vehiculos', 'estatus')) {
             Schema::table('vehiculos', function (Blueprint $table) {
-                // Agregar la columna estatus como string después de placas
-                $table->string('estatus')->default(EstadoVehiculo::DISPONIBLE->value)->after('placas');
+                $table->enum('estatus', ['disponible', 'asignado', 'en_mantenimiento', 'fuera_de_servicio'])
+                      ->default('disponible')
+                      ->after('placas');
             });
-
-            // Migrar datos de estatus_id a estatus solo si hay columna estatus_id
+            
+            // Solo migrar datos si existe estatus_id
             if (Schema::hasColumn('vehiculos', 'estatus_id')) {
                 $this->migrarDatos();
+                
+                // Eliminar la columna estatus_id después de migrar
+                Schema::table('vehiculos', function (Blueprint $table) {
+                    $table->dropColumn('estatus_id');
+                });
             }
         }
     }
@@ -45,16 +50,21 @@ return new class extends Migration
      */
     private function migrarDatos(): void
     {
-        // Solo migrar si existe la columna estatus_id
-        if (Schema::hasColumn('vehiculos', 'estatus_id')) {
-            $vehiculos = DB::table('vehiculos')->get();
-            
-            foreach ($vehiculos as $vehiculo) {
+        $vehiculos = DB::table('vehiculos')->get();
+        
+        foreach ($vehiculos as $vehiculo) {
+            // Solo procesar si existe estatus_id
+            if (property_exists($vehiculo, 'estatus_id') && $vehiculo->estatus_id !== null) {
                 $nuevoEstatus = $this->mapearEstatus($vehiculo->estatus_id);
                 
                 DB::table('vehiculos')
                     ->where('id', $vehiculo->id)
                     ->update(['estatus' => $nuevoEstatus]);
+            } else {
+                // Si no hay estatus_id, asignar disponible por defecto
+                DB::table('vehiculos')
+                    ->where('id', $vehiculo->id)
+                    ->update(['estatus' => 'disponible']);
             }
         }
     }
@@ -65,12 +75,11 @@ return new class extends Migration
     private function mapearEstatus(int $estatusId): string
     {
         return match ($estatusId) {
-            1 => EstadoVehiculo::DISPONIBLE->value,
-            2 => EstadoVehiculo::ASIGNADO->value,
-            3 => EstadoVehiculo::EN_MANTENIMIENTO->value,
-            4 => EstadoVehiculo::FUERA_DE_SERVICIO->value,
-            5 => EstadoVehiculo::BAJA->value,
-            default => EstadoVehiculo::DISPONIBLE->value,
+            1 => 'disponible',
+            2 => 'asignado',
+            3 => 'en_mantenimiento',
+            4 => 'fuera_de_servicio',
+            default => 'disponible'
         };
     }
 };
