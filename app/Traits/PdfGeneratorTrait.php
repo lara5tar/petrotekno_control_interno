@@ -18,7 +18,7 @@ trait PdfGeneratorTrait
             'dpi' => 150,
             'defaultMediaType' => 'print',
             'isFontSubsettingEnabled' => true,
-            'isRemoteEnabled' => false
+            'isRemoteEnabled' => true
         ];
     }
 

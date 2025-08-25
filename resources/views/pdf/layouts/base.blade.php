@@ -60,9 +60,11 @@
         }
         
         .header-logo {
-            width: 100px;
+            width: 150px; /* Aumentamos el tamaño un poco */
             height: auto;
             display: block;
+            max-width: 100%;
+            object-fit: contain;
         }
         
         .header-info-section {
@@ -391,27 +393,9 @@
 <body>
     <!-- Header del PDF -->
     <div class="pdf-header">
-                <!-- Header con logo -->
+        <!-- Header con logo -->
         <div class="header-logo-section">
-            @php
-                $logoPath = null;
-                $possibleLogos = ['logo-petrotekno-oficial.png', 'logo-petro2.png', 'logo-petro.png', 'logo.jpeg'];
-                foreach ($possibleLogos as $logo) {
-                    $fullPath = public_path($logo);
-                    if (file_exists($fullPath)) {
-                        $logoPath = $fullPath;
-                        break;
-                    }
-                }
-            @endphp
-            
-            @if($logoPath)
-                <img src="{{ $logoPath }}" alt="Logo Petrotekno" class="logo">
-            @else
-                <div class="logo-placeholder">
-                    <h2>PETROTEKNO</h2>
-                </div>
-            @endif
+            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('logo-petro2.png'))) }}" alt="Logo Petrotekno" class="header-logo">
         </div>
         <div class="header-info-section">
             <div class="header-company-name">Petrotekno S.A. de C.V.</div>
