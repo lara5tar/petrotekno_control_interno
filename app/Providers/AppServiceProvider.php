@@ -10,6 +10,7 @@ use App\View\Composers\AlertasComposer;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +27,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Forzar HTTPS en producción y desarrollo
+        if ($this->app->environment(['production', 'staging']) || request()->isSecure()) {
+            URL::forceScheme('https');
+        }
+
         // Registrar observers
         Mantenimiento::observe(MantenimientoObserver::class);
         Vehiculo::observe(VehiculoObserver::class);

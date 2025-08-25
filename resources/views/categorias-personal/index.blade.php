@@ -339,8 +339,12 @@ function submitCreateCategory(event) {
     // Preparar datos del formulario
     const formData = new FormData(form);
     
+    // Asegurar URL HTTPS
+    const storeUrl = '{{ route("categorias-personal.store") }}';
+    const httpsUrl = storeUrl.replace(/^http:/, 'https:');
+    
     // Realizar petición AJAX
-    fetch('{{ route("categorias-personal.store") }}', {
+    fetch(httpsUrl, {
         method: 'POST',
         body: formData,
         headers: {
