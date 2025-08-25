@@ -566,24 +566,18 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- Licencia de Manejo, Domicilio, Teléfono en una fila -->
-                                    <div class="grid grid-cols-3 gap-3">
+                                    <!-- Licencia de Manejo, Domicilio en una fila -->
+                                    <div class="grid grid-cols-2 gap-3">
                                         <div>
                                             <label class="block text-sm text-gray-600">Licencia de Manejo</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                {{ $vehiculo->operador->licencia_manejo ?? 'No disponible' }}
+                                                {{ $vehiculo->operador->no_licencia ?? 'No disponible' }}
                                             </div>
                                         </div>
                                         <div>
                                             <label class="block text-sm text-gray-600">Domicilio</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                {{ $vehiculo->operador->domicilio ?? 'No disponible' }}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Teléfono</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                {{ $vehiculo->operador->telefono ?? 'No disponible' }}
+                                                {{ $vehiculo->operador->direccion ?? 'No disponible' }}
                                             </div>
                                         </div>
                                     </div>

@@ -296,9 +296,28 @@
 
     function confirmarEliminacion(id, placas) {
         if (confirm(`¿Estás seguro de que deseas eliminar el vehículo con placas ${placas}?`)) {
-            // Simulación de eliminación (solo frontend)
-            alert('Vehículo eliminado exitosamente (simulación)');
-            // En una implementación real, aquí se haría la petición al servidor
+            // Crear formulario y enviarlo
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/vehiculos/${id}`;
+            
+            // Agregar CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            form.appendChild(csrfInput);
+            
+            // Agregar método DELETE
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'DELETE';
+            form.appendChild(methodInput);
+            
+            // Agregar al DOM y enviar
+            document.body.appendChild(form);
+            form.submit();
         }
     }
 </script>

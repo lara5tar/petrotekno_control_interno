@@ -806,13 +806,35 @@
                                             <tr>
                                                 <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operador</th>
-                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Período</th>
-                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
-                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Asignación</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asignado Por</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
-                                            @if($obra->fecha_liberacion)
+                                            @if($obra->historialOperadores && $obra->historialOperadores->count() > 0)
+                                                @foreach($obra->historialOperadores->take(10) as $historial)
+                                                <tr>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                        {{ $historial->vehiculo ? $historial->vehiculo->marca . ' ' . $historial->vehiculo->modelo . ' (' . $historial->vehiculo->placas . ')' : 'Sin vehículo' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        {{ $historial->operadorNuevo ? $historial->operadorNuevo->nombre_completo : 'Sin operador' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        {{ $historial->fecha_asignacion->format('d/m/Y H:i') }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        {{ $historial->usuarioAsigno ? $historial->usuarioAsigno->name : 'Sistema' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                            {{ $historial->tipo_movimiento_descripcion }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            @elseif($obra->fecha_liberacion)
                                             <tr>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                                                     {{ $obra->vehiculo ? $obra->vehiculo->marca . ' ' . $obra->vehiculo->modelo : 'Sin vehículo' }}

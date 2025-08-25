@@ -224,6 +224,16 @@ class Obra extends Model
     }
 
     /**
+     * Relación con el historial de operadores asignados a esta obra
+     */
+    public function historialOperadores(): HasMany
+    {
+        return $this->hasMany(HistorialOperadorVehiculo::class, 'obra_id')
+            ->with(['operadorNuevo', 'vehiculo', 'usuarioAsigno'])
+            ->orderBy('fecha_asignacion', 'desc');
+    }
+
+    /**
      * Scope para filtrar por estatus
      */
     public function scopePorEstatus($query, $estatus)

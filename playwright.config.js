@@ -23,7 +23,7 @@ export default defineConfig({
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
         /* Base URL to use in actions like `await page.goto('/')`. */
-        baseURL: 'http://127.0.0.1:8001',
+        baseURL: 'http://127.0.0.1:8000',
 
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
@@ -71,8 +71,8 @@ export default defineConfig({
 
     /* Run your local dev server before starting the tests */
     webServer: {
-        command: 'php artisan serve --port=8002',
-        url: 'http://127.0.0.1:8002',
+        command: 'php artisan serve --port=8000',
+        url: 'http://127.0.0.1:8000',
         reuseExistingServer: !process.env.CI,
         timeout: 120000, // Esperar hasta 2 minutos para que el servidor inicie
     },

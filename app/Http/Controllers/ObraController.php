@@ -519,7 +519,8 @@ class ObraController extends Controller
                 'asignacionesActivas', // Asignaciones activas
                 'asignacionesActivas.vehiculo', // Datos del vehículo en cada asignación
                 'asignacionesActivas.operador', // Datos del operador en cada asignación
-                'asignacionesLiberadas'
+                'asignacionesLiberadas',
+                'historialOperadores' // NUEVO: Cargar historial de operadores
             ])->find($id);
 
             if (! $obra) {
