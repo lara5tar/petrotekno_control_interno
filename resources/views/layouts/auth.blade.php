@@ -34,8 +34,10 @@
     <div class="w-full max-w-md p-6 md:p-8">
         <div class="bg-petroyellow rounded-lg shadow-lg overflow-hidden">
             <div class="p-6 text-center">
-                <!-- Logo/Título -->
-                <h1 class="text-4xl font-bold text-petrodark mb-6">PETROTEKNO</h1>
+                <!-- Logo -->
+                <div class="mb-6">
+                    <img src="{{ asset('logo-petro2.png') }}" alt="Petrotekno" class="h-40 mx-auto">
+                </div>
                 
                 <!-- Contenido específico de cada vista -->
                 @yield('content')

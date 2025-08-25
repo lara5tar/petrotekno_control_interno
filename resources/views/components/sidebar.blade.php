@@ -5,7 +5,7 @@
     </div>
     
     <div class="">
-        <h2 class="text-xl font-bold text-white text-center mb-4 sidebar-subtitle">Menú Principal</h2>
+        <h2 class="text-xl font-bold text-black text-center mb-4 sidebar-subtitle">Menú Principal</h2>
         <nav>
             <x-sidebar-item 
                 route="{{ route('home') }}" 
@@ -16,7 +16,7 @@
             <x-sidebar-item 
                 route="{{ route('vehiculos.index') }}" 
                 :active="request()->routeIs('vehiculos.*')" 
-                icon='<path fill="currentColor" d="M19 7h-3V6a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v8a1 1 0 0 0 1 1h1.5a2.5 2.5 0 0 1 5 0h3a2.5 2.5 0 0 1 5 0H19a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zM7 16.5A1.5 1.5 0 1 1 7 14a1.5 1.5 0 0 1 0 2.5zm10 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>'
+                icon='<path fill="currentColor" d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>'
                 label="Vehículos" />
 
             <!-- Kilometrajes ahora están integrados en el módulo de vehículos -->
@@ -56,8 +56,10 @@
     <div class="mt-auto mb-4">
         <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="block py-2.5 px-4 transition duration-200 text-gray-700 font-medium">
             <div class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-3 text-gray-700" viewBox="0 0 24 24" fill="currentColor">
-                    <path fill="currentColor" d="M16 13v-2H7V9l-5 4 5 4v-2h9M20 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16z"/>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-3 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16,17 21,12 16,7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
                 <span class="sidebar-label">Cerrar Sesión</span>
             </div>
