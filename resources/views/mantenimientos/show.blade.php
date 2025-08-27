@@ -51,7 +51,7 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600">Sistema del Vehículo</label>
+                            <label class="block text-sm font-medium text-gray-600">Sistema del Activo</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ $mantenimiento->sistema_vehiculo ?: 'General' }}
                             </div>
@@ -88,10 +88,10 @@
                 </div>
             </div>
 
-            <!-- Información del Vehículo -->
+            <!-- Información del Activo -->
             <div class="bg-white border border-gray-300 rounded-lg">
                 <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
-                    <h3 class="font-semibold text-gray-800">Información del Vehículo</h3>
+                    <h3 class="font-semibold text-gray-800">Información del Activo</h3>
                 </div>
                 <div class="p-4 space-y-4">
                     @if($mantenimiento->vehiculo)
@@ -132,7 +132,7 @@
                             </div>
                         </div>
                     @else
-                        <p class="text-gray-500 text-center py-4">Información del vehículo no disponible</p>
+                        <p class="text-gray-500 text-center py-4">Información del activo no disponible</p>
                     @endif
                 </div>
             </div>

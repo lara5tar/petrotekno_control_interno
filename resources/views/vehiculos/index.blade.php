@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Vehículos')
+@section('title', 'Activos')
 
-@section('header', 'Gestión de Vehículos')
+@section('header', 'Gestión de Activos')
 
 @section('content')
     {{-- Breadcrumb --}}
     <x-breadcrumb :items="[
         ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
-        ['label' => 'Vehículos']
+        ['label' => 'Activos']
     ]" />
 
     {{-- Mensaje de éxito --}}
@@ -30,7 +30,7 @@
 
     <!-- Encabezado con botón de agregar -->
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Listado de Vehículos</h2>
+        <h2 class="text-2xl font-bold text-gray-800">Listado de Activos</h2>
 
         @php
             $user = auth()->user();
@@ -42,7 +42,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
             </svg>
-            Agregar Vehículo
+            Agregar Activo
         </a>
         @elseif(auth()->check() && auth()->user()->email === 'admin@petrotekno.com')
         <!-- Botón de emergencia para admin -->
@@ -50,7 +50,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
             </svg>
-            ADMIN: Agregar Vehículo
+            ADMIN: Agregar Activo
         </a>
         @endif
 
@@ -99,7 +99,7 @@
         </form>
     </div>
     
-    <!-- Tabla de vehículos -->
+    <!-- Tabla de activos -->
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -126,17 +126,17 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $vehiculo->anio }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @php
-                                // Asignar colores basándose en el estado del vehículo
-                                $estadoVehiculo = $vehiculo->estatus;
-                                if ($estadoVehiculo === 'disponible') {
+                                // Asignar colores basándose en el estado del activo
+                                $estadoActivo = $vehiculo->estatus;
+                                if ($estadoActivo === 'disponible') {
                                     $colorClass = 'bg-green-100 text-green-800';
-                                } elseif ($estadoVehiculo === 'asignado') {
+                                } elseif ($estadoActivo === 'asignado') {
                                     $colorClass = 'bg-blue-100 text-blue-800';
-                                } elseif ($estadoVehiculo === 'en_mantenimiento') {
+                                } elseif ($estadoActivo === 'en_mantenimiento') {
                                     $colorClass = 'bg-yellow-100 text-yellow-800';
-                                } elseif ($estadoVehiculo === 'fuera_de_servicio') {
+                                } elseif ($estadoActivo === 'fuera_de_servicio') {
                                     $colorClass = 'bg-orange-100 text-orange-800';
-                                } elseif ($estadoVehiculo === 'baja') {
+                                } elseif ($estadoActivo === 'baja') {
                                     $colorClass = 'bg-red-100 text-red-800';
                                 } else {
                                     // Valor por defecto para estados desconocidos
@@ -158,7 +158,7 @@
                                 </a>
                                 @endhasPermission
                                 @hasPermission('editar_vehiculos')
-                                <a href="{{ route('vehiculos.edit', ['vehiculo' => $vehiculo]) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar vehículo">
+                                <a href="{{ route('vehiculos.edit', ['vehiculo' => $vehiculo]) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar activo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                     </svg>
@@ -166,7 +166,7 @@
                                 @endhasPermission
                                 
                                 @hasPermission('eliminar_vehiculos')
-                                <button data-vehiculo-id="{{ $vehiculo->id }}" data-vehiculo-placas="{{ $vehiculo->placas }}" class="btn-eliminar text-red-600 hover:text-red-900" title="Eliminar vehículo">
+                                <button data-activo-id="{{ $vehiculo->id }}" data-activo-placas="{{ $vehiculo->placas }}" class="btn-eliminar text-red-600 hover:text-red-900" title="Eliminar activo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                                     </svg>
@@ -178,7 +178,7 @@
                     @empty
                     <tr>
                         <td colspan="8" class="px-6 py-4 text-center text-gray-500">
-                            No se encontraron vehículos.
+                            No se encontraron activos.
                         </td>
                     </tr>
 
@@ -287,15 +287,15 @@
         
         botonesEliminar.forEach(function(boton) {
             boton.addEventListener('click', function() {
-                const vehiculoId = this.getAttribute('data-vehiculo-id');
-                const vehiculoPlacas = this.getAttribute('data-vehiculo-placas');
-                confirmarEliminacion(vehiculoId, vehiculoPlacas);
+                const activoId = this.getAttribute('data-activo-id');
+                const activoPlacas = this.getAttribute('data-activo-placas');
+                confirmarEliminacion(activoId, activoPlacas);
             });
         });
     });
 
     function confirmarEliminacion(id, placas) {
-        if (confirm(`¿Estás seguro de que deseas eliminar el vehículo con placas ${placas}?`)) {
+        if (confirm(`¿Estás seguro de que deseas eliminar el activo con placas ${placas}?`)) {
             // Crear formulario y enviarlo
             const form = document.createElement('form');
             form.method = 'POST';

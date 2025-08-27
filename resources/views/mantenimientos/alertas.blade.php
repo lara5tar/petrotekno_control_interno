@@ -13,7 +13,7 @@
             </svg>
             Alertas de Mantenimiento
         </h1>
-        <p class="text-gray-600">Vehículos que requieren mantenimiento preventivo basado en intervalos configurados</p>
+        <p class="text-gray-600">Activos que requieren mantenimiento preventivo basado en intervalos configurados</p>
     </div>
     <div class="flex space-x-2 mt-4 sm:mt-0">
         <a href="{{ route('mantenimientos.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center">
@@ -109,7 +109,7 @@
         </div>
     </div>
 
-    <!-- Total de Vehículos -->
+    <!-- Total de Activos -->
     <div class="bg-white border border-gray-300 rounded-lg overflow-hidden">
         <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
             <div class="flex items-center">
@@ -119,27 +119,27 @@
                     </svg>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-gray-800">Vehículos Afectados</h3>
+                    <h3 class="text-sm font-medium text-gray-800">Activos Afectados</h3>
                 </div>
             </div>
         </div>
         <div class="p-4">
             <div class="flex items-baseline">
                 <p class="text-3xl font-semibold text-gray-600">{{ $totalVehiculos }}</p>
-                <p class="ml-2 text-sm text-gray-600">vehículos</p>
+                <p class="ml-2 text-sm text-gray-600">activos</p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Listado de Alertas por Vehículo -->
+<!-- Listado de Alertas por Activo -->
 <div class="bg-white rounded-lg shadow-sm border border-gray-200">
     <div class="px-6 py-4 border-b border-gray-200">
         <h2 class="text-lg font-medium text-gray-900 flex items-center">
             <svg class="w-5 h-5 mr-2 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
             </svg>
-            Alertas por Vehículo
+            Alertas por Activo
         </h2>
     </div>
     <div class="divide-y divide-gray-200">
@@ -172,7 +172,7 @@
                             </span>
                         @endif
 
-                        <!-- Información del vehículo -->
+                        <!-- Información del activo -->
                         <div>
                             <h3 class="text-lg font-medium text-gray-900">
                                 {{ $alerta['vehiculo_info']['nombre_completo'] }}
@@ -242,7 +242,7 @@
     </svg>
     <h3 class="mt-4 text-lg font-medium text-gray-900">¡Excelente! No hay alertas de mantenimiento</h3>
     <p class="mt-2 text-gray-500">
-        Todos los vehículos están al día con sus mantenimientos preventivos basados en los intervalos configurados.
+        Todos los activos están al día con sus mantenimientos preventivos basados en los intervalos configurados.
     </p>
     <div class="mt-6 flex justify-center space-x-3">
         <a href="{{ route('mantenimientos.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
@@ -273,8 +273,8 @@
             <h4 class="text-red-600 font-semibold">Alertas Críticas</h4>
         </div>
         <p class="text-gray-700">
-            Se consideran críticas cuando el vehículo ha superado en más del 20% el intervalo de mantenimiento configurado. 
-            Estos vehículos requieren atención inmediata.
+            Se consideran críticas cuando el activo ha superado en más del 20% el intervalo de mantenimiento configurado.
+            Estos activos requieren atención inmediata.
         </p>
     </div>
     
@@ -286,7 +286,7 @@
             <h4 class="text-orange-600 font-semibold">Alertas Altas</h4>
         </div>
         <p class="text-gray-700">
-            Se consideran altas cuando el vehículo ha superado entre 10% y 20% el intervalo de mantenimiento. 
+            Se consideran altas cuando el activo ha superado entre 10% y 20% el intervalo de mantenimiento. 
             Es recomendable programar el mantenimiento pronto.
         </p>
     </div>
@@ -311,7 +311,7 @@
         </div>
         
         <div id="vehiculo-info" class="mb-4 text-sm text-gray-600">
-            <p><strong>Vehículo:</strong> <span id="vehiculo-nombre">Seleccionar vehículo</span></p>
+            <p><strong>Activo:</strong> <span id="vehiculo-nombre">Seleccionar activo</span></p>
         </div>
 
         <form id="registrar-mantenimiento-form" method="POST" action="{{ route('mantenimientos.store') }}">
@@ -330,9 +330,9 @@
                     </select>
                 </div>
 
-                <!-- Sistema del Vehículo -->
+                <!-- Sistema del Activo -->
                 <div>
-                    <label for="sistema_vehiculo" class="block text-sm font-medium text-gray-700 mb-2">Sistema del Vehículo *</label>
+                    <label for="sistema_vehiculo" class="block text-sm font-medium text-gray-700 mb-2">Sistema del Activo *</label>
                     <select id="sistema_vehiculo" name="sistema_vehiculo" required 
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">Seleccionar sistema</option>
@@ -501,9 +501,9 @@
             // Validar campos requeridos
             if (!vehiculoId || !tipoServicio || !sistemaVehiculo || !descripcion || !fechaInicio || !kilometraje) {
                 const camposFaltantes = [];
-                if (!vehiculoId) camposFaltantes.push('Vehículo');
+                if (!vehiculoId) camposFaltantes.push('Activo');
                 if (!tipoServicio) camposFaltantes.push('Tipo de Servicio');
-                if (!sistemaVehiculo) camposFaltantes.push('Sistema del Vehículo');
+                if (!sistemaVehiculo) camposFaltantes.push('Sistema del Activo');
                 if (!descripcion) camposFaltantes.push('Descripción');
                 if (!fechaInicio) camposFaltantes.push('Fecha de Inicio');
                 if (!kilometraje) camposFaltantes.push('Kilometraje');

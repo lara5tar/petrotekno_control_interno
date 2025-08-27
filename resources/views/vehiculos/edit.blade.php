@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Vehículo')
+@section('title', 'Editar Activo')
 
-@section('header', 'Editar Vehículo')
+@section('header', 'Editar Activo')
 
 @section('content')
     {{-- Breadcrumb --}}
     <x-breadcrumb :items="[
         ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
-        ['label' => 'Vehículos', 'url' => route('vehiculos.index')],
-        ['label' => 'Editar Vehículo']
+        ['label' => 'Activos', 'url' => route('vehiculos.index')],
+        ['label' => 'Editar Activo']
     ]" />
 
     {{-- Mensaje de éxito --}}
@@ -55,7 +55,7 @@
 
     <!-- Encabezado -->
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Editar Vehículo</h2>
+        <h2 class="text-2xl font-bold text-gray-800">Editar Activo</h2>
         <a href="{{ route('vehiculos.index') }}" 
            class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -67,7 +67,7 @@
 
     <!-- Formulario -->
     <div class="bg-white rounded-lg shadow p-6">
-        <form action="{{ route('vehiculos.update', $vehiculo->id) }}" method="POST" enctype="multipart/form-data" id="vehiculoForm">
+        <form action="{{ route('vehiculos.update', $vehiculo->id) }}" method="POST" enctype="multipart/form-data" id="activoForm">
             @csrf
             @method('PUT')
             
@@ -79,7 +79,7 @@
                             <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1 1 0 11-3 0 1.5 1.5 0 013 0z"/>
                             <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1V8a1 1 0 00-1-1h-3z"/>
                         </svg>
-                        Información del Vehículo
+                        Información del Activo
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -116,18 +116,18 @@
                                 @endif
                             </select>
                             @error('operador_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                            <p class="mt-1 text-xs text-gray-500">Persona responsable del vehículo (puede ser cualquier personal activo)</p>
+                            <p class="mt-1 text-xs text-gray-500">Persona responsable del activo (puede ser cualquier personal activo)</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Sección de Documentos Específicos del Vehículo -->
+                <!-- Sección de Documentos Específicos del Activo -->
                 <div class="bg-white border border-gray-200 rounded-lg p-6">
                     <h4 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clip-rule="evenodd" />
                         </svg>
-                        Documentos del Vehículo
+                        Documentos del Activo
                     </h4>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -154,7 +154,7 @@
                                            placeholder="Ej: 190324"
                                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('numero_poliza') border-red-500 @enderror">
                                     @error('numero_poliza') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                    <p class="mt-1 text-xs text-gray-500">Número de la póliza de seguro del vehículo</p>
+                                    <p class="mt-1 text-xs text-gray-500">Número de la póliza de seguro del activo</p>
                                 </div>
                                 
                                 @if($vehiculo->poliza_url)
@@ -205,7 +205,7 @@
                                     <svg class="h-4 w-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
-                                    Derecho Vehicular
+                                    Derecho del Activo
                                 </label>
                                 
                                 @if($vehiculo->derecho_url)
@@ -218,7 +218,7 @@
                                         </p>
                                         <a href="{{ asset('storage/' . $vehiculo->derecho_url) }}" target="_blank" 
                                            class="text-blue-600 hover:text-blue-800 underline text-sm">
-                                            Ver derecho vehicular actual
+                                            Ver derecho del activo actual
                                         </a>
                                     </div>
                                 @endif
@@ -236,7 +236,7 @@
                                             <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                             </svg>
-                                            <span class="text-base">{{ $vehiculo->derecho_url ? 'Cambiar Derecho Vehicular' : 'Subir Derecho Vehicular' }}</span>
+                                            <span class="text-base">{{ $vehiculo->derecho_url ? 'Cambiar Derecho del Activo' : 'Subir Derecho del Activo' }}</span>
                                         </label>
                                     </div>
                                 </div>
@@ -259,7 +259,7 @@
                                     <svg class="h-4 w-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                     </svg>
-                                    Factura del Vehículo
+                                    Factura del Activo
                                 </label>
                                 
                                 @if($vehiculo->factura_url)
@@ -297,13 +297,13 @@
                                 <p class="text-xs text-gray-500 text-center file-status" id="factura_status">PDF, JPG, PNG (máx. 5MB)</p>
                             </div>
 
-                            <!-- 4. Imagen del Vehículo -->
+                            <!-- 4. Imagen del Activo -->
                             <div class="space-y-3">
                                 <label class="flex text-sm font-medium text-gray-700 mb-3 items-center">
                                     <svg class="h-4 w-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    Imagen del Vehículo
+                                    Imagen del Activo
                                 </label>
                                 
                                 @if($vehiculo->url_imagen)
@@ -334,7 +334,7 @@
                                             <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
-                                            <span class="text-base">{{ $vehiculo->url_imagen ? 'Cambiar Imagen del Vehículo' : 'Subir Imagen del Vehículo' }}</span>
+                                            <span class="text-base">{{ $vehiculo->url_imagen ? 'Cambiar Imagen del Activo' : 'Subir Imagen del Activo' }}</span>
                                         </label>
                                     </div>
                                 </div>

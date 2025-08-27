@@ -55,22 +55,22 @@
         @csrf
         @method('PUT')
 
-        <!-- Información del Vehículo -->
+        <!-- Información del Activo -->
         <div class="border-b border-gray-200 pb-6">
             <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
                 <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
-                Información del Vehículo
+                Información del Activo
             </h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Vehículo -->
+                <!-- Activo -->
                 <div>
-                    <label for="vehiculo_id" class="block text-sm font-medium text-gray-700 mb-1">Vehículo *</label>
+                    <label for="vehiculo_id" class="block text-sm font-medium text-gray-700 mb-1">Activo *</label>
                     <select id="vehiculo_id" name="vehiculo_id" required
                             class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('vehiculo_id') border-red-300 @enderror">
-                        <option value="">Seleccione un vehículo</option>
+                        <option value="">Seleccione un activo</option>
                         @foreach($vehiculosOptions as $vehiculo)
                             <option value="{{ $vehiculo->id }}" {{ (old('vehiculo_id', $mantenimiento->vehiculo_id) == $vehiculo->id) ? 'selected' : '' }}>
                                 {{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->placas }})
@@ -99,9 +99,9 @@
                     @enderror
                 </div>
 
-                <!-- Sistema del Vehículo -->
+                <!-- Sistema del Activo -->
                 <div>
-                    <label for="sistema_vehiculo" class="block text-sm font-medium text-gray-700 mb-1">Sistema del Vehículo *</label>
+                    <label for="sistema_vehiculo" class="block text-sm font-medium text-gray-700 mb-1">Sistema del Activo *</label>
                     <select id="sistema_vehiculo" name="sistema_vehiculo" required
                             class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('sistema_vehiculo') border-red-300 @enderror">
                         <option value="">Seleccione un sistema</option>

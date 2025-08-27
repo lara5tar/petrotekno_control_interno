@@ -59,14 +59,14 @@
                     </div>
                 </div>
                 <div class="flex-1 md:flex-none md:w-48">
-                    <label for="vehiculo" class="block text-sm font-medium text-gray-700 mb-1">Vehículo</label>
-                    <select id="vehiculo" 
+                    <label for="activo" class="block text-sm font-medium text-gray-700 mb-1">Activo</label>
+                    <select id="activo" 
                             name="vehiculo_id"
                             class="p-2 border border-gray-300 rounded-md w-full">
-                        <option value="">Todos los vehículos</option>
-                        @foreach($vehiculosOptions as $vehiculo)
-                            <option value="{{ $vehiculo->id }}" {{ request('vehiculo_id') == $vehiculo->id ? 'selected' : '' }}>
-                                {{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->placas }})
+                        <option value="">Todos los activos</option>
+                        @foreach($vehiculosOptions as $activo)
+                            <option value="{{ $activo->id }}" {{ request('vehiculo_id') == $activo->id ? 'selected' : '' }}>
+                                {{ $activo->marca }} {{ $activo->modelo }} ({{ $activo->placas }})
                             </option>
                         @endforeach
                     </select>
@@ -114,7 +114,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sistema</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proveedor</th>
@@ -136,7 +136,7 @@
                                         </div>
                                         <div class="text-sm text-gray-500">{{ $mantenimiento->vehiculo->placas }}</div>
                                     @else
-                                        <span class="text-sm text-gray-400">Vehículo no disponible</span>
+                                        <span class="text-sm text-gray-400">Activo no disponible</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">

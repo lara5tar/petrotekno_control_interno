@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Agregar Vehículo')
+@section('title', 'Agregar Activo')
 
-@section('header', 'Agregar Vehículo')
+@section('header', 'Agregar Activo')
 
 @section('content')
     {{-- Breadcrumb --}}
     <x-breadcrumb :items="[
         ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
-        ['label' => 'Vehículos', 'url' => route('vehiculos.index')],
-        ['label' => 'Agregar Vehículo']
+        ['label' => 'Activos', 'url' => route('vehiculos.index')],
+        ['label' => 'Agregar Activo']
     ]" />
 
     {{-- Mensaje de éxito --}}
@@ -55,7 +55,7 @@
 
     <!-- Encabezado -->
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Agregar Nuevo Vehículo</h2>
+        <h2 class="text-2xl font-bold text-gray-800">Agregar Nuevo Activo</h2>
         <a href="{{ route('vehiculos.index') }}" 
            class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -67,18 +67,18 @@
 
     <!-- Formulario -->
     <div class="bg-white rounded-lg shadow p-6">
-        <form action="{{ route('vehiculos.store') }}" method="POST" enctype="multipart/form-data" id="vehiculoForm">
+        <form action="{{ route('vehiculos.store') }}" method="POST" enctype="multipart/form-data" id="activoForm">
             @csrf
             
             <div class="space-y-8">
-                <!-- Información del Vehículo -->
+                <!-- Información del Activo -->
                 <div class="bg-white border border-gray-200 rounded-lg p-6">
                     <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1 1 0 11-3 0 1.5 1.5 0 013 0z"/>
                             <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1V8a1 1 0 00-1-1h-3z"/>
                         </svg>
-                        Información del Vehículo
+                        Información del Activo
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -115,18 +115,18 @@
                                 @endif
                             </select>
                             @error('operador_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                            <p class="mt-1 text-xs text-gray-500">Persona responsable del vehículo (puede ser cualquier personal activo)</p>
+                            <p class="mt-1 text-xs text-gray-500">Persona responsable del activo (puede ser cualquier personal activo)</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Sección de Documentos Específicos del Vehículo -->
+                <!-- Sección de Documentos Específicos del Activo -->
                 <div class="bg-white border border-gray-200 rounded-lg p-6">
                     <h4 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6 flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clip-rule="evenodd" />
                         </svg>
-                        Documentos del Vehículo
+                        Documentos del Activo
                     </h4>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -153,7 +153,7 @@
                                            placeholder="Ej: 190324"
                                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('numero_poliza') border-red-500 @enderror">
                                     @error('numero_poliza') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                    <p class="mt-1 text-xs text-gray-500">Número de la póliza de seguro del vehículo</p>
+                                    <p class="mt-1 text-xs text-gray-500">Número de la póliza de seguro del activo</p>
                                 </div>
                                 
                                 <div class="flex items-center justify-center">
@@ -184,13 +184,13 @@
                                 <p class="text-xs text-gray-500 text-center file-status" id="poliza_seguro_status">PDF, JPG, PNG (máx. 5MB)</p>
                             </div>
 
-                            <!-- 2. Derecho Vehicular -->
+                            <!-- 2. Derecho del Activo -->
                             <div class="space-y-3">
                                 <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                                     <svg class="h-4 w-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
-                                    Derecho Vehicular
+                                    Derecho del Activo
                                 </label>
                                 <div class="flex items-center justify-center">
                                     <div class="w-full">
@@ -199,13 +199,13 @@
                                                name="derecho_vehicular_file" 
                                                accept=".pdf,.jpg,.jpeg,.png" 
                                                class="hidden" 
-                                               onchange="handleFileInput(event, 'derecho_vehicular')" />
+                                               onchange="handleFileInput(event, 'derecho_activo')" />
                                         <label for="derecho_vehicular_file" 
                                                class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-base font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
                                             <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                             </svg>
-                                            <span class="text-base">Subir Derecho Vehicular</span>
+                                            <span class="text-base">Subir Derecho del Activo</span>
                                         </label>
                                     </div>
                                 </div>
@@ -217,7 +217,7 @@
                                            class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow" />
                                     <span class="text-sm text-gray-500 flex-shrink-0">Vencimiento</span>
                                 </div>
-                                <p class="text-xs text-gray-500 text-center file-status" id="derecho_vehicular_status">PDF, JPG, PNG (máx. 5MB)</p>
+                                <p class="text-xs text-gray-500 text-center file-status" id="derecho_activo_status">PDF, JPG, PNG (máx. 5MB)</p>
                             </div>
                         </div>
 
@@ -251,13 +251,13 @@
                                 <p class="text-xs text-gray-500 text-center file-status" id="factura_pedimento_status">PDF, JPG, PNG (máx. 5MB)</p>
                             </div>
 
-                            <!-- 4. Fotografía del Vehículo -->
+                            <!-- 4. Fotografía del Activo -->
                             <div class="space-y-3">
                                 <label class="block text-sm font-medium text-gray-700 mb-3 flex items-center">
                                     <svg class="h-4 w-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    Fotografía del Vehículo
+                                    Fotografía del Activo
                                 </label>
                                 <div class="flex items-center justify-center">
                                     <div class="w-full">
@@ -272,7 +272,7 @@
                                             <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
-                                            <span class="text-base">Subir Fotografía del Vehículo</span>
+                                            <span class="text-base">Subir Fotografía del Activo</span>
                                         </label>
                                     </div>
                                 </div>
@@ -354,7 +354,7 @@
                         <textarea name="observaciones" 
                                 id="observaciones"
                                 rows="4" 
-                                placeholder="Agregue cualquier información adicional sobre el vehículo (características especiales, modificaciones, etc.)" 
+                                placeholder="Agregue cualquier información adicional sobre el activo (características especiales, modificaciones, etc.)" 
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('observaciones') border-red-500 @enderror">{{ old('observaciones') }}</textarea>
                         @error('observaciones') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
@@ -369,7 +369,7 @@
                 </a>
                 <button type="submit" 
                         class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-petrodark bg-petroyellow hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                    Guardar Vehículo
+                    Guardar Activo
                 </button>
             </div>
         </form>

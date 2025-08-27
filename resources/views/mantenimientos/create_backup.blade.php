@@ -16,16 +16,16 @@
                     <form method="POST" action="{{ route('mantenimientos.store') }}">
                         @csrf
 
-                        <!-- Vehículo -->
+                        <!-- Activo -->
                         <div class="form-group row">
                             <label for="vehiculo_id" class="col-md-4 col-form-label text-md-right">
-                                Vehículo <span class="text-danger">*</span>
+                                Activo <span class="text-danger">*</span>
                             </label>
                             <div class="col-md-6">
                                 <select id="vehiculo_id" 
                                         class="form-control @error('vehiculo_id') is-invalid @enderror" 
                                         name="vehiculo_id" required>
-                                    <option value="">Seleccione un vehículo</option>
+                                    <option value="">Seleccione un activo</option>
                                     @foreach($vehiculosOptions as $vehiculo)
                                         <option value="{{ $vehiculo->id }}" 
                                                 {{ old('vehiculo_id') == $vehiculo->id ? 'selected' : '' }}>

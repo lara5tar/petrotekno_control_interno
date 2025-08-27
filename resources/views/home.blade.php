@@ -21,7 +21,7 @@
         <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
             <div class="flex justify-between items-center">
                 <div>
-                    <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">Vehículos</h3>
+                    <h3 class="text-sm font-medium text-gray-600 uppercase tracking-wide">Activos</h3>
                     <p class="text-3xl font-bold text-gray-900">{{ $estadisticas['total_vehiculos'] }}</p>
                 </div>
                 <div class="bg-gray-100 p-3 rounded-full">
@@ -30,7 +30,7 @@
                     </svg>
                 </div>
             </div>
-            <p class="text-sm text-gray-500 mt-3">Total de vehículos registrados</p>
+            <p class="text-sm text-gray-500 mt-3">Total de activos registrados</p>
         </div>
         
         <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
@@ -45,7 +45,7 @@
                     </svg>
                 </div>
             </div>
-            <p class="text-sm text-gray-500 mt-3">Vehículos disponibles</p>
+            <p class="text-sm text-gray-500 mt-3">Activos disponibles</p>
         </div>
         
         <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
@@ -60,7 +60,7 @@
                     </svg>
                 </div>
             </div>
-            <p class="text-sm text-gray-500 mt-3">Vehículos asignados</p>
+            <p class="text-sm text-gray-500 mt-3">Activos asignados</p>
         </div>
         
         <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">

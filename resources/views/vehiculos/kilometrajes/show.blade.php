@@ -6,7 +6,7 @@
 <!-- Breadcrumb -->
 <x-breadcrumb :items="[
     ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
-    ['label' => 'Vehículos', 'url' => route('vehiculos.index')],
+    ['label' => 'Activos', 'url' => route('vehiculos.index')],
     ['label' => $vehiculo->marca . ' ' . $vehiculo->modelo, 'url' => route('vehiculos.show', $vehiculo)],
     ['label' => 'Detalle del Kilometraje']
 ]" />
