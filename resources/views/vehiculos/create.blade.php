@@ -81,19 +81,41 @@
                         Información del Activo
                     </h3>
                     
+                    <!-- Tipo de Activo -->
+                    <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
+                        <div class="form-group">
+                            <label for="tipo_activo_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                Tipo de Activo <span class="text-red-500">*</span>
+                            </label>
+                            <select name="tipo_activo_id" 
+                                    id="tipo_activo_id" 
+                                    required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('tipo_activo_id') border-red-500 @enderror">
+                                <option value="">Seleccione un tipo de activo</option>
+                                @if(isset($tiposActivo) && $tiposActivo->count() > 0)
+                                    @foreach($tiposActivo as $tipoActivo)
+                                        <option value="{{ $tipoActivo->id }}" {{ old('tipo_activo_id') == $tipoActivo->id ? 'selected' : '' }}>
+                                            {{ $tipoActivo->nombre }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            @error('tipo_activo_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-500">Seleccione el tipo de activo que está registrando</p>
+                        </div>
+                    </div>
+                    
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <x-form-input name="marca" label="Marca" required placeholder="Ej: Ford, Chevrolet, Toyota" />
                         <x-form-input name="modelo" label="Modelo" required placeholder="Ej: F-150, Silverado, Hilux" />
-                        <x-form-input name="anio" label="Año" type="number" required min="1990" max="2025" placeholder="2023" />
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                         <x-form-input name="n_serie" label="Número de Serie (VIN)" required placeholder="1FTFW1ET5DFA12345" />
-                        <x-form-input name="placas" label="Placas" required placeholder="ABC-123-A" />
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
-                        <x-form-input name="kilometraje_actual" label="Kilometraje Actual (km)" type="number" required min="0" placeholder="15000" />
+                    <!-- Campos Opcionales -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                        <x-form-input name="anio" label="Año" type="number" min="1990" max="2025" placeholder="2023" />
+                        <x-form-input name="placas" label="Placas" placeholder="ABC-123-A" />
+                        <x-form-input name="kilometraje_actual" label="Kilometraje Actual (km)" type="number" min="0" placeholder="15000" />
                     </div>
 
                     <!-- Responsable Asignado -->

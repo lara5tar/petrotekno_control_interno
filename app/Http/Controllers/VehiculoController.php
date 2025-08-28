@@ -9,6 +9,7 @@ use App\Models\Documento;
 use App\Models\HistorialOperadorVehiculo;
 use App\Models\LogAccion;
 use App\Models\Personal;
+use App\Models\TipoActivo;
 use App\Models\Vehiculo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -65,8 +66,11 @@ class VehiculoController extends Controller
 
         // Obtener todo el personal activo (cualquiera puede ser operador/responsable)
         $operadores = Personal::activos()->orderBy('nombre_completo')->get();
+        
+        // Obtener todos los tipos de activo
+        $tiposActivo = TipoActivo::orderBy('nombre')->get();
 
-        return view('vehiculos.create', compact('operadores'));
+        return view('vehiculos.create', compact('operadores', 'tiposActivo'));
     }
 
     /**
@@ -77,13 +81,14 @@ class VehiculoController extends Controller
         $this->authorize('crear_vehiculos');
 
         $validatedData = $request->validate([
+            'tipo_activo_id' => 'required|exists:tipo_activos,id',
             'marca' => 'required|string|max:50',
             'numero_poliza' => 'nullable|string|max:20',
             'modelo' => 'required|string|max:100',
-            'anio' => 'required|integer|min:1990|max:' . (date('Y') + 1),
+            'anio' => 'nullable|integer|min:1990|max:' . (date('Y') + 1),
             'n_serie' => 'required|string|max:100|unique:vehiculos,n_serie',
-            'placas' => 'required|string|max:20|unique:vehiculos,placas',
-            'kilometraje_actual' => 'required|integer|min:0',
+            'placas' => 'nullable|string|max:20|unique:vehiculos,placas',
+            'kilometraje_actual' => 'nullable|integer|min:0',
             'intervalo_km_motor' => 'nullable|integer|min:1000',
             'intervalo_km_transmision' => 'nullable|integer|min:5000',
             'intervalo_km_hidraulico' => 'nullable|integer|min:1000',
@@ -141,6 +146,7 @@ class VehiculoController extends Controller
         try {
             // Crear el vehículo con estado inicial DISPONIBLE (sin las URLs primero)
             $vehiculo = Vehiculo::create([
+                'tipo_activo_id' => $validatedData['tipo_activo_id'],
                 'marca' => $validatedData['marca'],
                 'numero_poliza' => $validatedData['numero_poliza'] ?? null,
                 'modelo' => $validatedData['modelo'],
@@ -662,7 +668,7 @@ class VehiculoController extends Controller
             'data' => collect(EstadoVehiculo::cases())->map(function ($estado) {
                 return [
                     'value' => $estado->value,
-                    'label' => $estado->getLabel()
+                    'label' => $estado->nombre()
                 ];
             })
         ]);

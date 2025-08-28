@@ -578,6 +578,37 @@ Route::middleware('auth')->prefix('categorias-personal')->name('categorias-perso
         ->middleware('permission:eliminar_catalogos');
 });
 
+// Rutas para Tipos de Activos (solo para administradores)
+Route::middleware('auth')->prefix('tipos-activos')->name('tipos-activos.')->group(function () {
+    Route::get('/', [App\Http\Controllers\TipoActivoController::class, 'index'])
+        ->name('index')
+        ->middleware('permission:ver_catalogos');
+
+    Route::get('/create', [App\Http\Controllers\TipoActivoController::class, 'create'])
+        ->name('create')
+        ->middleware('permission:crear_catalogos');
+
+    Route::post('/', [App\Http\Controllers\TipoActivoController::class, 'store'])
+        ->name('store')
+        ->middleware('permission:crear_catalogos');
+
+    Route::get('/{tipoActivo}', [App\Http\Controllers\TipoActivoController::class, 'show'])
+        ->name('show')
+        ->middleware('permission:ver_catalogos');
+
+    Route::get('/{tipoActivo}/edit', [App\Http\Controllers\TipoActivoController::class, 'edit'])
+        ->name('edit')
+        ->middleware('permission:editar_catalogos');
+
+    Route::put('/{tipoActivo}', [App\Http\Controllers\TipoActivoController::class, 'update'])
+        ->name('update')
+        ->middleware('permission:editar_catalogos');
+
+    Route::delete('/{tipoActivo}', [App\Http\Controllers\TipoActivoController::class, 'destroy'])
+        ->name('destroy')
+        ->middleware('permission:eliminar_catalogos');
+});
+
 // Rutas para Asignaciones de Obra
 Route::middleware('auth')->prefix('asignaciones-obra')->name('asignaciones-obra.')->group(function () {
     Route::get('/', [App\Http\Controllers\AsignacionObraController::class, 'index'])

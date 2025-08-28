@@ -1,0 +1,52 @@
+<testsuites id="" name="" tests="3" failures="1" skipped="0" errors="0" time="53.527407000000004">
+<testsuite name="tipo-activo-show.spec.js" timestamp="2025-08-27T23:54:04.933Z" hostname="chromium" tests="3" failures="1" skipped="0" time="65.11" errors="0">
+<testcase name="Tipo Activo Show Page › should display tipo activo show page correctly" classname="tipo-activo-show.spec.js" time="30.165">
+<failure message="tipo-activo-show.spec.js:17:3 should display tipo activo show page correctly" type="FAILURE">
+<![CDATA[  [chromium] › tipo-activo-show.spec.js:17:3 › Tipo Activo Show Page › should display tipo activo show page correctly 
+
+    Error: expect.toContainText: Error: strict mode violation: locator('h1, h2, .card-title') resolved to 3 elements:
+        1) <h2 class="text-xl font-bold text-black text-center mb-4 sidebar-subtitle">Menú Principal</h2> aka getByRole('heading', { name: 'Menú Principal' })
+        2) <h1 class="text-xl font-medium">Gestión de Tipos de Activos</h1> aka getByRole('heading', { name: 'Gestión de Tipos de Activos' })
+        3) <h2 class="text-2xl font-bold text-gray-800">Tipos de Activos</h2> aka getByRole('heading', { name: 'Tipos de Activos', exact: true })
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('h1, h2, .card-title')
+
+
+      23 |     
+      24 |     // Verificar que la página de índice carga correctamente
+    > 25 |     await expect(page.locator('h1, h2, .card-title')).toContainText(/Tipos de Activos/i);
+         |                                                       ^
+      26 |     
+      27 |     // Buscar el primer enlace de "Ver" o "Show" en la tabla
+      28 |     const showButton = page.locator('a[href*="tipos-activos/"]').first();
+        at /Users/lara5tar/Desktop/Proyectos/petrotekno_control_interno/tests/playwright/tipo-activo-show.spec.js:25:55
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-results/tipo-activo-show-Tipo-Acti-ea06e--activo-show-page-correctly-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../test-results/tipo-activo-show-Tipo-Acti-ea06e--activo-show-page-correctly-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-results/tipo-activo-show-Tipo-Acti-ea06e--activo-show-page-correctly-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|test-results/tipo-activo-show-Tipo-Acti-ea06e--activo-show-page-correctly-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|test-results/tipo-activo-show-Tipo-Acti-ea06e--activo-show-page-correctly-chromium/video.webm]]
+
+[[ATTACHMENT|test-results/tipo-activo-show-Tipo-Acti-ea06e--activo-show-page-correctly-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Tipo Activo Show Page › should handle direct navigation to tipo activo show page" classname="tipo-activo-show.spec.js" time="30.1">
+</testcase>
+<testcase name="Tipo Activo Show Page › should display vehiculos section if tipo activo has vehicles" classname="tipo-activo-show.spec.js" time="4.845">
+</testcase>
+</testsuite>
+</testsuites>

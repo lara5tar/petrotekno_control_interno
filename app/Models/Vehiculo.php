@@ -79,6 +79,7 @@ class Vehiculo extends Model
      * Campos asignables masivamente
      */
     protected $fillable = [
+        'tipo_activo_id',
         'marca',
         'numero_poliza',
         'modelo',
@@ -199,6 +200,14 @@ class Vehiculo extends Model
     public function operador(): BelongsTo
     {
         return $this->belongsTo(Personal::class, 'operador_id');
+    }
+
+    /**
+     * Relación: Un vehículo pertenece a un tipo de activo
+     */
+    public function tipoActivo(): BelongsTo
+    {
+        return $this->belongsTo(TipoActivo::class, 'tipo_activo_id');
     }
 
     /**
