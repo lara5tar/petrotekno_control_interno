@@ -115,7 +115,9 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                         <x-form-input name="anio" label="Año" type="number" min="1990" max="2025" placeholder="2023" />
                         <x-form-input name="placas" label="Placas" placeholder="ABC-123-A" />
-                        <x-form-input name="kilometraje_actual" label="Kilometraje Actual (km)" type="number" min="0" placeholder="15000" />
+                        <div id="kilometraje-field">
+                            <x-form-input name="kilometraje_actual" label="Kilometraje Actual (km)" type="number" min="0" placeholder="15000" />
+                        </div>
                     </div>
 
                     <!-- Responsable Asignado -->
@@ -307,12 +309,12 @@
 
 
                 <!-- Configuración de Mantenimiento -->
-                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                <div id="mantenimiento-section" class="bg-white border border-gray-200 rounded-lg p-6">
                     <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
                         </svg>
-                        Intervalos de Mantenimiento (Opcional)
+                        Intervalos de Mantenimiento
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -400,6 +402,159 @@
 
 @push('scripts')
 <script>
+    // Función para manejar el cambio de tipo de activo
+    function handleTipoActivoChange() {
+        const tipoActivoSelect = document.getElementById('tipo_activo_id');
+        const kilometrajeField = document.getElementById('kilometraje-field');
+        const mantenimientoSection = document.getElementById('mantenimiento-section');
+        
+        if (!tipoActivoSelect.value) {
+            // Si no hay tipo seleccionado, mostrar todos los campos
+            if (kilometrajeField) kilometrajeField.style.display = 'block';
+            if (mantenimientoSection) mantenimientoSection.style.display = 'block';
+            return;
+        }
+        
+        // Hacer petición AJAX para obtener información del tipo de activo
+        fetch(`/tipos-activos/${tipoActivoSelect.value}/info`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al obtener información del tipo de activo');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Habilitar o deshabilitar campos según tiene_kilometraje
+            if (data.data.tiene_kilometraje) {
+                // Habilitar campos de kilometraje y mantenimiento
+                if (kilometrajeField) {
+                    kilometrajeField.style.opacity = '1';
+                    kilometrajeField.style.pointerEvents = 'auto';
+                    // Hacer el campo requerido si tiene kilometraje
+                    const input = kilometrajeField.querySelector('input');
+                    if (input) {
+                        input.setAttribute('required', 'required');
+                        input.disabled = false;
+                        input.style.backgroundColor = '';
+                        input.style.color = '';
+                        input.style.cursor = '';
+                    }
+                    const label = kilometrajeField.querySelector('label');
+                    if (label) {
+                        label.style.color = '';
+                    }
+                }
+                if (mantenimientoSection) {
+                    mantenimientoSection.style.opacity = '1';
+                    mantenimientoSection.style.pointerEvents = 'auto';
+                    // Habilitar todos los inputs de mantenimiento
+                    const mantenimientoInputs = mantenimientoSection.querySelectorAll('input[type="number"]');
+                    mantenimientoInputs.forEach(input => {
+                        input.disabled = false;
+                        input.style.backgroundColor = '';
+                        input.style.color = '';
+                        input.style.cursor = '';
+                    });
+                    const labels = mantenimientoSection.querySelectorAll('label');
+                    labels.forEach(label => {
+                        label.style.color = '';
+                    });
+                }
+            } else {
+                // Deshabilitar campos de kilometraje y mantenimiento con estilo gris
+                if (kilometrajeField) {
+                    kilometrajeField.style.opacity = '0.6';
+                    kilometrajeField.style.pointerEvents = 'none';
+                    // Remover el atributo required y limpiar el valor
+                    const input = kilometrajeField.querySelector('input');
+                    if (input) {
+                        input.removeAttribute('required');
+                        input.value = '';
+                        input.disabled = true;
+                        input.style.backgroundColor = '#f3f4f6';
+                        input.style.color = '#9ca3af';
+                        input.style.cursor = 'not-allowed';
+                    }
+                    const label = kilometrajeField.querySelector('label');
+                    if (label) {
+                        label.style.color = '#9ca3af';
+                    }
+                }
+                if (mantenimientoSection) {
+                    mantenimientoSection.style.opacity = '0.6';
+                    mantenimientoSection.style.pointerEvents = 'none';
+                    // Limpiar valores y deshabilitar campos de mantenimiento
+                    const mantenimientoInputs = mantenimientoSection.querySelectorAll('input[type="number"]');
+                    mantenimientoInputs.forEach(input => {
+                        input.value = '';
+                        input.disabled = true;
+                        input.style.backgroundColor = '#f3f4f6';
+                        input.style.color = '#9ca3af';
+                        input.style.cursor = 'not-allowed';
+                    });
+                    const labels = mantenimientoSection.querySelectorAll('label');
+                    labels.forEach(label => {
+                        label.style.color = '#9ca3af';
+                    });
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // En caso de error, habilitar todos los campos por defecto
+            if (kilometrajeField) {
+                kilometrajeField.style.opacity = '1';
+                kilometrajeField.style.pointerEvents = 'auto';
+                const input = kilometrajeField.querySelector('input');
+                if (input) {
+                    input.disabled = false;
+                    input.style.backgroundColor = '';
+                    input.style.color = '';
+                    input.style.cursor = '';
+                }
+                const label = kilometrajeField.querySelector('label');
+                if (label) {
+                    label.style.color = '';
+                }
+            }
+            if (mantenimientoSection) {
+                mantenimientoSection.style.opacity = '1';
+                mantenimientoSection.style.pointerEvents = 'auto';
+                const mantenimientoInputs = mantenimientoSection.querySelectorAll('input[type="number"]');
+                mantenimientoInputs.forEach(input => {
+                    input.disabled = false;
+                    input.style.backgroundColor = '';
+                    input.style.color = '';
+                    input.style.cursor = '';
+                });
+                const labels = mantenimientoSection.querySelectorAll('label');
+                labels.forEach(label => {
+                    label.style.color = '';
+                });
+            }
+        });
+    }
+    
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoActivoSelect = document.getElementById('tipo_activo_id');
+        if (tipoActivoSelect) {
+            // Agregar event listener para cambios
+            tipoActivoSelect.addEventListener('change', handleTipoActivoChange);
+            
+            // Ejecutar al cargar la página si ya hay un valor seleccionado
+            if (tipoActivoSelect.value) {
+                handleTipoActivoChange();
+            }
+        }
+    });
+    
     // Estado de los archivos
     const fileStatus = {
         tarjeta_circulacion: '',

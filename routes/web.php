@@ -607,6 +607,11 @@ Route::middleware('auth')->prefix('tipos-activos')->name('tipos-activos.')->grou
     Route::delete('/{tipoActivo}', [App\Http\Controllers\TipoActivoController::class, 'destroy'])
         ->name('destroy')
         ->middleware('permission:eliminar_catalogos');
+    
+    // Ruta API para obtener información del tipo de activo
+    Route::get('/{tipoActivo}/info', [App\Http\Controllers\TipoActivoController::class, 'getInfo'])
+        ->name('info')
+        ->middleware('permission:ver_catalogos');
 });
 
 // Rutas para Asignaciones de Obra

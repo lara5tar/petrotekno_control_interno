@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\EstadoVehiculo;
+use App\Http\Requests\StoreVehiculoRequest;
+use App\Http\Requests\UpdateVehiculoRequest;
 use App\Models\CategoriaPersonal;
 use App\Models\CatalogoTipoDocumento;
 use App\Models\Documento;
@@ -16,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class VehiculoController extends Controller
 {
@@ -76,75 +79,14 @@ class VehiculoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreVehiculoRequest $request)
     {
-        $this->authorize('crear_vehiculos');
-
-        $validatedData = $request->validate([
-            'tipo_activo_id' => 'required|exists:tipo_activos,id',
-            'marca' => 'required|string|max:50',
-            'numero_poliza' => 'nullable|string|max:20',
-            'modelo' => 'required|string|max:100',
-            'anio' => 'nullable|integer|min:1990|max:' . (date('Y') + 1),
-            'n_serie' => 'required|string|max:100|unique:vehiculos,n_serie',
-            'placas' => 'nullable|string|max:20|unique:vehiculos,placas',
-            'kilometraje_actual' => 'nullable|integer|min:0',
-            'intervalo_km_motor' => 'nullable|integer|min:1000',
-            'intervalo_km_transmision' => 'nullable|integer|min:5000',
-            'intervalo_km_hidraulico' => 'nullable|integer|min:1000',
-            'observaciones' => 'nullable|string|max:1000',
-            'operador_id' => 'nullable|exists:personal,id',
-            
-            // Fechas de vencimiento para nuevas columnas
-            'poliza_vencimiento' => 'nullable|date',
-            'derecho_vencimiento' => 'nullable|date',
-            
-            // Archivos de documentos (nuevos nombres)
-            'poliza_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'derecho_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'factura_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'imagen_file' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
-            
-            // Archivos de documentos (compatibilidad con nombres anteriores)
-            'poliza_seguro_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'derecho_vehicular_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'factura_pedimento_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'fotografia_file' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
-            
-            // Fechas de vencimiento (compatibilidad)
-            'fecha_vencimiento_seguro' => 'nullable|date',
-            'fecha_vencimiento_derecho' => 'nullable|date',
-        ], [
-            'marca.required' => 'La marca es obligatoria.',
-            'modelo.required' => 'El modelo es obligatorio.',
-            'anio.required' => 'El año es obligatorio.',
-            'anio.min' => 'El año debe ser mayor a 1990.',
-            'anio.max' => 'El año no puede ser mayor al año siguiente.',
-            'n_serie.required' => 'El número de serie es obligatorio.',
-            'n_serie.unique' => 'Este número de serie ya está registrado.',
-            'placas.required' => 'Las placas son obligatorias.',
-            'placas.unique' => 'Estas placas ya están registradas.',
-            'kilometraje_actual.required' => 'El kilometraje actual es obligatorio.',
-            'kilometraje_actual.min' => 'El kilometraje no puede ser negativo.',
-            'operador_id.exists' => 'El operador seleccionado no es válido.',
-            
-            // Validaciones para archivos
-            'poliza_file.max' => 'La póliza de seguro no puede ser mayor a 5MB.',
-            'derecho_file.max' => 'El derecho vehicular no puede ser mayor a 5MB.',
-            'factura_file.max' => 'La factura no puede ser mayor a 5MB.',
-            'imagen_file.max' => 'La imagen no puede ser mayor a 5MB.',
-            
-            // Validaciones para archivos (compatibilidad)
-            'poliza_seguro_file.max' => 'La póliza de seguro no puede ser mayor a 5MB.',
-            'derecho_vehicular_file.max' => 'El derecho vehicular no puede ser mayor a 5MB.',
-            'factura_pedimento_file.max' => 'La factura/pedimento no puede ser mayor a 5MB.',
-            'fotografia_file.max' => 'La fotografía no puede ser mayor a 5MB.',
-        ]);
+        $validatedData = $request->validated();
 
         DB::beginTransaction();
 
         try {
-            // Crear el vehículo con estado inicial DISPONIBLE (sin las URLs primero)
+            // Crear el vehículo con estado inicial DISPONIBLE automáticamente
             $vehiculo = Vehiculo::create([
                 'tipo_activo_id' => $validatedData['tipo_activo_id'],
                 'marca' => $validatedData['marca'],
@@ -153,11 +95,11 @@ class VehiculoController extends Controller
                 'anio' => $validatedData['anio'],
                 'n_serie' => $validatedData['n_serie'],
                 'placas' => $validatedData['placas'],
-                'estatus' => EstadoVehiculo::DISPONIBLE->value, // Usar 'estatus' en lugar de 'estado'
-                'kilometraje_actual' => $validatedData['kilometraje_actual'],
-                'intervalo_km_motor' => $validatedData['intervalo_km_motor'],
-                'intervalo_km_transmision' => $validatedData['intervalo_km_transmision'],
-                'intervalo_km_hidraulico' => $validatedData['intervalo_km_hidraulico'],
+                'estatus' => EstadoVehiculo::DISPONIBLE->value, // Estatus automático como DISPONIBLE
+                'kilometraje_actual' => $validatedData['kilometraje_actual'] ?? null, // Opcional según tipo de activo
+                'intervalo_km_motor' => $validatedData['intervalo_km_motor'] ?? null,
+                'intervalo_km_transmision' => $validatedData['intervalo_km_transmision'] ?? null,
+                'intervalo_km_hidraulico' => $validatedData['intervalo_km_hidraulico'] ?? null,
                 'observaciones' => $validatedData['observaciones'],
                 'operador_id' => $validatedData['operador_id'], // Agregar el operador_id
                 
@@ -282,6 +224,20 @@ class VehiculoController extends Controller
             return redirect()->route('vehiculos.show', $vehiculo->id)
                 ->with('success', 'Vehículo creado exitosamente.');
 
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            
+            // Log del error de validación
+            \App\Services\UserFriendlyErrorService::logTechnicalError($e, 'VehiculoController@store - Validation Error');
+            
+            // Obtener el primer mensaje de validación
+            $firstError = collect($e->errors())->flatten()->first();
+            
+            return redirect()->back()
+                ->withInput()
+                ->withErrors($e->errors())
+                ->with('error', $firstError ?? 'Error de validación en los datos del vehículo.');
+                
         } catch (\Exception $e) {
             DB::rollBack();
             
@@ -335,78 +291,9 @@ class VehiculoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Vehiculo $vehiculo)
+    public function update(UpdateVehiculoRequest $request, Vehiculo $vehiculo)
     {
-        $this->authorize('editar_vehiculos');
-
-        $validatedData = $request->validate([
-            'marca' => 'required|string|max:50',
-            'numero_poliza' => 'nullable|string|max:20',
-            'modelo' => 'required|string|max:100',
-            'anio' => 'required|integer|min:1990|max:' . (date('Y') + 1),
-            'n_serie' => [
-                'required',
-                'string',
-                'max:100',
-                Rule::unique('vehiculos', 'n_serie')->ignore($vehiculo->id)
-            ],
-            'placas' => [
-                'required',
-                'string',
-                'max:20',
-                Rule::unique('vehiculos', 'placas')->ignore($vehiculo->id)
-            ],
-            // Removido: 'estatus' ya no es requerido - tiene valor por defecto
-            'kilometraje_actual' => 'required|integer|min:0',
-            'intervalo_km_motor' => 'nullable|integer|min:1000',
-            'intervalo_km_transmision' => 'nullable|integer|min:5000',
-            'intervalo_km_hidraulico' => 'nullable|integer|min:1000',
-            'observaciones' => 'nullable|string|max:1000',
-            
-            // Fechas de vencimiento para nuevas columnas
-            'poliza_vencimiento' => 'nullable|date',
-            'derecho_vencimiento' => 'nullable|date',
-            
-            // Archivos de documentos (nuevos nombres)
-            'poliza_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'derecho_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'factura_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'imagen_file' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
-            
-            // Archivos de documentos (compatibilidad con nombres anteriores)
-            'poliza_seguro_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'derecho_vehicular_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'factura_pedimento_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'fotografia_file' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
-            
-            // Fechas de vencimiento (compatibilidad)
-            'fecha_vencimiento_seguro' => 'nullable|date',
-            'fecha_vencimiento_derecho' => 'nullable|date',
-        ], [
-            'marca.required' => 'La marca es obligatoria.',
-            'modelo.required' => 'El modelo es obligatorio.',
-            'anio.required' => 'El año es obligatorio.',
-            'anio.min' => 'El año debe ser mayor a 1990.',
-            'anio.max' => 'El año no puede ser mayor al año siguiente.',
-            'n_serie.required' => 'El número de serie es obligatorio.',
-            'n_serie.unique' => 'Este número de serie ya está registrado.',
-            'placas.required' => 'Las placas son obligatorias.',
-            'placas.unique' => 'Estas placas ya están registradas.',
-            'kilometraje_actual.required' => 'El kilometraje actual es obligatorio.',
-            'kilometraje_actual.min' => 'El kilometraje no puede ser negativo.',
-            
-            // Validaciones para archivos
-            'poliza_file.max' => 'La póliza de seguro no puede ser mayor a 5MB.',
-            'derecho_file.max' => 'El derecho vehicular no puede ser mayor a 5MB.',
-            'factura_file.max' => 'La factura no puede ser mayor a 5MB.',
-            'imagen_file.max' => 'La imagen no puede ser mayor a 5MB.',
-            
-            // Validaciones para archivos (compatibilidad)
-            'poliza_seguro_file.max' => 'La póliza de seguro no puede ser mayor a 5MB.',
-            'derecho_vehicular_file.max' => 'El derecho vehicular no puede ser mayor a 5MB.',
-            'factura_pedimento_file.max' => 'La factura/pedimento no puede ser mayor a 5MB.',
-            'fotografia_file.max' => 'La fotografía no puede ser mayor a 5MB.',
-        ]);
+        $validatedData = $request->validated();
 
         DB::beginTransaction();
 
@@ -421,10 +308,10 @@ class VehiculoController extends Controller
                 'anio' => $validatedData['anio'],
                 'n_serie' => $validatedData['n_serie'],
                 'placas' => $validatedData['placas'],
-                'kilometraje_actual' => $validatedData['kilometraje_actual'],
-                'intervalo_km_motor' => $validatedData['intervalo_km_motor'],
-                'intervalo_km_transmision' => $validatedData['intervalo_km_transmision'],
-                'intervalo_km_hidraulico' => $validatedData['intervalo_km_hidraulico'],
+                'kilometraje_actual' => $validatedData['kilometraje_actual'] ?? null, // Opcional según tipo de activo
+                'intervalo_km_motor' => $validatedData['intervalo_km_motor'] ?? null,
+                'intervalo_km_transmision' => $validatedData['intervalo_km_transmision'] ?? null,
+                'intervalo_km_hidraulico' => $validatedData['intervalo_km_hidraulico'] ?? null,
                 'observaciones' => $validatedData['observaciones'],
                 
                 // Fechas de vencimiento
@@ -557,6 +444,16 @@ class VehiculoController extends Controller
             return redirect()->route('vehiculos.show', $vehiculo->id)
                 ->with('success', 'Vehículo actualizado exitosamente.');
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            
+            // Obtener el primer mensaje de error de validación
+            $firstError = collect($e->errors())->flatten()->first();
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', $firstError ?? 'Error de validación al actualizar el vehículo.');
+                
         } catch (\Exception $e) {
             DB::rollBack();
             

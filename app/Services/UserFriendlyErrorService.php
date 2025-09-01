@@ -23,7 +23,7 @@ class UserFriendlyErrorService
 
         // Errores de validación
         if ($e instanceof ValidationException) {
-            return 'Los datos proporcionados no son válidos. Por favor, revise la información ingresada.';
+            return self::getValidationMessage($e);
         }
 
         // Errores de modelo no encontrado
@@ -74,15 +74,72 @@ class UserFriendlyErrorService
             if (str_contains($message, 'placas')) {
                 return 'Estas placas ya están registradas en el sistema.';
             }
+            if (str_contains($message, 'n_serie')) {
+                return 'Este número de serie ya está registrado en el sistema.';
+            }
             return 'Este registro ya existe en el sistema.';
+        }
+
+        // Errores de datos demasiado largos
+        if (str_contains($message, 'Data too long')) {
+            if (str_contains($message, 'marca')) {
+                return 'La marca del vehículo es demasiado larga (máximo 50 caracteres).';
+            }
+            if (str_contains($message, 'modelo')) {
+                return 'El modelo del vehículo es demasiado largo (máximo 100 caracteres).';
+            }
+            if (str_contains($message, 'placas')) {
+                return 'Las placas son demasiado largas (máximo 20 caracteres).';
+            }
+            if (str_contains($message, 'n_serie')) {
+                return 'El número de serie es demasiado largo (máximo 100 caracteres).';
+            }
+            if (str_contains($message, 'observaciones')) {
+                return 'Las observaciones son demasiado largas (máximo 1000 caracteres).';
+            }
+            return 'Uno de los campos contiene demasiado texto. Verifique los límites de caracteres.';
+        }
+
+        // Errores de valor fuera de rango
+        if (str_contains($message, 'Out of range')) {
+            if (str_contains($message, 'anio')) {
+                return 'El año del vehículo debe estar entre 1990 y ' . (date('Y') + 1) . '.';
+            }
+            if (str_contains($message, 'kilometraje')) {
+                return 'El kilometraje debe ser un número válido y positivo.';
+            }
+            return 'Uno de los valores numéricos está fuera del rango permitido.';
         }
 
         // Errores de restricción de clave foránea
         if (str_contains($message, 'foreign key constraint') || str_contains($message, 'FOREIGN KEY')) {
+            if (str_contains($message, 'tipo_activo_id')) {
+                return 'El tipo de activo seleccionado no existe. Por favor, seleccione un tipo válido.';
+            }
+            if (str_contains($message, 'operador_id')) {
+                return 'El operador seleccionado no existe. Por favor, seleccione un operador válido.';
+            }
             if (str_contains($operation, 'eliminar')) {
                 return 'No se puede eliminar este registro porque está siendo utilizado en otras partes del sistema.';
             }
             return 'La operación no se puede completar porque hace referencia a un registro que no existe.';
+        }
+
+        // Errores de campos requeridos (NOT NULL)
+        if (str_contains($message, "cannot be null") || str_contains($message, "doesn't have a default value")) {
+            if (str_contains($message, 'marca')) {
+                return 'La marca del vehículo es obligatoria.';
+            }
+            if (str_contains($message, 'modelo')) {
+                return 'El modelo del vehículo es obligatorio.';
+            }
+            if (str_contains($message, 'n_serie')) {
+                return 'El número de serie del vehículo es obligatorio.';
+            }
+            if (str_contains($message, 'tipo_activo_id')) {
+                return 'Debe seleccionar un tipo de activo.';
+            }
+            return 'Faltan campos obligatorios por completar.';
         }
 
         // Errores de columna no encontrada
@@ -181,6 +238,8 @@ class UserFriendlyErrorService
             'eliminar_documento' => 'eliminar el documento',
             'asignar_vehiculo' => 'asignar el vehículo',
             'crear_usuario' => 'crear el usuario',
+            'crear_mantenimiento' => 'crear el mantenimiento',
+            'actualizar_mantenimiento' => 'actualizar el mantenimiento',
         ];
 
         $operationText = $operations[$operation] ?? $operation;
@@ -190,6 +249,22 @@ class UserFriendlyErrorService
         }
 
         return self::getGenericMessage($operationText);
+    }
+
+    /**
+     * Maneja errores específicos de validación de Laravel
+     */
+    public static function getValidationMessage(ValidationException $e): string
+    {
+        $errors = $e->errors();
+        $firstError = collect($errors)->flatten()->first();
+        
+        // Si hay un mensaje de validación específico, usarlo
+        if ($firstError) {
+            return $firstError;
+        }
+        
+        return 'Los datos proporcionados no son válidos. Por favor, revise la información ingresada.';
     }
 
     /**

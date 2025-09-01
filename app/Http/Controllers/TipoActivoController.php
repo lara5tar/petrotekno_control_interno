@@ -109,6 +109,30 @@ class TipoActivoController extends Controller
     }
 
     /**
+     * Get tipo activo info for AJAX requests
+     */
+    public function getInfo($id)
+    {
+        $tipoActivo = TipoActivo::find($id);
+        
+        if (!$tipoActivo) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tipo de activo no encontrado'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $tipoActivo->id,
+                'nombre' => $tipoActivo->nombre,
+                'tiene_kilometraje' => $tipoActivo->tiene_kilometraje
+            ]
+        ]);
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit(TipoActivo $tipoActivo)

@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use App\Enums\EstadoVehiculo;
+use App\Models\TipoActivo;
 
 class StoreVehiculoRequest extends FormRequest
 {
@@ -59,16 +60,11 @@ class StoreVehiculoRequest extends FormRequest
                 'unique:vehiculos,placas',
                 'regex:/^[A-Z0-9\-]+$/',
             ],
-            'estatus' => [
-                'required',
-                'string',
-                Rule::in(array_column(EstadoVehiculo::cases(), 'value')),
-            ],
-            'kilometraje_actual' => [
+            'kilometraje_actual' => $this->getKilometrajeRules(),
+            'tipo_activo_id' => [
                 'required',
                 'integer',
-                'min:0',
-                'max:9999999',
+                'exists:tipo_activos,id',
             ],
             'intervalo_km_motor' => [
                 'nullable',
@@ -266,14 +262,14 @@ class StoreVehiculoRequest extends FormRequest
             'placas.unique' => 'Estas placas ya están registradas en el sistema',
             'placas.regex' => 'Las placas solo pueden contener letras, números y guiones',
             
-            'estatus.required' => 'El estatus del vehículo es obligatorio',
-            'estatus.string' => 'El estatus debe ser un texto válido',
-            'estatus.in' => 'El estatus seleccionado no es válido',
-            
-            'kilometraje_actual.required' => 'El kilometraje actual es obligatorio',
+            'kilometraje_actual.required' => 'El kilometraje actual es obligatorio para este tipo de activo',
             'kilometraje_actual.integer' => 'El kilometraje debe ser un número entero',
             'kilometraje_actual.min' => 'El kilometraje no puede ser negativo',
             'kilometraje_actual.max' => 'El kilometraje excede el límite permitido',
+            
+            'tipo_activo_id.required' => 'El tipo de activo es obligatorio',
+            'tipo_activo_id.integer' => 'El tipo de activo debe ser un número válido',
+            'tipo_activo_id.exists' => 'El tipo de activo seleccionado no existe',
             
             'intervalo_km_motor.integer' => 'El intervalo de motor debe ser un número entero',
             'intervalo_km_motor.min' => 'El intervalo de motor debe ser al menos 100 km',
@@ -363,6 +359,31 @@ class StoreVehiculoRequest extends FormRequest
             'documentos_adicionales.*.file' => 'Cada documento adicional debe ser un archivo válido',
             'documentos_adicionales.*.mimes' => 'Los documentos adicionales deben ser de tipo: pdf, doc, docx, jpg, jpeg, png, webp',
             'documentos_adicionales.*.max' => 'Cada documento adicional no puede exceder 10MB',
+        ];
+    }
+
+    /**
+     * Get validation rules for kilometraje_actual based on tipo_activo
+     */
+    protected function getKilometrajeRules(): array
+    {
+        $tipoActivoId = $this->input('tipo_activo_id');
+        
+        if (!$tipoActivoId) {
+            return ['nullable', 'integer', 'min:0', 'max:9999999'];
+        }
+        
+        $tipoActivo = TipoActivo::find($tipoActivoId);
+        
+        if (!$tipoActivo || !$tipoActivo->tiene_kilometraje) {
+            return ['nullable', 'integer', 'min:0', 'max:9999999'];
+        }
+        
+        return [
+            'required',
+            'integer',
+            'min:0',
+            'max:9999999',
         ];
     }
 
