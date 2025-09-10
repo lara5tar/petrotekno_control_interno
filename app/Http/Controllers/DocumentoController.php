@@ -128,7 +128,7 @@ class DocumentoController extends Controller
             $tiposDocumento = CatalogoTipoDocumento::all();
             $vehiculos = Vehiculo::select('id', 'marca', 'modelo', 'placas')->get();
             $personal = Personal::select('id', 'nombre_completo')->where('estatus', 'activo')->get();
-            $obras = Obra::select('id', 'nombre_obra')->where('estatus', 'activa')->get();
+            $obras = Obra::select('id', 'nombre_obra')->where('estado', 'activa')->get();
 
             // Si es solicitud API (AJAX/fetch con JSON)
             if ($request->expectsJson()) {
@@ -190,7 +190,7 @@ class DocumentoController extends Controller
             $tiposDocumento = CatalogoTipoDocumento::all();
             $vehiculos = Vehiculo::select('id', 'marca', 'modelo', 'placas')->get();
             $personal = Personal::select('id', 'nombre_completo')->where('estatus', 'activo')->get();
-            $obras = Obra::select('id', 'nombre_obra')->where('estatus', 'activa')->get();
+            $obras = Obra::select('id', 'nombre_obra')->where('estado', 'activa')->get();
 
             return view('documentos.create', compact(
                 'tiposDocumento',
@@ -408,7 +408,7 @@ class DocumentoController extends Controller
             $tiposDocumento = CatalogoTipoDocumento::all();
             $vehiculos = Vehiculo::select('id', 'marca', 'modelo', 'placas')->get();
             $personal = Personal::select('id', 'nombre_completo')->where('estatus', 'activo')->get();
-            $obras = Obra::select('id', 'nombre_obra')->where('estatus', 'activa')->get();
+            $obras = Obra::select('id', 'nombre_obra')->where('estado', 'activa')->get();
 
             return view('documentos.edit', compact(
                 'documento',

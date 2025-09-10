@@ -129,30 +129,34 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('obras', function (Blueprint $table) {
-            // Verificar y eliminar foreign keys solo si existen
-            $foreignKeys = [
-                'obras_vehiculo_id_foreign',
-                'obras_operador_id_foreign', 
-                'obras_encargado_id_foreign'
-            ];
+            // Eliminar foreign keys de manera compatible con SQLite
+            try {
+                $table->dropForeign(['vehiculo_id']);
+            } catch (\Exception $e) {
+                // Si la clave foránea no existe, continuar
+            }
             
-            foreach ($foreignKeys as $foreignKey) {
-                try {
-                    DB::statement("ALTER TABLE obras DROP FOREIGN KEY {$foreignKey}");
-                } catch (\Exception $e) {
-                    // Si la clave foránea no existe, continuar
-                }
+            try {
+                $table->dropForeign(['operador_id']);
+            } catch (\Exception $e) {
+                // Si la clave foránea no existe, continuar
+            }
+            
+            try {
+                $table->dropForeign(['encargado_id']);
+            } catch (\Exception $e) {
+                // Si la clave foránea no existe, continuar
             }
 
-            // Eliminar índices si existen
+            // Eliminar índices si existen usando nombres específicos
             try {
-                DB::statement("DROP INDEX obras_vehiculo_id_operador_id_index ON obras");
+                DB::statement('DROP INDEX IF EXISTS obras_vehiculo_id_operador_id_index');
             } catch (\Exception $e) {
                 // Si el índice no existe, continuar
             }
             
             try {
-                DB::statement("DROP INDEX obras_fecha_asignacion_index ON obras");
+                DB::statement('DROP INDEX IF EXISTS obras_fecha_asignacion_index');
             } catch (\Exception $e) {
                 // Si el índice no existe, continuar
             }

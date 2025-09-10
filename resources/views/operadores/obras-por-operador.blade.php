@@ -72,7 +72,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h5 class="card-title">Operadores Activos</h5>
-                                    <h2 class="mb-0">{{ $operadoresConObras->where('estatus', 'activo')->count() }}</h2>
+                                    <h2 class="mb-0">{{ $operadoresConObras->where('estado', 'activo')->count() }}</h2>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-user-check fa-2x opacity-75"></i>

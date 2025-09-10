@@ -59,7 +59,7 @@ class HomeController extends Controller
         $mantenimientosProgramados = Mantenimiento::whereNull('fecha_fin')->count();
         $mantenimientosCompletados = Mantenimiento::whereNotNull('fecha_fin')->count();
 
-        // Conteo de obras por estado
+        // Conteo de obras por estatus
         $obrasEstados = Obra::selectRaw('estatus, COUNT(*) as total')
             ->groupBy('estatus')
             ->pluck('total', 'estatus');

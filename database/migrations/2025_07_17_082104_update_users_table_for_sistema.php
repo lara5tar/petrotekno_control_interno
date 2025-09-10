@@ -28,7 +28,14 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             // Agregar columna 'name' solo si no existe
             if (!Schema::hasColumn('users', 'name')) {
-                $table->string('name')->after('id');
+                $table->string('name')->default('')->after('id');
+            }
+            
+            // Eliminar índice único de nombre_usuario si existe
+            try {
+                $table->dropUnique(['nombre_usuario']);
+            } catch (\Exception $e) {
+                // Ignorar si el índice no existe
             }
             
             // Eliminar foreign key de personal_id si existe

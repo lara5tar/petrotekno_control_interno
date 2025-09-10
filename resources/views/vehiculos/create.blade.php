@@ -116,7 +116,20 @@
                         <x-form-input name="anio" label="Año" type="number" min="1990" max="2025" placeholder="2023" />
                         <x-form-input name="placas" label="Placas" placeholder="ABC-123-A" />
                         <div id="kilometraje-field">
-                            <x-form-input name="kilometraje_actual" label="Kilometraje Actual (km)" type="number" min="0" placeholder="15000" />
+                            <div class="form-group">
+                                <label for="kilometraje_actual" id="kilometraje-label" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Kilometraje Actual (km)
+                                </label>
+                                <input type="number" 
+                                       name="kilometraje_actual" 
+                                       id="kilometraje_actual" 
+                                       min="0" 
+                                       placeholder="15000"
+                                       value="{{ old('kilometraje_actual') }}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('kilometraje_actual') border-red-500 @enderror">
+                                @error('kilometraje_actual') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                                <p class="mt-1 text-xs text-gray-500">Kilometraje actual del activo</p>
+                            </div>
                         </div>
                     </div>
 
@@ -448,6 +461,15 @@
                     const label = kilometrajeField.querySelector('label');
                     if (label) {
                         label.style.color = '';
+                        // Agregar asterisco rojo para indicar campo requerido
+                        if (!label.querySelector('.required-asterisk')) {
+                            const asterisk = document.createElement('span');
+                            asterisk.className = 'required-asterisk';
+                            asterisk.style.color = 'red';
+                            asterisk.style.marginLeft = '4px';
+                            asterisk.textContent = '*';
+                            label.appendChild(asterisk);
+                        }
                     }
                 }
                 if (mantenimientoSection) {
@@ -484,6 +506,11 @@
                     const label = kilometrajeField.querySelector('label');
                     if (label) {
                         label.style.color = '#9ca3af';
+                        // Remover asterisco rojo si existe
+                        const asterisk = label.querySelector('.required-asterisk');
+                        if (asterisk) {
+                            asterisk.remove();
+                        }
                     }
                 }
                 if (mantenimientoSection) {
@@ -552,6 +579,35 @@
             if (tipoActivoSelect.value) {
                 handleTipoActivoChange();
             }
+        }
+        
+        // Validación adicional antes de enviar el formulario
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const tipoActivoSelect = document.getElementById('tipo_activo_id');
+                const kilometrajeInput = document.getElementById('kilometraje_actual');
+                
+                if (tipoActivoSelect && kilometrajeInput) {
+                    const tipoActivoId = tipoActivoSelect.value;
+                    
+                    // Si es tipo de activo con kilometraje (ID 1 = Vehículo)
+                    if (tipoActivoId === '1' && (!kilometrajeInput.value || kilometrajeInput.value.trim() === '')) {
+                        e.preventDefault();
+                        
+                        // Mostrar mensaje de error
+                        alert('Por favor, ingrese el kilometraje actual. Este campo es obligatorio para vehículos.');
+                        
+                        // Enfocar el campo
+                        kilometrajeInput.focus();
+                        
+                        // Agregar clase de error visual
+                        kilometrajeInput.classList.add('border-red-500');
+                        
+                        return false;
+                    }
+                }
+            });
         }
     });
     

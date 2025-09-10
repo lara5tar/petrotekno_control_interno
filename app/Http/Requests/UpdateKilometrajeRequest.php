@@ -66,6 +66,18 @@ class UpdateKilometrajeRequest extends FormRequest
                 'before_or_equal:today',
                 'after:2020-01-01',
             ],
+            'cantidad_combustible' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:9999.99',
+            ],
+            'peso_carga' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:999.99',
+            ],
             'observaciones' => [
                 'sometimes',
                 'nullable',
@@ -90,6 +102,12 @@ class UpdateKilometrajeRequest extends FormRequest
             'fecha_captura.date' => 'La fecha de captura debe tener un formato válido.',
             'fecha_captura.before_or_equal' => 'La fecha de captura no puede ser futura.',
             'fecha_captura.after' => 'La fecha de captura debe ser posterior a enero 2020.',
+            'cantidad_combustible.numeric' => 'La cantidad de combustible debe ser un número válido.',
+            'cantidad_combustible.min' => 'La cantidad de combustible no puede ser negativa.',
+            'cantidad_combustible.max' => 'La cantidad de combustible no puede exceder 9999.99 litros.',
+            'peso_carga.numeric' => 'El peso de carga debe ser un número válido.',
+            'peso_carga.min' => 'El peso de carga no puede ser negativo.',
+            'peso_carga.max' => 'El peso de carga no puede exceder 999.99 toneladas.',
             'observaciones.max' => 'Las observaciones no pueden exceder 1000 caracteres.',
         ];
     }

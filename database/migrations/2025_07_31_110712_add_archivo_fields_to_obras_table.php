@@ -30,14 +30,26 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('obras', function (Blueprint $table) {
-            $table->dropColumn([
+            // Verificar y eliminar columnas solo si existen
+            $columnsToCheck = [
                 'archivo_contrato',
                 'archivo_fianza', 
                 'archivo_acta_entrega_recepcion',
                 'fecha_subida_contrato',
                 'fecha_subida_fianza',
                 'fecha_subida_acta'
-            ]);
+            ];
+            
+            $columnsToDelete = [];
+            foreach ($columnsToCheck as $column) {
+                if (Schema::hasColumn('obras', $column)) {
+                    $columnsToDelete[] = $column;
+                }
+            }
+            
+            if (!empty($columnsToDelete)) {
+                $table->dropColumn($columnsToDelete);
+            }
         });
     }
 };

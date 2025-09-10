@@ -66,39 +66,103 @@ return new class extends Migration
         $this->migrarDatosExistentes();
 
         // Paso 3: Limpiar campos de asignación de la tabla obras
-        Schema::table('obras', function (Blueprint $table) {
-            // Eliminar campos que ahora están en asignaciones_obra
-            $table->dropForeign(['vehiculo_id']);
-            $table->dropForeign(['operador_id']);
-            $table->dropForeign(['encargado_id']);
-            
-            $table->dropColumn([
-                'vehiculo_id',
-                'operador_id', 
-                'encargado_id',
-                'fecha_asignacion',
-                'fecha_liberacion',
-                'kilometraje_inicial',
-                'kilometraje_final',
-                'combustible_inicial',
-                'combustible_final',
-                'combustible_suministrado',
-                'costo_combustible',
-                'historial_combustible'
-            ]);
-        });
+        // Para SQLite, necesitamos manejar los índices de manera especial
+        if (DB::getDriverName() === 'sqlite') {
+            // En SQLite, recreamos la tabla sin las columnas problemáticas
+            $this->recreateObrasTableForSQLite();
+        } else {
+            Schema::table('obras', function (Blueprint $table) {
+                // Eliminar campos que ahora están en asignaciones_obra
+                $table->dropForeign(['vehiculo_id']);
+                $table->dropForeign(['operador_id']);
+                $table->dropForeign(['encargado_id']);
+                
+                $table->dropColumn([
+                    'vehiculo_id',
+                    'operador_id', 
+                    'encargado_id',
+                    'fecha_asignacion',
+                    'fecha_liberacion',
+                    'kilometraje_inicial',
+                    'kilometraje_final',
+                    'combustible_inicial',
+                    'combustible_final',
+                    'combustible_suministrado',
+                    'costo_combustible',
+                    'historial_combustible'
+                ]);
+            });
+        }
 
         // Paso 4: Agregar campos para gestión de múltiples asignaciones en obras
-        Schema::table('obras', function (Blueprint $table) {
-            // Campo para indicar si la obra acepta múltiples asignaciones simultáneas
+        // Solo agregar si no es SQLite (ya se agregaron en la recreación)
+        if (DB::getDriverName() !== 'sqlite') {
+            Schema::table('obras', function (Blueprint $table) {
+                // Campo para indicar si la obra acepta múltiples asignaciones simultáneas
+                $table->boolean('permite_multiples_asignaciones')->default(true);
+                
+                // Campo para el número máximo de vehículos simultáneos (null = sin límite)
+                $table->integer('max_vehiculos')->nullable();
+                
+                // Campo para el número máximo de operadores simultáneos (null = sin límite)
+                $table->integer('max_operadores')->nullable();
+            });
+        }
+    }
+
+    /**
+     * Recrear tabla obras para SQLite sin las columnas problemáticas
+     */
+    private function recreateObrasTableForSQLite(): void
+    {
+        // Guardar datos existentes
+        $obras = DB::table('obras')->get();
+        
+        // Eliminar tabla actual
+        Schema::dropIfExists('obras_temp');
+        
+        // Crear tabla temporal con la nueva estructura
+        Schema::create('obras_temp', function (Blueprint $table) {
+            $table->id();
+            $table->string('nombre');
+            $table->text('descripcion')->nullable();
+            $table->string('ubicacion')->nullable();
+            $table->date('fecha_inicio')->nullable();
+            $table->date('fecha_fin')->nullable();
+            $table->enum('estado', ['planificada', 'en_progreso', 'completada', 'cancelada'])->default('planificada');
+            $table->decimal('presupuesto', 15, 2)->nullable();
+            $table->text('observaciones')->nullable();
             $table->boolean('permite_multiples_asignaciones')->default(true);
-            
-            // Campo para el número máximo de vehículos simultáneos (null = sin límite)
             $table->integer('max_vehiculos')->nullable();
-            
-            // Campo para el número máximo de operadores simultáneos (null = sin límite)
             $table->integer('max_operadores')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
         });
+        
+        // Restaurar datos (excluyendo las columnas que queremos eliminar)
+        foreach ($obras as $obra) {
+            DB::table('obras_temp')->insert([
+                'id' => $obra->id,
+                'nombre' => $obra->nombre,
+                'descripcion' => $obra->descripcion,
+                'ubicacion' => $obra->ubicacion,
+                'fecha_inicio' => $obra->fecha_inicio,
+                'fecha_fin' => $obra->fecha_fin,
+                'estado' => $obra->estado,
+                'presupuesto' => $obra->presupuesto,
+                'observaciones' => $obra->observaciones,
+                'permite_multiples_asignaciones' => true,
+                'max_vehiculos' => null,
+                'max_operadores' => null,
+                'created_at' => $obra->created_at,
+                'updated_at' => $obra->updated_at,
+                'deleted_at' => $obra->deleted_at ?? null,
+            ]);
+        }
+        
+        // Eliminar tabla original y renombrar temporal
+        Schema::dropIfExists('obras');
+        Schema::rename('obras_temp', 'obras');
     }
 
     /**

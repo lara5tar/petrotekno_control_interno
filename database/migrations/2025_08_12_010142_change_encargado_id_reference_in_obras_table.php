@@ -14,21 +14,13 @@ return new class extends Migration
     public function up(): void
     {
         // Verificar si existe la clave foránea antes de eliminarla
-        $foreignKeyExists = DB::select("
-            SELECT CONSTRAINT_NAME 
-            FROM information_schema.KEY_COLUMN_USAGE 
-            WHERE TABLE_SCHEMA = DATABASE() 
-            AND TABLE_NAME = 'obras' 
-            AND COLUMN_NAME = 'encargado_id' 
-            AND REFERENCED_TABLE_NAME IS NOT NULL
-        ");
-
-        Schema::table('obras', function (Blueprint $table) use ($foreignKeyExists) {
-            // Solo eliminar la clave foránea si existe
-            if (!empty($foreignKeyExists)) {
+        try {
+            Schema::table('obras', function (Blueprint $table) {
                 $table->dropForeign(['encargado_id']);
-            }
-        });
+            });
+        } catch (Exception $e) {
+            // Si no existe la clave foránea, continuar
+        }
 
         // Limpiar referencias huérfanas antes de crear la nueva clave foránea
         DB::table('obras')
@@ -56,21 +48,13 @@ return new class extends Migration
     public function down(): void
     {
         // Verificar si existe la clave foránea antes de eliminarla
-        $foreignKeyExists = DB::select("
-            SELECT CONSTRAINT_NAME 
-            FROM information_schema.KEY_COLUMN_USAGE 
-            WHERE TABLE_SCHEMA = DATABASE() 
-            AND TABLE_NAME = 'obras' 
-            AND COLUMN_NAME = 'encargado_id' 
-            AND REFERENCED_TABLE_NAME IS NOT NULL
-        ");
-
-        Schema::table('obras', function (Blueprint $table) use ($foreignKeyExists) {
-            // Solo eliminar la clave foránea si existe
-            if (!empty($foreignKeyExists)) {
+        try {
+            Schema::table('obras', function (Blueprint $table) {
                 $table->dropForeign(['encargado_id']);
-            }
-        });
+            });
+        } catch (Exception $e) {
+            // Si no existe la clave foránea, continuar
+        }
 
         // Limpiar referencias huérfanas antes de crear la nueva clave foránea
         DB::table('obras')

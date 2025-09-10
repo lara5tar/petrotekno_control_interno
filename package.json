@@ -10,7 +10,6 @@
     "dev": "vite"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0",
     "@tailwindcss/vite": "^4.0.0",
     "autoprefixer": "^10.4.21",
     "axios": "^1.8.2",
@@ -30,9 +29,7 @@
   ],
   "author": "",
   "license": "ISC",
-  "main": "playwright.config.js",
   "directories": {
-    "doc": "docs",
-    "test": "tests"
+    "doc": "docs"
   }
 }

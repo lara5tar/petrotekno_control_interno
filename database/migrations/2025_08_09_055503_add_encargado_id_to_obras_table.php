@@ -31,11 +31,25 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('obras', function (Blueprint $table) {
-            // Eliminar la clave foránea
-            $table->dropForeign(['encargado_id']);
-            
-            // Eliminar el campo
-            $table->dropColumn('encargado_id');
+            // Verificar si existe la columna antes de eliminarla
+            if (Schema::hasColumn('obras', 'encargado_id')) {
+                // Eliminar la clave foránea si existe
+                try {
+                    $table->dropForeign(['encargado_id']);
+                } catch (Exception $e) {
+                    // Si no existe la clave foránea, continuar
+                }
+                
+                // Eliminar el índice si existe
+                try {
+                    $table->dropIndex(['encargado_id']);
+                } catch (Exception $e) {
+                    // Si no existe el índice, continuar
+                }
+                
+                // Eliminar el campo
+                $table->dropColumn('encargado_id');
+            }
         });
     }
 };

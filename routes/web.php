@@ -497,6 +497,20 @@ Route::middleware('auth')->prefix('kilometrajes')->name('kilometrajes.')->group(
     Route::get('/vehiculo/{vehiculoId}/historial', [KilometrajeController::class, 'historialPorVehiculo'])
         ->name('historial')
         ->middleware('permission:ver_kilometrajes');
+    
+    // Rutas para carga masiva
+    Route::get('/carga-masiva', [KilometrajeController::class, 'cargaMasiva'])
+        ->name('carga-masiva')
+        ->middleware('permission:crear_kilometrajes');
+    Route::post('/procesar-carga-masiva', [KilometrajeController::class, 'procesarCargaMasiva'])
+        ->name('procesar-carga-masiva')
+        ->middleware('permission:crear_kilometrajes');
+    Route::get('/descargar-plantilla', [KilometrajeController::class, 'descargarPlantilla'])
+        ->name('descargar-plantilla')
+        ->middleware('permission:crear_kilometrajes');
+    Route::post('/carga-manual', [KilometrajeController::class, 'cargaManual'])
+        ->name('carga-manual')
+        ->middleware('permission:crear_kilometrajes');
 });
 
 // Rutas para Mantenimientos (CRUD completo)

@@ -124,7 +124,70 @@
         </div>
     </div>
 
-    
+    <!-- Widget de Acceso Rápido para Kilometrajes -->
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Acceso Rápido - Kilometrajes</h3>
+                <div class="flex space-x-2">
+                    <button id="btn-carga-manual" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Carga Manual
+                    </button>
+                    <button id="btn-carga-masiva" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                        </svg>
+                        Carga Masiva
+                    </button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-900">Carga Individual</p>
+                            <p class="text-xs text-gray-500">Registro manual de kilometraje</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-900">Carga Masiva</p>
+                            <p class="text-xs text-gray-500">Importar desde archivo Excel</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-900">Plantilla Excel</p>
+                            <p class="text-xs text-gray-500">Descargar formato estándar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Actividad reciente -->
     <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200">
@@ -207,4 +270,630 @@
             @endforelse
         </div>
     </div>
+
+    <!-- Modal para Carga Manual -->
+    <div id="modal-carga-manual" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Carga Manual de Kilometraje</h3>
+                    <button onclick="cerrarModal('modal-carga-manual')" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <form id="form-carga-manual" onsubmit="submitCargaManual(event)">
+                    @csrf
+                    <div class="space-y-4">
+                        <!-- Selector de Vehículo -->
+                        <div>
+                            <label for="vehiculo_search" class="block text-sm font-medium text-gray-700 mb-2">Buscar Vehículo</label>
+                            <div class="relative">
+                                <input type="text" id="vehiculo_search" placeholder="Buscar por ID, marca, modelo o placas..." 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       autocomplete="off">
+                                <input type="hidden" name="vehiculo_id" id="vehiculo_id" required>
+                                
+                                <!-- Contenedor de sugerencias -->
+                                <div id="sugerencias_container" class="absolute z-50 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto hidden">
+                                    <div id="sugerencias_list" class="py-1">
+                                        <!-- Las sugerencias se cargarán aquí dinámicamente -->
+                                    </div>
+                                    <div id="no_results" class="px-3 py-2 text-gray-500 text-sm hidden">
+                                        No se encontraron vehículos
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Vehículo seleccionado -->
+                            <div id="vehiculo_seleccionado" class="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md hidden">
+                                <div class="flex justify-between items-center">
+                                    <span id="vehiculo_info" class="text-sm text-blue-800"></span>
+                                    <button type="button" onclick="limpiarSeleccion()" class="text-blue-600 hover:text-blue-800">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Fecha de Captura -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Captura</label>
+                            <input type="date" id="fecha_captura" name="fecha_captura" required 
+                                   value="{{ date('Y-m-d') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <!-- Kilometraje -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Kilometraje</label>
+                            <input type="number" id="kilometraje" name="kilometraje" required min="1"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Ingrese el kilometraje actual">
+                            <p id="km-info" class="text-xs text-gray-500 mt-1 hidden"></p>
+                        </div>
+                        
+                        <!-- Cantidad de Combustible -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Cantidad de Combustible (Litros) - Opcional</label>
+                            <input type="number" id="cantidad_combustible" name="cantidad_combustible" min="0" max="9999.99" step="0.01"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Ej: 50.5">
+                            <p class="text-xs text-gray-500 mt-1">Cantidad de combustible cargado en litros</p>
+                        </div>
+                        
+                        <!-- Peso de Carga -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Peso de Carga (Toneladas) - Opcional</label>
+                            <input type="number" id="peso_carga" name="peso_carga" min="0" max="999.99" step="0.01"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Ej: 2.5">
+                            <p class="text-xs text-gray-500 mt-1">Peso de la carga transportada en toneladas</p>
+                        </div>
+                        
+                        <!-- Observaciones -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Observaciones (Opcional)</label>
+                            <textarea id="observaciones" name="observaciones" rows="3" maxlength="500"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                      placeholder="Observaciones adicionales..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="cerrarModal('modal-carga-manual')"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="btn-submit-manual"
+                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                            Registrar Kilometraje
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Carga Masiva -->
+    <div id="modal-carga-masiva" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Carga Masiva de Kilometrajes</h3>
+                    <button onclick="cerrarModal('modal-carga-masiva')" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <h4 class="text-sm font-medium text-blue-800">Instrucciones:</h4>
+                                <ul class="text-sm text-blue-700 mt-1 space-y-1">
+                                    <li>• Descarga la plantilla Excel haciendo clic en el botón de abajo</li>
+                                    <li>• Completa los datos de kilometraje en el archivo</li>
+                                    <li>• Sube el archivo completado para procesar los registros</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <form id="form-carga-masiva" onsubmit="submitCargaMasiva(event)" enctype="multipart/form-data">
+                    @csrf
+                    <div class="space-y-4">
+                        <!-- Descargar Plantilla -->
+                        <div class="text-center">
+                            <a href="{{ route('kilometrajes.descargar-plantilla') }}" 
+                               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Descargar Plantilla Excel
+                            </a>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-4">
+                            <!-- Subir Archivo -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Archivo Excel</label>
+                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
+                                    <div class="space-y-1 text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <div class="flex text-sm text-gray-600">
+                                            <label for="archivo_excel" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                                <span>Subir archivo</span>
+                                                <input id="archivo_excel" name="archivo_excel" type="file" accept=".xlsx,.xls" required class="sr-only" onchange="mostrarArchivoSeleccionado(this)">
+                                            </label>
+                                            <p class="pl-1">o arrastra y suelta</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">Solo archivos Excel (.xlsx, .xls)</p>
+                                        <p id="archivo-seleccionado" class="text-sm text-green-600 font-medium hidden"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="cerrarModal('modal-carga-masiva')"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="btn-submit-masiva"
+                                class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors">
+                            <span id="texto-submit-masiva">Procesar Archivo</span>
+                            <svg id="loading-masiva" class="animate-spin -ml-1 mr-3 h-4 w-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Barra de progreso -->
+                <div id="progress-container" class="hidden mt-4">
+                    <div class="bg-gray-200 rounded-full h-2">
+                        <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p id="progress-text" class="text-sm text-gray-600 mt-2">Procesando archivo...</p>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
+
+@push('scripts')
+<script>
+// Variables globales
+window.vehiculosData = <?php echo json_encode($vehiculos ?? []); ?>;
+
+// Funciones para abrir y cerrar modales
+function abrirModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+}
+
+function cerrarModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+    
+    // Limpiar formularios
+    if (modalId === 'modal-carga-manual') {
+        document.getElementById('form-carga-manual').reset();
+        document.getElementById('km-info').classList.add('hidden');
+    } else if (modalId === 'modal-carga-masiva') {
+        document.getElementById('form-carga-masiva').reset();
+        document.getElementById('archivo-seleccionado').classList.add('hidden');
+        document.getElementById('progress-container').classList.add('hidden');
+    }
+}
+
+// Event listeners para los botones del widget
+document.addEventListener('DOMContentLoaded', function() {
+    // Botón Carga Manual
+    document.getElementById('btn-carga-manual').addEventListener('click', function() {
+        abrirModal('modal-carga-manual');
+    });
+    
+    // Botón Carga Masiva
+    document.getElementById('btn-carga-masiva').addEventListener('click', function() {
+        abrirModal('modal-carga-masiva');
+    });
+    
+    // Cerrar modal al hacer clic fuera
+    document.getElementById('modal-carga-manual').addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModal('modal-carga-manual');
+        }
+    });
+    
+    document.getElementById('modal-carga-masiva').addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModal('modal-carga-masiva');
+        }
+    });
+    
+    // Configurar validación de kilometraje en tiempo real
+    const kilometrajeInput = document.getElementById('kilometraje');
+    if (kilometrajeInput) {
+        kilometrajeInput.addEventListener('input', validarKilometraje);
+    }
+        
+        // Configurar buscador de vehículos con sugerencias
+        configurarBuscadorVehiculos();
+        
+        // Cerrar sugerencias al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            const container = document.getElementById('sugerencias_container');
+            const searchInput = document.getElementById('vehiculo_search');
+            
+            if (!searchInput.contains(e.target) && !container.contains(e.target)) {
+                container.classList.add('hidden');
+            }
+        });
+    });
+
+// Función para mostrar archivo seleccionado
+function mostrarArchivoSeleccionado(input) {
+    const archivoSeleccionado = document.getElementById('archivo-seleccionado');
+    if (input.files && input.files[0]) {
+        archivoSeleccionado.textContent = `Archivo seleccionado: ${input.files[0].name}`;
+        archivoSeleccionado.classList.remove('hidden');
+    } else {
+        archivoSeleccionado.classList.add('hidden');
+    }
+}
+
+// Función para enviar carga manual
+function submitCargaManual(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    const submitBtn = document.getElementById('btn-submit-manual');
+    
+    // Deshabilitar botón y mostrar loading
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Registrando...';
+    
+    fetch('{{ route("kilometrajes.carga-manual") }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mostrar mensaje de éxito
+            mostrarNotificacion('Kilometraje registrado exitosamente', 'success');
+            cerrarModal('modal-carga-manual');
+            // Recargar página para actualizar estadísticas
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            mostrarNotificacion(data.message || 'Error al registrar el kilometraje', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarNotificacion('Error al procesar la solicitud', 'error');
+    })
+    .finally(() => {
+        // Restaurar botón
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Registrar Kilometraje';
+    });
+}
+
+// Función para enviar carga masiva
+function submitCargaMasiva(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    const submitBtn = document.getElementById('btn-submit-masiva');
+    const textoSubmit = document.getElementById('texto-submit-masiva');
+    const loadingIcon = document.getElementById('loading-masiva');
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    
+    // Deshabilitar botón y mostrar loading
+    submitBtn.disabled = true;
+    textoSubmit.textContent = 'Procesando...';
+    loadingIcon.classList.remove('hidden');
+    progressContainer.classList.remove('hidden');
+    
+    // Simular progreso
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        progressBar.style.width = progress + '%';
+    }, 200);
+    
+    fetch('{{ route("kilometrajes.procesar-carga-masiva") }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        
+        if (data.success) {
+            progressText.textContent = `Procesamiento completado: ${data.procesados} registros procesados`;
+            mostrarNotificacion(`Carga masiva completada: ${data.procesados} kilometrajes procesados`, 'success');
+            
+            setTimeout(() => {
+                cerrarModal('modal-carga-masiva');
+                window.location.reload();
+            }, 2000);
+        } else {
+            progressText.textContent = 'Error en el procesamiento';
+            mostrarNotificacion(data.message || 'Error al procesar el archivo', 'error');
+        }
+    })
+    .catch(error => {
+        clearInterval(progressInterval);
+        console.error('Error:', error);
+        progressText.textContent = 'Error en el procesamiento';
+        mostrarNotificacion('Error al procesar la solicitud', 'error');
+    })
+    .finally(() => {
+        // Restaurar botón
+        submitBtn.disabled = false;
+        textoSubmit.textContent = 'Procesar Archivo';
+        loadingIcon.classList.add('hidden');
+    });
+}
+
+// Función para configurar el buscador de vehículos
+function configurarBuscadorVehiculos() {
+    const searchInput = document.getElementById('vehiculo_search');
+    const sugerenciasContainer = document.getElementById('sugerencias_container');
+    const sugerenciasList = document.getElementById('sugerencias_list');
+    const noResults = document.getElementById('no_results');
+    const vehiculos = window.vehiculosData || [];
+    
+    let timeoutId;
+    
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Limpiar timeout anterior
+        clearTimeout(timeoutId);
+        
+        if (query.length === 0) {
+            sugerenciasContainer.classList.add('hidden');
+            return;
+        }
+        
+        // Debounce para evitar búsquedas excesivas
+        timeoutId = setTimeout(() => {
+            buscarVehiculos(query, vehiculos, sugerenciasList, noResults, sugerenciasContainer);
+        }, 150);
+    });
+    
+    searchInput.addEventListener('focus', function() {
+        if (this.value.trim().length > 0) {
+            sugerenciasContainer.classList.remove('hidden');
+        }
+    });
+}
+
+// Función para buscar vehículos
+function buscarVehiculos(query, vehiculos, sugerenciasList, noResults, container) {
+    const queryLower = query.toLowerCase();
+    
+    // Filtrar vehículos que coincidan con la búsqueda
+    const resultados = vehiculos.filter(vehiculo => {
+        const searchText = `${vehiculo.id} ${vehiculo.marca} ${vehiculo.modelo} ${vehiculo.placas}`.toLowerCase();
+        return searchText.includes(queryLower);
+    });
+    
+    // Limpiar lista anterior
+    sugerenciasList.innerHTML = '';
+    
+    if (resultados.length === 0) {
+        noResults.classList.remove('hidden');
+        sugerenciasList.classList.add('hidden');
+    } else {
+        noResults.classList.add('hidden');
+        sugerenciasList.classList.remove('hidden');
+        
+        // Mostrar máximo 8 resultados
+        resultados.slice(0, 8).forEach((vehiculo, index) => {
+            const item = crearItemSugerencia(vehiculo, query);
+            sugerenciasList.appendChild(item);
+        });
+        
+        if (resultados.length > 8) {
+            const moreItem = document.createElement('div');
+            moreItem.className = 'px-3 py-2 text-xs text-gray-500 border-t';
+            moreItem.textContent = `+${resultados.length - 8} resultados más...`;
+            sugerenciasList.appendChild(moreItem);
+        }
+    }
+    
+    container.classList.remove('hidden');
+}
+
+// Función para crear un item de sugerencia
+function crearItemSugerencia(vehiculo, query) {
+    const item = document.createElement('div');
+    item.className = 'px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0';
+    
+    // Resaltar texto coincidente
+    const texto = `ID: ${vehiculo.id} - ${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placas})`;
+    const textoResaltado = resaltarCoincidencias(texto, query);
+    
+    item.innerHTML = `
+        <div class="flex justify-between items-center">
+            <div>
+                <div class="text-sm font-medium text-gray-900">${textoResaltado}</div>
+                <div class="text-xs text-gray-500">KM actual: ${vehiculo.kilometraje_actual || 0}</div>
+            </div>
+        </div>
+    `;
+    
+    item.addEventListener('click', () => {
+        seleccionarVehiculo(vehiculo);
+    });
+    
+    return item;
+}
+
+// Función para resaltar coincidencias
+function resaltarCoincidencias(texto, query) {
+    if (!query) return texto;
+    
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')})`, 'gi');
+    return texto.replace(regex, '<mark class="bg-yellow-200 px-1 rounded">$1</mark>');
+}
+
+// Función para seleccionar un vehículo
+function seleccionarVehiculo(vehiculo) {
+    const searchInput = document.getElementById('vehiculo_search');
+    const vehiculoIdInput = document.getElementById('vehiculo_id');
+    const vehiculoSeleccionado = document.getElementById('vehiculo_seleccionado');
+    const vehiculoInfo = document.getElementById('vehiculo_info');
+    const sugerenciasContainer = document.getElementById('sugerencias_container');
+    
+    // Establecer valores
+    searchInput.value = `${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placas})`;
+    vehiculoIdInput.value = vehiculo.id;
+    
+    // Mostrar información del vehículo seleccionado
+    vehiculoInfo.innerHTML = `
+        <strong>ID:</strong> ${vehiculo.id} | 
+        <strong>Vehículo:</strong> ${vehiculo.marca} ${vehiculo.modelo} | 
+        <strong>Placas:</strong> ${vehiculo.placas} | 
+        <strong>KM actual:</strong> ${vehiculo.kilometraje_actual || 0}
+    `;
+    
+    vehiculoSeleccionado.classList.remove('hidden');
+    sugerenciasContainer.classList.add('hidden');
+    
+    // Actualizar validación de kilometraje
+    validarKilometraje();
+}
+
+// Función para limpiar selección
+function limpiarSeleccion() {
+    const searchInput = document.getElementById('vehiculo_search');
+    const vehiculoIdInput = document.getElementById('vehiculo_id');
+    const vehiculoSeleccionado = document.getElementById('vehiculo_seleccionado');
+    const errorDiv = document.getElementById('error-kilometraje');
+    
+    searchInput.value = '';
+    vehiculoIdInput.value = '';
+    vehiculoSeleccionado.classList.add('hidden');
+    
+    if (errorDiv) {
+        errorDiv.style.display = 'none';
+    }
+    
+    searchInput.focus();
+}
+
+// Función para validar kilometraje
+function validarKilometraje() {
+    const vehiculoIdInput = document.getElementById('vehiculo_id');
+    const kilometrajeInput = document.getElementById('kilometraje');
+    const kmInfo = document.getElementById('km-info');
+    
+    if (vehiculoIdInput.value) {
+        const vehiculos = window.vehiculosData || [];
+        const vehiculo = vehiculos.find(v => v.id == vehiculoIdInput.value);
+        
+        if (vehiculo && vehiculo.kilometraje_actual) {
+            const kmActual = parseInt(vehiculo.kilometraje_actual);
+            const nuevoKm = parseInt(kilometrajeInput.value);
+            
+            kilometrajeInput.min = kmActual + 1;
+            kmInfo.textContent = `El kilometraje debe ser mayor a ${kmActual.toLocaleString()} km (último registrado)`;
+            kmInfo.classList.remove('hidden');
+            
+            // Validar valor actual
+            if (nuevoKm && nuevoKm <= kmActual) {
+                kilometrajeInput.setCustomValidity(`El kilometraje debe ser mayor a ${kmActual.toLocaleString()} km`);
+                return false;
+            } else {
+                kilometrajeInput.setCustomValidity('');
+                return true;
+            }
+        } else {
+            kilometrajeInput.min = 1;
+            kmInfo.classList.add('hidden');
+            kilometrajeInput.setCustomValidity('');
+            return true;
+        }
+    }
+    return true;
+}
+
+// Función para mostrar notificaciones
+function mostrarNotificacion(mensaje, tipo = 'info') {
+    // Crear elemento de notificación
+    const notificacion = document.createElement('div');
+    notificacion.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transition-all duration-300 transform translate-x-full`;
+    
+    if (tipo === 'success') {
+        notificacion.classList.add('bg-green-500', 'text-white');
+    } else if (tipo === 'error') {
+        notificacion.classList.add('bg-red-500', 'text-white');
+    } else {
+        notificacion.classList.add('bg-blue-500', 'text-white');
+    }
+    
+    notificacion.innerHTML = `
+        <div class="flex items-center">
+            <span class="flex-1">${mensaje}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-3 text-white hover:text-gray-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notificacion);
+    
+    // Animar entrada
+    setTimeout(() => {
+        notificacion.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Auto-remover después de 5 segundos
+    setTimeout(() => {
+        notificacion.classList.add('translate-x-full');
+        setTimeout(() => {
+            if (notificacion.parentElement) {
+                notificacion.remove();
+            }
+        }, 300);
+    }, 5000);
+}
+</script>
+@endpush

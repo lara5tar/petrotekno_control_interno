@@ -92,6 +92,50 @@
                         </p>
                     </div>
 
+                    <!-- Cantidad de Combustible -->
+                    <div>
+                        <label for="cantidad_combustible" class="block text-sm font-medium text-gray-700 mb-2">
+                            Cantidad de Combustible (Litros)
+                        </label>
+                        <input type="number" 
+                               name="cantidad_combustible" 
+                               id="cantidad_combustible" 
+                               value="{{ old('cantidad_combustible') }}"
+                               min="0"
+                               max="9999.99"
+                               step="0.01"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('cantidad_combustible') border-red-500 @enderror"
+                               placeholder="Ej: 50.5">
+                        @error('cantidad_combustible')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-xs text-gray-500">
+                            Cantidad de combustible cargado en litros (opcional)
+                        </p>
+                    </div>
+
+                    <!-- Peso de Carga -->
+                    <div>
+                        <label for="peso_carga" class="block text-sm font-medium text-gray-700 mb-2">
+                            Peso de Carga (Toneladas)
+                        </label>
+                        <input type="number" 
+                               name="peso_carga" 
+                               id="peso_carga" 
+                               value="{{ old('peso_carga') }}"
+                               min="0"
+                               max="999.99"
+                               step="0.01"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('peso_carga') border-red-500 @enderror"
+                               placeholder="Ej: 15.5">
+                        @error('peso_carga')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-xs text-gray-500">
+                            Peso de la carga transportada en toneladas (opcional)
+                        </p>
+                    </div>
+
                     <!-- Observaciones -->
                     <div>
                         <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-2">

@@ -11,14 +11,26 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('vehiculos', function (Blueprint $table) {
-            // Verificar si la columna estatus_id existe antes de intentar eliminarla
-            if (Schema::hasColumn('vehiculos', 'estatus_id')) {
-                // Eliminar la columna estatus_id y cualquier clave foránea asociada
-                $table->dropForeign(['estatus_id']); // Solo si existe una restricción de clave foránea
+        // Verificar si la columna estatus_id existe antes de intentar eliminarla
+        if (Schema::hasColumn('vehiculos', 'estatus_id')) {
+            Schema::table('vehiculos', function (Blueprint $table) {
+                // Intentar eliminar la clave foránea si existe
+                try {
+                    $table->dropForeign(['estatus_id']);
+                } catch (Exception $e) {
+                    // Si no existe la clave foránea, continuar
+                }
+                
+                // Intentar eliminar cualquier índice relacionado
+                try {
+                    $table->dropIndex(['estatus_id']);
+                } catch (Exception $e) {
+                    // Si no existe el índice, continuar
+                }
+                
                 $table->dropColumn('estatus_id');
-            }
-        });
+            });
+        }
     }
 
     /**

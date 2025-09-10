@@ -12,27 +12,47 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Usar SQL directo para eliminar columnas de combustible
-        DB::statement('SET FOREIGN_KEY_CHECKS=0');
-        
-        // Eliminar todas las columnas relacionadas con combustible
-        $columns = collect(DB::select("SHOW COLUMNS FROM asignaciones_obra"))->pluck('Field');
-        
-        $combustibleColumns = [
-            'combustible_inicial',
-            'combustible_final', 
-            'combustible_suministrado',
-            'costo_combustible',
-            'historial_combustible'
-        ];
-        
-        foreach ($combustibleColumns as $column) {
-            if ($columns->contains($column)) {
-                DB::statement("ALTER TABLE asignaciones_obra DROP COLUMN {$column}");
+        // Verificar si las columnas existen antes de eliminarlas
+        if (DB::getDriverName() === 'sqlite') {
+            // Para SQLite, usar Schema::hasColumn
+            $combustibleColumns = [
+                'combustible_inicial',
+                'combustible_final', 
+                'combustible_suministrado',
+                'costo_combustible',
+                'historial_combustible'
+            ];
+            
+            Schema::table('asignaciones_obra', function (Blueprint $table) use ($combustibleColumns) {
+                foreach ($combustibleColumns as $column) {
+                    if (Schema::hasColumn('asignaciones_obra', $column)) {
+                        $table->dropColumn($column);
+                    }
+                }
+            });
+        } else {
+            // Para MySQL, usar el método original
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            
+            // Eliminar todas las columnas relacionadas con combustible
+            $columns = collect(DB::select("SHOW COLUMNS FROM asignaciones_obra"))->pluck('Field');
+            
+            $combustibleColumns = [
+                'combustible_inicial',
+                'combustible_final', 
+                'combustible_suministrado',
+                'costo_combustible',
+                'historial_combustible'
+            ];
+            
+            foreach ($combustibleColumns as $column) {
+                if ($columns->contains($column)) {
+                    DB::statement("ALTER TABLE asignaciones_obra DROP COLUMN {$column}");
+                }
             }
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
         }
-        
-        DB::statement('SET FOREIGN_KEY_CHECKS=1');
     }
 
     /**

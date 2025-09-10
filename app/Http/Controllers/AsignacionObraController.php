@@ -162,7 +162,7 @@ class AsignacionObraController extends Controller
             // Los permisos son verificados por el middleware
 
             // Obtener datos para el formulario
-            $obras = Obra::activas()->orderBy('nombre_obra')->get(['id', 'nombre_obra', 'estatus']);
+            $obras = Obra::activas()->orderBy('nombre_obra')->get(['id', 'nombre_obra', 'estado']);
 
             // Cargar vehículos disponibles primero
             $vehiculosDisponibles = Vehiculo::disponibles()

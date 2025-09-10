@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('obras', function (Blueprint $table) {
-            if (!Schema::hasColumn('obras', 'observaciones')) {
-                $table->text('observaciones')->nullable()->after('fecha_fin');
-            }
+        Schema::table('vehiculos', function (Blueprint $table) {
+            $table->integer('kilometraje_actual')->nullable()->default(null)->change();
         });
     }
 
@@ -23,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('obras', function (Blueprint $table) {
-            $table->dropColumn('observaciones');
+        Schema::table('vehiculos', function (Blueprint $table) {
+            $table->integer('kilometraje_actual')->default(0)->change();
         });
     }
 };

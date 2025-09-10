@@ -14,6 +14,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\KilometrajesExport;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class KilometrajeController extends Controller
 {
@@ -399,4 +405,435 @@ class KilometrajeController extends Controller
         return view('kilometrajes.historial', compact('vehiculo', 'kilometrajes'));
     }
 
+    /**
+     * Mostrar formulario de carga masiva
+     */
+    public function cargaMasiva(): View
+    {
+        $vehiculos = Vehiculo::select('id', 'marca', 'modelo', 'placas', 'kilometraje_actual')
+            ->where('estatus', '!=', 'fuera_servicio')
+            ->orderBy('marca')
+            ->orderBy('modelo')
+            ->get();
+
+        return view('kilometrajes.carga-masiva', compact('vehiculos'));
+    }
+
+    /**
+     * Procesar carga masiva de kilometrajes desde Excel
+     */
+    public function procesarCargaMasiva(Request $request): JsonResponse
+    {
+        $request->validate([
+            'archivo' => 'required|file|mimes:xlsx,xls|max:10240', // 10MB máximo
+            'modalidad' => 'required|in:vehiculos,registros',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $archivo = $request->file('archivo');
+            $modalidad = $request->modalidad;
+            
+            // Leer el archivo Excel
+            $data = Excel::toArray([], $archivo)[0]; // Primera hoja
+            
+            // Remover la fila de encabezados
+            array_shift($data);
+            
+            $registrosExitosos = [];
+            $registrosFallidos = [];
+            $totalProcesados = 0;
+
+            foreach ($data as $index => $fila) {
+                $totalProcesados++;
+                $numeroFila = $index + 2; // +2 porque empezamos desde la fila 2 (después del header)
+
+                try {
+                    if ($modalidad === 'vehiculos') {
+                        $resultado = $this->procesarFilaVehiculos($fila, $numeroFila);
+                    } else {
+                        $resultado = $this->procesarFilaRegistros($fila, $numeroFila);
+                    }
+
+                    if ($resultado['exito']) {
+                        $registrosExitosos[] = $resultado['data'];
+                    } else {
+                        $registrosFallidos[] = $resultado;
+                    }
+                } catch (\Exception $e) {
+                    $registrosFallidos[] = [
+                        'fila' => $numeroFila,
+                        'error' => 'Error inesperado: ' . $e->getMessage(),
+                        'data' => $fila
+                    ];
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Carga masiva procesada exitosamente',
+                'data' => [
+                    'total_procesados' => $totalProcesados,
+                    'exitosos' => count($registrosExitosos),
+                    'fallidos' => count($registrosFallidos),
+                    'registros_exitosos' => $registrosExitosos,
+                    'registros_fallidos' => $registrosFallidos
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error en carga masiva de kilometrajes', [
+                'error' => $e->getMessage(),
+                'usuario_id' => Auth::id()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al procesar la carga masiva: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Procesar fila para modalidad de múltiples vehículos
+     */
+    private function procesarFilaVehiculos(array $fila, int $numeroFila): array
+    {
+        // Formato esperado: [vehiculo_id, fecha, kilometraje, cantidad_combustible, peso_carga, observaciones]
+        if (count($fila) < 3) {
+            return [
+                'exito' => false,
+                'fila' => $numeroFila,
+                'error' => 'Faltan columnas requeridas (mínimo: ID vehículo, fecha, kilometraje)',
+                'data' => $fila
+            ];
+        }
+
+        $vehiculoId = trim($fila[0]);
+        $fecha = $fila[1];
+        $kilometraje = $fila[2];
+        $cantidadCombustible = isset($fila[3]) && !empty(trim($fila[3])) ? (float) trim($fila[3]) : null;
+        $pesoCarga = isset($fila[4]) && !empty(trim($fila[4])) ? (float) trim($fila[4]) : null;
+        $observaciones = isset($fila[5]) ? trim($fila[5]) : null;
+
+        // Validar datos
+        if (empty($vehiculoId) || empty($fecha) || empty($kilometraje)) {
+            return [
+                'exito' => false,
+                'fila' => $numeroFila,
+                'error' => 'Campos requeridos vacíos (ID vehículo, fecha, kilometraje)',
+                'data' => $fila
+            ];
+        }
+
+        // Buscar vehículo por ID
+        $vehiculo = Vehiculo::find($vehiculoId);
+        if (!$vehiculo) {
+            return [
+                'exito' => false,
+                'fila' => $numeroFila,
+                'error' => "Vehículo con ID '{$vehiculoId}' no encontrado",
+                'data' => $fila
+            ];
+        }
+
+        // Convertir fecha
+        try {
+            if (is_numeric($fecha)) {
+                // Fecha de Excel (número serial)
+                $fechaCaptura = Carbon::createFromFormat('Y-m-d', '1900-01-01')->addDays($fecha - 2);
+            } else {
+                $fechaCaptura = Carbon::parse($fecha);
+            }
+        } catch (\Exception $e) {
+            return [
+                'exito' => false,
+                'fila' => $numeroFila,
+                'error' => "Formato de fecha inválido: {$fecha}",
+                'data' => $fila
+            ];
+        }
+
+        // Validar kilometraje
+        if (!is_numeric($kilometraje) || $kilometraje < 0) {
+            return [
+                'exito' => false,
+                'fila' => $numeroFila,
+                'error' => "Kilometraje inválido: {$kilometraje}",
+                'data' => $fila
+            ];
+        }
+
+        // Crear registro
+        $obraActual = $vehiculo->obraActual()->first();
+        
+        $kilometrajeRecord = Kilometraje::create([
+            'vehiculo_id' => $vehiculo->id,
+            'obra_id' => $obraActual ? $obraActual->id : null,
+            'kilometraje' => (int) $kilometraje,
+            'fecha_captura' => $fechaCaptura,
+            'usuario_captura_id' => Auth::id(),
+            'observaciones' => $observaciones,
+            'cantidad_combustible' => $cantidadCombustible,
+            'peso_carga' => $pesoCarga
+        ]);
+
+        // Actualizar kilometraje actual del vehículo si es mayor
+        if ($kilometraje > $vehiculo->kilometraje_actual) {
+            $vehiculo->update(['kilometraje_actual' => $kilometraje]);
+        }
+
+        return [
+            'exito' => true,
+            'data' => [
+                'id' => $kilometrajeRecord->id,
+                'vehiculo' => $vehiculo->placas,
+                'kilometraje' => $kilometraje,
+                'fecha' => $fechaCaptura->format('d/m/Y')
+            ]
+        ];
+    }
+
+    /**
+     * Procesar fila para modalidad de múltiples registros de un vehículo
+     */
+    private function procesarFilaRegistros(array $fila, int $numeroFila): array
+    {
+        // Formato esperado: [vehiculo_id, fecha, kilometraje, cantidad_combustible, peso_carga, observaciones]
+        if (count($fila) < 3) {
+            return [
+                'exito' => false,
+                'fila' => $numeroFila,
+                'error' => 'Faltan columnas requeridas (mínimo: vehículo_id, fecha, kilometraje)',
+                'data' => $fila
+            ];
+        }
+
+        $vehiculoId = $fila[0];
+        $fecha = $fila[1];
+        $kilometraje = $fila[2];
+        $cantidadCombustible = isset($fila[3]) && !empty(trim($fila[3])) ? (float) trim($fila[3]) : null;
+        $pesoCarga = isset($fila[4]) && !empty(trim($fila[4])) ? (float) trim($fila[4]) : null;
+        $observaciones = isset($fila[5]) ? trim($fila[5]) : null;
+
+        // Validar datos
+        if (empty($vehiculoId) || empty($fecha) || empty($kilometraje)) {
+            return [
+                'exito' => false,
+                'fila' => $numeroFila,
+                'error' => 'Campos requeridos vacíos (vehículo_id, fecha, kilometraje)',
+                'data' => $fila
+            ];
+        }
+
+        // Buscar vehículo
+        $vehiculo = Vehiculo::find($vehiculoId);
+        if (!$vehiculo) {
+            return [
+                'exito' => false,
+                'fila' => $numeroFila,
+                'error' => "Vehículo con ID '{$vehiculoId}' no encontrado",
+                'data' => $fila
+            ];
+        }
+
+        // Convertir fecha
+        try {
+            if (is_numeric($fecha)) {
+                $fechaCaptura = Carbon::createFromFormat('Y-m-d', '1900-01-01')->addDays($fecha - 2);
+            } else {
+                $fechaCaptura = Carbon::parse($fecha);
+            }
+        } catch (\Exception $e) {
+            return [
+                'exito' => false,
+                'fila' => $numeroFila,
+                'error' => "Formato de fecha inválido: {$fecha}",
+                'data' => $fila
+            ];
+        }
+
+        // Validar kilometraje
+        if (!is_numeric($kilometraje) || $kilometraje < 0) {
+            return [
+                'exito' => false,
+                'fila' => $numeroFila,
+                'error' => "Kilometraje inválido: {$kilometraje}",
+                'data' => $fila
+            ];
+        }
+
+        // Crear registro
+        $obraActual = $vehiculo->obraActual()->first();
+        
+        $kilometrajeRecord = Kilometraje::create([
+            'vehiculo_id' => $vehiculo->id,
+            'obra_id' => $obraActual ? $obraActual->id : null,
+            'kilometraje' => (int) $kilometraje,
+            'fecha_captura' => $fechaCaptura,
+            'usuario_captura_id' => Auth::id(),
+            'observaciones' => $observaciones,
+            'cantidad_combustible' => $cantidadCombustible,
+            'peso_carga' => $pesoCarga
+        ]);
+
+        // Actualizar kilometraje actual del vehículo si es mayor
+        if ($kilometraje > $vehiculo->kilometraje_actual) {
+            $vehiculo->update(['kilometraje_actual' => $kilometraje]);
+        }
+
+        return [
+            'exito' => true,
+            'data' => [
+                'id' => $kilometrajeRecord->id,
+                'vehiculo' => $vehiculo->placas,
+                'kilometraje' => $kilometraje,
+                'fecha' => $fechaCaptura->format('d/m/Y')
+            ]
+        ];
+    }
+
+    /**
+     * Descargar plantilla Excel para carga masiva
+     */
+    public function descargarPlantilla(Request $request): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    {
+        $modalidad = $request->get('modalidad', 'vehiculos');
+        
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        if ($modalidad === 'vehiculos') {
+            // Plantilla para múltiples vehículos
+            $sheet->setCellValue('A1', 'ID Vehículo');
+            $sheet->setCellValue('B1', 'Fecha (DD/MM/AAAA)');
+            $sheet->setCellValue('C1', 'Kilometraje');
+            $sheet->setCellValue('D1', 'Cantidad Combustible (L)');
+            $sheet->setCellValue('E1', 'Peso Carga (Ton)');
+            $sheet->setCellValue('F1', 'Observaciones');
+            
+            // Ejemplos
+            $sheet->setCellValue('A2', '1');
+            $sheet->setCellValue('B2', '01/01/2024');
+            $sheet->setCellValue('C2', '15000');
+            $sheet->setCellValue('D2', '50.5');
+            $sheet->setCellValue('E2', '2.5');
+            $sheet->setCellValue('F2', 'Mantenimiento preventivo');
+            
+            $sheet->setCellValue('A3', '2');
+            $sheet->setCellValue('B3', '02/01/2024');
+            $sheet->setCellValue('C3', '25000');
+            $sheet->setCellValue('D3', '45.0');
+            $sheet->setCellValue('E3', '3.2');
+            $sheet->setCellValue('F3', 'Revisión general');
+            
+            $filename = 'plantilla_kilometrajes_vehiculos.xlsx';
+        } else {
+            // Plantilla para múltiples registros de un vehículo
+            $sheet->setCellValue('A1', 'ID Vehículo');
+            $sheet->setCellValue('B1', 'Fecha (DD/MM/AAAA)');
+            $sheet->setCellValue('C1', 'Kilometraje');
+            $sheet->setCellValue('D1', 'Cantidad Combustible (L)');
+            $sheet->setCellValue('E1', 'Peso Carga (Ton)');
+            $sheet->setCellValue('F1', 'Observaciones');
+            
+            // Ejemplos
+            $sheet->setCellValue('A2', '1');
+            $sheet->setCellValue('B2', '01/01/2024');
+            $sheet->setCellValue('C2', '15000');
+            $sheet->setCellValue('D2', '48.2');
+            $sheet->setCellValue('E2', '1.8');
+            $sheet->setCellValue('F2', 'Primer registro');
+            
+            $sheet->setCellValue('A3', '1');
+            $sheet->setCellValue('B3', '15/01/2024');
+            $sheet->setCellValue('C3', '15500');
+            $sheet->setCellValue('D3', '52.1');
+            $sheet->setCellValue('E3', '2.1');
+            $sheet->setCellValue('F3', 'Segundo registro');
+            
+            $filename = 'plantilla_kilometrajes_registros.xlsx';
+        }
+        
+        // Aplicar estilos a los encabezados
+        $sheet->getStyle('A1:D1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:D1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FFE6E6E6');
+        
+        // Ajustar ancho de columnas
+        $sheet->getColumnDimension('A')->setWidth(15);
+        $sheet->getColumnDimension('B')->setWidth(20);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(30);
+        
+        $writer = new Xlsx($spreadsheet);
+        $tempFile = tempnam(sys_get_temp_dir(), 'plantilla_kilometrajes');
+        $writer->save($tempFile);
+        
+        return response()->download($tempFile, $filename)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Carga manual individual desde el widget
+     */
+    public function cargaManual(Request $request): JsonResponse
+    {
+        $request->validate([
+            'vehiculo_id' => 'required|exists:vehiculos,id',
+            'fecha_captura' => 'required|date',
+            'kilometraje' => 'required|integer|min:0',
+            'observaciones' => 'nullable|string|max:500'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $vehiculo = Vehiculo::findOrFail($request->vehiculo_id);
+            $obraActual = $vehiculo->obraActual()->first();
+
+            $kilometraje = Kilometraje::create([
+                'vehiculo_id' => $request->vehiculo_id,
+                'obra_id' => $obraActual ? $obraActual->id : null,
+                'kilometraje' => $request->kilometraje,
+                'fecha_captura' => $request->fecha_captura,
+                'usuario_captura_id' => Auth::id(),
+                'observaciones' => $request->observaciones
+            ]);
+
+            // Actualizar kilometraje actual del vehículo si es mayor
+            if ($request->kilometraje > $vehiculo->kilometraje_actual) {
+                $vehiculo->update(['kilometraje_actual' => $request->kilometraje]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Kilometraje registrado exitosamente',
+                'data' => [
+                    'id' => $kilometraje->id,
+                    'vehiculo' => $vehiculo->marca . ' ' . $vehiculo->modelo . ' (' . $vehiculo->placas . ')',
+                    'kilometraje' => number_format($kilometraje->kilometraje),
+                    'fecha' => $kilometraje->fecha_captura->format('d/m/Y')
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error en carga manual de kilometraje', [
+                'error' => $e->getMessage(),
+                'usuario_id' => Auth::id(),
+                'vehiculo_id' => $request->vehiculo_id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al registrar el kilometraje: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

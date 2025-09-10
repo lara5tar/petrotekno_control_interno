@@ -100,13 +100,13 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Marca</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $activo->marca ?? 'Nissan' }}
+                                {{ $vehiculo->marca ?? 'Nissan' }}
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Póliza</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $activo->numero_poliza ?? 'Sin póliza' }}
+                                {{ $vehiculo->numero_poliza ?? 'Sin póliza' }}
                             </div>
                         </div>
                     </div>
@@ -115,13 +115,13 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Modelo</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $activo->modelo ?? 'NP300' }}
+                                {{ $vehiculo->modelo ?? 'NP300' }}
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Año</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $activo->anio ?? '2023' }}
+                                {{ $vehiculo->anio ?? '2023' }}
                             </div>
                         </div>
                     </div>
@@ -130,13 +130,13 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Placas</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $activo->placas ?? 'NL-ABC-1234' }}
+                                {{ $vehiculo->placas ?? 'NL-ABC-1234' }}
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Serie</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $activo->n_serie ?? 'NS123456789' }}
+                                {{ $vehiculo->n_serie ?? 'NS123456789' }}
                             </div>
                         </div>
                     </div>
@@ -147,14 +147,14 @@
                             <div class="space-y-1">
                                 <div class="flex items-center space-x-2">
                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                        @if($activo->derecho_url)
-                                            <span class="text-green-200">✓ Año {{ \Carbon\Carbon::parse($activo->created_at)->format('Y') }}</span>
-                                        @else
-                                            <span class="text-yellow-200">⚠ Sin documento</span>
-                                        @endif
-                                    </div>
-                                    @if($activo->derecho_url)
-                                        <button onclick="viewDocument('{{ $activo->derecho_url }}')" 
+                                        @if($vehiculo->derecho_url)
+                                    <span class="text-green-200">✓ Año {{ \Carbon\Carbon::parse($vehiculo->created_at)->format('Y') }}</span>
+                                @else
+                                    <span class="text-yellow-200">⚠ Sin documento</span>
+                                @endif
+                            </div>
+                            @if($vehiculo->derecho_url)
+                                <button onclick="viewDocument('{{ $vehiculo->derecho_url }}')" 
                                                 class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-2 rounded text-sm transition duration-200"
                                                 title="Ver documento">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,16 +164,16 @@
                                         </button>
                                     @endif
                                 </div>
-                                @if($activo->derecho_vencimiento)
-                                    <div class="text-xs text-gray-500">
-                                        Vence: {{ $activo->derecho_vencimiento->format('d/m/Y') }}
-                                        @if($activo->derecho_vencimiento < now())
-                                            <span class="text-red-600 font-semibold">(VENCIDO)</span>
-                                        @elseif($activo->derecho_vencimiento < now()->addDays(30))
-                                            <span class="text-yellow-600 font-semibold">(PRÓXIMO A VENCER)</span>
-                                        @endif
-                                    </div>
+                                @if($vehiculo->derecho_vencimiento)
+                            <div class="text-xs text-gray-500">
+                                Vence: {{ $vehiculo->derecho_vencimiento->format('d/m/Y') }}
+                                @if($vehiculo->derecho_vencimiento < now())
+                                    <span class="text-red-600 font-semibold">(VENCIDO)</span>
+                                @elseif($vehiculo->derecho_vencimiento < now()->addDays(30))
+                                    <span class="text-yellow-600 font-semibold">(PRÓXIMO A VENCER)</span>
                                 @endif
+                            </div>
+                        @endif
                             </div>
                         </div>
                         <div>
@@ -181,14 +181,14 @@
                             <div class="space-y-1">
                                 <div class="flex items-center space-x-2">
                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                        @if($activo->numero_poliza)
-                                            <span class="text-green-200">{{ $activo->numero_poliza }}</span>
-                                        @else
-                                            <span class="text-yellow-200">⚠ Sin número de póliza</span>
-                                        @endif
-                                    </div>
-                                    @if($activo->poliza_url)
-                                        <button onclick="viewDocument('{{ $activo->poliza_url }}')" 
+                                        @if($vehiculo->numero_poliza)
+                                    <span class="text-green-200">{{ $vehiculo->numero_poliza }}</span>
+                                @else
+                                    <span class="text-yellow-200">⚠ Sin número de póliza</span>
+                                @endif
+                            </div>
+                            @if($vehiculo->poliza_url)
+                                <button onclick="viewDocument('{{ $vehiculo->poliza_url }}')" 
                                                 class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-2 rounded text-sm transition duration-200"
                                                 title="Ver documento">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,16 +198,16 @@
                                         </button>
                                     @endif
                                 </div>
-                                @if($activo->poliza_vencimiento)
-                                    <div class="text-xs text-gray-500">
-                                        Vence: {{ $activo->poliza_vencimiento->format('d/m/Y') }}
-                                        @if($activo->poliza_vencimiento < now())
-                                            <span class="text-red-600 font-semibold">(VENCIDO)</span>
-                                        @elseif($activo->poliza_vencimiento < now()->addDays(30))
-                                            <span class="text-yellow-600 font-semibold">(PRÓXIMO A VENCER)</span>
-                                        @endif
-                                    </div>
+                                @if($vehiculo->poliza_vencimiento)
+                            <div class="text-xs text-gray-500">
+                                Vence: {{ $vehiculo->poliza_vencimiento->format('d/m/Y') }}
+                                @if($vehiculo->poliza_vencimiento < now())
+                                    <span class="text-red-600 font-semibold">(VENCIDO)</span>
+                                @elseif($vehiculo->poliza_vencimiento < now()->addDays(30))
+                                    <span class="text-yellow-600 font-semibold">(PRÓXIMO A VENCER)</span>
                                 @endif
+                            </div>
+                        @endif
                             </div>
                         </div>
                     </div>
@@ -215,10 +215,10 @@
                     <!-- Fotografía del Activo ahora al final -->
                     <div class="mt-6">
                         <div class="relative">
-                            @if(!empty($activo->url_imagen) && $activo->url_imagen !== null && $activo->url_imagen !== '')
-                                <div class="bg-gray-100 rounded overflow-hidden mb-2" id="image-container">
-                                    <img src="{{ $activo->url_imagen }}" 
-                                         alt="Activo {{ $activo->marca ?? 'Nissan' }} {{ $activo->modelo ?? 'NP300' }}" 
+                            @if(!empty($vehiculo->url_imagen) && $vehiculo->url_imagen !== null && $vehiculo->url_imagen !== '')
+                            <div class="bg-gray-100 rounded overflow-hidden mb-2" id="image-container">
+                                <img src="{{ $vehiculo->url_imagen }}" 
+                                     alt="Activo {{ $vehiculo->marca ?? 'Nissan' }} {{ $vehiculo->modelo ?? 'NP300' }}" 
                                          class="w-full h-auto object-contain max-h-64"
                                          id="vehicle-image"
                                          onload="handleImageLoad()"
@@ -272,7 +272,7 @@
                 <div class="flex-shrink-0">
                     <div class="text-base font-medium text-gray-600 mb-1">Último Kilometraje</div>
                     <div class="bg-gray-800 text-white p-2 rounded text-center min-w-[160px]">
-                        <div class="text-lg font-bold">{{ number_format($activo->kilometraje_actual ?? 0) }} km</div>
+                        <div class="text-lg font-bold">{{ number_format($vehiculo->kilometraje_actual ?? 0) }} km</div>
                     </div>
                 </div>
 
@@ -288,9 +288,9 @@
                             'fuera_servicio' => 'bg-red-500'
                         ];
                         // Asegurar que obtenemos el valor string del estatus
-                        $estatusValue = is_object($activo->estatus) 
-                            ? $activo->estatus->value 
-                            : $activo->estatus;
+                        $estatusValue = is_object($vehiculo->estatus) 
+                            ? $vehiculo->estatus->value 
+                            : $vehiculo->estatus;
                         $currentStatus = $estatusValue ?? 'disponible';
                         $colorClass = $statusColors[$currentStatus] ?? 'bg-gray-500';
                     @endphp
@@ -353,9 +353,9 @@
                                     $asignacionActiva = null;
                                     
                                     // Verificar si el activo tiene el método asignacionesObraActivas
-                                    if (method_exists($activo, 'asignacionesObraActivas')) {
-                                        try {
-                                            $asignacionActiva = $activo->asignacionesObraActivas()->with(['obra.encargado'])->first();
+                                    if (method_exists($vehiculo, 'asignacionesObraActivas')) {
+                        try {
+                            $asignacionActiva = $vehiculo->asignacionesObraActivas()->with(['obra.encargado'])->first();
                                         } catch (\Exception $e) {
                                             // Si hay error, simplemente continuar sin asignación
                                             $asignacionActiva = null;
@@ -472,7 +472,7 @@
                                         <div>
                                             <label class="block text-sm text-gray-600">Kilometraje Final</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                                {{ $activo->kilometraje_actual ? number_format($activo->kilometraje_actual) . ' km' : 'No registrado' }}
+                                                {{ $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) . ' km' : 'No registrado' }}
                                             </div>
                                         </div>
                                     </div>
@@ -1164,8 +1164,8 @@
                                 $obraActualId = $asignacionActiva->obra->id;
                             }
                             
-                            $obrasDisponibles = \App\Models\Obra::where('estatus', 'planificada')
-                                ->orWhere('estatus', 'en_progreso')
+                            $obrasDisponibles = \App\Models\Obra::where('estado', 'planificada')
+                                 ->orWhere('estado', 'en_progreso')
                                 ->when($obraActualId, function($query, $obraActualId) {
                                     return $query->where('id', '!=', $obraActualId);
                                 })
@@ -1823,11 +1823,11 @@
 
         // Mostrar mensajes de sesión (éxito/error)
         @if(session('success'))
-            showNotification('{{ session('success') }}', 'success');
+            showNotification(@json(session('success')), 'success');
         @endif
 
         @if(session('error'))
-            showNotification('{{ session('error') }}', 'error');
+            showNotification(@json(session('error')), 'error');
         @endif
 
         // Si hay errores de validación, reabrir el modal
@@ -1836,7 +1836,7 @@
             
             // Mostrar errores específicos
             @foreach($errors->all() as $error)
-                showNotification('{{ $error }}', 'error');
+                showNotification(@json($error), 'error');
             @endforeach
         @endif
     });
@@ -1845,11 +1845,15 @@
     function showNotification(message, type = 'info') {
         // Crear elemento de notificación
         const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
-            type === 'success' ? 'bg-green-500 text-white' : 
-            type === 'error' ? 'bg-red-500 text-white' : 
-            'bg-blue-500 text-white'
-        }`;
+        let className = 'fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ';
+        if (type === 'success') {
+            className += 'bg-green-500 text-white';
+        } else if (type === 'error') {
+            className += 'bg-red-500 text-white';
+        } else {
+            className += 'bg-blue-500 text-white';
+        }
+        notification.className = className;
         notification.textContent = message;
         
         // Agregar al DOM
