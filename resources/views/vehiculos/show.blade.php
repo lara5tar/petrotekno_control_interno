@@ -628,6 +628,7 @@
                                         <thead class="bg-gray-50">
                                             <tr>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Combustible</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Obra</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Registró</th>
@@ -638,6 +639,9 @@
                                             <tr>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                                                     {{ number_format($kilometraje->kilometraje) }} km
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $kilometraje->cantidad_combustible ? number_format($kilometraje->cantidad_combustible, 2) . ' L' : 'N/A' }}
                                                 </td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                                     {{ $kilometraje->fecha_captura?->format('d/m/Y') ?? 'Sin fecha' }}
@@ -651,7 +655,7 @@
                                             </tr>
                                             @empty
                                             <tr>
-                                                <td colspan="4" class="px-3 py-4 text-center text-sm text-gray-500">
+                                                <td colspan="5" class="px-3 py-4 text-center text-sm text-gray-500">
                                                     <div class="flex flex-col items-center">
                                                         <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -1076,6 +1080,21 @@
                            value="{{ date('Y-m-d') }}"
                            max="{{ date('Y-m-d') }}"
                            required>
+                </div>
+
+                <!-- Cantidad de Combustible -->
+                <div class="mb-4">
+                    <label for="cantidad_combustible" class="block text-sm font-medium text-gray-700 mb-2">
+                        Cantidad de Combustible (Litros) - Opcional
+                    </label>
+                    <input type="number" 
+                           id="cantidad_combustible" 
+                           name="cantidad_combustible" 
+                           min="0" 
+                           max="9999.99" 
+                           step="0.01"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                           placeholder="Ej: 50.5">
                 </div>
 
                 <!-- Observaciones -->
