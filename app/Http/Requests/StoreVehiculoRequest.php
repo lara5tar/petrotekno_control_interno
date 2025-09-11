@@ -89,6 +89,11 @@ class StoreVehiculoRequest extends FormRequest
                 'string',
                 'max:1000',
             ],
+            'operador_id' => [
+                'nullable',
+                'integer',
+                'exists:users,id',
+            ],
             // Validaciones para documentos específicos
             'tarjeta_circulacion_file' => [
                 'nullable',

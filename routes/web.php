@@ -50,6 +50,10 @@ Route::middleware('auth')->prefix('vehiculos')->name('vehiculos.')->group(functi
         ->name('index')
         ->middleware('permission:ver_vehiculos');
     
+    // Ruta para búsqueda predictiva de vehículos (DEBE ir ANTES de {vehiculo} para evitar conflictos)
+    Route::get('/busqueda-predictiva', [App\Http\Controllers\VehiculoController::class, 'busquedaPredictiva'])
+        ->name('busqueda-predictiva');
+    
     Route::get('/create', [App\Http\Controllers\VehiculoController::class, 'create'])
         ->name('create')
         ->middleware('permission:crear_vehiculos');

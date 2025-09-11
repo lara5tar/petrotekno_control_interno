@@ -64,12 +64,6 @@ class StoreKilometrajeRequest extends FormRequest
                 'min:0',
                 'max:9999.99',
             ],
-            'peso_carga' => [
-                'nullable',
-                'numeric',
-                'min:0',
-                'max:999.99',
-            ],
             'observaciones' => [
                 'nullable',
                 'string',
@@ -103,9 +97,6 @@ class StoreKilometrajeRequest extends FormRequest
             'cantidad_combustible.numeric' => 'La cantidad de combustible debe ser un número válido.',
             'cantidad_combustible.min' => 'La cantidad de combustible no puede ser negativa.',
             'cantidad_combustible.max' => 'La cantidad de combustible no puede exceder 9999.99 litros.',
-            'peso_carga.numeric' => 'El peso de carga debe ser un número válido.',
-            'peso_carga.min' => 'El peso de carga no puede ser negativo.',
-            'peso_carga.max' => 'El peso de carga no puede exceder 999.99 toneladas.',
             'observaciones.max' => 'Las observaciones no pueden exceder 1000 caracteres.',
         ];
     }

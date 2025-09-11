@@ -1164,8 +1164,8 @@
                                 $obraActualId = $asignacionActiva->obra->id;
                             }
                             
-                            $obrasDisponibles = \App\Models\Obra::where('estado', 'planificada')
-                                 ->orWhere('estado', 'en_progreso')
+                            $obrasDisponibles = \App\Models\Obra::where('estatus', 'planificada')
+                                 ->orWhere('estatus', 'en_progreso')
                                 ->when($obraActualId, function($query, $obraActualId) {
                                     return $query->where('id', '!=', $obraActualId);
                                 })

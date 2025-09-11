@@ -287,32 +287,114 @@
                 <form id="form-carga-manual" onsubmit="submitCargaManual(event)">
                     @csrf
                     <div class="space-y-4">
-                        <!-- Selector de Vehículo -->
-                        <div>
-                            <label for="vehiculo_search" class="block text-sm font-medium text-gray-700 mb-2">Buscar Vehículo</label>
+                        <!-- Búsqueda Avanzada de Vehículo -->
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-sm font-medium text-gray-700">Buscar Vehículo</label>
+                                <button type="button" id="toggle_filters" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                                    </svg>
+                                    Filtros Avanzados
+                                </button>
+                            </div>
+                            
+                            <!-- Barra de búsqueda principal -->
                             <div class="relative">
-                                <input type="text" id="vehiculo_search" placeholder="Buscar por ID, marca, modelo o placas..." 
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </div>
+                                <input type="text" id="vehiculo_search" placeholder="Buscar por ID, marca, modelo, placas o serie..." 
+                                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                        autocomplete="off">
                                 <input type="hidden" name="vehiculo_id" id="vehiculo_id" required>
                                 
-                                <!-- Contenedor de sugerencias -->
-                                <div id="sugerencias_container" class="absolute z-50 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto hidden">
-                                    <div id="sugerencias_list" class="py-1">
-                                        <!-- Las sugerencias se cargarán aquí dinámicamente -->
-                                    </div>
-                                    <div id="no_results" class="px-3 py-2 text-gray-500 text-sm hidden">
-                                        No se encontraron vehículos
-                                    </div>
+                                <!-- Indicador de carga -->
+                                <div id="search_loading" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
+                                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
                                 </div>
                             </div>
                             
-                            <!-- Vehículo seleccionado -->
-                            <div id="vehiculo_seleccionado" class="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md hidden">
-                                <div class="flex justify-between items-center">
-                                    <span id="vehiculo_info" class="text-sm text-blue-800"></span>
-                                    <button type="button" onclick="limpiarSeleccion()" class="text-blue-600 hover:text-blue-800">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <!-- Filtros Avanzados (Colapsables) -->
+                            <div id="advanced_filters" class="hidden bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                                    <!-- Filtro Marca -->
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Marca</label>
+                                        <select id="filter_marca" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="">Todas las marcas</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Filtro Modelo -->
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Modelo</label>
+                                        <select id="filter_modelo" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="">Todos los modelos</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Filtro Año -->
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Año</label>
+                                        <div class="flex space-x-1">
+                                            <input type="number" id="filter_anio_desde" placeholder="Desde" min="1900" max="2030" 
+                                                   class="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                            <input type="number" id="filter_anio_hasta" placeholder="Hasta" min="1900" max="2030" 
+                                                   class="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Filtro Precio -->
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Precio (MXN)</label>
+                                        <div class="flex space-x-1">
+                                            <input type="number" id="filter_precio_desde" placeholder="Min" min="0" step="1000" 
+                                                   class="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                            <input type="number" id="filter_precio_hasta" placeholder="Max" min="0" step="1000" 
+                                                   class="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botones de acción de filtros -->
+                                <div class="flex justify-end space-x-2 pt-2 border-t border-gray-200">
+                                    <button type="button" id="clear_filters" class="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 transition-colors">
+                                        Limpiar Filtros
+                                    </button>
+                                    <button type="button" id="apply_filters" class="px-4 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                                        Aplicar
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Contenedor de sugerencias mejorado -->
+                            <div id="sugerencias_container" class="absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-xl mt-1 max-h-80 overflow-hidden hidden">
+                                <div id="sugerencias_list" class="overflow-y-auto max-h-72">
+                                    <!-- Las sugerencias se cargarán aquí dinámicamente -->
+                                </div>
+                                <div id="no_results" class="px-4 py-3 text-gray-500 text-sm text-center hidden">
+                                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.007-5.824-2.448M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    No se encontraron vehículos con los criterios especificados
+                                </div>
+                                <div id="search_stats" class="px-4 py-2 bg-gray-50 border-t border-gray-200 text-xs text-gray-600 hidden">
+                                    <!-- Estadísticas de búsqueda -->
+                                </div>
+                            </div>
+                            
+                            <!-- Vehículo seleccionado mejorado -->
+                            <div id="vehiculo_seleccionado" class="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg hidden">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <div id="vehiculo_info" class="text-sm text-blue-900 font-medium"></div>
+                                        <div id="vehiculo_details" class="text-xs text-blue-700 mt-1"></div>
+                                    </div>
+                                    <button type="button" onclick="limpiarSeleccion()" class="ml-3 text-blue-600 hover:text-blue-800 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
                                     </button>
@@ -344,15 +426,6 @@
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                                    placeholder="Ej: 50.5">
                             <p class="text-xs text-gray-500 mt-1">Cantidad de combustible cargado en litros</p>
-                        </div>
-                        
-                        <!-- Peso de Carga -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Peso de Carga (Toneladas) - Opcional</label>
-                            <input type="number" id="peso_carga" name="peso_carga" min="0" max="999.99" step="0.01"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                   placeholder="Ej: 2.5">
-                            <p class="text-xs text-gray-500 mt-1">Peso de la carga transportada en toneladas</p>
                         </div>
                         
                         <!-- Observaciones -->
@@ -479,7 +552,7 @@
 @push('scripts')
 <script>
 // Variables globales
-window.vehiculosData = <?php echo json_encode($vehiculos ?? []); ?>;
+window.vehiculosData = @json($vehiculos ?? []);
 
 // Funciones para abrir y cerrar modales
 function abrirModal(modalId) {
@@ -668,138 +741,242 @@ function submitCargaMasiva(event) {
     });
 }
 
-// Función para configurar el buscador de vehículos
+// Variables globales para el buscador avanzado
+let searchTimeout;
+let currentSearchRequest;
+let filtersVisible = false;
+let availableFilters = {
+    marcas: new Set(),
+    modelos: new Set()
+};
+
+// Función para configurar el buscador avanzado de vehículos
 function configurarBuscadorVehiculos() {
     const searchInput = document.getElementById('vehiculo_search');
+    const toggleFiltersBtn = document.getElementById('toggle_filters');
+    const advancedFilters = document.getElementById('advanced_filters');
+    const clearFiltersBtn = document.getElementById('clear_filters');
+    const applyFiltersBtn = document.getElementById('apply_filters');
+    
+    // Configurar eventos principales
+    searchInput.addEventListener('input', handleSearchInput);
+    searchInput.addEventListener('focus', handleSearchFocus);
+    toggleFiltersBtn.addEventListener('click', toggleAdvancedFilters);
+    clearFiltersBtn.addEventListener('click', clearAllFilters);
+    applyFiltersBtn.addEventListener('click', applyFilters);
+    
+    // Configurar filtros
+    setupFilterEvents();
+    
+    // Cargar opciones de filtros iniciales
+    loadFilterOptions();
+    
+    // Cerrar sugerencias al hacer clic fuera
+    document.addEventListener('click', handleOutsideClick);
+}
+
+// Manejar entrada de búsqueda con debounce
+function handleSearchInput(event) {
+    const query = event.target.value.trim();
+    
+    clearTimeout(searchTimeout);
+    
+    if (query.length === 0) {
+        hideSuggestions();
+        return;
+    }
+    
+    showSearchLoading(true);
+    
+    searchTimeout = setTimeout(() => {
+        performPredictiveSearch(query);
+    }, 200); // Debounce de 200ms para mejor UX
+}
+
+// Manejar foco en el campo de búsqueda
+function handleSearchFocus(event) {
+    const query = event.target.value.trim();
+    if (query.length > 0) {
+        performPredictiveSearch(query);
+    }
+}
+
+// Realizar búsqueda predictiva usando el nuevo endpoint
+function performPredictiveSearch(query) {
+    // Cancelar request anterior si existe
+    if (currentSearchRequest) {
+        currentSearchRequest.abort();
+    }
+    
+    const controller = new AbortController();
+    currentSearchRequest = controller;
+    
+    const params = new URLSearchParams({
+        q: query,
+        limit: 10
+    });
+    
+    // Agregar filtros activos
+    const activeFilters = getActiveFilters();
+    Object.entries(activeFilters).forEach(([key, value]) => {
+        if (value) params.append(key, value);
+    });
+    
+    fetch(`{{ route('vehiculos.busqueda-predictiva') }}?${params}`, {
+        signal: controller.signal,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
+    .then(data => {
+        showSearchLoading(false);
+        displaySearchResults(data.data || [], query, data.total || 0);
+        updateFilterOptions(data.filter_options || {});
+    })
+    .catch(error => {
+        if (error.name !== 'AbortError') {
+            console.error('Error en búsqueda predictiva:', error);
+            showSearchLoading(false);
+            showSearchError();
+        }
+    })
+    .finally(() => {
+        currentSearchRequest = null;
+    });
+}
+
+// Mostrar/ocultar indicador de carga
+function showSearchLoading(show) {
+    const loadingIndicator = document.getElementById('search_loading');
+    if (show) {
+        loadingIndicator.classList.remove('hidden');
+    } else {
+        loadingIndicator.classList.add('hidden');
+    }
+}
+
+// Mostrar resultados de búsqueda
+function displaySearchResults(results, query, total) {
     const sugerenciasContainer = document.getElementById('sugerencias_container');
     const sugerenciasList = document.getElementById('sugerencias_list');
     const noResults = document.getElementById('no_results');
-    const vehiculos = window.vehiculosData || [];
+    const searchStats = document.getElementById('search_stats');
     
-    let timeoutId;
-    
-    searchInput.addEventListener('input', function() {
-        const query = this.value.trim();
-        
-        // Limpiar timeout anterior
-        clearTimeout(timeoutId);
-        
-        if (query.length === 0) {
-            sugerenciasContainer.classList.add('hidden');
-            return;
-        }
-        
-        // Debounce para evitar búsquedas excesivas
-        timeoutId = setTimeout(() => {
-            buscarVehiculos(query, vehiculos, sugerenciasList, noResults, sugerenciasContainer);
-        }, 150);
-    });
-    
-    searchInput.addEventListener('focus', function() {
-        if (this.value.trim().length > 0) {
-            sugerenciasContainer.classList.remove('hidden');
-        }
-    });
-}
-
-// Función para buscar vehículos
-function buscarVehiculos(query, vehiculos, sugerenciasList, noResults, container) {
-    const queryLower = query.toLowerCase();
-    
-    // Filtrar vehículos que coincidan con la búsqueda
-    const resultados = vehiculos.filter(vehiculo => {
-        const searchText = `${vehiculo.id} ${vehiculo.marca} ${vehiculo.modelo} ${vehiculo.placas}`.toLowerCase();
-        return searchText.includes(queryLower);
-    });
-    
-    // Limpiar lista anterior
+    // Limpiar resultados anteriores
     sugerenciasList.innerHTML = '';
     
-    if (resultados.length === 0) {
+    if (results.length === 0) {
         noResults.classList.remove('hidden');
-        sugerenciasList.classList.add('hidden');
+        searchStats.classList.add('hidden');
     } else {
         noResults.classList.add('hidden');
-        sugerenciasList.classList.remove('hidden');
         
-        // Mostrar máximo 8 resultados
-        resultados.slice(0, 8).forEach((vehiculo, index) => {
-            const item = crearItemSugerencia(vehiculo, query);
+        // Crear elementos de sugerencia mejorados
+        results.forEach(vehiculo => {
+            const item = createEnhancedSuggestionItem(vehiculo, query);
             sugerenciasList.appendChild(item);
         });
         
-        if (resultados.length > 8) {
-            const moreItem = document.createElement('div');
-            moreItem.className = 'px-3 py-2 text-xs text-gray-500 border-t';
-            moreItem.textContent = `+${resultados.length - 8} resultados más...`;
-            sugerenciasList.appendChild(moreItem);
+        // Mostrar estadísticas
+        if (total > results.length) {
+            searchStats.innerHTML = `Mostrando ${results.length} de ${total} resultados`;
+            searchStats.classList.remove('hidden');
+        } else {
+            searchStats.classList.add('hidden');
         }
     }
     
-    container.classList.remove('hidden');
+    sugerenciasContainer.classList.remove('hidden');
 }
 
-// Función para crear un item de sugerencia
-function crearItemSugerencia(vehiculo, query) {
+// Crear elemento de sugerencia mejorado
+function createEnhancedSuggestionItem(vehiculo, query) {
     const item = document.createElement('div');
-    item.className = 'px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0';
+    item.className = 'px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors duration-150';
     
-    // Resaltar texto coincidente
-    const texto = `ID: ${vehiculo.id} - ${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placas})`;
-    const textoResaltado = resaltarCoincidencias(texto, query);
+    const highlightedText = highlightMatches(`${vehiculo.marca} ${vehiculo.modelo}`, query);
+    const priceFormatted = 'N/A'; // precio_compra no está disponible
     
     item.innerHTML = `
         <div class="flex justify-between items-center">
-            <div>
-                <div class="text-sm font-medium text-gray-900">${textoResaltado}</div>
-                <div class="text-xs text-gray-500">KM actual: ${vehiculo.kilometraje_actual || 0}</div>
+            <div class="flex-1">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">ID: ${vehiculo.id}</span>
+                    <span class="text-sm font-medium text-gray-900">${highlightedText}</span>
+                </div>
+                <div class="mt-1 flex items-center space-x-4 text-xs text-gray-500">
+                    <span><strong>Placas:</strong> ${highlightMatches(vehiculo.placas || 'N/A', query)}</span>
+                    <span><strong>Año:</strong> ${vehiculo.anio || 'N/A'}</span>
+                    <span><strong>KM:</strong> ${(vehiculo.kilometraje_actual || 0).toLocaleString()}</span>
+                    <span><strong>Precio:</strong> ${priceFormatted}</span>
+                </div>
+            </div>
+            <div class="ml-3">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    vehiculo.estatus === 'disponible' ? 'bg-green-100 text-green-800' :
+                    vehiculo.estatus === 'asignado' ? 'bg-yellow-100 text-yellow-800' :
+                    vehiculo.estatus === 'mantenimiento' ? 'bg-red-100 text-red-800' :
+                    'bg-gray-100 text-gray-800'
+                }">
+                    ${vehiculo.estatus || 'N/A'}
+                </span>
             </div>
         </div>
     `;
     
     item.addEventListener('click', () => {
-        seleccionarVehiculo(vehiculo);
+        selectVehicle(vehiculo);
     });
     
     return item;
 }
 
-// Función para resaltar coincidencias
-function resaltarCoincidencias(texto, query) {
-    if (!query) return texto;
+// Resaltar coincidencias mejorado
+function highlightMatches(text, query) {
+    if (!query || !text) return text;
     
     const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')})`, 'gi');
-    return texto.replace(regex, '<mark class="bg-yellow-200 px-1 rounded">$1</mark>');
+    return text.replace(regex, '<mark class="bg-yellow-200 text-yellow-900 px-1 rounded font-medium">$1</mark>');
 }
 
-// Función para seleccionar un vehículo
-function seleccionarVehiculo(vehiculo) {
+// Seleccionar vehículo mejorado
+function selectVehicle(vehiculo) {
     const searchInput = document.getElementById('vehiculo_search');
     const vehiculoIdInput = document.getElementById('vehiculo_id');
     const vehiculoSeleccionado = document.getElementById('vehiculo_seleccionado');
     const vehiculoInfo = document.getElementById('vehiculo_info');
-    const sugerenciasContainer = document.getElementById('sugerencias_container');
+    const vehiculoDetails = document.getElementById('vehiculo_details');
     
     // Establecer valores
     searchInput.value = `${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placas})`;
     vehiculoIdInput.value = vehiculo.id;
     
-    // Mostrar información del vehículo seleccionado
-    vehiculoInfo.innerHTML = `
-        <strong>ID:</strong> ${vehiculo.id} | 
-        <strong>Vehículo:</strong> ${vehiculo.marca} ${vehiculo.modelo} | 
-        <strong>Placas:</strong> ${vehiculo.placas} | 
-        <strong>KM actual:</strong> ${vehiculo.kilometraje_actual || 0}
+    // Mostrar información principal
+    vehiculoInfo.textContent = `${vehiculo.marca} ${vehiculo.modelo} - ${vehiculo.placas}`;
+    
+    // Mostrar detalles adicionales
+    const priceFormatted = 'N/A'; // precio_compra no está disponible
+    
+    vehiculoDetails.innerHTML = `
+        ID: ${vehiculo.id} • Año: ${vehiculo.anio || 'N/A'} • 
+        KM Actual: ${(vehiculo.kilometraje_actual || 0).toLocaleString()} • 
+        Precio: ${priceFormatted} • 
+        Estado: ${vehiculo.estatus || 'N/A'}
     `;
     
     vehiculoSeleccionado.classList.remove('hidden');
-    sugerenciasContainer.classList.add('hidden');
+    hideSuggestions();
     
     // Actualizar validación de kilometraje
     validarKilometraje();
 }
 
-// Función para limpiar selección
+// Limpiar selección mejorado
 function limpiarSeleccion() {
     const searchInput = document.getElementById('vehiculo_search');
     const vehiculoIdInput = document.getElementById('vehiculo_id');
@@ -814,7 +991,148 @@ function limpiarSeleccion() {
         errorDiv.style.display = 'none';
     }
     
+    hideSuggestions();
     searchInput.focus();
+}
+
+// Alternar filtros avanzados
+function toggleAdvancedFilters() {
+    const advancedFilters = document.getElementById('advanced_filters');
+    const toggleBtn = document.getElementById('toggle_filters');
+    
+    filtersVisible = !filtersVisible;
+    
+    if (filtersVisible) {
+        advancedFilters.classList.remove('hidden');
+        toggleBtn.innerHTML = `
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+            </svg>
+            Ocultar Filtros
+        `;
+    } else {
+        advancedFilters.classList.add('hidden');
+        toggleBtn.innerHTML = `
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+            </svg>
+            Filtros Avanzados
+        `;
+    }
+}
+
+// Configurar eventos de filtros
+function setupFilterEvents() {
+    const filterInputs = [
+        'filter_marca', 'filter_modelo', 
+        'filter_anio_desde', 'filter_anio_hasta',
+        'filter_precio_desde', 'filter_precio_hasta'
+    ];
+    
+    filterInputs.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('change', applyFilters);
+        }
+    });
+}
+
+// Obtener filtros activos
+function getActiveFilters() {
+    return {
+        marca: document.getElementById('filter_marca')?.value || '',
+        modelo: document.getElementById('filter_modelo')?.value || '',
+        anio_desde: document.getElementById('filter_anio_desde')?.value || '',
+        anio_hasta: document.getElementById('filter_anio_hasta')?.value || '',
+        precio_desde: document.getElementById('filter_precio_desde')?.value || '',
+        precio_hasta: document.getElementById('filter_precio_hasta')?.value || ''
+    };
+}
+
+// Aplicar filtros
+function applyFilters() {
+    const query = document.getElementById('vehiculo_search').value.trim();
+    if (query.length > 0) {
+        performPredictiveSearch(query);
+    }
+}
+
+// Limpiar todos los filtros
+function clearAllFilters() {
+    document.getElementById('filter_marca').value = '';
+    document.getElementById('filter_modelo').value = '';
+    document.getElementById('filter_anio_desde').value = '';
+    document.getElementById('filter_anio_hasta').value = '';
+    document.getElementById('filter_precio_desde').value = '';
+    document.getElementById('filter_precio_hasta').value = '';
+    
+    applyFilters();
+}
+
+// Cargar opciones de filtros
+function loadFilterOptions() {
+    // Esta función se puede expandir para cargar opciones dinámicamente
+    // Por ahora, las opciones se cargarán con los resultados de búsqueda
+}
+
+// Actualizar opciones de filtros basadas en resultados
+function updateFilterOptions(filterOptions) {
+    if (filterOptions.marcas) {
+        updateSelectOptions('filter_marca', filterOptions.marcas, 'Todas las marcas');
+    }
+    if (filterOptions.modelos) {
+        updateSelectOptions('filter_modelo', filterOptions.modelos, 'Todos los modelos');
+    }
+}
+
+// Actualizar opciones de select
+function updateSelectOptions(selectId, options, defaultText) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    
+    const currentValue = select.value;
+    select.innerHTML = `<option value="">${defaultText}</option>`;
+    
+    options.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option;
+        optionElement.textContent = option;
+        if (option === currentValue) {
+            optionElement.selected = true;
+        }
+        select.appendChild(optionElement);
+    });
+}
+
+// Ocultar sugerencias
+function hideSuggestions() {
+    const sugerenciasContainer = document.getElementById('sugerencias_container');
+    sugerenciasContainer.classList.add('hidden');
+}
+
+// Mostrar error de búsqueda
+function showSearchError() {
+    const sugerenciasContainer = document.getElementById('sugerencias_container');
+    const sugerenciasList = document.getElementById('sugerencias_list');
+    const noResults = document.getElementById('no_results');
+    
+    sugerenciasList.innerHTML = '';
+    noResults.innerHTML = `
+        <svg class="w-8 h-8 mx-auto mb-2 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        Error al realizar la búsqueda. Intente nuevamente.
+    `;
+    noResults.classList.remove('hidden');
+    sugerenciasContainer.classList.remove('hidden');
+}
+
+// Manejar clics fuera del componente
+function handleOutsideClick(event) {
+    const searchContainer = document.getElementById('vehiculo_search').closest('.space-y-4');
+    if (!searchContainer.contains(event.target)) {
+        hideSuggestions();
+    }
 }
 
 // Función para validar kilometraje
@@ -896,4 +1214,184 @@ function mostrarNotificacion(mensaje, tipo = 'info') {
     }, 5000);
 }
 </script>
+
+<style>
+/* Estilos responsive para el buscador de vehículos */
+@media (max-width: 640px) {
+    /* Móviles */
+    #advanced_filters .grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem;
+    }
+    
+    #sugerencias_container {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+    
+    .suggestion-item {
+        padding: 0.75rem !important;
+    }
+    
+    .suggestion-item .flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.5rem;
+    }
+    
+    .suggestion-item .text-xs {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+    
+    .suggestion-item .text-xs > span {
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+    
+    #vehiculo_seleccionado .text-xs {
+        font-size: 0.7rem;
+        line-height: 1.2;
+    }
+    
+    .filter-buttons {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .filter-buttons button {
+        width: 100%;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+    /* Tabletas */
+    #advanced_filters .grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem;
+    }
+    
+    #sugerencias_container {
+        max-height: 70vh;
+    }
+    
+    .suggestion-item .text-xs {
+        flex-wrap: wrap;
+    }
+    
+    .suggestion-item .text-xs > span {
+        margin-right: 1rem;
+        margin-bottom: 0.25rem;
+    }
+}
+
+@media (min-width: 1025px) {
+    /* Escritorio */
+    #advanced_filters .grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    #sugerencias_container {
+        max-height: 80vh;
+    }
+}
+
+/* Estilos generales para mejor UX */
+.suggestion-item {
+    transition: all 0.15s ease-in-out;
+}
+
+.suggestion-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+#search_loading {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .5;
+    }
+}
+
+/* Mejoras de accesibilidad */
+.suggestion-item:focus {
+    outline: 2px solid #3B82F6;
+    outline-offset: 2px;
+}
+
+#vehiculo_search:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Optimización para pantallas táctiles */
+@media (hover: none) and (pointer: coarse) {
+    .suggestion-item {
+        min-height: 44px; /* Tamaño mínimo recomendado para touch */
+        padding: 1rem !important;
+    }
+    
+    button {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+    }
+    
+    input, select {
+        min-height: 44px;
+        padding: 0.75rem;
+    }
+}
+
+/* Estilos para modo oscuro (si se implementa en el futuro) */
+@media (prefers-color-scheme: dark) {
+    .suggestion-item:hover {
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+}
+
+/* Animaciones suaves para filtros */
+#advanced_filters {
+    transition: all 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+#advanced_filters.hidden {
+    max-height: 0;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+}
+
+#advanced_filters:not(.hidden) {
+    max-height: 500px;
+    opacity: 1;
+}
+
+/* Indicadores visuales mejorados */
+.status-badge {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+/* Mejoras para la experiencia de búsqueda */
+#sugerencias_container {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.search-highlight {
+    background: linear-gradient(120deg, #fef08a 0%, #fde047 100%);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    color: #92400e;
+}
+</style>
+
 @endpush

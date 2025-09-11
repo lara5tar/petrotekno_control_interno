@@ -503,7 +503,7 @@ class KilometrajeController extends Controller
      */
     private function procesarFilaVehiculos(array $fila, int $numeroFila): array
     {
-        // Formato esperado: [vehiculo_id, fecha, kilometraje, cantidad_combustible, peso_carga, observaciones]
+        // Formato esperado: [vehiculo_id, fecha, kilometraje, cantidad_combustible, observaciones]
         if (count($fila) < 3) {
             return [
                 'exito' => false,
@@ -517,8 +517,7 @@ class KilometrajeController extends Controller
         $fecha = $fila[1];
         $kilometraje = $fila[2];
         $cantidadCombustible = isset($fila[3]) && !empty(trim($fila[3])) ? (float) trim($fila[3]) : null;
-        $pesoCarga = isset($fila[4]) && !empty(trim($fila[4])) ? (float) trim($fila[4]) : null;
-        $observaciones = isset($fila[5]) ? trim($fila[5]) : null;
+        $observaciones = isset($fila[4]) ? trim($fila[4]) : null;
 
         // Validar datos
         if (empty($vehiculoId) || empty($fecha) || empty($kilometraje)) {
@@ -579,7 +578,6 @@ class KilometrajeController extends Controller
             'usuario_captura_id' => Auth::id(),
             'observaciones' => $observaciones,
             'cantidad_combustible' => $cantidadCombustible,
-            'peso_carga' => $pesoCarga
         ]);
 
         // Actualizar kilometraje actual del vehículo si es mayor
@@ -603,7 +601,7 @@ class KilometrajeController extends Controller
      */
     private function procesarFilaRegistros(array $fila, int $numeroFila): array
     {
-        // Formato esperado: [vehiculo_id, fecha, kilometraje, cantidad_combustible, peso_carga, observaciones]
+        // Formato esperado: [vehiculo_id, fecha, kilometraje, cantidad_combustible, observaciones]
         if (count($fila) < 3) {
             return [
                 'exito' => false,
@@ -617,8 +615,7 @@ class KilometrajeController extends Controller
         $fecha = $fila[1];
         $kilometraje = $fila[2];
         $cantidadCombustible = isset($fila[3]) && !empty(trim($fila[3])) ? (float) trim($fila[3]) : null;
-        $pesoCarga = isset($fila[4]) && !empty(trim($fila[4])) ? (float) trim($fila[4]) : null;
-        $observaciones = isset($fila[5]) ? trim($fila[5]) : null;
+        $observaciones = isset($fila[4]) ? trim($fila[4]) : null;
 
         // Validar datos
         if (empty($vehiculoId) || empty($fecha) || empty($kilometraje)) {
@@ -678,7 +675,6 @@ class KilometrajeController extends Controller
             'usuario_captura_id' => Auth::id(),
             'observaciones' => $observaciones,
             'cantidad_combustible' => $cantidadCombustible,
-            'peso_carga' => $pesoCarga
         ]);
 
         // Actualizar kilometraje actual del vehículo si es mayor
@@ -713,23 +709,20 @@ class KilometrajeController extends Controller
             $sheet->setCellValue('B1', 'Fecha (DD/MM/AAAA)');
             $sheet->setCellValue('C1', 'Kilometraje');
             $sheet->setCellValue('D1', 'Cantidad Combustible (L)');
-            $sheet->setCellValue('E1', 'Peso Carga (Ton)');
-            $sheet->setCellValue('F1', 'Observaciones');
+            $sheet->setCellValue('E1', 'Observaciones');
             
             // Ejemplos
             $sheet->setCellValue('A2', '1');
             $sheet->setCellValue('B2', '01/01/2024');
             $sheet->setCellValue('C2', '15000');
             $sheet->setCellValue('D2', '50.5');
-            $sheet->setCellValue('E2', '2.5');
-            $sheet->setCellValue('F2', 'Mantenimiento preventivo');
+            $sheet->setCellValue('E2', 'Mantenimiento preventivo');
             
             $sheet->setCellValue('A3', '2');
             $sheet->setCellValue('B3', '02/01/2024');
             $sheet->setCellValue('C3', '25000');
             $sheet->setCellValue('D3', '45.0');
-            $sheet->setCellValue('E3', '3.2');
-            $sheet->setCellValue('F3', 'Revisión general');
+            $sheet->setCellValue('E3', 'Revisión general');
             
             $filename = 'plantilla_kilometrajes_vehiculos.xlsx';
         } else {
@@ -738,37 +731,35 @@ class KilometrajeController extends Controller
             $sheet->setCellValue('B1', 'Fecha (DD/MM/AAAA)');
             $sheet->setCellValue('C1', 'Kilometraje');
             $sheet->setCellValue('D1', 'Cantidad Combustible (L)');
-            $sheet->setCellValue('E1', 'Peso Carga (Ton)');
-            $sheet->setCellValue('F1', 'Observaciones');
+            $sheet->setCellValue('E1', 'Observaciones');
             
             // Ejemplos
             $sheet->setCellValue('A2', '1');
             $sheet->setCellValue('B2', '01/01/2024');
             $sheet->setCellValue('C2', '15000');
             $sheet->setCellValue('D2', '48.2');
-            $sheet->setCellValue('E2', '1.8');
-            $sheet->setCellValue('F2', 'Primer registro');
+            $sheet->setCellValue('E2', 'Primer registro');
             
             $sheet->setCellValue('A3', '1');
             $sheet->setCellValue('B3', '15/01/2024');
             $sheet->setCellValue('C3', '15500');
             $sheet->setCellValue('D3', '52.1');
-            $sheet->setCellValue('E3', '2.1');
-            $sheet->setCellValue('F3', 'Segundo registro');
+            $sheet->setCellValue('E3', 'Segundo registro');
             
             $filename = 'plantilla_kilometrajes_registros.xlsx';
         }
         
         // Aplicar estilos a los encabezados
-        $sheet->getStyle('A1:D1')->getFont()->setBold(true);
-        $sheet->getStyle('A1:D1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+        $sheet->getStyle('A1:E1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:E1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
             ->getStartColor()->setARGB('FFE6E6E6');
         
         // Ajustar ancho de columnas
         $sheet->getColumnDimension('A')->setWidth(15);
         $sheet->getColumnDimension('B')->setWidth(20);
         $sheet->getColumnDimension('C')->setWidth(15);
-        $sheet->getColumnDimension('D')->setWidth(30);
+        $sheet->getColumnDimension('D')->setWidth(25);
+        $sheet->getColumnDimension('E')->setWidth(30);
         
         $writer = new Xlsx($spreadsheet);
         $tempFile = tempnam(sys_get_temp_dir(), 'plantilla_kilometrajes');

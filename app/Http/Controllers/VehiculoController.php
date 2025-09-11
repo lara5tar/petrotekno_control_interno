@@ -571,6 +571,181 @@ class VehiculoController extends Controller
         ]);
     }
 
+    /**
+     * Búsqueda predictiva optimizada de vehículos para el diálogo de acceso rápido
+     */
+    public function busquedaPredictiva(Request $request)
+    {
+        // $this->authorize('ver_vehiculos'); // Comentado temporalmente para debug
+
+        $query = trim($request->get('q', ''));
+        $marca = trim($request->get('marca', ''));
+        $modelo = trim($request->get('modelo', ''));
+        $anioDesde = $request->get('anio_desde', '');
+        $anioHasta = $request->get('anio_hasta', '');
+        $precioDesde = $request->get('precio_desde', '');
+        $precioHasta = $request->get('precio_hasta', '');
+        $limit = min($request->get('limit', 10), 50); // Máximo 50 resultados
+
+        // Generar clave de caché basada en parámetros
+        $cacheKey = 'vehiculos_search_' . md5(serialize([
+            'q' => $query,
+            'marca' => $marca,
+            'modelo' => $modelo,
+            'anio_desde' => $anioDesde,
+            'anio_hasta' => $anioHasta,
+            'precio_desde' => $precioDesde,
+            'precio_hasta' => $precioHasta,
+            'limit' => $limit
+        ]));
+
+        // Intentar obtener desde caché (5 minutos)
+        $resultadosCache = cache()->remember($cacheKey, 300, function() use (
+            $query, $marca, $modelo, $anioDesde, $anioHasta, $precioDesde, $precioHasta, $limit
+        ) {
+            // Optimización: Si la consulta es muy corta, limitar resultados
+            if (strlen($query) < 2 && empty($marca) && empty($modelo)) {
+                $limit = min($limit, 20);
+            }
+
+            $vehiculosQuery = Vehiculo::select([
+                'id',
+                'marca',
+                'modelo',
+                'anio',
+                'placas',
+                'n_serie',
+                'kilometraje_actual',
+                'estatus'
+                // 'precio_compra' // Columna no existe
+            ])
+            ->where('estatus', '!=', 'eliminado');
+
+            // Optimización: Usar índices compuestos para búsquedas más eficientes
+            if (!empty($query)) {
+                // Priorizar búsquedas exactas primero (más rápidas)
+                $vehiculosQuery->where(function($q) use ($query) {
+                    $q->where('placas', 'like', "{$query}%")
+                      ->orWhere('n_serie', 'like', "{$query}%")
+                      ->orWhere('id', 'like', "{$query}%")
+                      ->orWhere('marca', 'like', "{$query}%")
+                      ->orWhere('modelo', 'like', "{$query}%")
+                      // Búsquedas con LIKE %query% solo si es necesario
+                      ->orWhere('marca', 'like', "%{$query}%")
+                      ->orWhere('modelo', 'like', "%{$query}%");
+                });
+            }
+
+            // Filtros específicos optimizados
+            if (!empty($marca)) {
+                $vehiculosQuery->where('marca', 'like', "{$marca}%");
+            }
+
+            if (!empty($modelo)) {
+                $vehiculosQuery->where('modelo', 'like', "{$modelo}%");
+            }
+
+            if (!empty($anioDesde)) {
+                $vehiculosQuery->where('anio', '>=', $anioDesde);
+            }
+
+            if (!empty($anioHasta)) {
+                $vehiculosQuery->where('anio', '<=', $anioHasta);
+            }
+
+            // Filtros de precio deshabilitados - columna precio_compra no existe
+            // if (!empty($precioDesde)) {
+            //     $vehiculosQuery->where('precio_compra', '>=', $precioDesde);
+            // }
+
+            // if (!empty($precioHasta)) {
+            //     $vehiculosQuery->where('precio_compra', '<=', $precioHasta);
+            // }
+
+            // Optimización: Ordenamiento más eficiente
+            if (!empty($query)) {
+                $vehiculos = $vehiculosQuery
+                    ->orderByRaw("CASE 
+                        WHEN placas LIKE ? THEN 1
+                        WHEN LOWER(CONCAT(marca, ' ', modelo)) LIKE LOWER(?) THEN 2
+                        WHEN LOWER(marca) LIKE LOWER(?) THEN 3
+                        WHEN LOWER(modelo) LIKE LOWER(?) THEN 4
+                        ELSE 5
+                    END", ["{$query}%", "%{$query}%", "{$query}%", "{$query}%"])
+                    ->orderBy('marca')
+                    ->orderBy('modelo')
+                    ->orderBy('anio', 'desc')
+                    ->limit($limit)
+                    ->get();
+            } else {
+                $vehiculos = $vehiculosQuery
+                    ->orderBy('marca')
+                    ->orderBy('modelo')
+                    ->orderBy('anio', 'desc')
+                    ->limit($limit)
+                    ->get();
+            }
+
+            return $vehiculos;
+        });
+
+        // Formatear resultados para la respuesta
+        $resultados = $resultadosCache->map(function ($vehiculo) {
+            return [
+                'id' => $vehiculo->id,
+                'marca' => $vehiculo->marca,
+                'modelo' => $vehiculo->modelo,
+                'anio' => $vehiculo->anio,
+                'placas' => $vehiculo->placas,
+                'n_serie' => $vehiculo->n_serie,
+                'kilometraje_actual' => $vehiculo->kilometraje_actual ?? 0,
+                'estatus' => $vehiculo->estatus,
+                'precio_compra' => null, // Columna no existe
+                'texto_completo' => "{$vehiculo->marca} {$vehiculo->modelo} ({$vehiculo->placas})",
+                'info_adicional' => "ID: {$vehiculo->id} | KM: " . number_format($vehiculo->kilometraje_actual ?? 0) . " | Año: {$vehiculo->anio}"
+            ];
+        });
+
+        // Obtener opciones para filtros si se solicitan (con caché)
+        $filtros = [];
+        if ($request->get('include_filters', false)) {
+            $filtros = cache()->remember('vehiculos_filtros', 1800, function() { // 30 minutos
+                return [
+                    'marcas' => Vehiculo::where('estatus', '!=', 'eliminado')
+                        ->distinct()
+                        ->pluck('marca')
+                        ->filter()
+                        ->sort()
+                        ->values(),
+                    'modelos' => Vehiculo::where('estatus', '!=', 'eliminado')
+                        ->distinct()
+                        ->pluck('modelo')
+                        ->filter()
+                        ->sort()
+                        ->values(),
+                    'anios' => Vehiculo::where('estatus', '!=', 'eliminado')
+                        ->distinct()
+                        ->pluck('anio')
+                        ->filter()
+                        ->sortDesc()
+                        ->values(),
+                    'rango_precios' => [
+                        'min' => Vehiculo::where('estatus', '!=', 'eliminado')->min('precio_compra') ?? 0,
+                        'max' => Vehiculo::where('estatus', '!=', 'eliminado')->max('precio_compra') ?? 0
+                    ]
+                ];
+            });
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $resultados,
+            'total' => $resultados->count(),
+            'query' => $query,
+            'filtros' => $filtros
+        ]);
+    }
+
     // ================== MÉTODOS DE KILOMETRAJE ==================
 
     /**

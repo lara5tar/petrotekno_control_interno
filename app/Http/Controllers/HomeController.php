@@ -38,10 +38,17 @@ class HomeController extends Controller
         // Obtener vehículos que necesitan mantenimiento próximo
         $alertasMantenimiento = $this->obtenerAlertasMantenimiento();
         
+        // Obtener vehículos para el widget de acceso rápido
+        $vehiculos = Vehiculo::select('id', 'marca', 'modelo', 'placas', 'anio', 'kilometraje_actual', 'estatus')
+            ->orderBy('marca')
+            ->orderBy('modelo')
+            ->get();
+        
         return view('home', compact(
             'estadisticas',
             'actividadReciente',
-            'alertasMantenimiento'
+            'alertasMantenimiento',
+            'vehiculos'
         ));
     }
 
