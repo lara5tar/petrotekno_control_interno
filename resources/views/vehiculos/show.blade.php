@@ -1028,7 +1028,7 @@
 
 <!-- Modal para Capturar Kilometraje -->
 <div id="kilometraje-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="relative top-20 mx-auto p-4 border shadow-lg rounded-md bg-white max-w-md">
         <div class="mt-3">
             <!-- Header del Modal -->
             <div class="flex items-center justify-between mb-4">
@@ -1098,7 +1098,7 @@
                 </div>
 
                 <!-- Observaciones -->
-                <div class="mb-6">
+                <div class="mb-4">
                     <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-2">
                         Observaciones
                     </label>
@@ -1110,7 +1110,7 @@
                 </div>
 
                 <!-- Botones -->
-                <div class="flex justify-end space-x-3">
+                <div class="flex justify-end space-x-3 mt-2">
                     <button type="button" 
                             onclick="closeKilometrajeModal()" 
                             class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors duration-200">
