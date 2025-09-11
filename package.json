@@ -20,8 +20,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
-    "@tabler/icons": "^3.34.1",
-    "puppeteer": "^24.20.0"
+    "@tabler/icons": "^3.34.1"
   },
   "keywords": [
     "laravel",

@@ -130,13 +130,13 @@
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-900">Acceso Rápido - Kilometrajes</h3>
                 <div class="flex space-x-2">
-                    <button id="btn-carga-manual" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                    <button id="btn-carga-manual" onclick="abrirModal('modal-carga-manual')" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
                         Carga Manual
                     </button>
-                    <button id="btn-carga-masiva" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                    <button id="btn-carga-masiva" onclick="abrirModal('modal-carga-masiva')" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
                         </svg>
@@ -485,6 +485,7 @@
                 
                 <form id="form-carga-masiva" onsubmit="submitCargaMasiva(event)" enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" name="modalidad" value="vehiculos">
                     <div class="space-y-4">
                         <!-- Descargar Plantilla -->
                         <div class="text-center">
@@ -547,45 +548,447 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para Mostrar Errores de Carga Masiva -->
+    <div id="modal-errores-carga" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-red-600 flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Errores en Carga Masiva
+                    </h3>
+                    <button onclick="cerrarModal('modal-errores-carga')" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Resumen de errores -->
+                <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-400 rounded">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700 font-medium" id="resumen-errores">
+                                Se encontraron errores en el archivo
+                            </p>
+                            <p class="text-xs text-red-600 mt-1 font-semibold">
+                                ⚠️ NINGÚN registro fue guardado en la base de datos
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lista de errores -->
+                <div class="max-h-96 overflow-y-auto">
+                    <div id="lista-errores" class="space-y-3">
+                        <!-- Los errores se llenarán dinámicamente -->
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="flex justify-between items-center mt-6 pt-4 border-t border-gray-200">
+                    <div class="text-sm text-gray-600">
+                        <span class="inline-flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Corrija TODOS los errores en el Excel. Solo se procesan archivos 100% válidos.
+                        </span>
+                    </div>
+                    <button onclick="cerrarModal('modal-errores-carga')" 
+                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
+
+<script>
+// Funciones globales para modales - definidas inmediatamente
+function abrirModal(modalId) {
+    console.log('✅ abrirModal llamado con ID:', modalId);
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+        console.log('✅ Modal abierto:', modalId);
+    } else {
+        console.error('❌ Modal no encontrado:', modalId);
+    }
+}
+
+function cerrarModal(modalId) {
+    console.log('✅ cerrarModal llamado con ID:', modalId);
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+        
+        // Limpiar formularios
+        if (modalId === 'modal-carga-manual') {
+            const form = document.getElementById('form-carga-manual');
+            if (form) form.reset();
+            const kmInfo = document.getElementById('km-info');
+            if (kmInfo) kmInfo.classList.add('hidden');
+        } else if (modalId === 'modal-carga-masiva') {
+            const form = document.getElementById('form-carga-masiva');
+            if (form) form.reset();
+        }
+        console.log('✅ Modal cerrado:', modalId);
+    } else {
+        console.error('❌ Modal no encontrado para cerrar:', modalId);
+    }
+}
+
+// Función para mostrar archivo seleccionado
+function mostrarArchivoSeleccionado(input) {
+    const archivoSeleccionado = document.getElementById('archivo-seleccionado');
+    if (input.files && input.files[0]) {
+        archivoSeleccionado.textContent = `Archivo seleccionado: ${input.files[0].name}`;
+        archivoSeleccionado.classList.remove('hidden');
+    } else {
+        archivoSeleccionado.classList.add('hidden');
+    }
+}
+
+// Función para enviar carga masiva
+function submitCargaMasiva(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    const submitBtn = document.getElementById('btn-submit-masiva');
+    const textoSubmit = document.getElementById('texto-submit-masiva');
+    const loadingIcon = document.getElementById('loading-masiva');
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    
+    // Deshabilitar botón y mostrar loading
+    submitBtn.disabled = true;
+    textoSubmit.textContent = 'Procesando...';
+    loadingIcon.classList.remove('hidden');
+    progressContainer.classList.remove('hidden');
+    
+    // Simular progreso
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        progressBar.style.width = progress + '%';
+    }, 200);
+    
+    fetch('{{ route("kilometrajes.procesar-carga-masiva") }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        
+        if (data.success) {
+            const exitosos = data.data.exitosos;
+            const fallidos = data.data.fallidos;
+            const total = data.data.total_procesados;
+            
+            if (fallidos > 0) {
+                progressText.textContent = `Validación completada: ${fallidos} errores encontrados de ${total} registros. ⚠️ NADA FUE GUARDADO - Ver detalles`;
+                
+                console.log('🔍 Datos de errores recibidos:', data.data);
+                
+                // Siempre mostrar modal de errores cuando hay fallidos
+                let erroresParaMostrar = [];
+                
+                if (data.data.errores && data.data.errores.length > 0) {
+                    erroresParaMostrar = data.data.errores;
+                } else if (data.data.registros_fallidos && data.data.registros_fallidos.length > 0) {
+                    erroresParaMostrar = data.data.registros_fallidos;
+                } else {
+                    // Si no hay errores específicos, crear un mensaje genérico con la fila
+                    erroresParaMostrar = [{
+                        fila: 'Desconocida',
+                        error: `Se encontraron ${fallidos} errores en el archivo. Revisa el formato y los datos.`,
+                        data: []
+                    }];
+                }
+                
+                console.log('📋 Errores a mostrar:', erroresParaMostrar);
+                mostrarModalErrores(erroresParaMostrar);
+            } else {
+                progressText.textContent = `¡Éxito! ${exitosos} kilometrajes registrados correctamente.`;
+                setTimeout(() => {
+                    cerrarModal('modal-carga-masiva');
+                    location.reload();
+                }, 2000);
+            }
+        } else {
+            progressText.textContent = 'Error en el procesamiento del archivo.';
+            if (data.message) {
+                alert(data.message);
+            }
+        }
+    })
+    .catch(error => {
+        clearInterval(progressInterval);
+        console.error('Error:', error);
+        progressText.textContent = 'Error en la comunicación con el servidor.';
+        alert('Ocurrió un error al procesar el archivo. Por favor, inténtalo de nuevo.');
+    })
+    .finally(() => {
+        // Rehabilitar botón
+        submitBtn.disabled = false;
+        textoSubmit.textContent = 'Procesar Archivo';
+        loadingIcon.classList.add('hidden');
+    });
+}
+
+// Función para mostrar modal de errores de carga masiva - MEJORADA
+function mostrarModalErrores(errores) {
+    // Si errores es un array simple de errores (formato nuevo)
+    if (Array.isArray(errores) && errores.length > 0 && typeof errores[0] === 'object' && errores[0].fila) {
+        mostrarModalErroresMejorado(errores.length, errores.length, errores);
+        return;
+    }
+    
+    // Formato alternativo (compatibilidad)
+    mostrarModalErroresMejorado(errores, errores, errores);
+}
+
+// Nueva función mejorada para mostrar errores con mejor UX
+function mostrarModalErroresMejorado(fallidos, total, registrosFallidos) {
+    // Actualizar resumen con mensaje más descriptivo
+    const resumenElement = document.getElementById('resumen-errores');
+    resumenElement.innerHTML = `
+        <div class="text-center p-4 bg-red-50 rounded-lg border border-red-200">
+            <div class="text-lg font-bold text-red-800 mb-2">⚠️ Se encontraron ${fallidos} errores</div>
+            <div class="text-sm text-red-600">
+                De ${total} registros procesados, ${fallidos} contienen errores que deben corregirse.
+                <br><strong>Ningún dato fue guardado</strong> hasta que se corrijan todos los errores.
+            </div>
+        </div>
+    `;
+    
+    // Limpiar lista anterior
+    const listaErrores = document.getElementById('lista-errores');
+    listaErrores.innerHTML = '';
+    
+    // Agregar cada error con formato mejorado
+    registrosFallidos.forEach((error, index) => {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'bg-white border-l-4 border-red-400 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow mb-4';
+        
+        let datosFilaHtml = '';
+        if (error.data && error.data.length > 0) {
+            datosFilaHtml = `
+                <div class="mt-3 p-3 bg-gray-50 rounded-md border text-sm">
+                    <strong class="text-gray-700">📄 Datos originales de la fila:</strong>
+                    <div class="mt-2 font-mono text-xs text-gray-600 bg-white p-2 rounded border overflow-x-auto">
+                        ${error.data.map((dato, i) => `<span class="inline-block mr-4 mb-1 px-2 py-1 bg-gray-100 rounded"><strong>Col ${i+1}:</strong> ${dato || '(vacío)'}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        errorDiv.innerHTML = `
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <span class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-red-100 text-red-700 text-sm font-bold border-2 border-red-300">
+                        ${error.fila}
+                    </span>
+                </div>
+                <div class="ml-4 flex-1">
+                    <div class="text-base font-bold text-red-800 mb-2 flex items-center">
+                        📍 Error en Fila ${error.fila} del archivo Excel
+                    </div>
+                    <div class="text-sm text-red-700 mb-3 p-3 bg-red-50 rounded-md border-l-4 border-red-400">
+                        <strong class="text-red-800">❌ Problema encontrado:</strong><br>
+                        <span class="mt-1 block font-medium">${error.error}</span>
+                    </div>
+                    <div class="text-sm text-blue-700 p-3 bg-blue-50 rounded-md border-l-4 border-blue-400">
+                        <strong class="text-blue-800">💡 Cómo solucionarlo:</strong><br>
+                        <div class="mt-2 space-y-1">
+                            <div>• Abre tu archivo Excel</div>
+                            <div>• Ve a la <strong>fila ${error.fila}</strong></div>
+                            <div>• Corrige el problema descrito arriba</div>
+                            <div>• Guarda el archivo y vuelve a subirlo</div>
+                        </div>
+                    </div>
+                    ${datosFilaHtml}
+                </div>
+            </div>
+        `;
+        
+        listaErrores.appendChild(errorDiv);
+    });
+    
+    // Mostrar el modal
+    abrirModal('modal-errores-carga');
+}
+
+function mostrarModalErroresFormato(fallidos, total, registrosFallidos) {
+    // Actualizar resumen con mensaje más descriptivo
+    const resumenElement = document.getElementById('resumen-errores');
+    resumenElement.innerHTML = `
+        <div class="text-center p-4 bg-red-50 rounded-lg border border-red-200">
+            <div class="text-lg font-bold text-red-800 mb-2">⚠️ Se encontraron ${fallidos} errores</div>
+            <div class="text-sm text-red-600">
+                De ${total} registros procesados, ${fallidos} contienen errores que deben corregirse.
+                <br><strong>Ningún dato fue guardado</strong> hasta que se corrijan todos los errores.
+            </div>
+        </div>
+    `;
+    
+    // Limpiar lista anterior
+    const listaErrores = document.getElementById('lista-errores');
+    listaErrores.innerHTML = '';
+    
+    // Agregar cada error
+    registrosFallidos.forEach((error, index) => {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'bg-white border border-red-200 rounded-lg p-4 shadow-sm';
+        
+        let datosFilaHtml = '';
+        if (error.data && error.data.length > 0) {
+            datosFilaHtml = `
+                <div class="mt-2 p-2 bg-gray-50 rounded text-sm">
+                    <strong>Datos de la fila:</strong> ${error.data.join(', ')}
+                </div>
+            `;
+        }
+        
+        errorDiv.innerHTML = `
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-red-100 text-red-600 text-sm font-medium">
+                        ${index + 1}
+                    </span>
+                </div>
+                <div class="ml-3 flex-1">
+                    <div class="text-sm font-medium text-gray-900">
+                        Fila ${error.fila}
+                    </div>
+                    <div class="text-sm text-red-600 mt-1">
+                        ${error.error}
+                    </div>
+                    ${datosFilaHtml}
+                </div>
+            </div>
+        `;
+        
+        listaErrores.appendChild(errorDiv);
+    });
+    
+    // Mostrar el modal
+    abrirModal('modal-errores-carga');
+}
+
+// Función para enviar carga manual  
+function submitCargaManual(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    const submitBtn = document.getElementById('btn-submit-manual');
+    
+    // Deshabilitar botón y mostrar loading
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Registrando...';
+    
+    fetch('{{ route("kilometrajes.carga-manual") }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mostrar mensaje de éxito
+            mostrarNotificacion('Kilometraje registrado exitosamente', 'success');
+            cerrarModal('modal-carga-manual');
+            // Recargar página para actualizar estadísticas
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            mostrarNotificacion(data.message || 'Error al registrar el kilometraje', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarNotificacion('Error al procesar la solicitud', 'error');
+    })
+    .finally(() => {
+        // Restaurar botón
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Registrar Kilometraje';
+    });
+}
+
+// Función para mostrar notificaciones
+function mostrarNotificacion(mensaje, tipo = 'info') {
+    // Crear elemento de notificación
+    const notificacion = document.createElement('div');
+    notificacion.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-md shadow-lg transition-all duration-300 transform translate-x-full`;
+    
+    if (tipo === 'success') {
+        notificacion.classList.add('bg-green-500', 'text-white');
+    } else if (tipo === 'error') {
+        notificacion.classList.add('bg-red-500', 'text-white');
+    } else {
+        notificacion.classList.add('bg-blue-500', 'text-white');
+    }
+    
+    notificacion.textContent = mensaje;
+    document.body.appendChild(notificacion);
+    
+    // Animar entrada
+    setTimeout(() => {
+        notificacion.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Remover después de 3 segundos
+    setTimeout(() => {
+        notificacion.classList.add('translate-x-full');
+        setTimeout(() => {
+            if (notificacion.parentNode) {
+                notificacion.parentNode.removeChild(notificacion);
+            }
+        }, 300);
+    }, 3000);
+}
+
+console.log('✅ Funciones de modal y carga definidas globalmente');
+</script>
 
 @push('scripts')
 <script>
 // Variables globales
 window.vehiculosData = @json($vehiculos ?? []);
-
-// Funciones para abrir y cerrar modales
-function abrirModal(modalId) {
-    document.getElementById(modalId).classList.remove('hidden');
-    document.body.classList.add('overflow-hidden');
-}
-
-function cerrarModal(modalId) {
-    document.getElementById(modalId).classList.add('hidden');
-    document.body.classList.remove('overflow-hidden');
-    
-    // Limpiar formularios
-    if (modalId === 'modal-carga-manual') {
-        document.getElementById('form-carga-manual').reset();
-        document.getElementById('km-info').classList.add('hidden');
-    } else if (modalId === 'modal-carga-masiva') {
-        document.getElementById('form-carga-masiva').reset();
-        document.getElementById('archivo-seleccionado').classList.add('hidden');
         document.getElementById('progress-container').classList.add('hidden');
+    } else if (modalId === 'modal-errores-carga') {
+        // Limpiar contenido del modal de errores
+        document.getElementById('lista-errores').innerHTML = '';
     }
 }
 
-// Event listeners para los botones del widget
-document.addEventListener('DOMContentLoaded', function() {
-    // Botón Carga Manual
-    document.getElementById('btn-carga-manual').addEventListener('click', function() {
-        abrirModal('modal-carga-manual');
-    });
-    
-    // Botón Carga Masiva
-    document.getElementById('btn-carga-masiva').addEventListener('click', function() {
-        abrirModal('modal-carga-masiva');
-    });
+
     
     // Cerrar modal al hacer clic fuera
     document.getElementById('modal-carga-manual').addEventListener('click', function(e) {
@@ -715,23 +1118,50 @@ function submitCargaMasiva(event) {
         progressBar.style.width = '100%';
         
         if (data.success) {
-            progressText.textContent = `Procesamiento completado: ${data.procesados} registros procesados`;
-            mostrarNotificacion(`Carga masiva completada: ${data.procesados} kilometrajes procesados`, 'success');
+            const exitosos = data.data.exitosos;
+            const fallidos = data.data.fallidos;
+            const total = data.data.total_procesados;
             
-            setTimeout(() => {
-                cerrarModal('modal-carga-masiva');
-                window.location.reload();
-            }, 2000);
+            if (fallidos > 0) {
+                progressText.textContent = `Validación completada: ${fallidos} errores encontrados de ${total} registros. ⚠️ NADA FUE GUARDADO`;
+                
+                // Mostrar modal con detalles de errores
+                mostrarModalErrores(fallidos, total, data.data.registros_fallidos);
+                
+                // También mostrar notificación más clara
+                mostrarNotificacion(`⚠️ ${fallidos} errores encontrados. NINGÚN registro fue guardado. Debe corregir todos los errores antes de procesar.`, 'error');
+            } else {
+                progressText.textContent = `Procesamiento completado: ${exitosos} registros guardados exitosamente`;
+                mostrarNotificacion(`✅ Carga masiva completada: ${exitosos} kilometrajes procesados exitosamente`, 'success');
+            }
+            } else {
+                mostrarNotificacion(`✅ Carga masiva completada: ${exitosos} kilometrajes procesados exitosamente`, 'success');
+            }
+            
+            // Solo cerrar modal y recargar si no hubo errores
+            if (fallidos === 0) {
+                setTimeout(() => {
+                    cerrarModal('modal-carga-masiva');
+                    window.location.reload();
+                }, 3000);
+            } else {
+                // Si hay errores, no cerrar el modal automáticamente para que puedan corregir
+                console.log('Modal permanece abierto para corrección de errores');
+                
+                // Limpiar el archivo seleccionado para que puedan subir uno corregido
+                document.getElementById('archivo_excel').value = '';
+                document.getElementById('nombre-archivo').textContent = 'Ningún archivo seleccionado';
+            }
         } else {
             progressText.textContent = 'Error en el procesamiento';
-            mostrarNotificacion(data.message || 'Error al procesar el archivo', 'error');
+            mostrarNotificacion(data.message || 'Error al procesar el archivo. Verifica que el formato del Excel sea correcto.', 'error');
         }
     })
     .catch(error => {
         clearInterval(progressInterval);
         console.error('Error:', error);
         progressText.textContent = 'Error en el procesamiento';
-        mostrarNotificacion('Error al procesar la solicitud', 'error');
+        mostrarNotificacion('Error de conexión al procesar el archivo. Intenta nuevamente.', 'error');
     })
     .finally(() => {
         // Restaurar botón
@@ -1212,6 +1642,56 @@ function mostrarNotificacion(mensaje, tipo = 'info') {
             }
         }, 300);
     }, 5000);
+}
+
+// Función para mostrar modal de errores de carga masiva
+function mostrarModalErrores(fallidos, total, registrosFallidos) {
+    // Actualizar resumen
+    const resumenElement = document.getElementById('resumen-errores');
+    resumenElement.textContent = `Se encontraron ${fallidos} errores de ${total} registros procesados`;
+    
+    // Limpiar lista anterior
+    const listaErrores = document.getElementById('lista-errores');
+    listaErrores.innerHTML = '';
+    
+    // Agregar cada error
+    registrosFallidos.forEach((error, index) => {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'bg-white border border-red-200 rounded-lg p-4 shadow-sm';
+        
+        let datosFilaHtml = '';
+        if (error.data && error.data.length > 0) {
+            datosFilaHtml = `
+                <div class="mt-2 p-2 bg-gray-50 rounded text-sm">
+                    <strong>Datos de la fila:</strong> ${error.data.join(', ')}
+                </div>
+            `;
+        }
+        
+        errorDiv.innerHTML = `
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-red-100 text-red-600 text-sm font-medium">
+                        ${index + 1}
+                    </span>
+                </div>
+                <div class="ml-3 flex-1">
+                    <div class="text-sm font-medium text-gray-900">
+                        Fila ${error.fila}
+                    </div>
+                    <div class="text-sm text-red-600 mt-1">
+                        ${error.error}
+                    </div>
+                    ${datosFilaHtml}
+                </div>
+            </div>
+        `;
+        
+        listaErrores.appendChild(errorDiv);
+    });
+    
+    // Mostrar el modal
+    abrirModal('modal-errores-carga');
 }
 </script>
 
