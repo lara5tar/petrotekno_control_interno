@@ -797,6 +797,7 @@ class VehiculoController extends Controller
             ],
             'fecha_captura' => 'required|date|before_or_equal:today',
             'observaciones' => 'nullable|string|max:1000',
+            'cantidad_combustible' => 'nullable|numeric|min:0|max:9999.99',
             'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:5120'
         ], [
             'kilometraje.required' => 'El kilometraje es obligatorio.',
@@ -824,6 +825,7 @@ class VehiculoController extends Controller
                 'kilometraje' => $validatedData['kilometraje'],
                 'fecha_captura' => $validatedData['fecha_captura'],
                 'observaciones' => $validatedData['observaciones'],
+                'cantidad_combustible' => $validatedData['cantidad_combustible'] ?? null,
                 'imagen' => $rutaImagen,
                 'usuario_captura_id' => Auth::id(),
                 'obra_id' => $obraActual ? $obraActual->id : null,
