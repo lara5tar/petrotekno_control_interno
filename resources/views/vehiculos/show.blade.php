@@ -98,18 +98,20 @@
                     <!-- Datos del activo primero -->
                     <div class="grid grid-cols-2 gap-4">
                         <div>
+                            <label class="block text-sm font-medium text-gray-600">Tipo de Activo</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $vehiculo->tipoActivo->nombre ?? 'No especificado' }}
+                            </div>
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium text-gray-600">Marca</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ $vehiculo->marca ?? 'Nissan' }}
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-600">Póliza</label>
-                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $vehiculo->numero_poliza ?? 'Sin póliza' }}
-                            </div>
-                        </div>
                     </div>
+                    
+                    <!-- Se eliminó el campo de póliza duplicado -->
                     
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div>
@@ -226,6 +228,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Se eliminó Tipo de Maquinaria de aquí y se movió al inicio -->
 
                     <!-- Fotografía del Activo ahora al final -->
                     <div class="mt-6">
