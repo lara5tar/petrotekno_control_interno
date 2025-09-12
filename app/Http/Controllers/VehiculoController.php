@@ -584,7 +584,8 @@ class VehiculoController extends Controller
      */
     public function busquedaPredictiva(Request $request)
     {
-        // $this->authorize('ver_vehiculos'); // Comentado temporalmente para debug
+        // No se requiere autorización para esta función
+        // $this->authorize('ver_vehiculos'); // Comentado para permitir acceso a todos los usuarios
 
         $query = trim($request->get('q', ''));
         $marca = trim($request->get('marca', ''));

@@ -167,7 +167,7 @@
                                         @if($vehiculo->derecho_url)
                                     <span class="text-green-200">✓ Año {{ \Carbon\Carbon::parse($vehiculo->created_at)->format('Y') }}</span>
                                 @else
-                                    <span class="text-yellow-200">⚠ Sin documento</span>
+                                    Sin documento
                                 @endif
                             </div>
                             @if($vehiculo->derecho_url)
@@ -201,7 +201,7 @@
                                         @if($vehiculo->numero_poliza)
                                     <span class="text-green-200">{{ $vehiculo->numero_poliza }}</span>
                                 @else
-                                    <span class="text-yellow-200">⚠ Sin número de póliza</span>
+                                    Sin número de póliza
                                 @endif
                             </div>
                             @if($vehiculo->poliza_url)
@@ -287,13 +287,15 @@
         <div class="col-span-2 flex flex-col gap-4">
             <!-- Kilometraje y Estado - Pegados a los lados -->
             <div class="flex justify-between">
-                <!-- Último Kilometraje -->
+                <!-- Último Kilometraje - Solo se muestra si el tipo de activo tiene kilometraje -->
+                @if($vehiculo->tipoActivo && $vehiculo->tipoActivo->tiene_kilometraje)
                 <div class="flex-shrink-0">
                     <div class="text-base font-medium text-gray-600 mb-1">Último Kilometraje</div>
                     <div class="bg-gray-800 text-white p-2 rounded text-center min-w-[160px]">
                         <div class="text-lg font-bold">{{ number_format($vehiculo->kilometraje_actual ?? 0) }} km</div>
                     </div>
                 </div>
+                @endif
 
                 <!-- Estatus Actual -->
                 <div class="flex-shrink-0">
@@ -469,7 +471,7 @@
                                     </div>
                                     
                                     <!-- Fechas y Kilometrajes -->
-                                    <div class="grid grid-cols-4 gap-3">
+                                    <div class="grid {{ $vehiculo->tipoActivo && $vehiculo->tipoActivo->tiene_kilometraje ? 'grid-cols-4' : 'grid-cols-2' }} gap-3">
                                         <div>
                                             <label class="block text-sm text-gray-600">Fecha de Inicio</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
@@ -482,6 +484,7 @@
                                                 {{ $asignacionActiva->obra->fecha_fin ? \Carbon\Carbon::parse($asignacionActiva->obra->fecha_fin)->format('d/m/Y') : 'No definida' }}
                                             </div>
                                         </div>
+                                        @if($vehiculo->tipoActivo && $vehiculo->tipoActivo->tiene_kilometraje)
                                         <div>
                                             <label class="block text-sm text-gray-600">Kilometraje Inicial</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
@@ -494,6 +497,7 @@
                                                 {{ $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) . ' km' : 'No registrado' }}
                                             </div>
                                         </div>
+                                        @endif
                                     </div>
                                 </div>
                                 @else
@@ -622,6 +626,7 @@
                             </div>
                             
                             <!-- Sección: Registro de Kilometraje -->
+                            @if($vehiculo->tipoActivo && $vehiculo->tipoActivo->tiene_kilometraje)
                             <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
                                 <div class="flex justify-between items-center mb-4">
                                     <h5 class="text-base font-semibold text-gray-800 flex items-center">
@@ -704,6 +709,7 @@
                                 </div>
                                 @endif
                             </div>
+                            @endif
                         </div>
                     </div>
 

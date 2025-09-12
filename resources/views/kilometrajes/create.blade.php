@@ -43,48 +43,30 @@
 
             <!-- Selección de Vehículo -->
             <div class="mb-6">
-                <label for="vehiculo_search" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="vehiculo_id" class="block text-sm font-medium text-gray-700 mb-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clip-rule="evenodd" />
                     </svg>
                     Vehículo *
                 </label>
                 <div class="relative">
-                    <input type="text" 
-                           class="w-full p-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('vehiculo_id') border-red-500 @enderror" 
-                           id="vehiculo_search" 
-                           placeholder="Busca por marca, modelo o placas..."
-                           autocomplete="off">
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer" id="vehiculo_arrow">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
-                    <input type="hidden" id="vehiculo_id" name="vehiculo_id" value="{{ old('vehiculo_id') }}">
-                    
-                    <!-- Dropdown de vehículos -->
-                    <div id="vehiculo-dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto hidden">
+                    <select 
+                        id="vehiculo_id" 
+                        name="vehiculo_id" 
+                        class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('vehiculo_id') border-red-500 @enderror"
+                        onchange="actualizarInfoVehiculo()">
+                        <option value="">Selecciona un vehículo</option>
                         @foreach($vehiculos as $vehiculo)
-                        <div class="vehiculo-option cursor-pointer px-3 py-2 hover:bg-blue-50 border-b border-gray-100 last:border-b-0" 
-                             data-id="{{ $vehiculo->id }}"
-                             data-ultimo-km="{{ $vehiculo->kilometraje_actual ?? 0 }}"
-                             data-placas="{{ $vehiculo->placas }}"
-                             data-marca="{{ $vehiculo->marca }}"
-                             data-modelo="{{ $vehiculo->modelo }}"
-                             data-text="{{ $vehiculo->marca }} {{ $vehiculo->modelo }} - {{ $vehiculo->placas }}"
-                             onclick="selectVehiculo(this)">
-                            <div class="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <div>
-                                    <div class="font-medium text-gray-900">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</div>
-                                    <div class="text-sm text-gray-500">{{ $vehiculo->placas }} - Actual: {{ number_format($vehiculo->kilometraje_actual ?? 0) }} km</div>
-                                </div>
-                            </div>
-                        </div>
+                        <option value="{{ $vehiculo->id }}" 
+                                data-ultimo-km="{{ $vehiculo->kilometraje_actual ?? 0 }}"
+                                data-placas="{{ $vehiculo->placas }}"
+                                data-marca="{{ $vehiculo->marca }}"
+                                data-modelo="{{ $vehiculo->modelo }}"
+                                {{ old('vehiculo_id') == $vehiculo->id ? 'selected' : '' }}>
+                            {{ $vehiculo->marca }} {{ $vehiculo->modelo }} - {{ $vehiculo->placas }} ({{ number_format($vehiculo->kilometraje_actual ?? 0) }} km)
+                        </option>
                         @endforeach
-                    </div>
+                    </select>
                 </div>
                 @error('vehiculo_id')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -248,44 +230,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar contador de caracteres
     actualizarContador();
     
-    // Si hay un vehículo pre-seleccionado (por old values), mostrar info y actualizar campo de búsqueda
-    const vehiculoIdOld = document.getElementById('vehiculo_id').value;
-    if (vehiculoIdOld) {
-        const vehiculoOption = document.querySelector(`[data-id="${vehiculoIdOld}"]`);
-        if (vehiculoOption) {
-            document.getElementById('vehiculo_search').value = vehiculoOption.dataset.text;
-        }
+    // Si hay un vehículo pre-seleccionado, mostrar info
+    if (document.getElementById('vehiculo_id').value) {
         actualizarInfoVehiculo();
     }
     
-    // Configurar event listeners para el dropdown de vehículos
-    const vehiculoSearch = document.getElementById('vehiculo_search');
-    const vehiculoArrow = document.getElementById('vehiculo_arrow');
-    
-    // Event listeners para vehículo
-    vehiculoSearch.addEventListener('focus', function(e) {
-        e.stopPropagation();
-        showVehiculoDropdown();
-    });
-    
-    vehiculoSearch.addEventListener('click', function(e) {
-        e.stopPropagation();
-        showVehiculoDropdown();
-    });
-    
-    vehiculoSearch.addEventListener('input', function() {
-        filterVehiculos();
-    });
-    
-    vehiculoArrow.addEventListener('click', function(e) {
-        e.stopPropagation();
-        toggleVehiculoDropdown();
-        vehiculoSearch.focus();
+    // Configurar evento para el selector de vehículos
+    document.getElementById('vehiculo_id').addEventListener('change', function() {
+        actualizarInfoVehiculo();
     });
 });
 
 function actualizarInfoVehiculo() {
-    const vehiculoId = document.getElementById('vehiculo_id').value;
+    const vehiculoSelect = document.getElementById('vehiculo_id');
+    const vehiculoId = vehiculoSelect.value;
     const info = document.getElementById('vehiculo-info');
     const placasDisplay = document.getElementById('info-placas');
     const marcaModeloDisplay = document.getElementById('info-marca-modelo');
@@ -293,8 +251,8 @@ function actualizarInfoVehiculo() {
     const kilometrajeInput = document.getElementById('kilometraje');
     
     if (vehiculoId) {
-        // Buscar la opción correspondiente en el dropdown
-        const vehiculoOption = document.querySelector(`[data-id="${vehiculoId}"]`);
+        // Obtener la opción seleccionada
+        const vehiculoOption = vehiculoSelect.options[vehiculoSelect.selectedIndex];
         if (vehiculoOption) {
             const ultimoKm = parseInt(vehiculoOption.dataset.ultimoKm) || 0;
             const placas = vehiculoOption.dataset.placas;
@@ -323,77 +281,14 @@ function actualizarInfoVehiculo() {
     }
 }
 
-// Funciones para el dropdown de vehículos
-function toggleVehiculoDropdown() {
-    const dropdown = document.getElementById('vehiculo-dropdown');
-    dropdown.classList.toggle('hidden');
-}
-
-function showVehiculoDropdown() {
-    const dropdown = document.getElementById('vehiculo-dropdown');
-    dropdown.classList.remove('hidden');
-}
-
-function hideVehiculoDropdown() {
-    const dropdown = document.getElementById('vehiculo-dropdown');
-    dropdown.classList.add('hidden');
-}
-
-function filterVehiculos() {
-    const searchValue = document.getElementById('vehiculo_search').value.toLowerCase();
-    const options = document.querySelectorAll('.vehiculo-option');
-    
-    options.forEach(option => {
-        const text = option.dataset.text.toLowerCase();
-        const marca = option.dataset.marca.toLowerCase();
-        const modelo = option.dataset.modelo.toLowerCase();
-        const placas = option.dataset.placas.toLowerCase();
-        
-        if (text.includes(searchValue) || marca.includes(searchValue) || 
-            modelo.includes(searchValue) || placas.includes(searchValue)) {
-            option.style.display = 'block';
-        } else {
-            option.style.display = 'none';
-        }
-    });
-    
-    showVehiculoDropdown();
-}
-
-function selectVehiculo(element) {
-    const searchInput = document.getElementById('vehiculo_search');
-    const hiddenInput = document.getElementById('vehiculo_id');
-    
-    searchInput.value = element.dataset.text;
-    hiddenInput.value = element.dataset.id;
-    
-    hideVehiculoDropdown();
-    actualizarInfoVehiculo();
-}
-
-// Cerrar dropdowns al hacer clic fuera
-document.addEventListener('click', function(event) {
-    const vehiculoSearch = document.getElementById('vehiculo_search');
-    const vehiculoDropdown = document.getElementById('vehiculo-dropdown');
-    const vehiculoArrow = document.getElementById('vehiculo_arrow');
-    
-    // Cerrar dropdown de vehículos si se hace clic fuera de todo el componente
-    const isVehiculoClick = vehiculoSearch.contains(event.target) || 
-                           vehiculoDropdown.contains(event.target) || 
-                           vehiculoArrow.contains(event.target);
-                           
-    if (!isVehiculoClick) {
-        hideVehiculoDropdown();
-    }
-});
-
 function validarKilometraje() {
-    const vehiculoId = document.getElementById('vehiculo_id').value;
+    const vehiculoSelect = document.getElementById('vehiculo_id');
+    const vehiculoId = vehiculoSelect.value;
     const kilometrajeInput = document.getElementById('kilometraje');
     
     if (!vehiculoId || !kilometrajeInput.value) return;
     
-    const vehiculoOption = document.querySelector(`[data-id="${vehiculoId}"]`);
+    const vehiculoOption = vehiculoSelect.options[vehiculoSelect.selectedIndex];
     if (!vehiculoOption) return;
     
     const ultimoKm = parseInt(vehiculoOption.dataset.ultimoKm) || 0;
@@ -455,13 +350,14 @@ function actualizarContador() {
 
 // Validación antes de enviar
 document.getElementById('kilometraje-form').addEventListener('submit', function(e) {
-    const vehiculoId = document.getElementById('vehiculo_id').value;
+    const vehiculoSelect = document.getElementById('vehiculo_id');
+    const vehiculoId = vehiculoSelect.value;
     const kilometrajeInput = document.getElementById('kilometraje');
     
     if (!vehiculoId) {
         e.preventDefault();
         alert('Por favor selecciona un vehículo');
-        document.getElementById('vehiculo_search').focus();
+        vehiculoSelect.focus();
         return;
     }
     
@@ -473,7 +369,7 @@ document.getElementById('kilometraje-form').addEventListener('submit', function(
     }
     
     // Validar kilometraje
-    const vehiculoOption = document.querySelector(`[data-id="${vehiculoId}"]`);
+    const vehiculoOption = vehiculoSelect.options[vehiculoSelect.selectedIndex];
     if (vehiculoOption) {
         const ultimoKm = parseInt(vehiculoOption.dataset.ultimoKm) || 0;
         const nuevoKm = parseInt(kilometrajeInput.value);

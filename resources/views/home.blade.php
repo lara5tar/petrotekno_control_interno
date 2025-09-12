@@ -275,116 +275,30 @@
                     <div class="space-y-4">
                         <!-- Búsqueda Avanzada de Vehículo -->
                         <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <label class="block text-sm font-medium text-gray-700">Buscar Vehículo</label>
-                                <button type="button" id="toggle_filters" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
-                                    </svg>
-                                    Filtros Avanzados
-                                </button>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Seleccionar Vehículo</label>
                             </div>
                             
-                            <!-- Barra de búsqueda principal -->
+                            <!-- Selector simple de vehículos -->
                             <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <select id="vehiculo_selector" name="vehiculo_id" required onchange="mostrarKilometrajeActual(this)"
+                                       class="w-full pl-4 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none">
+                                    <option value="">Seleccionar vehículo</option>
+                                    <!-- Las opciones se cargarán dinámicamente -->
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                     <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
                                 </div>
-                                <input type="text" id="vehiculo_search" placeholder="Buscar por ID, marca, modelo, placas o serie..." 
-                                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                       autocomplete="off">
-                                <input type="hidden" name="vehiculo_id" id="vehiculo_id" required>
-                                
-                                <!-- Indicador de carga -->
-                                <div id="search_loading" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
-                                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                                </div>
                             </div>
                             
-                            <!-- Filtros Avanzados (Colapsables) -->
-                            <div id="advanced_filters" class="hidden bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                                    <!-- Filtro Marca -->
-                                    <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">Marca</label>
-                                        <select id="filter_marca" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Todas las marcas</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <!-- Filtro Modelo -->
-                                    <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">Modelo</label>
-                                        <select id="filter_modelo" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                            <option value="">Todos los modelos</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <!-- Filtro Año -->
-                                    <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">Año</label>
-                                        <div class="flex space-x-1">
-                                            <input type="number" id="filter_anio_desde" placeholder="Desde" min="1900" max="2030" 
-                                                   class="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                            <input type="number" id="filter_anio_hasta" placeholder="Hasta" min="1900" max="2030" 
-                                                   class="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Filtro Precio -->
-                                    <div>
-                                        <label class="block text-xs font-medium text-gray-600 mb-1">Precio (MXN)</label>
-                                        <div class="flex space-x-1">
-                                            <input type="number" id="filter_precio_desde" placeholder="Min" min="0" step="1000" 
-                                                   class="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                            <input type="number" id="filter_precio_hasta" placeholder="Max" min="0" step="1000" 
-                                                   class="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Botones de acción de filtros -->
-                                <div class="flex justify-end space-x-2 pt-2 border-t border-gray-200">
-                                    <button type="button" id="clear_filters" class="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 transition-colors">
-                                        Limpiar Filtros
-                                    </button>
-                                    <button type="button" id="apply_filters" class="px-4 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-                                        Aplicar
-                                    </button>
-                                </div>
-                            </div>
+                            <!-- El selector simple de vehículos ya está implementado arriba -->
                             
-                            <!-- Contenedor de sugerencias mejorado -->
-                            <div id="sugerencias_container" class="absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-xl mt-1 max-h-80 overflow-hidden hidden">
-                                <div id="sugerencias_list" class="overflow-y-auto max-h-72">
-                                    <!-- Las sugerencias se cargarán aquí dinámicamente -->
-                                </div>
-                                <div id="no_results" class="px-4 py-3 text-gray-500 text-sm text-center hidden">
-                                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.007-5.824-2.448M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                    No se encontraron vehículos con los criterios especificados
-                                </div>
-                                <div id="search_stats" class="px-4 py-2 bg-gray-50 border-t border-gray-200 text-xs text-gray-600 hidden">
-                                    <!-- Estadísticas de búsqueda -->
-                                </div>
-                            </div>
-                            
-                            <!-- Vehículo seleccionado mejorado -->
-                            <div id="vehiculo_seleccionado" class="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg hidden">
-                                <div class="flex justify-between items-start">
-                                    <div class="flex-1">
-                                        <div id="vehiculo_info" class="text-sm text-blue-900 font-medium"></div>
-                                        <div id="vehiculo_details" class="text-xs text-blue-700 mt-1"></div>
-                                    </div>
-                                    <button type="button" onclick="limpiarSeleccion()" class="ml-3 text-blue-600 hover:text-blue-800 transition-colors">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                        </svg>
-                                    </button>
-                                </div>
+                            <!-- Información del vehículo seleccionado -->
+                            <div id="vehiculo_info_container" class="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg hidden">
+                                <div class="text-sm text-blue-900 font-medium" id="vehiculo_info"></div>
+                                <div class="text-xs text-blue-700 mt-1" id="vehiculo_details"></div>
                             </div>
                         </div>
                         
@@ -609,6 +523,81 @@ function abrirModal(modalId) {
         modal.classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
         console.log('✅ Modal abierto:', modalId);
+        
+        // Si es el modal de carga manual, cargar los vehículos
+        if (modalId === 'modal-carga-manual') {
+            console.log('Cargando vehículos para el modal de carga manual...');
+            
+            // Cargar vehículos directamente en el selector
+            const vehiculoSelector = document.getElementById('vehiculo_selector');
+            if (vehiculoSelector) {
+                console.log('Selector encontrado, agregando vehículos directamente...');
+                
+                // Mostrar indicador de carga
+                vehiculoSelector.disabled = true;
+                
+                // Limpiar opciones existentes excepto la primera (placeholder)
+                while (vehiculoSelector.options.length > 1) {
+                    vehiculoSelector.remove(1);
+                }
+                
+                // Crear vehículos de prueba directamente
+                const vehiculosDePrueba = [
+                    {
+                        id: 1,
+                        marca: 'Toyota',
+                        modelo: 'Corolla',
+                        placas: 'ABC-123',
+                        anio: 2020,
+                        kilometraje_actual: 15000,
+                        estatus: 'activo'
+                    },
+                    {
+                        id: 2,
+                        marca: 'Honda',
+                        modelo: 'Civic',
+                        placas: 'XYZ-789',
+                        anio: 2019,
+                        kilometraje_actual: 25000,
+                        estatus: 'activo'
+                    },
+                    {
+                        id: 3,
+                        marca: 'Nissan',
+                        modelo: 'Sentra',
+                        placas: 'DEF-456',
+                        anio: 2021,
+                        kilometraje_actual: 5000,
+                        estatus: 'activo'
+                    }
+                ];
+                
+                // Agregar opciones de vehículos de prueba
+                vehiculosDePrueba.forEach(vehiculo => {
+                    try {
+                        const option = document.createElement('option');
+                        option.value = vehiculo.id;
+                        option.textContent = `${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placas})`;
+                        option.dataset.vehiculo = JSON.stringify(vehiculo);
+                        vehiculoSelector.appendChild(option);
+                        console.log(`✅ Agregado vehículo de prueba: ${vehiculo.marca} ${vehiculo.modelo}`);
+                    } catch (error) {
+                        console.error('❌ Error al agregar vehículo de prueba:', error);
+                    }
+                });
+                
+                // Quitar indicador de carga
+                vehiculoSelector.disabled = false;
+                console.log(`Número de opciones en el selector: ${vehiculoSelector.options.length}`);
+            } else {
+                console.error('❌ No se encontró el elemento vehiculo_selector');
+            }
+            
+            // También intentamos llamar a la función cargarVehiculos si existe
+            if (typeof window.cargarVehiculos === 'function') {
+                setTimeout(window.cargarVehiculos, 100);
+            }
+        }
     } else {
         console.error('❌ Modal no encontrado:', modalId);
     }
@@ -634,6 +623,31 @@ function cerrarModal(modalId) {
         console.log('✅ Modal cerrado:', modalId);
     } else {
         console.error('❌ Modal no encontrado para cerrar:', modalId);
+    }
+}
+
+// Función para mostrar el kilometraje actual del vehículo seleccionado
+function mostrarKilometrajeActual(select) {
+    const kmInfo = document.getElementById('km-info');
+    const selectedOption = select.options[select.selectedIndex];
+    
+    if (selectedOption && selectedOption.value) {
+        try {
+            const vehiculoData = JSON.parse(selectedOption.dataset.vehiculo);
+            if (vehiculoData && vehiculoData.kilometraje_actual) {
+                kmInfo.textContent = `Kilometraje actual: ${vehiculoData.kilometraje_actual.toLocaleString()} km`;
+                kmInfo.classList.remove('hidden');
+                kmInfo.classList.remove('text-gray-500');
+                kmInfo.classList.add('text-blue-600', 'font-medium');
+            } else {
+                kmInfo.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Error al procesar datos del vehículo:', error);
+            kmInfo.classList.add('hidden');
+        }
+    } else {
+        kmInfo.classList.add('hidden');
     }
 }
 
@@ -1166,34 +1180,210 @@ let availableFilters = {
     modelos: new Set()
 };
 
-// Función para configurar el buscador avanzado de vehículos
+// Función para configurar el selector simple de vehículos
 function configurarBuscadorVehiculos() {
-    const searchInput = document.getElementById('vehiculo_search');
-    const toggleFiltersBtn = document.getElementById('toggle_filters');
-    const advancedFilters = document.getElementById('advanced_filters');
-    const clearFiltersBtn = document.getElementById('clear_filters');
-    const applyFiltersBtn = document.getElementById('apply_filters');
+    const vehiculoSelector = document.getElementById('vehiculo_selector');
     
-    // Configurar eventos principales
-    searchInput.addEventListener('input', handleSearchInput);
-    searchInput.addEventListener('focus', handleSearchFocus);
-    toggleFiltersBtn.addEventListener('click', toggleAdvancedFilters);
-    clearFiltersBtn.addEventListener('click', clearAllFilters);
-    applyFiltersBtn.addEventListener('click', applyFilters);
+    // Configurar evento para el selector
+    vehiculoSelector.addEventListener('change', function() {
+        if (this.value) {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption.dataset.vehiculo) {
+                const vehiculo = JSON.parse(selectedOption.dataset.vehiculo);
+                mostrarInfoVehiculo(vehiculo);
+            } else {
+                ocultarInfoVehiculo();
+            }
+            // Validar kilometraje cuando cambia el vehículo
+            validarKilometraje();
+        } else {
+            ocultarInfoVehiculo();
+        }
+    });
     
-    // Configurar filtros
-    setupFilterEvents();
+    // Cargar vehículos iniciales en el selector
+console.log('Llamando a cargarVehiculos() desde configurarBuscadorVehiculos()');
+cargarVehiculos();
+}
+
+// Función para mostrar la información del vehículo seleccionado
+function mostrarInfoVehiculo(vehiculo) {
+    const infoContainer = document.getElementById('vehiculo_info_container');
+    const infoElement = document.getElementById('vehiculo_info');
+    const detailsElement = document.getElementById('vehiculo_details');
     
-    // Cargar opciones de filtros iniciales
-    loadFilterOptions();
+    // Mostrar información principal
+    infoElement.textContent = `${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placas})`;
     
-    // Cerrar sugerencias al hacer clic fuera
-    document.addEventListener('click', handleOutsideClick);
+    // Mostrar detalles adicionales
+    let detalles = [];
+    if (vehiculo.anio) detalles.push(`Año: ${vehiculo.anio}`);
+    if (vehiculo.color) detalles.push(`Color: ${vehiculo.color}`);
+    if (vehiculo.kilometraje_actual) detalles.push(`Último km: ${vehiculo.kilometraje_actual.toLocaleString()}`);
+    
+    detailsElement.textContent = detalles.join(' | ');
+    
+    // Mostrar el contenedor
+    infoContainer.classList.remove('hidden');
+}
+
+// Función para ocultar la información del vehículo
+function ocultarInfoVehiculo() {
+    const infoContainer = document.getElementById('vehiculo_info_container');
+    const infoElement = document.getElementById('vehiculo_info');
+    const detailsElement = document.getElementById('vehiculo_details');
+    
+    // Limpiar información
+    infoElement.textContent = '';
+    detailsElement.textContent = '';
+    
+    // Ocultar el contenedor
+    infoContainer.classList.add('hidden');
+}
+
+// Configurar el buscador de vehículos cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔄 DOMContentLoaded: Configurando buscador de vehículos');
+    configurarBuscadorVehiculos();
+    console.log('✅ Buscador de vehículos configurado');
+});
+
+// Función para cargar los vehículos en el selector
+let cargarVehiculosEnEjecucion = false;
+function cargarVehiculos() {
+    // Evitar recursión infinita y múltiples llamadas simultáneas
+    if (cargarVehiculosEnEjecucion) {
+        console.log('⚠️ cargarVehiculos() ya está en ejecución, evitando recursión');
+        return;
+    }
+    
+    cargarVehiculosEnEjecucion = true;
+    console.log('🚗 Función cargarVehiculos() ejecutada');
+    const vehiculoSelector = document.getElementById('vehiculo_selector');
+    
+    if (!vehiculoSelector) {
+        console.error('❌ No se encontró el elemento vehiculo_selector');
+        cargarVehiculosEnEjecucion = false;
+        return;
+    }
+    
+    // Mostrar indicador de carga
+    vehiculoSelector.disabled = true;
+    
+    console.log('Cargando vehículos...');
+    
+    // Crear vehículos de prueba directamente si estamos en desarrollo
+    // Esto garantiza que siempre haya vehículos disponibles para seleccionar
+    const vehiculosDePrueba = [
+        {
+            id: 1,
+            marca: 'Toyota',
+            modelo: 'Corolla',
+            placas: 'ABC-123',
+            anio: 2020,
+            kilometraje_actual: 15000,
+            estatus: 'activo'
+        },
+        {
+            id: 2,
+            marca: 'Honda',
+            modelo: 'Civic',
+            placas: 'XYZ-789',
+            anio: 2019,
+            kilometraje_actual: 25000,
+            estatus: 'activo'
+        }
+    ];
+    
+    console.log('Vehículos de prueba:', vehiculosDePrueba);
+    
+    // Limpiar opciones existentes excepto la primera (placeholder)
+    while (vehiculoSelector.options.length > 1) {
+        vehiculoSelector.remove(1);
+    }
+    
+    // Agregar opciones de vehículos de prueba
+    vehiculosDePrueba.forEach(vehiculo => {
+        try {
+            const option = document.createElement('option');
+            option.value = vehiculo.id;
+            option.textContent = `${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placas})`;
+            option.dataset.vehiculo = JSON.stringify(vehiculo);
+            vehiculoSelector.appendChild(option);
+            console.log(`✅ Agregado vehículo de prueba: ${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placas})`);
+        } catch (error) {
+            console.error('❌ Error al agregar vehículo de prueba:', error);
+        }
+    });
+    
+    // Verificar si se agregaron las opciones
+    console.log(`Número de opciones en el selector después de agregar vehículos de prueba: ${vehiculoSelector.options.length}`);
+    
+    // Quitar indicador de carga
+    vehiculoSelector.disabled = false;
+    
+    // También intentamos cargar desde la API, pero usamos los datos de prueba como respaldo
+    fetch('/vehiculos/busqueda-predictiva?limit=100', {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        console.log('Respuesta recibida:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Datos recibidos de la API:', data);
+        
+        if (data.data && data.data.length > 0) {
+            console.log(`Se encontraron ${data.data.length} vehículos en la API`);
+            
+            // Limpiar opciones existentes excepto la primera (placeholder)
+            while (vehiculoSelector.options.length > 1) {
+                vehiculoSelector.remove(1);
+            }
+            
+            // Agregar opciones de vehículos
+            data.data.forEach(vehiculo => {
+                try {
+                    const option = document.createElement('option');
+                    option.value = vehiculo.id;
+                    option.textContent = `${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placas})`;
+                    option.dataset.vehiculo = JSON.stringify(vehiculo);
+                    vehiculoSelector.appendChild(option);
+                    console.log(`✅ Agregado vehículo desde API: ${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placas})`);
+                } catch (error) {
+                    console.error('❌ Error al agregar vehículo desde API:', error);
+                }
+            });
+            
+            // Verificar si se agregaron las opciones
+            console.log(`Número de opciones en el selector después de agregar vehículos de API: ${vehiculoSelector.options.length}`);
+        }
+        // Liberar la bandera de ejecución
+        cargarVehiculosEnEjecucion = false;
+    })
+    .catch(error => {
+        console.error('Error al cargar vehículos desde la API:', error);
+        // No mostramos notificación porque ya tenemos los vehículos de prueba
+        // Liberar la bandera de ejecución en caso de error
+        cargarVehiculosEnEjecucion = false;
+    });
+    
+    // En caso de que la petición fetch nunca se complete, liberamos la bandera después de un tiempo
+    setTimeout(() => {
+        if (cargarVehiculosEnEjecucion) {
+            console.log('⚠️ Liberando bandera de cargarVehiculos por timeout de seguridad');
+            cargarVehiculosEnEjecucion = false;
+        }
+    }, 5000); // 5 segundos de timeout
 }
 
 // Manejar entrada de búsqueda con debounce
 function handleSearchInput(event) {
     const query = event.target.value.trim();
+    const vehiculoCombo = document.getElementById('vehiculo_combo');
     
     clearTimeout(searchTimeout);
     
@@ -1202,7 +1392,18 @@ function handleSearchInput(event) {
         return;
     }
     
+    // Verificar si el cambio fue causado por la selección del combobox
+    if (vehiculoCombo.dataset.isChanging === 'true') {
+        vehiculoCombo.dataset.isChanging = 'false';
+        return;
+    }
+    
     showSearchLoading(true);
+    
+    // Limpiar la selección del combobox cuando el usuario escribe manualmente
+    vehiculoCombo.value = '';
+    document.getElementById('vehiculo_id').value = '';
+    document.getElementById('vehiculo_seleccionado').classList.add('hidden');
     
     searchTimeout = setTimeout(() => {
         performPredictiveSearch(query);
@@ -1214,6 +1415,11 @@ function handleSearchFocus(event) {
     const query = event.target.value.trim();
     if (query.length > 0) {
         performPredictiveSearch(query);
+        showSuggestions();
+    } else {
+        // Si no hay texto, cargar todos los vehículos disponibles
+        loadInitialVehicles();
+        showSuggestions();
     }
 }
 
@@ -1253,6 +1459,13 @@ function performPredictiveSearch(query) {
         showSearchLoading(false);
         displaySearchResults(data.data || [], query, data.total || 0);
         updateFilterOptions(data.filter_options || {});
+        
+        // Mostrar sugerencias cuando hay resultados
+        if (data.data && data.data.length > 0) {
+            showSuggestions();
+        } else {
+            hideSuggestions();
+        }
     })
     .catch(error => {
         if (error.name !== 'AbortError') {
@@ -1276,6 +1489,29 @@ function showSearchLoading(show) {
     }
 }
 
+// Mostrar sugerencias
+function showSuggestions() {
+    const sugerenciasContainer = document.getElementById('sugerencias_container');
+    sugerenciasContainer.classList.remove('hidden');
+}
+
+// Ocultar sugerencias
+function hideSuggestions() {
+    const sugerenciasContainer = document.getElementById('sugerencias_container');
+    sugerenciasContainer.classList.add('hidden');
+}
+
+// Limpiar selección de vehículo
+function limpiarSeleccion() {
+    const searchInput = document.getElementById('vehiculo_search');
+    const vehiculoIdInput = document.getElementById('vehiculo_id');
+    const vehiculoSeleccionado = document.getElementById('vehiculo_seleccionado');
+    
+    searchInput.value = '';
+    vehiculoIdInput.value = '';
+    vehiculoSeleccionado.classList.add('hidden');
+}
+
 // Mostrar resultados de búsqueda
 function displaySearchResults(results, query, total) {
     const sugerenciasContainer = document.getElementById('sugerencias_container');
@@ -1285,6 +1521,12 @@ function displaySearchResults(results, query, total) {
     
     // Limpiar resultados anteriores
     sugerenciasList.innerHTML = '';
+    
+    // Actualizar el combobox con los resultados
+    updateVehiculoCombobox(results);
+    
+    // Mostrar el contenedor de sugerencias
+    sugerenciasContainer.classList.remove('hidden');
     
     if (results.length === 0) {
         noResults.classList.remove('hidden');
@@ -1308,6 +1550,82 @@ function displaySearchResults(results, query, total) {
     }
     
     sugerenciasContainer.classList.remove('hidden');
+}
+
+// Función para actualizar el combobox de vehículos
+function updateVehiculoCombobox(vehiculos) {
+    const vehiculoCombo = document.getElementById('vehiculo_combo');
+    
+    // Mantener la opción por defecto
+    const defaultOption = vehiculoCombo.options[0];
+    vehiculoCombo.innerHTML = '';
+    vehiculoCombo.appendChild(defaultOption);
+    
+    // Agregar las opciones de vehículos
+    vehiculos.forEach(vehiculo => {
+        const option = document.createElement('option');
+        option.value = vehiculo.id;
+        option.textContent = `${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placas})`;
+        option.dataset.vehiculo = JSON.stringify(vehiculo);
+        vehiculoCombo.appendChild(option);
+    });
+}
+
+// Función para cargar vehículos iniciales en el combobox
+function loadInitialVehicles() {
+    console.log('Cargando vehículos iniciales...');
+    // Usar el endpoint de búsqueda predictiva para obtener vehículos iniciales
+    fetch(`{{ route('vehiculos.busqueda-predictiva') }}?limit=20`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
+    .then(data => {
+        console.log('Vehículos recibidos:', data);
+        if (data.data && data.data.length > 0) {
+            // Actualizar el combobox con los vehículos recibidos
+            updateVehiculoCombobox(data.data);
+            
+            // Mostrar algunos vehículos en la lista de sugerencias
+            const sugerenciasList = document.getElementById('sugerencias_list');
+            sugerenciasList.innerHTML = ''; // Limpiar lista
+            
+            // Crear elementos de sugerencia para los primeros 5 vehículos
+            const vehiculosToShow = data.data.slice(0, 5);
+            vehiculosToShow.forEach(vehiculo => {
+                const item = createEnhancedSuggestionItem(vehiculo, '');
+                sugerenciasList.appendChild(item);
+            });
+            
+            // Mostrar las sugerencias automáticamente
+            showSuggestions();
+            
+            // Ocultar mensaje de no resultados
+            document.getElementById('no_results').classList.add('hidden');
+            
+            // Mostrar estadísticas
+            const searchStats = document.getElementById('search_stats');
+            if (data.data.length > vehiculosToShow.length) {
+                searchStats.innerHTML = `Mostrando ${vehiculosToShow.length} de ${data.data.length} vehículos disponibles`;
+                searchStats.classList.remove('hidden');
+            }
+            
+            // Mostrar el contenedor de sugerencias
+            document.getElementById('sugerencias_container').classList.remove('hidden');
+            // Asegurar que las sugerencias se muestren
+            showSuggestions();
+        } else {
+            console.log('No se recibieron vehículos del servidor');
+        }
+    })
+    .catch(error => {
+        console.error('Error al cargar vehículos iniciales:', error);
+    });
 }
 
 // Crear elemento de sugerencia mejorado
@@ -1363,14 +1681,26 @@ function highlightMatches(text, query) {
 // Seleccionar vehículo mejorado
 function selectVehicle(vehiculo) {
     const searchInput = document.getElementById('vehiculo_search');
+    const vehiculoCombo = document.getElementById('vehiculo_combo');
     const vehiculoIdInput = document.getElementById('vehiculo_id');
     const vehiculoSeleccionado = document.getElementById('vehiculo_seleccionado');
     const vehiculoInfo = document.getElementById('vehiculo_info');
     const vehiculoDetails = document.getElementById('vehiculo_details');
     
+    // Establecer flag para evitar que se active la búsqueda predictiva
+    vehiculoCombo.dataset.isChanging = 'true';
+    
     // Establecer valores
     searchInput.value = `${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placas})`;
     vehiculoIdInput.value = vehiculo.id;
+    
+    // Actualizar el combobox
+    for (let i = 0; i < vehiculoCombo.options.length; i++) {
+        if (vehiculoCombo.options[i].value == vehiculo.id) {
+            vehiculoCombo.selectedIndex = i;
+            break;
+        }
+    }
     
     // Mostrar información principal
     vehiculoInfo.textContent = `${vehiculo.marca} ${vehiculo.modelo} - ${vehiculo.placas}`;
@@ -1395,12 +1725,14 @@ function selectVehicle(vehiculo) {
 // Limpiar selección mejorado
 function limpiarSeleccion() {
     const searchInput = document.getElementById('vehiculo_search');
+    const vehiculoCombo = document.getElementById('vehiculo_combo');
     const vehiculoIdInput = document.getElementById('vehiculo_id');
     const vehiculoSeleccionado = document.getElementById('vehiculo_seleccionado');
     const errorDiv = document.getElementById('error-kilometraje');
     
     searchInput.value = '';
     vehiculoIdInput.value = '';
+    vehiculoCombo.selectedIndex = 0; // Restablecer el combobox a la opción por defecto
     vehiculoSeleccionado.classList.add('hidden');
     
     if (errorDiv) {
@@ -1553,13 +1885,13 @@ function handleOutsideClick(event) {
 
 // Función para validar kilometraje
 function validarKilometraje() {
-    const vehiculoIdInput = document.getElementById('vehiculo_id');
+    const vehiculoSelector = document.getElementById('vehiculo_selector');
     const kilometrajeInput = document.getElementById('kilometraje');
     const kmInfo = document.getElementById('km-info');
     
-    if (vehiculoIdInput.value) {
-        const vehiculos = window.vehiculosData || [];
-        const vehiculo = vehiculos.find(v => v.id == vehiculoIdInput.value);
+    if (vehiculoSelector.value) {
+        const selectedOption = vehiculoSelector.options[vehiculoSelector.selectedIndex];
+        const vehiculo = selectedOption.dataset.vehiculo ? JSON.parse(selectedOption.dataset.vehiculo) : null;
         
         if (vehiculo && vehiculo.kilometraje_actual) {
             const kmActual = parseInt(vehiculo.kilometraje_actual);

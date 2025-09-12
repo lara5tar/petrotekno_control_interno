@@ -98,7 +98,29 @@ class KilometrajeController extends Controller
      */
     public function create(): View|JsonResponse
     {
-        $vehiculos = Vehiculo::select('id', 'marca', 'modelo', 'placas', 'kilometraje_actual', 'estatus')
+        $vehiculos = $this->obtenerVehiculosParaSelector();
+        
+        // Para API - devolver datos del formulario
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'vehiculos' => $vehiculos,
+                ],
+            ]);
+        }
+
+        // Para Blade
+        /** @phpstan-ignore-next-line */
+        return view('kilometrajes.create', compact('vehiculos'));
+    }
+    
+    /**
+     * Obtiene los vehículos disponibles para el selector
+     */
+    private function obtenerVehiculosParaSelector()
+    {
+        return Vehiculo::select('id', 'marca', 'modelo', 'placas', 'kilometraje_actual', 'estatus')
             ->where('estatus', '!=', 'fuera_servicio') // No mostrar vehículos fuera de servicio
             ->orderBy('marca')
             ->orderBy('modelo')
