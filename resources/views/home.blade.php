@@ -315,7 +315,8 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Kilometraje</label>
                             <input type="number" id="kilometraje" name="kilometraje" required min="1"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                   placeholder="Ingrese el kilometraje actual">
+                                   placeholder="Ingrese el kilometraje actual"
+                                   oninput="validarKilometraje()">
                             <p id="km-info" class="text-xs text-gray-500 mt-1 hidden"></p>
                         </div>
                         
@@ -639,6 +640,16 @@ function mostrarKilometrajeActual(select) {
                 kmInfo.classList.remove('hidden');
                 kmInfo.classList.remove('text-gray-500');
                 kmInfo.classList.add('text-blue-600', 'font-medium');
+                
+                // Actualizar el valor mínimo del campo de kilometraje
+                const kilometrajeInput = document.getElementById('kilometraje');
+                if (kilometrajeInput) {
+                    kilometrajeInput.min = vehiculoData.kilometraje_actual + 1;
+                    // Validar el kilometraje actual si ya hay un valor
+                    if (kilometrajeInput.value) {
+                        validarKilometraje();
+                    }
+                }
             } else {
                 kmInfo.classList.add('hidden');
             }
@@ -1034,9 +1045,69 @@ function mostrarArchivoSeleccionado(input) {
     }
 }
 
+// Función para validar que el kilometraje ingresado sea mayor al kilometraje actual
+function validarKilometraje() {
+    const kilometrajeInput = document.getElementById('kilometraje');
+    const vehiculoSelector = document.getElementById('vehiculo_selector');
+    const submitBtn = document.getElementById('btn-submit-manual');
+    
+    if (!kilometrajeInput || !vehiculoSelector || !submitBtn) return;
+    
+    const selectedOption = vehiculoSelector.options[vehiculoSelector.selectedIndex];
+    
+    if (selectedOption && selectedOption.value && selectedOption.dataset.vehiculo) {
+        try {
+            const vehiculoData = JSON.parse(selectedOption.dataset.vehiculo);
+            const kilometrajeActual = vehiculoData.kilometraje_actual || 0;
+            const nuevoKilometraje = parseInt(kilometrajeInput.value, 10);
+            
+            if (nuevoKilometraje <= kilometrajeActual) {
+                // Kilometraje inválido (menor o igual al actual)
+                kilometrajeInput.setCustomValidity(`El kilometraje debe ser mayor a ${kilometrajeActual.toLocaleString()} km`);
+                kilometrajeInput.classList.add('border-red-500');
+                submitBtn.disabled = true;
+                
+                // Mostrar mensaje de error
+                const kmInfo = document.getElementById('km-info');
+                if (kmInfo) {
+                    kmInfo.textContent = `Error: El kilometraje debe ser mayor a ${kilometrajeActual.toLocaleString()} km`;
+                    kmInfo.classList.remove('hidden', 'text-blue-600');
+                    kmInfo.classList.add('text-red-600', 'font-medium');
+                }
+                
+                return false;
+            } else {
+                // Kilometraje válido
+                kilometrajeInput.setCustomValidity('');
+                kilometrajeInput.classList.remove('border-red-500');
+                submitBtn.disabled = false;
+                
+                // Restaurar mensaje informativo
+                const kmInfo = document.getElementById('km-info');
+                if (kmInfo) {
+                    kmInfo.textContent = `Kilometraje actual: ${kilometrajeActual.toLocaleString()} km`;
+                    kmInfo.classList.remove('text-red-600');
+                    kmInfo.classList.add('text-blue-600');
+                }
+                
+                return true;
+            }
+        } catch (error) {
+            console.error('Error al validar kilometraje:', error);
+        }
+    }
+    
+    return true;
+}
+
 // Función para enviar carga manual
 function submitCargaManual(event) {
     event.preventDefault();
+    
+    // Validar kilometraje antes de enviar
+    if (!validarKilometraje()) {
+        return false;
+    }
     
     const form = event.target;
     const formData = new FormData(form);
