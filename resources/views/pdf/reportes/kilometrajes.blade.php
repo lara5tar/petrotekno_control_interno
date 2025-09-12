@@ -40,16 +40,7 @@
             <span class="stat-label">Kilometraje Promedio:</span>
             <span class="stat-value">{{ number_format($estadisticas['kilometraje_promedio'], 0) }} km</span>
         </div>
-        <div class="stat-item">
-            <span class="stat-label">Último Registro:</span>
-            <span class="stat-value">
-                @if($estadisticas['ultimo_registro'])
-                    {{ $estadisticas['ultimo_registro']->fecha_captura->format('d/m/Y') }}
-                @else
-                    Sin registros
-                @endif
-            </span>
-        </div>
+
     </div>
 </div>
 
@@ -62,9 +53,9 @@
                 <tr>
                     <th>Vehículo</th>
                     <th>Placas</th>
+                    <th>Ubicación</th>
                     <th>Fecha</th>
                     <th>Kilometraje</th>
-                    <th>Diferencia</th>
                     <th>Obra</th>
                     <th>Observaciones</th>
                 </tr>
@@ -74,9 +65,18 @@
                     <tr>
                         <td>{{ $kilometraje->vehiculo->marca }} {{ $kilometraje->vehiculo->modelo }}</td>
                         <td>{{ $kilometraje->vehiculo->placas }}</td>
+                        <td>
+                            @if($kilometraje->vehiculo->estado || $kilometraje->vehiculo->municipio)
+                                {{ $kilometraje->vehiculo->estado ?: 'Sin estado' }}
+                                @if($kilometraje->vehiculo->municipio)
+                                    <br>{{ $kilometraje->vehiculo->municipio }}
+                                @endif
+                            @else
+                                Sin ubicación
+                            @endif
+                        </td>
                         <td>{{ $kilometraje->fecha_captura->format('d/m/Y') }}</td>
                         <td class="text-right">{{ number_format($kilometraje->kilometraje) }} km</td>
-                        <td class="text-right">-</td>
                         <td>
                             @if($kilometraje->obra)
                                 {{ $kilometraje->obra->nombre }}
@@ -97,18 +97,13 @@
         @php
             $resumenVehiculos = $kilometrajes->groupBy('vehiculo_id')->map(function($registros) {
                 $vehiculo = $registros->first()->vehiculo;
-                $ultimoKm = $registros->max('kilometraje');
                 $primerKm = $registros->min('kilometraje');
-                $diferencia = $ultimoKm - $primerKm;
                 $totalRegistros = $registros->count();
                 
                 return [
                     'vehiculo' => $vehiculo,
-                    'ultimo_km' => $ultimoKm,
                     'primer_km' => $primerKm,
-                    'diferencia' => $diferencia,
-                    'total_registros' => $totalRegistros,
-                    'ultima_fecha' => $registros->max('fecha_captura')
+                    'total_registros' => $totalRegistros
                 ];
             });
         @endphp
@@ -118,11 +113,9 @@
                 <tr>
                     <th>Vehículo</th>
                     <th>Placas</th>
+                    <th>Ubicación</th>
                     <th>Primer Km</th>
-                    <th>Último Km</th>
-                    <th>Diferencia</th>
                     <th>Registros</th>
-                    <th>Última Fecha</th>
                 </tr>
             </thead>
             <tbody>
@@ -130,11 +123,18 @@
                     <tr>
                         <td>{{ $resumen['vehiculo']->marca }} {{ $resumen['vehiculo']->modelo }}</td>
                         <td>{{ $resumen['vehiculo']->placas }}</td>
+                        <td>
+                            @if($resumen['vehiculo']->estado || $resumen['vehiculo']->municipio)
+                                {{ $resumen['vehiculo']->estado ?: 'Sin estado' }}
+                                @if($resumen['vehiculo']->municipio)
+                                    <br>{{ $resumen['vehiculo']->municipio }}
+                                @endif
+                            @else
+                                Sin ubicación
+                            @endif
+                        </td>
                         <td class="text-right">{{ number_format($resumen['primer_km']) }} km</td>
-                        <td class="text-right">{{ number_format($resumen['ultimo_km']) }} km</td>
-                        <td class="text-right">{{ number_format($resumen['diferencia']) }} km</td>
                         <td class="text-center">{{ $resumen['total_registros'] }}</td>
-                        <td>{{ \Carbon\Carbon::parse($resumen['ultima_fecha'])->format('d/m/Y') }}</td>
                     </tr>
                 @endforeach
             </tbody>

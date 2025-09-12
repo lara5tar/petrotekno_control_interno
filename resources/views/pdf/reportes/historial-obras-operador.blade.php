@@ -111,15 +111,16 @@
     <table class="pdf-table">
         <thead>
             <tr>
-                <th style="width: 6%;">#</th>
-                <th style="width: 20%;">Obra</th>
-                <th style="width: 18%;">Vehículo</th>
-                <th style="width: 10%;">Fecha Asignación</th>
-                <th style="width: 10%;">Fecha Finalización</th>
+                <th style="width: 5%;">#</th>
+                <th style="width: 18%;">Obra</th>
+                <th style="width: 16%;">Vehículo</th>
+                <th style="width: 10%;">Ubicación</th>
+                <th style="width: 9%;">Fecha Asignación</th>
+                <th style="width: 9%;">Fecha Finalización</th>
                 <th style="width: 8%;">Estado</th>
-                <th style="width: 9%;">Km Inicial</th>
-                <th style="width: 9%;">Km Final</th>
-                <th style="width: 10%;">Días Trabajados</th>
+                <th style="width: 8%;">Km Inicial</th>
+                <th style="width: 8%;">Km Final</th>
+                <th style="width: 9%;">Días Trabajados</th>
             </tr>
         </thead>
         <tbody>
@@ -142,6 +143,9 @@
                         @else
                             <span class="text-muted">N/A</span>
                         @endif
+                    </td>
+                    <td class="text-center">
+                        {{ $asignacion->vehiculo->ubicacion ?? 'Sin ubicación' }}
                     </td>
                     <td class="text-center">
                         {{ $asignacion->fecha_asignacion ? \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y') : 'N/A' }}

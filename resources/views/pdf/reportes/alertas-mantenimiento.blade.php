@@ -140,14 +140,15 @@
     <table class="pdf-table">
         <thead>
             <tr>
-                <th style="width: 6%;">#</th>
-                <th style="width: 20%;">Vehículo</th>
-                <th style="width: 12%;">Tipo Mantenimiento</th>
+                <th style="width: 5%;">#</th>
+                <th style="width: 16%;">Vehículo</th>
+                <th style="width: 10%;">Ubicación</th>
+                <th style="width: 10%;">Tipo Mantenimiento</th>
                 <th style="width: 8%;">Urgencia</th>
-                <th style="width: 10%;">Km Actual</th>
-                <th style="width: 10%;">Km Límite</th>
+                <th style="width: 9%;">Km Actual</th>
+                <th style="width: 9%;">Km Límite</th>
                 <th style="width: 8%;">Diferencia</th>
-                <th style="width: 8%;">Días</th>
+                <th style="width: 7%;">Días</th>
                 <th style="width: 10%;">Costo Est.</th>
                 <th style="width: 8%;">Estado</th>
             </tr>
@@ -167,6 +168,9 @@
                         @if(isset($alerta['vehiculo_info']['n_serie']))
                             <div class="font-small text-muted">Serie: {{ Str::limit($alerta['vehiculo_info']['n_serie'], 15) }}</div>
                         @endif
+                    </td>
+                    <td class="text-center">
+                        {{ $alerta['vehiculo_info']['ubicacion'] ?? 'Sin ubicación' }}
                     </td>
                     <td class="text-center">
                         @php

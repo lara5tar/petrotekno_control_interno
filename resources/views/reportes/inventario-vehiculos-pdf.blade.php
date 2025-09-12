@@ -332,10 +332,8 @@
                 <th>Placas</th>
                 <th>Serie</th>
                 <th>Estado</th>
+                <th>Ubicación</th>
                 <th>KM Actual</th>
-                <th>Último KM</th>
-                <th>Diferencia</th>
-                <th>Última Fecha</th>
                 <th>Estado KM</th>
             </tr>
         </thead>
@@ -354,30 +352,17 @@
                             {{ $vehiculo->estado_enum->nombre() }}
                         </span>
                     </td>
+                    <td>
+                        @if($vehiculo->estado || $vehiculo->municipio)
+                            {{ $vehiculo->estado ?: 'Sin estado' }}
+                            @if($vehiculo->municipio)
+                                <br>{{ $vehiculo->municipio }}
+                            @endif
+                        @else
+                            <span class="sin-registro">Sin ubicación</span>
+                        @endif
+                    </td>
                     <td>{{ number_format($vehiculo->kilometraje_actual) }} km</td>
-                    <td>
-                        @if($vehiculo->ultimo_kilometraje_registrado)
-                            {{ number_format($vehiculo->ultimo_kilometraje_registrado) }} km
-                        @else
-                            <span class="sin-registro">Sin registro</span>
-                        @endif
-                    </td>
-                    <td>
-                        @if($vehiculo->diferencia_kilometraje !== null)
-                            <span class="km-diferencia {{ $vehiculo->diferencia_kilometraje >= 0 ? 'positiva' : 'negativa' }}">
-                                {{ $vehiculo->diferencia_kilometraje >= 0 ? '+' : '' }}{{ number_format($vehiculo->diferencia_kilometraje) }} km
-                            </span>
-                        @else
-                            <span class="sin-registro">N/A</span>
-                        @endif
-                    </td>
-                    <td>
-                        @if($vehiculo->fecha_ultimo_kilometraje)
-                            {{ $vehiculo->fecha_ultimo_kilometraje->format('d/m/Y') }}
-                        @else
-                            <span class="sin-registro">Sin registro</span>
-                        @endif
-                    </td>
                     <td>
                         @if($vehiculo->necesita_registro_km)
                             <span class="necesita-registro">

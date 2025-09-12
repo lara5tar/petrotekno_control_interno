@@ -133,6 +133,37 @@
                         </div>
                     </div>
 
+                    <!-- Estado y Municipio -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="form-group">
+                            <label for="estado" class="block text-sm font-medium text-gray-700 mb-2">
+                                Estado
+                            </label>
+                            <select name="estado" 
+                                    id="estado" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('estado') border-red-500 @enderror">
+                                <option value="">Seleccione un estado</option>
+                                <option value="{{ old('estado') }}" {{ old('estado') ? 'selected' : '' }}>{{ old('estado') }}</option>
+                            </select>
+                            @error('estado') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-500">Estado donde se encuentra el activo</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="municipio" class="block text-sm font-medium text-gray-700 mb-2">
+                                Municipio
+                            </label>
+                            <select name="municipio" 
+                                    id="municipio" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('municipio') border-red-500 @enderror">
+                                <option value="">Seleccione un municipio</option>
+                                <option value="{{ old('municipio') }}" {{ old('municipio') ? 'selected' : '' }}>{{ old('municipio') }}</option>
+                            </select>
+                            @error('municipio') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-500">Municipio donde se encuentra el activo</p>
+                        </div>
+                    </div>
+
                     <!-- Responsable Asignado -->
                     <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
                         <div class="form-group">
@@ -155,6 +186,8 @@
                             <p class="mt-1 text-xs text-gray-500">Persona responsable del activo (puede ser cualquier personal activo)</p>
                         </div>
                     </div>
+                    
+                    <!-- Fin de la sección de información básica -->
                 </div>
 
                 <!-- Sección de Documentos Específicos del Activo -->
@@ -374,7 +407,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Observaciones -->
                 <div class="bg-white border border-gray-200 rounded-lg p-6">
                     <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
@@ -414,6 +447,7 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/estados-municipios.js') }}"></script>
 <script>
     // Función para manejar el cambio de tipo de activo
     function handleTipoActivoChange() {
@@ -755,4 +789,6 @@
         }
     }
 </script>
+
+<script src="{{ asset('js/estados-municipios.js') }}"></script>
 @endpush

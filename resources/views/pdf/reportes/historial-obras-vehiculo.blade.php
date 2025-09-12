@@ -22,6 +22,19 @@
                     <div class="info-value">{{ $vehiculo->n_serie ?: 'N/A' }}</div>
                 </div>
                 <div class="info-row">
+                    <div class="info-label">Ubicación:</div>
+                    <div class="info-value">
+                        @if($vehiculo->estado || $vehiculo->municipio)
+                            {{ $vehiculo->estado ?: 'Sin estado' }}
+                            @if($vehiculo->municipio)
+                                - {{ $vehiculo->municipio }}
+                            @endif
+                        @else
+                            Sin ubicación
+                        @endif
+                    </div>
+                </div>
+                <div class="info-row">
                     <div class="info-label">Estado Actual:</div>
                     <div class="info-value">
                         @php

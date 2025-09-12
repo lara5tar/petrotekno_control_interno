@@ -32,13 +32,9 @@ class InventarioVehiculosExport implements FromCollection, WithHeadings, WithMap
             'Año',
             'Placas',
             'No. Serie',
+            'Tipo',
             'Estatus',
-            'Kilometraje Actual',
-            'Último Km Registrado',
-            'Fecha Último Registro',
-            'Diferencia Km',
-            'Días Sin Registro',
-            'Necesita Registro'
+            'Kilometraje Actual'
         ];
     }
 
@@ -51,10 +47,9 @@ class InventarioVehiculosExport implements FromCollection, WithHeadings, WithMap
             $vehiculo->anio,
             $vehiculo->placas,
             $vehiculo->n_serie,
+            $vehiculo->tipoActivo ? $vehiculo->tipoActivo->nombre : 'Sin tipo',
             $vehiculo->estatus ? $vehiculo->estatus->nombre() : 'N/A', // Usar el método nombre() del enum
-            $vehiculo->operador ? $vehiculo->operador->nombre : 'Sin asignar',
-            $vehiculo->kilometraje_actual,
-            $vehiculo->observaciones,
+            $vehiculo->kilometraje_actual
         ];
     }
 

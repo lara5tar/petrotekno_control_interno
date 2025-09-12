@@ -60,22 +60,36 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('vehiculos', function (Blueprint $table) {
-            // Eliminar índices individuales
-            $table->dropIndex('idx_vehiculos_marca');
-            $table->dropIndex('idx_vehiculos_modelo');
-            $table->dropIndex('idx_vehiculos_anio');
-            $table->dropIndex('idx_vehiculos_placas');
-            $table->dropIndex('idx_vehiculos_n_serie');
-            $table->dropIndex('idx_vehiculos_estatus');
-            $table->dropIndex('idx_vehiculos_kilometraje');
+            // Eliminar índices individuales solo si existen
+            $individualIndexes = [
+                'idx_vehiculos_modelo',
+                'idx_vehiculos_placas',
+                'idx_vehiculos_n_serie',
+                'idx_vehiculos_estatus',
+                'idx_vehiculos_kilometraje'
+            ];
             
-            // Eliminar índices compuestos
-            $table->dropIndex('idx_vehiculos_marca_modelo');
-            $table->dropIndex('idx_vehiculos_marca_anio');
-            $table->dropIndex('idx_vehiculos_estatus_marca');
-            $table->dropIndex('idx_vehiculos_estatus_anio');
-            $table->dropIndex('idx_vehiculos_km_anio');
-            $table->dropIndex('idx_vehiculos_filtros_principales');
+            foreach ($individualIndexes as $indexName) {
+                if ($this->indexExists('vehiculos', $indexName)) {
+                    $table->dropIndex($indexName);
+                }
+            }
+            
+            // Eliminar índices compuestos solo si existen
+            $compositeIndexes = [
+                'idx_vehiculos_marca_modelo',
+                'idx_vehiculos_marca_anio',
+                'idx_vehiculos_estatus_marca',
+                'idx_vehiculos_estatus_anio',
+                'idx_vehiculos_km_anio',
+                'idx_vehiculos_filtros_principales'
+            ];
+            
+            foreach ($compositeIndexes as $indexName) {
+                if ($this->indexExists('vehiculos', $indexName)) {
+                    $table->dropIndex($indexName);
+                }
+            }
         });
     }
 };

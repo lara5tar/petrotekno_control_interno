@@ -279,12 +279,13 @@
             <thead>
                 <tr>
                     <th style="width: 10%;">Fecha</th>
-                    <th style="width: 20%;">Vehículo</th>
-                    <th style="width: 12%;">Tipo</th>
-                    <th style="width: 25%;">Descripción</th>
+                    <th style="width: 15%;">Vehículo</th>
+                    <th style="width: 15%;">Ubicación</th>
+                    <th style="width: 10%;">Tipo</th>
+                    <th style="width: 20%;">Descripción</th>
                     <th style="width: 10%;">Costo</th>
                     <th style="width: 8%;">Km</th>
-                    <th style="width: 15%;">Responsable</th>
+                    <th style="width: 12%;">Responsable</th>
                 </tr>
             </thead>
             <tbody>
@@ -299,6 +300,13 @@
                                 <span style="color: #6b7280;">{{ $mantenimiento->vehiculo->placas }}</span>
                             @else
                                 <span style="color: #9ca3af;">Sin vehículo</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($mantenimiento->vehiculo)
+                                {{ $mantenimiento->vehiculo->ubicacion }}
+                            @else
+                                <span style="color: #9ca3af;">Sin ubicación</span>
                             @endif
                         </td>
                         <td class="text-center">

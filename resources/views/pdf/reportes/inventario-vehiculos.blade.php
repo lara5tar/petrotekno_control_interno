@@ -2,7 +2,7 @@
 
 @section('title', 'Inventario de Vehículos')
 @section('report-title', 'Inventario General de Vehículos')
-@section('report-subtitle', 'Reporte completo del inventario vehicular con último kilometraje registrado')
+@section('report-subtitle', 'Reporte completo del inventario vehicular')
 
 @section('content')
     <!-- Sección de Estadísticas -->
@@ -70,19 +70,22 @@
         </div>
     @endif
 
+    <!-- Espacio para separación entre secciones -->
+    <div style="margin-bottom: 20px;"></div>
+
     <!-- Tabla Principal de Vehículos -->
     <table class="pdf-table">
         <thead>
             <tr>
-                <th style="width: 8%;">#</th>
-                <th style="width: 15%;">Marca/Modelo</th>
-                <th style="width: 8%;">Año</th>
-                <th style="width: 12%;">Placas</th>
-                <th style="width: 15%;">No. Serie</th>
+                <th style="width: 5%">#</th>
+                <th style="width: 12%;">Marca/Modelo</th>
+                <th style="width: 10%;">Tipo</th>
+                <th style="width: 6%;">Año</th>
+                <th style="width: 9%;">Placas</th>
+                <th style="width: 12%;">No. Serie</th>
+                <th style="width: 13%;">Ubicación</th>
                 <th style="width: 10%;">Estado</th>
-                <th style="width: 12%;">Km Actual</th>
-                <th style="width: 12%;">Último Registro</th>
-                <th style="width: 8%;">Diferencia</th>
+                <th style="width: 13%;">Km Actual</th>
             </tr>
         </thead>
         <tbody>
@@ -92,9 +95,11 @@
                     <td class="text-bold">
                         {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
                     </td>
+                    <td class="text-center">{{ $vehiculo->tipoActivo ? $vehiculo->tipoActivo->nombre : 'Sin tipo' }}</td>
                     <td class="text-center">{{ $vehiculo->anio }}</td>
                     <td class="text-center no-wrap">{{ $vehiculo->placas ?: 'N/A' }}</td>
                     <td class="font-small break-word">{{ $vehiculo->n_serie ?: 'N/A' }}</td>
+                    <td class="text-center">{{ $vehiculo->ubicacion ?: 'Sin ubicación' }}</td>
                     <td class="text-center">
                         @php
                             $statusValue = $vehiculo->estatus->value ?? $vehiculo->estatus;
@@ -116,32 +121,6 @@
                             <span class="text-bold">{{ number_format($vehiculo->kilometraje_actual) }} km</span>
                         @else
                             <span class="text-muted font-small">Sin registro</span>
-                        @endif
-                    </td>
-                    <td class="text-center">
-                        @if($vehiculo->ultimo_kilometraje_registrado)
-                            <div class="text-bold">{{ number_format($vehiculo->ultimo_kilometraje_registrado) }} km</div>
-                            @if($vehiculo->fecha_ultimo_kilometraje)
-                                <div class="font-small text-muted">
-                                    {{ \Carbon\Carbon::parse($vehiculo->fecha_ultimo_kilometraje)->format('d/m/Y') }}
-                                </div>
-                            @endif
-                        @else
-                            <span class="text-muted font-small">Sin registro</span>
-                        @endif
-                    </td>
-                    <td class="text-center">
-                        @if($vehiculo->kilometraje_actual && $vehiculo->ultimo_kilometraje_registrado)
-                            @php
-                                $diferencia = $vehiculo->ultimo_kilometraje_registrado - $vehiculo->kilometraje_actual;
-                                $diferenciaClass = $diferencia > 0 ? 'text-success' : ($diferencia < 0 ? 'text-danger' : 'text-muted');
-                                $diferenciaIcon = $diferencia > 0 ? '+' : '';
-                            @endphp
-                            <span class="text-bold {{ $diferenciaClass }}">
-                                {{ $diferenciaIcon }}{{ number_format($diferencia) }} km
-                            </span>
-                        @else
-                            <span class="text-muted font-small">N/A</span>
                         @endif
                     </td>
                 </tr>
@@ -166,7 +145,6 @@
                         $promedioKm = $vehiculosConKm->avg('kilometraje_actual');
                         $maxKm = $vehiculosConKm->max('kilometraje_actual');
                         $minKm = $vehiculosConKm->min('kilometraje_actual');
-                        $vehiculosSinRegistro = $vehiculos->whereNull('ultimo_kilometraje_registrado')->count();
                     @endphp
                     <div class="stat-item">
                         <span class="stat-number">{{ $vehiculosConKm->count() }}</span>
@@ -184,10 +162,7 @@
                         <span class="stat-number">{{ $minKm ? number_format($minKm, 0) : '0' }}</span>
                         <span class="stat-label">Menor Km</span>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-number text-warning">{{ $vehiculosSinRegistro }}</span>
-                        <span class="stat-label">Sin Último Registro</span>
-                    </div>
+
                 </div>
             </div>
         </div>

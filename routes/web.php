@@ -44,6 +44,10 @@ Route::get('/alertas', [MantenimientoAlertasController::class, 'unificada'])
     ->name('alertas.index')
     ->middleware(['auth', 'permission:ver_mantenimientos']);
 
+// Rutas para obtener estados y municipios
+Route::get('/estados', [App\Http\Controllers\EstadoMunicipioController::class, 'getEstados'])->name('estados.index');
+Route::get('/municipios/{estado}', [App\Http\Controllers\EstadoMunicipioController::class, 'getMunicipios'])->name('municipios.index');
+
 // Rutas para Vehículos CRUD (usando VehiculoController)
 Route::middleware('auth')->prefix('vehiculos')->name('vehiculos.')->group(function () {
     Route::get('/', [App\Http\Controllers\VehiculoController::class, 'index'])

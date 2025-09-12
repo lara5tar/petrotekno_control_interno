@@ -57,6 +57,23 @@ trait PdfGeneratorTrait
      */
     protected function createInventarioPdf($vehiculos, $estadisticas, $filtros = [])
     {
+        // Asegurar que cada vehículo tenga cargada la relación tipoActivo y el nombre del tipo
+        $vehiculos = $vehiculos->map(function($vehiculo) {
+            // Cargar la relación tipoActivo si no está cargada
+            if (!$vehiculo->relationLoaded('tipoActivo')) {
+                $vehiculo->load('tipoActivo');
+            }
+            
+            // Asegurar que el tipo de activo esté disponible para el reporte
+            if ($vehiculo->tipoActivo) {
+                $vehiculo->tipo_activo_nombre = $vehiculo->tipoActivo->nombre;
+            } else {
+                $vehiculo->tipo_activo_nombre = 'Sin tipo';
+            }
+            
+            return $vehiculo;
+        });
+
         $pdf = $this->createStandardPdf('pdf.reportes.inventario-vehiculos', compact(
             'vehiculos', 'estadisticas', 'filtros'
         ), 'landscape');

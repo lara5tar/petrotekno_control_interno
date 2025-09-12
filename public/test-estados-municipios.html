@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Estados y Municipios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .debug {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .debug h2 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+        .debug pre {
+            background-color: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Prueba de Selección de Estados y Municipios</h1>
+    
+    <div class="container">
+        <div class="form-group">
+            <label for="estado">Estado:</label>
+            <select name="estado" id="estado">
+                <option value="">Seleccione un estado</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="municipio">Municipio:</label>
+            <select name="municipio" id="municipio" disabled>
+                <option value="">Seleccione un municipio</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="debug">
+        <h2>Información de Depuración</h2>
+        <div id="debug-output"></div>
+    </div>
+
+    <script>
+        // Función para agregar mensajes de depuración
+        function addDebugMessage(message) {
+            const debugOutput = document.getElementById('debug-output');
+            const timestamp = new Date().toLocaleTimeString();
+            const msgElement = document.createElement('div');
+            msgElement.innerHTML = `<strong>${timestamp}:</strong> ${message}`;
+            debugOutput.appendChild(msgElement);
+        }
+
+        // Sobrescribir console.log para mostrar en la página
+        const originalConsoleLog = console.log;
+        console.log = function() {
+            originalConsoleLog.apply(console, arguments);
+            const message = Array.from(arguments).map(arg => {
+                if (typeof arg === 'object') {
+                    return JSON.stringify(arg, null, 2);
+                } else {
+                    return arg;
+                }
+            }).join(' ');
+            addDebugMessage(message);
+        };
+
+        // Sobrescribir console.error para mostrar en la página
+        const originalConsoleError = console.error;
+        console.error = function() {
+            originalConsoleError.apply(console, arguments);
+            const message = Array.from(arguments).map(arg => {
+                if (typeof arg === 'object') {
+                    return JSON.stringify(arg, null, 2);
+                } else {
+                    return arg;
+                }
+            }).join(' ');
+            addDebugMessage(`<span style="color: red;">ERROR: ${message}</span>`);
+        };
+
+        // Registrar inicio
+        console.log('Página de prueba cargada');
+    </script>
+    
+    <!-- Cargar el script de estados y municipios -->
+    <script src="js/estados-municipios.js"></script>
+</body>
+</html>

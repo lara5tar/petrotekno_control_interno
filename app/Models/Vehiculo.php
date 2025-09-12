@@ -81,26 +81,25 @@ class Vehiculo extends Model
     protected $fillable = [
         'tipo_activo_id',
         'marca',
-        'numero_poliza',
         'modelo',
         'anio',
         'n_serie',
         'placas',
-        'estatus', // Campo para el estado del vehículo
-        'operador_id', // Campo para el operador del vehículo
+        'estatus',
         'kilometraje_actual',
         'intervalo_km_motor',
         'intervalo_km_transmision',
         'intervalo_km_hidraulico',
         'observaciones',
-        'imagen',
-        'documentos_adicionales',
-        // Nuevas columnas agregadas
-        'poliza_url',
+        'operador_id',
+        'estado',
+        'municipio',
         'poliza_vencimiento',
-        'factura_url',
-        'derecho_url',
         'derecho_vencimiento',
+        'numero_poliza',
+        'poliza_url',
+        'derecho_url',
+        'factura_url',
         'url_imagen',
     ];
 
@@ -481,5 +480,16 @@ class Vehiculo extends Model
     public function setModeloAttribute($value)
     {
         $this->attributes['modelo'] = ucwords(strtolower($value));
+    }
+
+    /**
+     * Accessor para obtener la ubicación completa (estado y municipio)
+     */
+    public function getUbicacionAttribute()
+    {
+        $estado = $this->estado ?? 'Sin estado';
+        $municipio = $this->municipio ?? 'Sin municipio';
+        
+        return "{$estado}, {$municipio}";
     }
 }

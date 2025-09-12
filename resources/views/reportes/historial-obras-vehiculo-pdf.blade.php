@@ -432,12 +432,13 @@
     <table class="asignaciones-table">
         <thead>
             <tr>
-                <th style="width: 18%;">Vehículo</th>
-                <th style="width: 18%;">Obra</th>
-                <th style="width: 12%;">Operador</th>
-                <th style="width: 14%;">Fechas Asignación</th>
+                <th style="width: 15%;">Vehículo</th>
+                <th style="width: 12%;">Ubicación</th>
+                <th style="width: 15%;">Obra</th>
+                <th style="width: 10%;">Operador</th>
+                <th style="width: 12%;">Fechas Asignación</th>
                 <th style="width: 8%;">Estado</th>
-                <th style="width: 16%;">Kilometraje</th>
+                <th style="width: 14%;">Kilometraje</th>
                 <th style="width: 8%;">Duración</th>
                 <th style="width: 6%;">ID</th>
             </tr>
@@ -452,6 +453,21 @@
                         <div class="vehiculo-details">
                             {{ $asignacion->vehiculo ? "{$asignacion->vehiculo->anio} - {$asignacion->vehiculo->placas}" : 'Sin datos' }}
                         </div>
+                    </td>
+                    
+                    <td>
+                        @if($asignacion->vehiculo)
+                            @if($asignacion->vehiculo->estado || $asignacion->vehiculo->municipio)
+                                {{ $asignacion->vehiculo->estado ?: 'Sin estado' }}
+                                @if($asignacion->vehiculo->municipio)
+                                    <br>{{ $asignacion->vehiculo->municipio }}
+                                @endif
+                            @else
+                                Sin ubicación
+                            @endif
+                        @else
+                            Sin vehículo
+                        @endif
                     </td>
                     
                     <td>

@@ -98,6 +98,8 @@ class VehiculoController extends Controller
                 'estatus' => EstadoVehiculo::DISPONIBLE->value, // Estatus automático como DISPONIBLE
                 'kilometraje_actual' => $validatedData['kilometraje_actual'] ?? null, // Opcional según tipo de activo
                 'intervalo_km_motor' => $validatedData['intervalo_km_motor'] ?? null,
+                'estado' => $validatedData['estado'] ?? null, // Guardar el estado seleccionado
+                'municipio' => $validatedData['municipio'] ?? null, // Guardar el municipio seleccionado
                 'intervalo_km_transmision' => $validatedData['intervalo_km_transmision'] ?? null,
                 'intervalo_km_hidraulico' => $validatedData['intervalo_km_hidraulico'] ?? null,
                 'observaciones' => $validatedData['observaciones'],
@@ -284,8 +286,11 @@ class VehiculoController extends Controller
         $operadores = Personal::activos()->orderBy('nombre_completo')->get();
         $estados = EstadoVehiculo::cases();
         $tiposDocumento = \App\Models\CatalogoTipoDocumento::all();
+        
+        // Obtener todos los tipos de activo
+        $tiposActivo = TipoActivo::orderBy('nombre')->get();
 
-        return view('vehiculos.edit', compact('vehiculo', 'operadores', 'estados', 'tiposDocumento'));
+        return view('vehiculos.edit', compact('vehiculo', 'operadores', 'estados', 'tiposDocumento', 'tiposActivo'));
     }
 
     /**
@@ -302,6 +307,7 @@ class VehiculoController extends Controller
 
             // Preparar datos para actualizar (sin archivos)
             $datosActualizar = [
+                'tipo_activo_id' => $validatedData['tipo_activo_id'],
                 'marca' => $validatedData['marca'],
                 'numero_poliza' => $validatedData['numero_poliza'] ?? null,
                 'modelo' => $validatedData['modelo'],
@@ -313,6 +319,8 @@ class VehiculoController extends Controller
                 'intervalo_km_transmision' => $validatedData['intervalo_km_transmision'] ?? null,
                 'intervalo_km_hidraulico' => $validatedData['intervalo_km_hidraulico'] ?? null,
                 'observaciones' => $validatedData['observaciones'],
+                'estado' => $validatedData['estado'] ?? null,
+                'municipio' => $validatedData['municipio'] ?? null,
                 
                 // Fechas de vencimiento
                 'poliza_vencimiento' => $validatedData['poliza_vencimiento'] ?? $validatedData['fecha_vencimiento_seguro'] ?? null,

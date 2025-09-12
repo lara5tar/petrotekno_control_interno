@@ -145,7 +145,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-600 uppercase tracking-wider">Con Km Registrado</p>
-                            <p class="text-3xl font-bold text-gray-900 mt-2">{{ number_format($estadisticas['vehiculos_con_kilometraje_registrado']) }}</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">{{ number_format($vehiculos->where('kilometraje_actual', '>', 0)->count()) }}</p>
                         </div>
                         <div class="h-12 w-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,10 +318,10 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Placas</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estatus</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último Km Registrado</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Último Registro</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ubicación</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado Registro</th>
                             </tr>
                         </thead>
@@ -332,6 +332,11 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-medium text-gray-900">{{ $vehiculo->marca }} {{ $vehiculo->modelo }}</div>
                                         <div class="text-sm text-gray-500">{{ $vehiculo->anio }} - {{ $vehiculo->n_serie }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            {{ $vehiculo->tipoActivo ? $vehiculo->tipoActivo->nombre : 'Sin tipo' }}
+                                        </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -353,27 +358,14 @@
                                             {{ $vehiculo->estado_enum->nombre() }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        @if($vehiculo->ultimo_kilometraje_registrado)
-                                            <span class="font-medium">{{ number_format($vehiculo->ultimo_kilometraje_registrado) }} km</span>
-                                        @else
-                                            <span class="text-gray-500">Sin registro</span>
-                                        @endif
-                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($vehiculo->fecha_ultimo_kilometraje)
-                                            <div class="text-sm text-gray-900">{{ $vehiculo->fecha_ultimo_kilometraje->format('d/m/Y') }}</div>
+                                        <div class="text-sm text-gray-900">
+                                            {{ $vehiculo->estado ?: 'Sin estado' }}
+                                        </div>
+                                        @if($vehiculo->municipio)
                                             <div class="text-sm text-gray-500">
-                                                @if($vehiculo->fecha_ultimo_kilometraje->isToday())
-                                                    (Hoy {{ $vehiculo->fecha_ultimo_kilometraje->format('H:i') }})
-                                                @elseif($vehiculo->fecha_ultimo_kilometraje->isYesterday())
-                                                    (Ayer {{ $vehiculo->fecha_ultimo_kilometraje->format('H:i') }})
-                                                @else
-                                                    ({{ $vehiculo->fecha_ultimo_kilometraje->diffForHumans() }})
-                                                @endif
+                                                {{ $vehiculo->municipio }}
                                             </div>
-                                        @else
-                                            <span class="text-gray-500">Sin registro</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -464,16 +456,12 @@
                         </div>
                         <ul class="space-y-2 text-sm text-gray-600">
                             <li class="flex items-center space-x-2">
-                                <div class="h-2 w-2 bg-blue-500 rounded-full"></div>
-                                <span><strong>Último Km:</strong> Kilometraje más reciente registrado para cada vehículo</span>
-                            </li>
-                            <li class="flex items-center space-x-2">
-                                <div class="h-2 w-2 bg-green-500 rounded-full"></div>
-                                <span><strong>Fecha exacta:</strong> Se muestra la fecha y hora del último registro</span>
-                            </li>
-                            <li class="flex items-center space-x-2">
                                 <div class="h-2 w-2 bg-purple-500 rounded-full"></div>
-                                <span><strong>Estado:</strong> Control automático del estado de registros de kilometraje</span>
+                                <span><strong>Estado:</strong> Estado actual del vehículo</span>
+                            </li>
+                            <li class="flex items-center space-x-2">
+                                <div class="h-2 w-2 bg-blue-500 rounded-full"></div>
+                                <span><strong>Ubicación:</strong> Estado y municipio donde se encuentra el vehículo</span>
                             </li>
                         </ul>
                     </div>

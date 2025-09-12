@@ -30,6 +30,12 @@ class UpdateVehiculoRequest extends FormRequest
         $vehiculoId = $this->route('vehiculo') ?? $this->route('id');
 
         return [
+            'tipo_activo_id' => [
+                'sometimes',
+                'required',
+                'integer',
+                'exists:tipo_activos,id',
+            ],
             'marca' => [
                 'sometimes',
                 'required',
@@ -102,6 +108,16 @@ class UpdateVehiculoRequest extends FormRequest
                 'string',
                 'max:1000',
             ],
+            'estado' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+            'municipio' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
             // Validaciones para documentos adicionales
             'documentos_adicionales.*' => [
                 'nullable',
@@ -118,6 +134,9 @@ class UpdateVehiculoRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'tipo_activo_id.required' => 'El tipo de activo es obligatorio.',
+            'tipo_activo_id.integer' => 'El tipo de activo debe ser un número entero.',
+            'tipo_activo_id.exists' => 'El tipo de activo seleccionado no es válido.',
             'marca.required' => 'La marca del vehículo es obligatoria.',
             'marca.min' => 'La marca debe tener al menos 2 caracteres.',
             'marca.max' => 'La marca no puede exceder 50 caracteres.',
@@ -146,6 +165,8 @@ class UpdateVehiculoRequest extends FormRequest
             'intervalo_km_hidraulico.min' => 'El intervalo hidráulico debe ser al menos 100 km.',
             'intervalo_km_hidraulico.max' => 'El intervalo hidráulico no puede exceder 200,000 km.',
             'observaciones.max' => 'Las observaciones no pueden exceder 1,000 caracteres.',
+            'estado.max' => 'El estado no puede exceder 100 caracteres.',
+            'municipio.max' => 'El municipio no puede exceder 100 caracteres.',
             // Mensajes para documentos adicionales
             'documentos_adicionales.*.file' => 'Cada documento adicional debe ser un archivo válido.',
             'documentos_adicionales.*.mimes' => 'Los documentos adicionales deben ser de tipo: pdf, doc, docx, jpg, jpeg, png, webp.',

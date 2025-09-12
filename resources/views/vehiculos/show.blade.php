@@ -143,6 +143,21 @@
 
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div>
+                            <label class="block text-sm font-medium text-gray-600">Estado</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $vehiculo->estado ?? 'No especificado' }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Municipio</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $vehiculo->municipio ?? 'No especificado' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
                             <label class="block text-sm font-medium text-gray-600">Derecho Vehicular</label>
                             <div class="space-y-1">
                                 <div class="flex items-center space-x-2">

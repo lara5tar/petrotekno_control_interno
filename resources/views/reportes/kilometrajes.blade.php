@@ -104,13 +104,9 @@
                         </div>
                     </div>
                     <div class="ml-3 w-0 flex-1">
-                        <p class="text-sm font-medium text-gray-500 truncate">Último Registro</p>
+                        <p class="text-sm font-medium text-gray-500 truncate">Kilometraje Promedio</p>
                         <p class="text-sm font-semibold text-gray-900">
-                            @if($estadisticas['ultimo_registro'])
-                                {{ $estadisticas['ultimo_registro']->fecha_captura->format('d/m/Y') }}
-                            @else
-                                Sin registros
-                            @endif
+                            {{ number_format($estadisticas['kilometraje_promedio'], 0) }} km
                         </p>
                     </div>
                 </div>

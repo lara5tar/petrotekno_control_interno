@@ -94,6 +94,16 @@ class StoreVehiculoRequest extends FormRequest
                 'integer',
                 'exists:users,id',
             ],
+            'estado' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+            'municipio' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
             // Validaciones para documentos específicos
             'tarjeta_circulacion_file' => [
                 'nullable',
@@ -291,6 +301,12 @@ class StoreVehiculoRequest extends FormRequest
             'observaciones.string' => 'Las observaciones deben ser un texto válido',
             'observaciones.max' => 'Las observaciones no pueden exceder 1,000 caracteres',
             
+            'estado.string' => 'El estado debe ser un texto válido',
+            'estado.max' => 'El estado no puede exceder 100 caracteres',
+            
+            'municipio.string' => 'El municipio debe ser un texto válido',
+            'municipio.max' => 'El municipio no puede exceder 100 caracteres',
+            
             // Mensajes para documentos específicos
             'tarjeta_circulacion_file.file' => 'La tarjeta de circulación debe ser un archivo válido',
             'tarjeta_circulacion_file.mimes' => 'La tarjeta de circulación debe ser de tipo: pdf, jpg, jpeg, png',
@@ -401,6 +417,8 @@ class StoreVehiculoRequest extends FormRequest
             'placas' => strtoupper($this->placas ?? ''),
             'marca' => ucwords(strtolower($this->marca ?? '')),
             'modelo' => ucwords(strtolower($this->modelo ?? '')),
+            'estado' => ucwords(strtolower($this->estado ?? '')),
+            'municipio' => ucwords(strtolower($this->municipio ?? '')),
         ]);
     }
 }

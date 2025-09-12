@@ -82,6 +82,30 @@
                         Información del Activo
                     </h3>
                     
+                    <!-- Tipo de Activo -->
+                    <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
+                        <div class="form-group">
+                            <label for="tipo_activo_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                Tipo de Activo <span class="text-red-500">*</span>
+                            </label>
+                            <select name="tipo_activo_id" 
+                                    id="tipo_activo_id" 
+                                    required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('tipo_activo_id') border-red-500 @enderror">
+                                <option value="">Seleccione un tipo de activo</option>
+                                @if(isset($tiposActivo) && $tiposActivo->count() > 0)
+                                    @foreach($tiposActivo as $tipoActivo)
+                                        <option value="{{ $tipoActivo->id }}" {{ old('tipo_activo_id', $vehiculo->tipo_activo_id) == $tipoActivo->id ? 'selected' : '' }}>
+                                            {{ $tipoActivo->nombre }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            @error('tipo_activo_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-500">Seleccione el tipo de activo que está registrando</p>
+                        </div>
+                    </div>
+                    
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <x-form-input name="marca" label="Marca" required placeholder="Ej: Ford, Chevrolet, Toyota" :value="old('marca', $vehiculo->marca)" />
                         <x-form-input name="modelo" label="Modelo" required placeholder="Ej: F-150, Silverado, Hilux" :value="old('modelo', $vehiculo->modelo)" />
@@ -95,6 +119,37 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
                         <x-form-input name="kilometraje_actual" label="Kilometraje Actual (km)" type="number" required min="0" placeholder="15000" :value="old('kilometraje_actual', $vehiculo->kilometraje_actual)" />
+                    </div>
+
+                    <!-- Estado y Municipio -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="form-group">
+                            <label for="estado" class="block text-sm font-medium text-gray-700 mb-2">
+                                Estado
+                            </label>
+                            <select name="estado" 
+                                    id="estado" 
+                                    data-valor-actual="{{ old('estado', $vehiculo->estado) }}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('estado') border-red-500 @enderror">
+                                <option value="">Seleccione un estado</option>
+                            </select>
+                            @error('estado') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-500">Estado donde se encuentra el activo</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="municipio" class="block text-sm font-medium text-gray-700 mb-2">
+                                Municipio
+                            </label>
+                            <select name="municipio" 
+                                    id="municipio" 
+                                    data-valor-actual="{{ old('municipio', $vehiculo->municipio) }}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('municipio') border-red-500 @enderror">
+                                <option value="">Seleccione un municipio</option>
+                            </select>
+                            @error('municipio') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-500">Municipio donde se encuentra el activo</p>
+                        </div>
                     </div>
 
                     <!-- Responsable Asignado -->
@@ -572,4 +627,6 @@
         }
     }
 </script>
+
+<script src="{{ asset('js/estados-municipios.js') }}"></script>
 @endpush

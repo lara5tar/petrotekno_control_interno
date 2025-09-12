@@ -37,7 +37,8 @@ class ReporteController extends Controller
     }
 
     /**
-     * Reporte de inventario de vehículos con último kilometraje
+     * Reporte de inventario de vehículos
+     * Genera un reporte completo del inventario de vehículos con filtros y estadísticas
      */
     public function inventarioVehiculos(Request $request)
     {
@@ -49,7 +50,7 @@ class ReporteController extends Controller
         $anio = $request->get('anio');
         $formato = $request->get('formato', 'html'); // html, excel, pdf
 
-        // Query base para vehículos con su último kilometraje
+        // Query base para vehículos
         $query = Vehiculo::select([
             'vehiculos.id',
             'vehiculos.marca',
@@ -58,20 +59,13 @@ class ReporteController extends Controller
             'vehiculos.placas',
             'vehiculos.n_serie',
             'vehiculos.estatus',
+            'vehiculos.estado',
+            'vehiculos.municipio',
             'vehiculos.kilometraje_actual',
             'vehiculos.intervalo_km_motor',
             'vehiculos.intervalo_km_transmision',
             'vehiculos.intervalo_km_hidraulico',
             'vehiculos.created_at'
-        ])
-        ->leftJoin('kilometrajes as k', function($join) {
-            $join->on('vehiculos.id', '=', 'k.vehiculo_id')
-                 ->whereRaw('k.id = (SELECT MAX(id) FROM kilometrajes WHERE vehiculo_id = vehiculos.id)');
-        })
-        ->addSelect([
-            'k.kilometraje as ultimo_kilometraje_registrado',
-            'k.fecha_captura as fecha_ultimo_kilometraje',
-            'k.observaciones as observaciones_ultimo_km'
         ]);
 
         // Aplicar filtros
@@ -88,7 +82,8 @@ class ReporteController extends Controller
         }
 
         // Ordenar por marca, modelo y año
-        $vehiculos = $query->orderBy('vehiculos.marca')
+        $vehiculos = $query->with('tipoActivo')
+                          ->orderBy('vehiculos.marca')
                           ->orderBy('vehiculos.modelo')
                           ->orderBy('vehiculos.anio')
                           ->get();
@@ -112,8 +107,6 @@ class ReporteController extends Controller
             'por_estatus' => $vehiculos->groupBy('estatus')->map->count(),
             'kilometraje_total' => $vehiculos->sum('kilometraje_actual'),
             'kilometraje_promedio' => $vehiculos->avg('kilometraje_actual'),
-            'vehiculos_con_kilometraje_registrado' => $vehiculos->whereNotNull('ultimo_kilometraje_registrado')->count(),
-            'vehiculos_sin_kilometraje_registrado' => $vehiculos->whereNull('ultimo_kilometraje_registrado')->count(),
             // Agregar estadísticas específicas por estado para la vista PDF
             'vehiculos_disponibles' => $vehiculos->where('estatus', EstadoVehiculo::DISPONIBLE)->count(),
             'vehiculos_asignados' => $vehiculos->where('estatus', EstadoVehiculo::ASIGNADO)->count(),
@@ -129,29 +122,18 @@ class ReporteController extends Controller
                 ? $vehiculo->estatus 
                 : EstadoVehiculo::fromValue($vehiculo->estatus);
             
-            // Convertir fecha_ultimo_kilometraje a Carbon si es string
-            if ($vehiculo->fecha_ultimo_kilometraje && is_string($vehiculo->fecha_ultimo_kilometraje)) {
-                $vehiculo->fecha_ultimo_kilometraje = \Carbon\Carbon::parse($vehiculo->fecha_ultimo_kilometraje);
+            // Asegurar que tipoActivo esté disponible incluso si es null
+            if (!$vehiculo->relationLoaded('tipoActivo')) {
+                $vehiculo->load('tipoActivo');
             }
             
-            // Calcular diferencia entre kilometraje actual y último registrado
-            if ($vehiculo->ultimo_kilometraje_registrado) {
-                $vehiculo->diferencia_kilometraje = $vehiculo->kilometraje_actual - $vehiculo->ultimo_kilometraje_registrado;
+            // Asegurar que el tipo de activo esté disponible para el reporte
+            if ($vehiculo->tipoActivo) {
+                $vehiculo->tipo_activo_nombre = $vehiculo->tipoActivo->nombre;
             } else {
-                $vehiculo->diferencia_kilometraje = null;
+                $vehiculo->tipo_activo_nombre = 'Sin tipo';
             }
-
-            // Determinar si necesita registro de kilometraje (más de 7 días sin registrar)
-            $vehiculo->necesita_registro_km = false;
-            if ($vehiculo->fecha_ultimo_kilometraje) {
-                $diasSinRegistro = now()->diffInDays($vehiculo->fecha_ultimo_kilometraje);
-                $vehiculo->necesita_registro_km = $diasSinRegistro > 7;
-                $vehiculo->dias_sin_registro = $diasSinRegistro;
-            } else {
-                $vehiculo->necesita_registro_km = true;
-                $vehiculo->dias_sin_registro = null;
-            }
-
+            
             return $vehiculo;
         });
 
@@ -740,8 +722,8 @@ class ReporteController extends Controller
         $estadisticas = [
             'total_registros' => $kilometrajes->total(),
             'vehiculos_con_kilometraje' => Kilometraje::distinct('vehiculo_id')->count(),
-            'kilometraje_promedio' => Kilometraje::avg('kilometraje'),
-            'ultimo_registro' => Kilometraje::latest('fecha_captura')->first()
+            'kilometraje_promedio' => Kilometraje::avg('kilometraje')
+            // Se eliminó la referencia a último registro
         ];
 
         // Si se solicita Excel, generar y retornar
