@@ -95,7 +95,7 @@
                     <td class="text-bold">
                         {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
                     </td>
-                    <td class="text-center">{{ $vehiculo->tipoActivo ? $vehiculo->tipoActivo->nombre : 'Sin tipo' }}</td>
+                    <td class="text-center">{{ $vehiculo->tipo_activo_nombre ?? 'Sin tipo' }}</td>
                     <td class="text-center">{{ $vehiculo->anio }}</td>
                     <td class="text-center no-wrap">{{ $vehiculo->placas ?: 'N/A' }}</td>
                     <td class="font-small break-word">{{ $vehiculo->n_serie ?: 'N/A' }}</td>
