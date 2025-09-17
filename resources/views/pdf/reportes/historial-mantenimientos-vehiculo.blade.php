@@ -2,7 +2,7 @@
 
 @section('title', 'Historial de Mantenimientos por Vehículo')
 @section('report-title', 'Historial de Mantenimientos por Vehículo')
-@section('report-subtitle', 'Reporte completo del historial de mantenimientos por vehículo específico')
+@section('report-subtitle', 'Reporte completo del historial de mantenimientos por activo específico')
 
 @section('content')
     <!-- Información del Vehículo -->

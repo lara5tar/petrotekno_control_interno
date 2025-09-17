@@ -83,7 +83,7 @@
             <div class="bg-white rounded-lg shadow-sm p-6">
                 <div class="flex items-center">
                     <div class="flex-1">
-                        <dt class="text-sm font-medium text-gray-500 truncate">Vehículos Diferentes</dt>
+                        <dt class="text-sm font-medium text-gray-500 truncate">Activos Diferentes</dt>
                         <dd class="text-lg font-medium text-gray-900">{{ number_format($estadisticas['vehiculos_diferentes']) }}</dd>
                     </div>
                     <div class="ml-4">
@@ -250,7 +250,7 @@
                                     Tipo Movimiento
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Vehículo
+                                    Activo
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Operador Anterior
@@ -296,7 +296,7 @@
                                             <div class="font-medium">{{ $asignacion->vehiculo->marca }} {{ $asignacion->vehiculo->modelo }}</div>
                                             <div class="text-gray-500">{{ $asignacion->vehiculo->placas }} ({{ $asignacion->vehiculo->anio }})</div>
                                         @else
-                                            <span class="text-gray-400">Sin vehículo</span>
+                                            <span class="text-gray-400">Sin activo</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

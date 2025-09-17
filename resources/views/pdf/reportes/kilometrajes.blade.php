@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="header">
-    <h1>Reporte de Kilometrajes de Vehículos</h1>
+    <h1>Reporte de Kilometrajes de Activos</h1>
     <div class="report-info">
         <p><strong>Fecha de generación:</strong> {{ date('d/m/Y H:i') }}</p>
         @if($vehiculoId)

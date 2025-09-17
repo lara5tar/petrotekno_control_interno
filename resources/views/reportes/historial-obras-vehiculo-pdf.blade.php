@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial de Obras por Vehículo - Petrotekno</title>
+    <title>Historial de Obras por Activo - Petrotekno</title>
     <style>
         * {
             margin: 0;
@@ -292,7 +292,7 @@
                 @if($vehiculo)
                     Historial de Obras - {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
                 @else
-                    Historial de Obras por Vehículo
+                    Historial de Obras por Activo
                 @endif
             </div>
             <div class="report-date">
@@ -307,7 +307,7 @@
 
     @if($vehiculo)
         <div class="estadisticas">
-            <h3>Información del Vehículo</h3>
+            <h3>Información del Activo</h3>
             <div class="stats-grid">
                 <div class="stat-item">
                     <span class="stat-number">{{ $vehiculo->marca }}</span>
@@ -374,7 +374,7 @@
             </div>
             <div class="stat-item">
                 <span class="stat-number">{{ number_format($estadisticas['vehiculos_involucrados']) }}</span>
-                <span class="stat-label">Vehículos</span>
+                <span class="stat-label">Activos</span>
             </div>
             <div class="stat-item">
                 <span class="stat-number">{{ number_format($estadisticas['obras_involucradas']) }}</span>
@@ -403,7 +403,7 @@
                     @endphp
                     @if($vehiculo)
                         <span class="filtro-item">
-                            <strong>Vehículo:</strong> {{ $vehiculo->marca }} {{ $vehiculo->modelo }} {{ $vehiculo->anio }} - {{ $vehiculo->placas }}
+                            <strong>Activo:</strong> {{ $vehiculo->marca }} {{ $vehiculo->modelo }} {{ $vehiculo->anio }} - {{ $vehiculo->placas }}
                         </span>
                     @endif
                 @elseif($tipo === 'obra_id')
@@ -432,7 +432,7 @@
     <table class="asignaciones-table">
         <thead>
             <tr>
-                <th style="width: 15%;">Vehículo</th>
+                <th style="width: 15%;">Activo</th>
                 <th style="width: 12%;">Ubicación</th>
                 <th style="width: 15%;">Obra</th>
                 <th style="width: 10%;">Operador</th>
@@ -448,7 +448,7 @@
                 <tr>
                     <td>
                         <div class="vehiculo-info">
-                            {{ $asignacion->vehiculo ? "{$asignacion->vehiculo->marca} {$asignacion->vehiculo->modelo}" : 'Sin vehículo' }}
+                            {{ $asignacion->vehiculo ? "{$asignacion->vehiculo->marca} {$asignacion->vehiculo->modelo}" : 'Sin activo' }}
                         </div>
                         <div class="vehiculo-details">
                             {{ $asignacion->vehiculo ? "{$asignacion->vehiculo->anio} - {$asignacion->vehiculo->placas}" : 'Sin datos' }}
@@ -466,7 +466,7 @@
                                 Sin ubicación
                             @endif
                         @else
-                            Sin vehículo
+                            Sin activo
                         @endif
                     </td>
                     
@@ -555,7 +555,7 @@
                 <div class="resumen-column">
                     <h4 style="font-size: 12px; margin-bottom: 10px; color: #2c3e50;">Recursos Involucrados</h4>
                     <div class="resumen-item">
-                        <span class="resumen-label">Vehículos Únicos</span>
+                        <span class="resumen-label">Activos Únicos</span>
                         <span class="resumen-value">{{ number_format($estadisticas['vehiculos_involucrados']) }}</span>
                     </div>
                     <div class="resumen-item">

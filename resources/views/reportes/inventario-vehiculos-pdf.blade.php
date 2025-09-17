@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventario de Vehículos - Petrotekno</title>
+    <title>Inventario de Activos - Petrotekno</title>
     <style>
         * {
             margin: 0;
@@ -242,7 +242,7 @@
         </div>
         <div class="company-info">
             <div class="company-name">PETROTEKNO</div>
-            <div class="report-title">Inventario de Vehículos</div>
+            <div class="report-title">Inventario de Activos</div>
             <div class="report-date">Generado el {{ now()->format('d/m/Y H:i:s') }}</div>
         </div>
     </div>
@@ -252,7 +252,7 @@
         <div class="stats-grid">
             <div class="stat-item">
                 <span class="stat-number">{{ $estadisticas['total_vehiculos'] }}</span>
-                <span class="stat-label">Total Vehículos</span>
+                <span class="stat-label">Total Activos</span>
             </div>
             <div class="stat-item">
                 <span class="stat-number">{{ $estadisticas['vehiculos_disponibles'] }}</span>
@@ -379,7 +379,7 @@
             @empty
                 <tr>
                     <td colspan="10" style="text-align: center; padding: 20px; color: #6c757d;">
-                        No se encontraron vehículos con los filtros aplicados
+                        No se encontraron activos con los filtros aplicados
                     </td>
                 </tr>
             @endforelse

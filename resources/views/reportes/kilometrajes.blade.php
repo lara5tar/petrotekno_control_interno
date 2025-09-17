@@ -24,7 +24,7 @@
                             <span>Reporte de Kilometrajes</span>
                         </div>
                         <h1 class="text-2xl font-bold text-gray-900">Reporte de Kilometrajes</h1>
-                        <p class="text-sm text-gray-600 mt-1">Análisis detallado de kilometrajes por vehículo y período</p>
+                        <p class="text-sm text-gray-600 mt-1">Análisis detallado de kilometrajes por activo y período</p>
                     </div>
                 </div>
                 
@@ -72,7 +72,7 @@
                         </div>
                     </div>
                     <div class="ml-3 w-0 flex-1">
-                        <p class="text-sm font-medium text-gray-500 truncate">Vehículos con Kilometraje</p>
+                        <p class="text-sm font-medium text-gray-500 truncate">Activos con Kilometraje</p>
                         <p class="text-2xl font-semibold text-gray-900">{{ number_format($estadisticas['vehiculos_con_kilometraje']) }}</p>
                     </div>
                 </div>
@@ -119,9 +119,9 @@
                 <form method="GET" action="{{ route('reportes.kilometrajes') }}" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
-                            <label for="vehiculo_id" class="block text-sm font-medium text-gray-700 mb-2">Vehículo</label>
+                            <label for="vehiculo_id" class="block text-sm font-medium text-gray-700 mb-2">Activo</label>
                             <select name="vehiculo_id" id="vehiculo_id" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="">Todos los vehículos</option>
+                                <option value="">Todos los activos</option>
                                 @foreach($vehiculosDisponibles as $vehiculo)
                                     <option value="{{ $vehiculo->id }}" {{ request('vehiculo_id') == $vehiculo->id ? 'selected' : '' }}>
                                         {{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->placas }})
@@ -167,7 +167,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Obra</th>

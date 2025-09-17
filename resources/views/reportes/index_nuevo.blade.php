@@ -35,7 +35,7 @@
         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
             <div class="divide-y divide-gray-200">
                 
-                <!-- Inventario de Vehículos -->
+                <!-- Inventario de Activos -->
                 <div class="p-6 hover:bg-gray-50 transition duration-200">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center flex-1">
@@ -78,7 +78,7 @@
         </div>
     </div>
 
-    <!-- SECCIÓN 2: REPORTES POR ESTADO DE VEHÍCULOS -->
+    <!-- SECCIÓN 2: REPORTES POR ESTADO DE ACTIVOS -->
     <div class="mb-10">
         <div class="mb-4 flex items-center">
             <div class="bg-gray-100 p-2 rounded-lg mr-3">
@@ -87,16 +87,16 @@
                 </svg>
             </div>
             <div>
-                <h3 class="text-xl font-bold text-gray-800">Reportes por Estado de Vehículos</h3>
+                <h3 class="text-xl font-bold text-gray-800">Reportes por Estado de Activos</h3>
             </div>
         </div>
 
         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
             <div class="p-6">
-                <p class="text-gray-600 mb-6">Acceso directo a reportes específicos por estado de los vehículos</p>
+                <p class="text-gray-600 mb-6">Acceso directo a reportes específicos por estado de los activos</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                     
-                    {{-- Vehículos Disponibles --}}
+                    {{-- Activos Disponibles --}}
                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 transition duration-200">
                         <div class="flex items-center mb-3">
                             <div class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
@@ -119,7 +119,7 @@
                         </div>
                     </div>
 
-                    {{-- Vehículos Asignados --}}
+                    {{-- Activos Asignados --}}
                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 transition duration-200">
                         <div class="flex items-center mb-3">
                             <div class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
@@ -142,7 +142,7 @@
                         </div>
                     </div>
 
-                    {{-- Vehículos en Mantenimiento --}}
+                    {{-- Activos en Mantenimiento --}}
                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 transition duration-200">
                         <div class="flex items-center mb-3">
                             <div class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
@@ -166,7 +166,7 @@
                         </div>
                     </div>
 
-                    {{-- Vehículos Fuera de Servicio --}}
+                    {{-- Activos Fuera de Servicio --}}
                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 transition duration-200">
                         <div class="flex items-center mb-3">
                             <div class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
@@ -189,7 +189,7 @@
                         </div>
                     </div>
 
-                    {{-- Vehículos Dados de Baja --}}
+                    {{-- Activos Dados de Baja --}}
                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 transition duration-200">
                         <div class="flex items-center mb-3">
                             <div class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
@@ -244,7 +244,7 @@
                             </div>
                             <div class="flex-1">
                                 <h4 class="text-lg font-semibold text-gray-900">Reporte de Kilometrajes</h4>
-                                <p class="text-sm text-gray-500 mt-1">Análisis detallado de kilometrajes por vehículo, obras y períodos específicos</p>
+                                <p class="text-sm text-gray-500 mt-1">Análisis detallado de kilometrajes por activo, obras y períodos específicos</p>
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 mt-2">
                                     Próximamente
                                 </span>
@@ -328,7 +328,7 @@
                 <div>
                     <h4 class="text-base font-semibold text-gray-900 mb-3">Filtros Disponibles</h4>
                     <ul class="space-y-2 text-sm text-gray-600">
-                        <li><span class="font-medium text-gray-900">Estatus:</span> Filtre por estado de vehículos, obras, etc.</li>
+                        <li><span class="font-medium text-gray-900">Estatus:</span> Filtre por estado de activos, obras, etc.</li>
                         <li><span class="font-medium text-gray-900">Fechas:</span> Seleccione rangos de tiempo específicos</li>
                         <li><span class="font-medium text-gray-900">Categorías:</span> Agrupe por marca, tipo, departamento, etc.</li>
                     </ul>

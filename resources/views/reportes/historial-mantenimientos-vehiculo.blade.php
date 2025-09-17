@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Historial de Mantenimientos por Vehículo')
+@section('title', 'Historial de Mantenimientos por Activo')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -15,9 +15,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                            Historial de Mantenimientos por Vehículo
+                            Historial de Mantenimientos por Activo
                         </h1>
-                        <p class="text-gray-600 mt-1">Consulte el historial completo de mantenimientos por vehículo específico</p>
+                        <p class="text-gray-600 mt-1">Consulte el historial completo de mantenimientos por activo específico</p>
                     </div>
                     <div class="flex space-x-2">
                         <a href="{{ route('reportes.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 flex items-center">
@@ -118,9 +118,9 @@
             <div class="p-6">
                 <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                     <div>
-                        <label for="vehiculo_id" class="block text-sm font-medium text-gray-700 mb-2">Vehículo</label>
+                        <label for="vehiculo_id" class="block text-sm font-medium text-gray-700 mb-2">Activo</label>
                         <select name="vehiculo_id" id="vehiculo_id" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                            <option value="">Todos los vehículos</option>
+                            <option value="">Todos los activos</option>
                             @foreach($vehiculosDisponibles as $vehiculo)
                                 <option value="{{ $vehiculo->id }}" {{ $vehiculoId == $vehiculo->id ? 'selected' : '' }}>
                                     {{ $vehiculo->marca }} {{ $vehiculo->modelo }} - {{ $vehiculo->placas }}
@@ -174,7 +174,7 @@
                 <p class="text-sm text-gray-600 mt-1">
                     Mostrando {{ $mantenimientos->count() }} mantenimiento(s) 
                     @if($vehiculoId)
-                        para el vehículo seleccionado
+                        para el activo seleccionado
                     @endif
                 </p>
             </div>
@@ -185,7 +185,7 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Costo</th>
@@ -205,7 +205,7 @@
                                             </div>
                                             <div class="text-sm text-gray-500">{{ $mantenimiento->vehiculo->placas }}</div>
                                         @else
-                                            <span class="text-gray-400">Sin vehículo asignado</span>
+                                            <span class="text-gray-400">Sin activo asignado</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">

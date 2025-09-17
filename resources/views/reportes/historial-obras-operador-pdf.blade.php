@@ -323,7 +323,7 @@
             </div>
             <div class="stat-item">
                 <span class="stat-number">{{ number_format($estadisticas['vehiculos_diferentes']) }}</span>
-                <span class="stat-label">Vehículos Diferentes</span>
+                <span class="stat-label">Activos Diferentes</span>
             </div>
             <div class="stat-item">
                 <span class="stat-number">{{ number_format($estadisticas['obras_diferentes']) }}</span>
@@ -378,7 +378,7 @@
                 <tr>
                     <th style="width: 10%;">Fecha</th>
                     <th style="width: 15%;">Tipo Movimiento</th>
-                    <th style="width: 18%;">Vehículo</th>
+                    <th style="width: 18%;">Activo</th>
                     <th style="width: 15%;">Operador Anterior</th>
                     <th style="width: 15%;">Operador Nuevo</th>
                     <th style="width: 15%;">Obra</th>
@@ -420,7 +420,7 @@
                                 <strong>{{ $asignacion->vehiculo->marca }} {{ $asignacion->vehiculo->modelo }}</strong><br>
                                 <small>{{ $asignacion->vehiculo->placas }} ({{ $asignacion->vehiculo->anio }})</small>
                             @else
-                                <em style="color: #999;">Sin vehículo</em>
+                                <em style="color: #999;">Sin activo</em>
                             @endif
                         </td>
                         <td>

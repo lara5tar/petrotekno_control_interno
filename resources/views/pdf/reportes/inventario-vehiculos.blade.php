@@ -1,8 +1,8 @@
 @extends('pdf.layouts.base')
 
-@section('title', 'Inventario de Vehículos')
-@section('report-title', 'Inventario General de Vehículos')
-@section('report-subtitle', 'Reporte completo del inventario vehicular')
+@section('title', 'Inventario de Activos')
+@section('report-title', 'Inventario General de Activos')
+@section('report-subtitle', 'Reporte completo del inventario de activos')
 
 @section('content')
     <!-- Sección de Estadísticas -->
@@ -13,7 +13,7 @@
                 <div class="stats-row">
                     <div class="stat-item">
                         <span class="stat-number">{{ $estadisticas['total'] ?? 0 }}</span>
-                        <span class="stat-label">Total Vehículos</span>
+                        <span class="stat-label">Total Activos</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">{{ $estadisticas['por_estado']['disponible'] ?? 0 }}</span>

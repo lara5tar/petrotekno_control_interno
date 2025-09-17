@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial de Mantenimientos por Vehículo</title>
+    <title>Historial de Mantenimientos por Activo</title>
     <style>
         * {
             margin: 0;
@@ -203,7 +203,7 @@
     <!-- Header -->
     <div class="header">
         <div class="logo">PETROTEKNO</div>
-        <div class="titulo">Historial de Mantenimientos por Vehículo</div>
+        <div class="titulo">Historial de Mantenimientos por Activo</div>
         <div class="subtitulo">Reporte generado el {{ now()->format('d/m/Y H:i:s') }}</div>
     </div>
 
@@ -212,12 +212,12 @@
         <h3 style="margin-bottom: 8px; color: #ea580c;">Información del Reporte</h3>
         <div class="info-grid">
             <div class="info-row">
-                <div class="info-label">Vehículo:</div>
+                <div class="info-label">Activo:</div>
                 <div class="info-value">
                     @if($vehiculoInfo)
                         {{ $vehiculoInfo->marca }} {{ $vehiculoInfo->modelo }} - {{ $vehiculoInfo->placas }}
                     @else
-                        Todos los vehículos
+                        Todos los activos
                     @endif
                 </div>
             </div>
@@ -279,7 +279,7 @@
             <thead>
                 <tr>
                     <th style="width: 10%;">Fecha</th>
-                    <th style="width: 15%;">Vehículo</th>
+                    <th style="width: 15%;">Activo</th>
                     <th style="width: 15%;">Ubicación</th>
                     <th style="width: 10%;">Tipo</th>
                     <th style="width: 20%;">Descripción</th>
@@ -299,7 +299,7 @@
                                 <strong>{{ $mantenimiento->vehiculo->marca }} {{ $mantenimiento->vehiculo->modelo }}</strong><br>
                                 <span style="color: #6b7280;">{{ $mantenimiento->vehiculo->placas }}</span>
                             @else
-                                <span style="color: #9ca3af;">Sin vehículo</span>
+                                <span style="color: #9ca3af;">Sin activo</span>
                             @endif
                         </td>
                         <td>
@@ -345,7 +345,7 @@
                             <thead>
                                 <tr>
                                     <th style="width: 10%;">Fecha</th>
-                                    <th style="width: 20%;">Vehículo</th>
+                                    <th style="width: 20%;">Activo</th>
                                     <th style="width: 12%;">Tipo</th>
                                     <th style="width: 25%;">Descripción</th>
                                     <th style="width: 10%;">Costo</th>

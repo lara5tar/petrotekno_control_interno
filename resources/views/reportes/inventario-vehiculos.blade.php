@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Inventario de Vehículos - Reportes')
+@section('title', 'Inventario de Activos - Reportes')
 
 @section('content')
 <!-- Fondo con gradiente sutil -->
@@ -21,7 +21,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                             </svg>
-                            <span>Inventario de Vehículos</span>
+                            <span>Inventario de Activos</span>
                             @if($estatus)
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -51,7 +51,7 @@
                         </div>
                         <h1 class="text-2xl font-bold text-gray-900 tracking-tight">
                             @if($estatus)
-                                Vehículos 
+                                Activos 
                                 @switch($estatus)
                                     @case('disponible')
                                         <span class="text-green-600">Disponibles</span>
@@ -72,12 +72,12 @@
                                         {{ ucfirst(str_replace('_', ' ', $estatus)) }}
                                 @endswitch
                             @else
-                                Inventario de Vehículos
+                                Inventario de Activos
                             @endif
                         </h1>
                         <p class="text-sm text-gray-600 mt-1">
                             @if($estatus)
-                                Reporte específico de vehículos con estado: {{ ucfirst(str_replace('_', ' ', $estatus)) }}
+                                Reporte específico de activos con estado: {{ ucfirst(str_replace('_', ' ', $estatus)) }}
                             @else
                                 Reporte completo del inventario vehicular con último kilometraje registrado
                             @endif
@@ -122,12 +122,12 @@
         
         <!-- Estadísticas Rápidas -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Vehículos -->
+            <!-- Total Activos -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
                 <div class="p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-600 uppercase tracking-wider">Total Vehículos</p>
+                            <p class="text-sm font-medium text-gray-600 uppercase tracking-wider">Total Activos</p>
                             <p class="text-3xl font-bold text-gray-900 mt-2">{{ number_format($estadisticas['total_vehiculos']) }}</p>
                         </div>
                         <div class="h-12 w-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
@@ -272,7 +272,7 @@
                     </svg>
                     Distribución por Estatus
                 </h2>
-                <p class="text-sm text-gray-600 mt-1">Visualización de la distribución de vehículos por estado</p>
+                <p class="text-sm text-gray-600 mt-1">Visualización de la distribución de activos por estado</p>
             </div>
             <div class="p-6">
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -307,9 +307,9 @@
                     <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10z"></path>
                     </svg>
-                    Inventario Detallado ({{ number_format($vehiculos->count()) }} vehículos)
+                    Inventario Detallado ({{ number_format($vehiculos->count()) }} activos)
                 </h2>
-                <p class="text-sm text-gray-600 mt-1">Listado completo de vehículos con detalles de kilometraje</p>
+                <p class="text-sm text-gray-600 mt-1">Listado completo de activos con detalles de kilometraje</p>
             </div>
             <div class="overflow-x-auto">
                 @if($vehiculos->count() > 0)
@@ -317,7 +317,7 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Placas</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estatus</th>
@@ -399,7 +399,7 @@
                         <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">No se encontraron vehículos</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No se encontraron activos</h3>
                         <p class="text-gray-500">
                             Intente modificar los filtros de búsqueda para obtener resultados.
                         </p>
@@ -441,7 +441,7 @@
                             </li>
                             <li class="flex items-center space-x-2">
                                 <div class="h-2 w-2 bg-gray-500 rounded-full"></div>
-                                <span><strong>Sin registro:</strong> Vehículo sin ningún registro de kilometraje</span>
+                                <span><strong>Sin registro:</strong> Activo sin ningún registro de kilometraje</span>
                             </li>
                         </ul>
                     </div>
@@ -457,11 +457,11 @@
                         <ul class="space-y-2 text-sm text-gray-600">
                             <li class="flex items-center space-x-2">
                                 <div class="h-2 w-2 bg-purple-500 rounded-full"></div>
-                                <span><strong>Estado:</strong> Estado actual del vehículo</span>
+                                <span><strong>Estado:</strong> Estado actual del activo</span>
                             </li>
                             <li class="flex items-center space-x-2">
                                 <div class="h-2 w-2 bg-blue-500 rounded-full"></div>
-                                <span><strong>Ubicación:</strong> Estado y municipio donde se encuentra el vehículo</span>
+                                <span><strong>Ubicación:</strong> Estado y municipio donde se encuentra el activo</span>
                             </li>
                         </ul>
                     </div>
@@ -476,7 +476,7 @@
                         <div class="text-sm">
                             <p class="font-medium text-blue-900 mb-1">Recomendación</p>
                             <p class="text-blue-800 leading-relaxed">
-                                Mantenga los registros de kilometraje actualizados para obtener un mejor control del uso vehicular y programación de mantenimientos preventivos.
+                                Mantenga los registros de kilometraje actualizados para obtener un mejor control del uso de activos y programación de mantenimientos preventivos.
                             </p>
                         </div>
                     </div>

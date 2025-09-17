@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Historial de Obras por Vehículo')
+@section('title', 'Historial de Obras por Activo')
 
 @section('content')
 <div class="min-h-screen bg-gray-50 py-8">
@@ -10,8 +10,8 @@
         <div class="bg-white rounded-lg shadow-sm mb-6 p-6">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Historial de Obras por Vehículo</h1>
-                    <p class="text-gray-600 mt-1">Seguimiento completo de asignaciones de vehículos a obras</p>
+                    <h1 class="text-2xl font-bold text-gray-900">Historial de Obras por Activo</h1>
+                    <p class="text-gray-600 mt-1">Seguimiento completo de asignaciones de activos a obras</p>
                 </div>
                 <div class="flex space-x-3">
                     <a href="{{ route('reportes.index') }}" 
@@ -121,11 +121,11 @@
             <div id="filtros-panel" class="p-6 {{ request()->hasAny(['vehiculo_id', 'fecha_inicio', 'fecha_fin', 'estado_asignacion', 'obra_id']) ? '' : 'hidden' }}">
                 <form method="GET" action="{{ route('reportes.historial-obras-vehiculo') }}" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Filtro por Vehículo -->
+                        <!-- Filtro por Activo -->
                         <div>
-                            <label for="vehiculo_id" class="block text-sm font-medium text-gray-700 mb-2">Vehículo</label>
+                            <label for="vehiculo_id" class="block text-sm font-medium text-gray-700 mb-2">Activo</label>
                             <select name="vehiculo_id" id="vehiculo_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Todos los vehículos</option>
+                                <option value="">Todos los activos</option>
                                 @foreach($vehiculosDisponibles as $vehiculo)
                                     <option value="{{ $vehiculo->id }}" {{ request('vehiculo_id') == $vehiculo->id ? 'selected' : '' }}>
                                         {{ $vehiculo->marca }} {{ $vehiculo->modelo }} {{ $vehiculo->anio }} - {{ $vehiculo->placas }}
@@ -209,8 +209,8 @@
                         <div>
                             <h4 class="text-sm font-medium text-blue-900 mb-1">Exportación PDF</h4>
                             <p class="text-sm text-blue-800">
-                                El reporte PDF está diseñado para generar el historial de un vehículo específico. 
-                                <strong>Debe seleccionar un vehículo</strong> antes de poder descargar el PDF.
+                                El reporte PDF está diseñado para generar el historial de un activo específico. 
+                                <strong>Debe seleccionar un activo</strong> antes de poder descargar el PDF.
                             </p>
                         </div>
                     </div>
@@ -251,7 +251,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Obra</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operador</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fechas</th>
@@ -274,7 +274,7 @@
                                             </div>
                                             <div class="ml-4">
                                                 <div class="text-sm font-medium text-gray-900">
-                                                    {{ $asignacion->vehiculo ? "{$asignacion->vehiculo->marca} {$asignacion->vehiculo->modelo}" : 'Sin vehículo' }}
+                                                    {{ $asignacion->vehiculo ? "{$asignacion->vehiculo->marca} {$asignacion->vehiculo->modelo}" : 'Sin activo' }}
                                                 </div>
                                                 <div class="text-sm text-gray-500">
                                                     {{ $asignacion->vehiculo ? "{$asignacion->vehiculo->anio} - {$asignacion->vehiculo->placas}" : 'Sin datos' }}
@@ -367,42 +367,54 @@
             <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white rounded-lg shadow-sm p-6">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Distribución por Estado</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Activas</span>
-                            <div class="flex items-center">
-                                <div class="w-20 bg-gray-200 rounded-full h-2 mr-3">
-                                    <div class="bg-green-500 h-2 rounded-full" style="width: {{ $estadisticas['total_asignaciones'] > 0 ? ($estadisticas['asignaciones_activas'] / $estadisticas['total_asignaciones']) * 100 : 0 }}%"></div>
-                                </div>
-                                <span class="text-sm font-medium">{{ $estadisticas['asignaciones_activas'] }}</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Liberadas</span>
-                            <div class="flex items-center">
-                                <div class="w-20 bg-gray-200 rounded-full h-2 mr-3">
-                                    <div class="bg-gray-500 h-2 rounded-full" style="width: {{ $estadisticas['total_asignaciones'] > 0 ? ($estadisticas['asignaciones_liberadas'] / $estadisticas['total_asignaciones']) * 100 : 0 }}%"></div>
-                                </div>
-                                <span class="text-sm font-medium">{{ $estadisticas['asignaciones_liberadas'] }}</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Transferidas</span>
-                            <div class="flex items-center">
-                                <div class="w-20 bg-gray-200 rounded-full h-2 mr-3">
-                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: {{ $estadisticas['total_asignaciones'] > 0 ? ($estadisticas['asignaciones_transferidas'] / $estadisticas['total_asignaciones']) * 100 : 0 }}%"></div>
-                                </div>
-                                <span class="text-sm font-medium">{{ $estadisticas['asignaciones_transferidas'] }}</span>
-                            </div>
-                        </div>
-                    </div>
+                    @php
+                         $porcentajeActivas = $estadisticas['total_asignaciones'] > 0 ? round(($estadisticas['asignaciones_activas'] / $estadisticas['total_asignaciones']) * 100, 2) : 0;
+                         $porcentajeLiberadas = $estadisticas['total_asignaciones'] > 0 ? round(($estadisticas['asignaciones_liberadas'] / $estadisticas['total_asignaciones']) * 100, 2) : 0;
+                         $porcentajeTransferidas = $estadisticas['total_asignaciones'] > 0 ? round(($estadisticas['asignaciones_transferidas'] / $estadisticas['total_asignaciones']) * 100, 2) : 0;
+                     @endphp
+                     <div class="space-y-3">
+                          <div class="flex justify-between items-center">
+                              <span class="text-sm text-gray-600">Activas</span>
+                              <div class="flex items-center">
+                                  <div class="w-20 bg-gray-200 rounded-full h-2 mr-3">
+                                      <div class="bg-green-500 h-2 rounded-full" data-width="{{ $porcentajeActivas }}"></div>
+                                  </div>
+                                  <span class="text-sm font-medium">{{ $estadisticas['asignaciones_activas'] }}</span>
+                              </div>
+                          </div>
+                          <div class="flex justify-between items-center">
+                              <span class="text-sm text-gray-600">Liberadas</span>
+                              <div class="flex items-center">
+                                  <div class="w-20 bg-gray-200 rounded-full h-2 mr-3">
+                                      <div class="bg-gray-500 h-2 rounded-full" data-width="{{ $porcentajeLiberadas }}"></div>
+                                  </div>
+                                  <span class="text-sm font-medium">{{ $estadisticas['asignaciones_liberadas'] }}</span>
+                              </div>
+                          </div>
+                          <div class="flex justify-between items-center">
+                              <span class="text-sm text-gray-600">Transferidas</span>
+                              <div class="flex items-center">
+                                  <div class="w-20 bg-gray-200 rounded-full h-2 mr-3">
+                                      <div class="bg-yellow-500 h-2 rounded-full" data-width="{{ $porcentajeTransferidas }}"></div>
+                                  </div>
+                                  <span class="text-sm font-medium">{{ $estadisticas['asignaciones_transferidas'] }}</span>
+                              </div>
+                          </div>
+                      </div>
+                      <script>
+                          document.addEventListener('DOMContentLoaded', function() {
+                              document.querySelectorAll('[data-width]').forEach(function(el) {
+                                  el.style.width = el.getAttribute('data-width') + '%';
+                              });
+                          });
+                      </script>
                 </div>
 
                 <div class="bg-white rounded-lg shadow-sm p-6">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Resumen de Recursos</h3>
                     <div class="space-y-3">
                         <div class="flex justify-between">
-                            <span class="text-sm text-gray-600">Vehículos involucrados</span>
+                            <span class="text-sm text-gray-600">Activos involucrados</span>
                             <span class="text-sm font-medium text-gray-900">{{ $estadisticas['vehiculos_involucrados'] }}</span>
                         </div>
                         <div class="flex justify-between">
@@ -443,18 +455,18 @@ function validarDescargaPDF() {
         if (typeof Swal !== 'undefined') {
             Swal.fire({
                 icon: 'warning',
-                title: 'Vehículo Requerido',
-                text: 'Para generar el PDF debe seleccionar un vehículo específico en los filtros. El reporte PDF está diseñado para mostrar el historial de un vehículo individual.',
+                title: 'Activo Requerido',
+                text: 'Para generar el PDF debe seleccionar un activo específico en los filtros. El reporte PDF está diseñado para mostrar el historial de un activo individual.',
                 confirmButtonText: 'Entendido',
                 confirmButtonColor: '#f59e0b'
             });
         } else {
-            alert('Para generar el PDF debe seleccionar un vehículo específico en los filtros.');
+            alert('Para generar el PDF debe seleccionar un activo específico en los filtros.');
         }
         return;
     }
     
-    // Si hay vehículo seleccionado, proceder con la descarga
+    // Si hay activo seleccionado, proceder con la descarga
     const currentUrl = new URL(window.location);
     currentUrl.searchParams.set('formato', 'pdf');
     window.open(currentUrl.toString(), '_blank');

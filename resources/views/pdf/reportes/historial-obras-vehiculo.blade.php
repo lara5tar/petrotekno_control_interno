@@ -2,7 +2,7 @@
 
 @section('title', 'Historial de Obras por Vehículo')
 @section('report-title', 'Historial de Obras por Vehículo')
-@section('report-subtitle', 'Reporte individual del historial completo de asignaciones por vehículo específico')
+@section('report-subtitle', 'Reporte individual del historial completo de asignaciones por activo específico')
 
 @section('content')
     <!-- Información del Vehículo -->

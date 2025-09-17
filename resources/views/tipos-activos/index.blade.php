@@ -264,6 +264,64 @@
         deleteId = null;
     }
     
+    function showSuccessMessage(message) {
+        // Crear elemento de notificación
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full';
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                ${message}
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animar entrada
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+        }, 100);
+        
+        // Remover después de 3 segundos
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+    
+    function showErrorMessage(message) {
+        // Crear elemento de notificación
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full';
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                ${message}
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animar entrada
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+        }, 100);
+        
+        // Remover después de 4 segundos
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 4000);
+    }
+    
     // Event listeners para botones de eliminar
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.delete-btn').forEach(function(button) {
@@ -277,27 +335,48 @@
     
     document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
         if (deleteId) {
-            // Crear formulario para enviar DELETE request
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/tipos-activos/${deleteId}`;
+            // Deshabilitar el botón para evitar múltiples clics
+            this.disabled = true;
+            this.textContent = 'Eliminando...';
             
-            // Agregar token CSRF
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = '_token';
-            csrfToken.value = '{{ csrf_token() }}';
-            form.appendChild(csrfToken);
-            
-            // Agregar método DELETE
-            const methodField = document.createElement('input');
-            methodField.type = 'hidden';
-            methodField.name = '_method';
-            methodField.value = 'DELETE';
-            form.appendChild(methodField);
-            
-            document.body.appendChild(form);
-            form.submit();
+            // Realizar petición AJAX
+            fetch(`/tipos-activos/${deleteId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Cerrar modal
+                    closeDeleteModal();
+                    
+                    // Mostrar mensaje de éxito
+                    showSuccessMessage(data.message);
+                    
+                    // Recargar la página después de un breve delay para mostrar el mensaje
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    // Mostrar mensaje de error
+                    showErrorMessage(data.message || 'Error al eliminar el tipo de activo');
+                    closeDeleteModal();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorMessage('Error al eliminar el tipo de activo');
+                closeDeleteModal();
+            })
+            .finally(() => {
+                // Rehabilitar el botón
+                this.disabled = false;
+                this.textContent = 'Eliminar';
+            });
         }
     });
     
