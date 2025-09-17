@@ -157,7 +157,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors duration-200 cursor-pointer" onclick="window.location.href='{{ route("kilometrajes.descargar-plantilla") }}'">
+                <div class="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors duration-200 cursor-pointer" data-url="{{ route('kilometrajes.descargar-plantilla') }}" onclick="window.location.href=this.dataset.url">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -989,258 +989,52 @@ console.log('✅ Funciones de modal y carga definidas globalmente');
 </script>
 
 @push('scripts')
-<script>
+<script type="text/javascript">
 // Variables globales
-window.vehiculosData = @json($vehiculos ?? []);
-        document.getElementById('progress-container').classList.add('hidden');
-    } else if (modalId === 'modal-errores-carga') {
-        // Limpiar contenido del modal de errores
-        document.getElementById('lista-errores').innerHTML = '';
-    }
-}
+window.vehiculosData = <?php echo json_encode($vehiculos ?? []); ?>;
 
-
-    
+// DOM ready handler
+document.addEventListener('DOMContentLoaded', function() {
     // Cerrar modal al hacer clic fuera
-    document.getElementById('modal-carga-manual').addEventListener('click', function(e) {
-        if (e.target === this) {
-            cerrarModal('modal-carga-manual');
-        }
-    });
+    const modalCargaManual = document.getElementById('modal-carga-manual');
+    if (modalCargaManual) {
+        modalCargaManual.addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModal('modal-carga-manual');
+            }
+        });
+    }
     
-    document.getElementById('modal-carga-masiva').addEventListener('click', function(e) {
-        if (e.target === this) {
-            cerrarModal('modal-carga-masiva');
-        }
-    });
+    const modalCargaMasiva = document.getElementById('modal-carga-masiva');
+    if (modalCargaMasiva) {
+        modalCargaMasiva.addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModal('modal-carga-masiva');
+            }
+        });
+    }
     
     // Configurar validación de kilometraje en tiempo real
     const kilometrajeInput = document.getElementById('kilometraje');
     if (kilometrajeInput) {
         kilometrajeInput.addEventListener('input', validarKilometraje);
     }
-        
-        // Configurar buscador de vehículos con sugerencias
+    
+    // Configurar buscador de vehículos con sugerencias
+    if (typeof configurarBuscadorVehiculos === 'function') {
         configurarBuscadorVehiculos();
+    }
+    
+    // Cerrar sugerencias al hacer clic fuera
+    document.addEventListener('click', function(e) {
+        const container = document.getElementById('sugerencias_container');
+        const searchInput = document.getElementById('vehiculo_search');
         
-        // Cerrar sugerencias al hacer clic fuera
-        document.addEventListener('click', function(e) {
-            const container = document.getElementById('sugerencias_container');
-            const searchInput = document.getElementById('vehiculo_search');
-            
-            if (!searchInput.contains(e.target) && !container.contains(e.target)) {
-                container.classList.add('hidden');
-            }
-        });
+        if (container && searchInput && !searchInput.contains(e.target) && !container.contains(e.target)) {
+            container.classList.add('hidden');
+        }
     });
-
-// Función para mostrar archivo seleccionado
-function mostrarArchivoSeleccionado(input) {
-    const archivoSeleccionado = document.getElementById('archivo-seleccionado');
-    if (input.files && input.files[0]) {
-        archivoSeleccionado.textContent = `Archivo seleccionado: ${input.files[0].name}`;
-        archivoSeleccionado.classList.remove('hidden');
-    } else {
-        archivoSeleccionado.classList.add('hidden');
-    }
-}
-
-// Función para validar que el kilometraje ingresado sea mayor al kilometraje actual
-function validarKilometraje() {
-    const kilometrajeInput = document.getElementById('kilometraje');
-    const vehiculoSelector = document.getElementById('vehiculo_selector');
-    const submitBtn = document.getElementById('btn-submit-manual');
-    
-    if (!kilometrajeInput || !vehiculoSelector || !submitBtn) return;
-    
-    const selectedOption = vehiculoSelector.options[vehiculoSelector.selectedIndex];
-    
-    if (selectedOption && selectedOption.value && selectedOption.dataset.vehiculo) {
-        try {
-            const vehiculoData = JSON.parse(selectedOption.dataset.vehiculo);
-            const kilometrajeActual = vehiculoData.kilometraje_actual || 0;
-            const nuevoKilometraje = parseInt(kilometrajeInput.value, 10);
-            
-            if (nuevoKilometraje <= kilometrajeActual) {
-                // Kilometraje inválido (menor o igual al actual)
-                kilometrajeInput.setCustomValidity(`El kilometraje debe ser mayor a ${kilometrajeActual.toLocaleString()} km`);
-                kilometrajeInput.classList.add('border-red-500');
-                submitBtn.disabled = true;
-                
-                // Mostrar mensaje de error
-                const kmInfo = document.getElementById('km-info');
-                if (kmInfo) {
-                    kmInfo.textContent = `Error: El kilometraje debe ser mayor a ${kilometrajeActual.toLocaleString()} km`;
-                    kmInfo.classList.remove('hidden', 'text-blue-600');
-                    kmInfo.classList.add('text-red-600', 'font-medium');
-                }
-                
-                return false;
-            } else {
-                // Kilometraje válido
-                kilometrajeInput.setCustomValidity('');
-                kilometrajeInput.classList.remove('border-red-500');
-                submitBtn.disabled = false;
-                
-                // Restaurar mensaje informativo
-                const kmInfo = document.getElementById('km-info');
-                if (kmInfo) {
-                    kmInfo.textContent = `Kilometraje actual: ${kilometrajeActual.toLocaleString()} km`;
-                    kmInfo.classList.remove('text-red-600');
-                    kmInfo.classList.add('text-blue-600');
-                }
-                
-                return true;
-            }
-        } catch (error) {
-            console.error('Error al validar kilometraje:', error);
-        }
-    }
-    
-    return true;
-}
-
-// Función para enviar carga manual
-function submitCargaManual(event) {
-    event.preventDefault();
-    
-    // Validar kilometraje antes de enviar
-    if (!validarKilometraje()) {
-        return false;
-    }
-    
-    const form = event.target;
-    const formData = new FormData(form);
-    const submitBtn = document.getElementById('btn-submit-manual');
-    
-    // Deshabilitar botón y mostrar loading
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Registrando...';
-    
-    fetch('{{ route("kilometrajes.carga-manual") }}', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Mostrar mensaje de éxito
-            mostrarNotificacion('Kilometraje registrado exitosamente', 'success');
-            cerrarModal('modal-carga-manual');
-            // Recargar página para actualizar estadísticas
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        } else {
-            mostrarNotificacion(data.message || 'Error al registrar el kilometraje', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        mostrarNotificacion('Error al procesar la solicitud', 'error');
-    })
-    .finally(() => {
-        // Restaurar botón
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Registrar Kilometraje';
-    });
-}
-
-// Función para enviar carga masiva
-function submitCargaMasiva(event) {
-    event.preventDefault();
-    
-    const form = event.target;
-    const formData = new FormData(form);
-    const submitBtn = document.getElementById('btn-submit-masiva');
-    const textoSubmit = document.getElementById('texto-submit-masiva');
-    const loadingIcon = document.getElementById('loading-masiva');
-    const progressContainer = document.getElementById('progress-container');
-    const progressBar = document.getElementById('progress-bar');
-    const progressText = document.getElementById('progress-text');
-    
-    // Deshabilitar botón y mostrar loading
-    submitBtn.disabled = true;
-    textoSubmit.textContent = 'Procesando...';
-    loadingIcon.classList.remove('hidden');
-    progressContainer.classList.remove('hidden');
-    
-    // Simular progreso
-    let progress = 0;
-    const progressInterval = setInterval(() => {
-        progress += Math.random() * 15;
-        if (progress > 90) progress = 90;
-        progressBar.style.width = progress + '%';
-    }, 200);
-    
-    fetch('{{ route("kilometrajes.procesar-carga-masiva") }}', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        clearInterval(progressInterval);
-        progressBar.style.width = '100%';
-        
-        if (data.success) {
-            const exitosos = data.data.exitosos;
-            const fallidos = data.data.fallidos;
-            const total = data.data.total_procesados;
-            
-            if (fallidos > 0) {
-                progressText.textContent = `Validación completada: ${fallidos} errores encontrados de ${total} registros. ⚠️ NADA FUE GUARDADO`;
-                
-                // Mostrar modal con detalles de errores
-                mostrarModalErrores(fallidos, total, data.data.registros_fallidos);
-                
-                // También mostrar notificación más clara
-                mostrarNotificacion(`⚠️ ${fallidos} errores encontrados. NINGÚN registro fue guardado. Debe corregir todos los errores antes de procesar.`, 'error');
-            } else {
-                progressText.textContent = `Procesamiento completado: ${exitosos} registros guardados exitosamente`;
-                mostrarNotificacion(`✅ Carga masiva completada: ${exitosos} kilometrajes procesados exitosamente`, 'success');
-            }
-            } else {
-                mostrarNotificacion(`✅ Carga masiva completada: ${exitosos} kilometrajes procesados exitosamente`, 'success');
-            }
-            
-            // Solo cerrar modal y recargar si no hubo errores
-            if (fallidos === 0) {
-                setTimeout(() => {
-                    cerrarModal('modal-carga-masiva');
-                    window.location.reload();
-                }, 3000);
-            } else {
-                // Si hay errores, no cerrar el modal automáticamente para que puedan corregir
-                console.log('Modal permanece abierto para corrección de errores');
-                
-                // Limpiar el archivo seleccionado para que puedan subir uno corregido
-                document.getElementById('archivo_excel').value = '';
-                document.getElementById('nombre-archivo').textContent = 'Ningún archivo seleccionado';
-            }
-        } else {
-            progressText.textContent = 'Error en el procesamiento';
-            mostrarNotificacion(data.message || 'Error al procesar el archivo. Verifica que el formato del Excel sea correcto.', 'error');
-        }
-    })
-    .catch(error => {
-        clearInterval(progressInterval);
-        console.error('Error:', error);
-        progressText.textContent = 'Error en el procesamiento';
-        mostrarNotificacion('Error de conexión al procesar el archivo. Intenta nuevamente.', 'error');
-    })
-    .finally(() => {
-        // Restaurar botón
-        submitBtn.disabled = false;
-        textoSubmit.textContent = 'Procesar Archivo';
-        loadingIcon.classList.add('hidden');
-    });
-}
+});
 
 // Variables globales para el buscador avanzado
 let searchTimeout;
@@ -1990,48 +1784,7 @@ function validarKilometraje() {
     return true;
 }
 
-// Función para mostrar notificaciones
-function mostrarNotificacion(mensaje, tipo = 'info') {
-    // Crear elemento de notificación
-    const notificacion = document.createElement('div');
-    notificacion.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transition-all duration-300 transform translate-x-full`;
-    
-    if (tipo === 'success') {
-        notificacion.classList.add('bg-green-500', 'text-white');
-    } else if (tipo === 'error') {
-        notificacion.classList.add('bg-red-500', 'text-white');
-    } else {
-        notificacion.classList.add('bg-blue-500', 'text-white');
-    }
-    
-    notificacion.innerHTML = `
-        <div class="flex items-center">
-            <span class="flex-1">${mensaje}</span>
-            <button onclick="this.parentElement.parentElement.remove()" class="ml-3 text-white hover:text-gray-200">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
-    `;
-    
-    document.body.appendChild(notificacion);
-    
-    // Animar entrada
-    setTimeout(() => {
-        notificacion.classList.remove('translate-x-full');
-    }, 100);
-    
-    // Auto-remover después de 5 segundos
-    setTimeout(() => {
-        notificacion.classList.add('translate-x-full');
-        setTimeout(() => {
-            if (notificacion.parentElement) {
-                notificacion.remove();
-            }
-        }, 300);
-    }, 5000);
-}
+
 
 // Función para mostrar modal de errores de carga masiva
 function mostrarModalErrores(fallidos, total, registrosFallidos) {
