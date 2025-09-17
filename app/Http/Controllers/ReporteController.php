@@ -53,6 +53,7 @@ class ReporteController extends Controller
         // Query base para vehículos
         $query = Vehiculo::select([
             'vehiculos.id',
+            'vehiculos.tipo_activo_id',
             'vehiculos.marca',
             'vehiculos.modelo',
             'vehiculos.anio',
