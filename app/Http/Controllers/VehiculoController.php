@@ -618,48 +618,50 @@ class VehiculoController extends Controller
             }
 
             $vehiculosQuery = Vehiculo::select([
-                'id',
-                'marca',
-                'modelo',
-                'anio',
-                'placas',
-                'n_serie',
-                'kilometraje_actual',
-                'estatus'
+                'vehiculos.id',
+                'vehiculos.marca',
+                'vehiculos.modelo',
+                'vehiculos.anio',
+                'vehiculos.placas',
+                'vehiculos.n_serie',
+                'vehiculos.kilometraje_actual',
+                'vehiculos.estatus'
                 // 'precio_compra' // Columna no existe
             ])
-            ->where('estatus', '!=', 'eliminado');
+            ->join('tipo_activos', 'vehiculos.tipo_activo_id', '=', 'tipo_activos.id')
+            ->where('vehiculos.estatus', '!=', 'eliminado')
+            ->where('tipo_activos.tiene_kilometraje', true);
 
             // Optimización: Usar índices compuestos para búsquedas más eficientes
             if (!empty($query)) {
                 // Priorizar búsquedas exactas primero (más rápidas)
                 $vehiculosQuery->where(function($q) use ($query) {
-                    $q->where('placas', 'like', "{$query}%")
-                      ->orWhere('n_serie', 'like', "{$query}%")
-                      ->orWhere('id', 'like', "{$query}%")
-                      ->orWhere('marca', 'like', "{$query}%")
-                      ->orWhere('modelo', 'like', "{$query}%")
+                    $q->where('vehiculos.placas', 'like', "{$query}%")
+                      ->orWhere('vehiculos.n_serie', 'like', "{$query}%")
+                      ->orWhere('vehiculos.id', 'like', "{$query}%")
+                      ->orWhere('vehiculos.marca', 'like', "{$query}%")
+                      ->orWhere('vehiculos.modelo', 'like', "{$query}%")
                       // Búsquedas con LIKE %query% solo si es necesario
-                      ->orWhere('marca', 'like', "%{$query}%")
-                      ->orWhere('modelo', 'like', "%{$query}%");
+                      ->orWhere('vehiculos.marca', 'like', "%{$query}%")
+                      ->orWhere('vehiculos.modelo', 'like', "%{$query}%");
                 });
             }
 
             // Filtros específicos optimizados
             if (!empty($marca)) {
-                $vehiculosQuery->where('marca', 'like', "{$marca}%");
+                $vehiculosQuery->where('vehiculos.marca', 'like', "{$marca}%");
             }
 
             if (!empty($modelo)) {
-                $vehiculosQuery->where('modelo', 'like', "{$modelo}%");
+                $vehiculosQuery->where('vehiculos.modelo', 'like', "{$modelo}%");
             }
 
             if (!empty($anioDesde)) {
-                $vehiculosQuery->where('anio', '>=', $anioDesde);
+                $vehiculosQuery->where('vehiculos.anio', '>=', $anioDesde);
             }
 
             if (!empty($anioHasta)) {
-                $vehiculosQuery->where('anio', '<=', $anioHasta);
+                $vehiculosQuery->where('vehiculos.anio', '<=', $anioHasta);
             }
 
             // Filtros de precio deshabilitados - columna precio_compra no existe
@@ -675,22 +677,22 @@ class VehiculoController extends Controller
             if (!empty($query)) {
                 $vehiculos = $vehiculosQuery
                     ->orderByRaw("CASE 
-                        WHEN placas LIKE ? THEN 1
-                        WHEN LOWER(CONCAT(marca, ' ', modelo)) LIKE LOWER(?) THEN 2
-                        WHEN LOWER(marca) LIKE LOWER(?) THEN 3
-                        WHEN LOWER(modelo) LIKE LOWER(?) THEN 4
+                        WHEN vehiculos.placas LIKE ? THEN 1
+                        WHEN LOWER(CONCAT(vehiculos.marca, ' ', vehiculos.modelo)) LIKE LOWER(?) THEN 2
+                        WHEN LOWER(vehiculos.marca) LIKE LOWER(?) THEN 3
+                        WHEN LOWER(vehiculos.modelo) LIKE LOWER(?) THEN 4
                         ELSE 5
                     END", ["{$query}%", "%{$query}%", "{$query}%", "{$query}%"])
-                    ->orderBy('marca')
-                    ->orderBy('modelo')
-                    ->orderBy('anio', 'desc')
+                    ->orderBy('vehiculos.marca')
+                    ->orderBy('vehiculos.modelo')
+                    ->orderBy('vehiculos.anio', 'desc')
                     ->limit($limit)
                     ->get();
             } else {
                 $vehiculos = $vehiculosQuery
-                    ->orderBy('marca')
-                    ->orderBy('modelo')
-                    ->orderBy('anio', 'desc')
+                    ->orderBy('vehiculos.marca')
+                    ->orderBy('vehiculos.modelo')
+                    ->orderBy('vehiculos.anio', 'desc')
                     ->limit($limit)
                     ->get();
             }

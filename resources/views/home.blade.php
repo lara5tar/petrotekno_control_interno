@@ -1137,57 +1137,12 @@ function cargarVehiculos() {
     
     console.log('Cargando vehículos...');
     
-    // Crear vehículos de prueba directamente si estamos en desarrollo
-    // Esto garantiza que siempre haya vehículos disponibles para seleccionar
-    const vehiculosDePrueba = [
-        {
-            id: 1,
-            marca: 'Toyota',
-            modelo: 'Corolla',
-            placas: 'ABC-123',
-            anio: 2020,
-            kilometraje_actual: 15000,
-            estatus: 'activo'
-        },
-        {
-            id: 2,
-            marca: 'Honda',
-            modelo: 'Civic',
-            placas: 'XYZ-789',
-            anio: 2019,
-            kilometraje_actual: 25000,
-            estatus: 'activo'
-        }
-    ];
-    
-    console.log('Vehículos de prueba:', vehiculosDePrueba);
-    
     // Limpiar opciones existentes excepto la primera (placeholder)
     while (vehiculoSelector.options.length > 1) {
         vehiculoSelector.remove(1);
     }
     
-    // Agregar opciones de vehículos de prueba
-    vehiculosDePrueba.forEach(vehiculo => {
-        try {
-            const option = document.createElement('option');
-            option.value = vehiculo.id;
-            option.textContent = `${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placas})`;
-            option.dataset.vehiculo = JSON.stringify(vehiculo);
-            vehiculoSelector.appendChild(option);
-            console.log(`✅ Agregado vehículo de prueba: ${vehiculo.marca} ${vehiculo.modelo} (${vehiculo.placas})`);
-        } catch (error) {
-            console.error('❌ Error al agregar vehículo de prueba:', error);
-        }
-    });
-    
-    // Verificar si se agregaron las opciones
-    console.log(`Número de opciones en el selector después de agregar vehículos de prueba: ${vehiculoSelector.options.length}`);
-    
-    // Quitar indicador de carga
-    vehiculoSelector.disabled = false;
-    
-    // También intentamos cargar desde la API, pero usamos los datos de prueba como respaldo
+    // Cargar vehículos desde la API
     fetch('/vehiculos/busqueda-predictiva?limit=100', {
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
@@ -1203,11 +1158,6 @@ function cargarVehiculos() {
         
         if (data.data && data.data.length > 0) {
             console.log(`Se encontraron ${data.data.length} vehículos en la API`);
-            
-            // Limpiar opciones existentes excepto la primera (placeholder)
-            while (vehiculoSelector.options.length > 1) {
-                vehiculoSelector.remove(1);
-            }
             
             // Agregar opciones de vehículos
             data.data.forEach(vehiculo => {
@@ -1225,13 +1175,22 @@ function cargarVehiculos() {
             
             // Verificar si se agregaron las opciones
             console.log(`Número de opciones en el selector después de agregar vehículos de API: ${vehiculoSelector.options.length}`);
+        } else {
+            console.log('No se encontraron vehículos en la API');
         }
+        
+        // Quitar indicador de carga
+        vehiculoSelector.disabled = false;
+        
         // Liberar la bandera de ejecución
         cargarVehiculosEnEjecucion = false;
     })
     .catch(error => {
         console.error('Error al cargar vehículos desde la API:', error);
-        // No mostramos notificación porque ya tenemos los vehículos de prueba
+        
+        // Quitar indicador de carga
+        vehiculoSelector.disabled = false;
+        
         // Liberar la bandera de ejecución en caso de error
         cargarVehiculosEnEjecucion = false;
     });
