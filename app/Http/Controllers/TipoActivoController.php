@@ -177,6 +177,39 @@ class TipoActivoController extends Controller
     }
 
     /**
+     * Toggle kilometraje status for a tipo activo
+     */
+    public function toggleKilometraje(TipoActivo $tipoActivo)
+    {
+        $tipoActivo->update([
+            'tiene_kilometraje' => !$tipoActivo->tiene_kilometraje
+        ]);
+
+        // Log de auditoría
+        LogAccion::create([
+            'usuario_id' => Auth::id(),
+            'accion' => 'toggle_kilometraje_tipo_activo',
+            'tabla_afectada' => 'tipo_activos',
+            'registro_id' => $tipoActivo->id,
+            'detalles' => "Kilometraje " . ($tipoActivo->tiene_kilometraje ? 'activado' : 'desactivado') . " para tipo de activo: {$tipoActivo->nombre}",
+        ]);
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Estado de kilometraje actualizado exitosamente',
+                'data' => [
+                    'tiene_kilometraje' => $tipoActivo->tiene_kilometraje
+                ]
+            ]);
+        }
+
+        return redirect()
+            ->route('tipos-activos.index')
+            ->with('success', 'Estado de kilometraje actualizado exitosamente');
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(TipoActivo $tipoActivo)

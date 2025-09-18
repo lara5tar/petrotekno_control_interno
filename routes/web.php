@@ -634,6 +634,11 @@ Route::middleware('auth')->prefix('tipos-activos')->name('tipos-activos.')->grou
     Route::get('/{tipoActivo}/info', [App\Http\Controllers\TipoActivoController::class, 'getInfo'])
         ->name('info')
         ->middleware('permission:ver_catalogos');
+    
+    // Ruta para toggle de kilometraje
+    Route::patch('/{tipoActivo}/toggle-kilometraje', [App\Http\Controllers\TipoActivoController::class, 'toggleKilometraje'])
+        ->name('toggle-kilometraje')
+        ->middleware('permission:editar_catalogos');
 });
 
 // Rutas para Asignaciones de Obra
@@ -852,4 +857,12 @@ Route::middleware('auth')->prefix('api/operadores')->group(function () {
     // API: Obtener estadísticas de operador en obra específica
     Route::get('/{operador}/obras/{obraId}/estadisticas', [App\Http\Controllers\OperadorObraController::class, 'apiEstadisticasOperadorEnObra'])
         ->middleware('permission:ver_personal');
+});
+
+// Rutas para prueba de correo electrónico
+Route::middleware('auth')->group(function () {
+    Route::get('/test-email', [App\Http\Controllers\TestEmailController::class, 'showTestForm'])
+        ->name('test-email.form');
+    Route::post('/test-email/send', [App\Http\Controllers\TestEmailController::class, 'sendTestEmail'])
+        ->name('test-email.send');
 });

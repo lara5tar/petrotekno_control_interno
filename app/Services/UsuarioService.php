@@ -8,6 +8,7 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Mail\NuevoUsuarioMail;
 
 class UsuarioService
 {
@@ -41,8 +42,8 @@ class UsuarioService
             'rol_id' => $datosUsuario['rol_id'],
         ]);
 
-        // Envío de email automático deshabilitado por solicitud del usuario
-        // $this->enviarPasswordPorEmail($usuario, $password, $personal);
+        // Enviar contraseña por email automáticamente
+        $this->enviarPasswordPorEmail($usuario, $password, $personal);
 
         return [
             'usuario' => $usuario,
@@ -85,17 +86,15 @@ class UsuarioService
     private function enviarPasswordPorEmail(User $usuario, string $password, Personal $personal): void
     {
         try {
-            Mail::send('emails.nuevo-usuario', [
-                'nombre' => $personal->nombre_completo,
+            // Usar la clase Mailable para enviar el correo
+            Mail::to($usuario->email, $personal->nombre_completo)
+                ->send(new NuevoUsuarioMail($usuario, $password));
+                
+            \Log::info('Email de contraseña enviado exitosamente', [
+                'usuario_id' => $usuario->id,
                 'email' => $usuario->email,
-                'password' => $password,
-                'rol' => $usuario->rol->nombre_rol,
-                'sistema' => config('app.name'),
-                'url_login' => route('login'),
-            ], function ($message) use ($usuario, $personal) {
-                $message->to($usuario->email, $personal->nombre_completo)
-                    ->subject('Acceso al Sistema - ' . config('app.name'));
-            });
+                'personal' => $personal->nombre_completo
+            ]);
         } catch (\Exception $e) {
             // Log del error pero no fallar la creación del usuario
             \Log::error('Error al enviar email de contraseña', [
