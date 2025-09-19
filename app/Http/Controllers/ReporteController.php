@@ -104,16 +104,29 @@ class ReporteController extends Controller
 
         // Estadísticas del reporte
         $estadisticas = [
+            // Estadísticas principales
             'total_vehiculos' => $vehiculos->count(),
+            'total' => $vehiculos->count(), // Para la vista PDF
             'por_estatus' => $vehiculos->groupBy('estatus')->map->count(),
             'kilometraje_total' => $vehiculos->sum('kilometraje_actual'),
             'kilometraje_promedio' => $vehiculos->avg('kilometraje_actual'),
-            // Agregar estadísticas específicas por estado para la vista PDF
+            
+            // Estadísticas específicas por estado para la vista PDF
             'vehiculos_disponibles' => $vehiculos->where('estatus', EstadoVehiculo::DISPONIBLE)->count(),
             'vehiculos_asignados' => $vehiculos->where('estatus', EstadoVehiculo::ASIGNADO)->count(),
             'vehiculos_mantenimiento' => $vehiculos->where('estatus', EstadoVehiculo::EN_MANTENIMIENTO)->count(),
             'vehiculos_fuera_servicio' => $vehiculos->where('estatus', EstadoVehiculo::FUERA_DE_SERVICIO)->count(),
             'vehiculos_baja' => $vehiculos->where('estatus', EstadoVehiculo::BAJA)->count(),
+            
+            // Mapeo para la vista PDF (estructura esperada por la vista)
+            'por_estado' => [
+                'disponible' => $vehiculos->where('estatus', EstadoVehiculo::DISPONIBLE)->count(),
+                'asignado' => $vehiculos->where('estatus', EstadoVehiculo::ASIGNADO)->count(),
+                'mantenimiento' => $vehiculos->where('estatus', EstadoVehiculo::EN_MANTENIMIENTO)->count(),
+                'fuera_servicio' => $vehiculos->where('estatus', EstadoVehiculo::FUERA_DE_SERVICIO)->count(),
+                'baja' => $vehiculos->where('estatus', EstadoVehiculo::BAJA)->count(),
+            ],
+            
             // Estadísticas de kilometraje para el PDF
             'vehiculos_con_kilometraje_registrado' => $vehiculos->where('kilometraje_actual', '>', 0)->count(),
             'vehiculos_sin_kilometraje_registrado' => $vehiculos->where('kilometraje_actual', '<=', 0)->count(),
