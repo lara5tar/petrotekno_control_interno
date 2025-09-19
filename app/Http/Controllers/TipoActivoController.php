@@ -67,7 +67,7 @@ class TipoActivoController extends Controller
             'tiene_kilometraje' => 'boolean'
         ]);
 
-        $validated['tiene_kilometraje'] = $request->has('tiene_kilometraje');
+        $validated['tiene_kilometraje'] = $request->input('tiene_kilometraje', 0);
 
         $tipoActivo = TipoActivo::create($validated);
 
@@ -150,7 +150,7 @@ class TipoActivoController extends Controller
             'tiene_kilometraje' => 'boolean'
         ]);
 
-        $validated['tiene_kilometraje'] = $request->has('tiene_kilometraje');
+        $validated['tiene_kilometraje'] = $request->input('tiene_kilometraje', 0);
 
         $tipoActivo->update($validated);
 

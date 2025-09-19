@@ -73,7 +73,7 @@
                                    id="tiene_kilometraje_si" 
                                    name="tiene_kilometraje" 
                                    value="1" 
-                                   {{ old('tiene_kilometraje', '1') == '1' ? 'checked' : '' }}
+                                   {{ old('tiene_kilometraje') == '1' ? 'checked' : '' }}
                                    class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300">
                             <label for="tiene_kilometraje_si" class="ml-3 block text-sm text-gray-700">
                                 <span class="font-medium">Sí</span> - Este tipo de activo registra kilometraje
