@@ -28,7 +28,7 @@ class KilometrajesExport implements FromCollection, WithHeadings, WithMapping, W
         return [
             'ID',
             'Fecha Captura',
-            'Vehículo',
+            'Activo',
             'Marca',
             'Modelo',
             'Placas',

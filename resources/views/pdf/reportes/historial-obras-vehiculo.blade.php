@@ -1,16 +1,16 @@
 @extends('pdf.layouts.base')
 
-@section('title', 'Historial de Obras por Vehículo')
-@section('report-title', 'Historial de Obras por Vehículo')
+@section('title', 'Historial de Obras por Activo')
+@section('report-title', 'Historial de Obras por Activo')
 @section('report-subtitle', 'Reporte individual del historial completo de asignaciones por activo específico')
 
 @section('content')
-    <!-- Información del Vehículo -->
+    <!-- Información del Activo -->
     @if(isset($vehiculo))
         <div class="pdf-info-section">
             <div class="info-grid">
                 <div class="info-row">
-                    <div class="info-label">Vehículo:</div>
+                    <div class="info-label">Activo:</div>
                     <div class="info-value text-bold">{{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->anio }})</div>
                 </div>
                 <div class="info-row">
@@ -98,7 +98,7 @@
             <div class="info-grid">
                 @if(isset($filtros['vehiculo_id']) && $filtros['vehiculo_id'])
                     <div class="info-row">
-                        <div class="info-label">Vehículo ID:</div>
+                        <div class="info-label">Activo ID:</div>
                         <div class="info-value">{{ $filtros['vehiculo_id'] }}</div>
                     </div>
                 @endif
@@ -204,7 +204,7 @@
             @empty
                 <tr>
                     <td colspan="8" class="text-center text-muted p-15">
-                        No se encontraron asignaciones para este vehículo
+                        No se encontraron asignaciones para este activo
                     </td>
                 </tr>
             @endforelse
@@ -256,5 +256,5 @@
 @endsection
 
 @section('footer-info')
-    Historial de obras para vehículo {{ isset($vehiculo) ? $vehiculo->marca . ' ' . $vehiculo->modelo : 'N/A' }} - {{ count($asignaciones) }} asignaciones
+    Historial de obras para activo {{ isset($vehiculo) ? $vehiculo->marca . ' ' . $vehiculo->modelo : 'N/A' }} - {{ count($asignaciones) }} asignaciones
 @endsection

@@ -109,14 +109,14 @@
                         @enderror
                     </div>
 
-                    <!-- Asociación con Vehículo -->
+                    <!-- Asociación con Activo -->
                     <div>
                         <label for="vehiculo_id" class="block text-sm font-medium text-gray-700 mb-1">
-                            Vehículo
+                            Activo
                         </label>
                         <select id="vehiculo_id" name="vehiculo_id"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 @error('vehiculo_id') border-red-500 @enderror">
-                            <option value="">Sin asociar a vehículo</option>
+                            <option value="">Sin asociar a activo</option>
                             @foreach($vehiculos as $vehiculo)
                                 <option value="{{ $vehiculo->id }}" 
                                         {{ (old('vehiculo_id', $documento->vehiculo_id) == $vehiculo->id) ? 'selected' : '' }}>

@@ -62,7 +62,7 @@
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">{{ $estadisticas['vehiculos_distintos'] ?? 0 }}</span>
-                        <span class="stat-label">Vehículos Operados</span>
+                        <span class="stat-label">Activos Operados</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">{{ $estadisticas['total_kilometros'] ?? 0 }}</span>
@@ -113,7 +113,7 @@
             <tr>
                 <th style="width: 5%;">#</th>
                 <th style="width: 18%;">Obra</th>
-                <th style="width: 16%;">Vehículo</th>
+                <th style="width: 16%;">Activo</th>
                 <th style="width: 10%;">Ubicación</th>
                 <th style="width: 9%;">Fecha Asignación</th>
                 <th style="width: 9%;">Fecha Finalización</th>
@@ -258,7 +258,7 @@
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">{{ $vehiculosUnicos }}</span>
-                        <span class="stat-label">Vehículos Diferentes</span>
+                        <span class="stat-label">Activos Diferentes</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">{{ $obrasUnicas }}</span>
@@ -269,7 +269,7 @@
         </div>
     @endif
 
-    <!-- Resumen de Vehículos Operados -->
+    <!-- Resumen de Activos Operados -->
     @if(count($asignaciones) > 0)
         @php
             $vehiculosOperados = $asignaciones->groupBy('vehiculo_id')->map(function($asignacionesVehiculo) {
@@ -286,11 +286,11 @@
         
         @if($vehiculosOperados->count() > 0)
             <div class="pdf-stats-section mt-20">
-                <h3 class="stats-title">Vehículos Más Operados</h3>
+                <h3 class="stats-title">Activos Más Operados</h3>
                 <table class="pdf-table">
                     <thead>
                         <tr>
-                            <th style="width: 40%;">Vehículo</th>
+                            <th style="width: 40%;">Activo</th>
                             <th style="width: 20%;">Asignaciones</th>
                             <th style="width: 20%;">Km Recorridos</th>
                             <th style="width: 20%;">Promedio Km/Asignación</th>

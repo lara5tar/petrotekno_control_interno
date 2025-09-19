@@ -122,7 +122,7 @@
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
             <div>
                 <h2 class="text-2xl font-bold text-gray-800">Asignaciones de Obra</h2>
-                <p class="text-sm text-gray-600 mt-1">Gestiona las asignaciones de vehículos a obras</p>
+                <p class="text-sm text-gray-600 mt-1">Gestiona las asignaciones de activos a obras</p>
             </div>
             <div class="mt-4 lg:mt-0">
                 @hasPermission('crear_asignaciones')
@@ -145,7 +145,7 @@
                        id="buscar" 
                        name="buscar" 
                        value="{{ request('buscar') }}"
-                       placeholder="Vehículo, obra, operador..."
+                       placeholder="Activo, obra, operador..."
                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
 
@@ -200,7 +200,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Vehículo
+                                Activo
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Obra

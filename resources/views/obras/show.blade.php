@@ -315,7 +315,7 @@
                                         <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                         </svg>
-                                        Vehículos Asignados
+                                        Activos Asignados
                                     </h5>
                                     
                                     @if(isset($permisos) && $permisos->contains('editar_obras'))
@@ -325,7 +325,7 @@
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                         </svg>
-                                        Asignar Vehículos
+                                        Asignar Activos
                                     </button>
                                     @endif
                                 </div>
@@ -336,7 +336,7 @@
                                         <div class="space-y-3">
                                             <!-- Información del vehículo en componentes grises -->
                                             <div>
-                                                <label class="block text-sm text-gray-600">Vehículo</label>
+                                                <label class="block text-sm text-gray-600">Activo</label>
                                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                                     {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
                                                 </div>
@@ -423,7 +423,7 @@
                                     <!-- Mostrar el vehículo único asociado directamente a la obra -->
                                     <div class="space-y-3">
                                         <div>
-                                            <label class="block text-sm text-gray-600">Vehículo</label>
+                                            <label class="block text-sm text-gray-600">Activo</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                                 {{ $obra->vehiculo->marca }} {{ $obra->vehiculo->modelo }}
                                             </div>
@@ -465,7 +465,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
-                                                Ver Vehículo
+                                                Ver Activo
                                             </a>
                                         </div>
                                     </div>
@@ -475,12 +475,12 @@
                                         <svg class="w-10 h-10 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                                         </svg>
-                                        <h5 class="text-lg font-medium text-red-800 mb-2">Sin vehículo asignado</h5>
-                                        <p class="text-sm text-red-600 mb-4">Esta obra no tiene vehículos asignados actualmente.</p>
+                                        <h5 class="text-lg font-medium text-red-800 mb-2">Sin activo asignado</h5>
+                                        <p class="text-sm text-red-600 mb-4">Esta obra no tiene activos asignados actualmente.</p>
                                         
                                         @if(isset($permisos) && $permisos->contains('editar_obras'))
                                         <a href="{{ route('obras.edit', ['obra' => $obra->id]) }}" class="inline-block bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md text-sm transition-colors duration-200">
-                                            Asignar Vehículo
+                                            Asignar Activo
                                         </a>
                                         @endif
                                     </div>
@@ -725,7 +725,7 @@
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
                                             <tr>
-                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operador</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Asignación</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
@@ -736,7 +736,7 @@
                                             @if($obra->vehiculo_id && $obra->operador_id)
                                             <tr>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {{ $obra->vehiculo ? $obra->vehiculo->marca . ' ' . $obra->vehiculo->modelo : 'Sin vehículo' }}
+                                                    {{ $obra->vehiculo ? $obra->vehiculo->marca . ' ' . $obra->vehiculo->modelo : 'Sin activo' }}
                                                 </td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                                     {{ $obra->operador ? $obra->operador->nombre_completo : 'Sin operador' }}
@@ -755,7 +755,7 @@
                                                 @foreach($obra->asignacionesActivas as $asignacion)
                                                 <tr>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                        {{ $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo : 'Sin vehículo' }}
+                                                        {{ $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo : 'Sin activo' }}
                                                     </td>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                                         {{ $asignacion->operador ? $asignacion->operador->nombre_completo : 'Sin operador' }}
@@ -804,7 +804,7 @@
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
                                             <tr>
-                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operador</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Asignación</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asignado Por</th>
@@ -816,7 +816,7 @@
                                                 @foreach($obra->historialOperadores->take(10) as $historial)
                                                 <tr>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                        {{ $historial->vehiculo ? $historial->vehiculo->marca . ' ' . $historial->vehiculo->modelo . ' (' . $historial->vehiculo->placas . ')' : 'Sin vehículo' }}
+                                                        {{ $historial->vehiculo ? $historial->vehiculo->marca . ' ' . $historial->vehiculo->modelo . ' (' . $historial->vehiculo->placas . ')' : 'Sin activo' }}
                                                     </td>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                                         {{ $historial->operadorNuevo ? $historial->operadorNuevo->nombre_completo : 'Sin operador' }}
@@ -837,7 +837,7 @@
                                             @elseif($obra->fecha_liberacion)
                                             <tr>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {{ $obra->vehiculo ? $obra->vehiculo->marca . ' ' . $obra->vehiculo->modelo : 'Sin vehículo' }}
+                                                    {{ $obra->vehiculo ? $obra->vehiculo->marca . ' ' . $obra->vehiculo->modelo : 'Sin activo' }}
                                                 </td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                                     {{ $obra->operador ? $obra->operador->nombre_completo : 'Sin operador' }}
@@ -857,7 +857,7 @@
                                                 @foreach($obra->asignacionesLiberadas->take(5) as $asignacion)
                                                 <tr>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                        {{ $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo : 'Sin vehículo' }}
+                                                        {{ $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo : 'Sin activo' }}
                                                     </td>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                                         {{ $asignacion->operador ? $asignacion->operador->nombre_completo : 'Sin operador' }}
@@ -1027,7 +1027,7 @@
     <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white">
         <div class="flex justify-between items-center mb-4">
             <h3 id="modal-vehiculos-title" class="text-lg font-semibold text-gray-900">
-                Asignar Vehículos a la Obra
+                Asignar Activos a la Obra
             </h3>
             <button onclick="closeAsignarVehiculosModal()" class="text-gray-400 hover:text-gray-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1038,7 +1038,7 @@
         
         <div class="mb-4 text-sm text-gray-600">
             <p><strong>Obra:</strong> {{ $obra->nombre_obra }}</p>
-            <p><strong>Vehículos Actuales:</strong> {{ $obra->vehiculos ? $obra->vehiculos->count() : 0 }}</p>
+            <p><strong>Activos Actuales:</strong> {{ $obra->vehiculos ? $obra->vehiculos->count() : 0 }}</p>
         </div>
 
         <form id="asignar-vehiculos-form" method="POST" action="{{ route('obras.asignar-vehiculos', $obra) }}">
@@ -1048,7 +1048,7 @@
             <!-- Lista de Vehículos Disponibles -->
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Seleccionar Vehículos Disponibles
+                    Seleccionar Activos Disponibles
                 </label>
                 <div class="max-h-64 overflow-y-auto border border-gray-300 rounded-md p-3 bg-gray-50">
                     <div class="space-y-2" id="vehiculos-disponibles">
@@ -1088,7 +1088,7 @@
                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                                     </svg>
-                                    Vehículos Disponibles ({{ $vehiculosDisponiblesReales->count() }})
+                                    Activos Disponibles ({{ $vehiculosDisponiblesReales->count() }})
                                 </h6>
                             </div>
                             
@@ -1135,9 +1135,9 @@
                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                     </svg>
-                                    Vehículos No Disponibles ({{ $vehiculosNoDisponibles->count() }})
+                                    Activos No Disponibles ({{ $vehiculosNoDisponibles->count() }})
                                 </h6>
-                                <p class="text-xs text-red-600 mt-1">Estos vehículos están asignados a otras obras</p>
+                                <p class="text-xs text-red-600 mt-1">Estos activos están asignados a otras obras</p>
                             </div>
                             
                             @foreach($vehiculosNoDisponibles as $vehiculo)
@@ -1174,11 +1174,11 @@
                         @endif
                         
                         @if($vehiculosDisponiblesReales->count() === 0 && $vehiculosNoDisponibles->count() === 0)
-                            <p class="text-sm text-gray-500 text-center py-4">No hay vehículos disponibles</p>
+                            <p class="text-sm text-gray-500 text-center py-4">No hay activos disponibles</p>
                         @endif
                     </div>
                 </div>
-                <p class="mt-1 text-xs text-gray-500">Selecciona uno o más vehículos para asignar a esta obra. Los vehículos ya asignados aparecen marcados.</p>
+                <p class="mt-1 text-xs text-gray-500">Selecciona uno o más activos para asignar a esta obra. Los activos ya asignados aparecen marcados.</p>
             </div>
             
             <!-- Observaciones -->
@@ -1196,14 +1196,14 @@
             <!-- Botones -->
             <div class="flex justify-end space-x-3">
                 <button type="button" 
-                        onclick="closeAsignarVehiculosModal()" 
+                        onclick="closeAsignarActivosModal()" 
                         class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     Cancelar
                 </button>
                 <button type="submit" 
-                        id="submit-vehiculos-btn"
+                        id="submit-activos-btn"
                         class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Asignar Vehículos
+                    Asignar Activos
                 </button>
             </div>
         </form>
@@ -1246,8 +1246,8 @@
         }
     }
 
-    // Funciones para el modal de asignar vehículos
-    function openAsignarVehiculosModal() {
+    // Funciones para el modal de asignar activos
+    function openAsignarActivosModal() {
         const modal = document.getElementById('asignar-vehiculos-modal');
         if (modal) {
             modal.classList.remove('hidden');
@@ -1255,7 +1255,7 @@
         }
     }
 
-    function closeAsignarVehiculosModal() {
+    function closeAsignarActivosModal() {
         const modal = document.getElementById('asignar-vehiculos-modal');
         if (modal) {
             modal.classList.add('hidden');
@@ -1281,7 +1281,7 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeCambiarResponsableModal();
-                closeAsignarVehiculosModal();
+                closeAsignarActivosModal();
             }
         });
 
@@ -1296,20 +1296,20 @@
             });
         }
 
-        // Event listeners para modal de vehículos
-        const modalVehiculos = document.getElementById('asignar-vehiculos-modal');
-        if (modalVehiculos) {
-            modalVehiculos.addEventListener('click', function(e) {
-                if (e.target === modalVehiculos) {
-                    closeAsignarVehiculosModal();
+        // Event listeners para modal de activos
+        const modalActivos = document.getElementById('asignar-vehiculos-modal');
+        if (modalActivos) {
+            modalActivos.addEventListener('click', function(e) {
+                if (e.target === modalActivos) {
+                    closeAsignarActivosModal();
                 }
             });
         }
 
-        const formVehiculos = document.getElementById('asignar-vehiculos-form');
-        if(formVehiculos) {
-            formVehiculos.addEventListener('submit', function(e){
-                const submitBtn = document.getElementById('submit-vehiculos-btn');
+        const formActivos = document.getElementById('asignar-vehiculos-form');
+        if(formActivos) {
+            formActivos.addEventListener('submit', function(e){
+                const submitBtn = document.getElementById('submit-activos-btn');
                 if(submitBtn) {
                     submitBtn.disabled = true;
                     submitBtn.textContent = 'Asignando...';

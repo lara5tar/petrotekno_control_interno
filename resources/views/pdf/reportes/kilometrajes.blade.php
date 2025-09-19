@@ -8,7 +8,7 @@
     <div class="report-info">
         <p><strong>Fecha de generación:</strong> {{ date('d/m/Y H:i') }}</p>
         @if($vehiculoId)
-            <p><strong>Vehículo filtrado:</strong> 
+            <p><strong>Activo filtrado:</strong> 
                 @php
                     $vehiculo = \App\Models\Vehiculo::find($vehiculoId);
                 @endphp
@@ -33,7 +33,7 @@
             <span class="stat-value">{{ number_format($estadisticas['total_registros']) }}</span>
         </div>
         <div class="stat-item">
-            <span class="stat-label">Vehículos con Kilometraje:</span>
+            <span class="stat-label">Activos con Kilometraje:</span>
             <span class="stat-value">{{ number_format($estadisticas['vehiculos_con_kilometraje']) }}</span>
         </div>
         <div class="stat-item">
@@ -51,7 +51,7 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Vehículo</th>
+                    <th>Activo</th>
                     <th>Placas</th>
                     <th>Ubicación</th>
                     <th>Fecha</th>
@@ -93,7 +93,7 @@
 
     <!-- Resumen por vehículo -->
     <div class="summary-section">
-        <h2>Resumen por Vehículo</h2>
+        <h2>Resumen por Activo</h2>
         @php
             $resumenVehiculos = $kilometrajes->groupBy('vehiculo_id')->map(function($registros) {
                 $vehiculo = $registros->first()->vehiculo;
@@ -111,7 +111,7 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Vehículo</th>
+                    <th>Activo</th>
                     <th>Placas</th>
                     <th>Ubicación</th>
                     <th>Primer Km</th>

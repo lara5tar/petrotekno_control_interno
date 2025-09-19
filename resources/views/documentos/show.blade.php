@@ -85,9 +85,9 @@
                         <div class="space-y-3">
                             @if($documento->vehiculo)
                                 <div>
-                                    <label class="text-sm font-medium text-gray-500">Vehículo</label>
+                                    <label class="text-sm font-medium text-gray-500">Activo</label>
                                     <p class="text-gray-900">
-                                        🚗 {{ $documento->vehiculo->marca }} {{ $documento->vehiculo->modelo }}
+                                        🔧 {{ $documento->vehiculo->marca }} {{ $documento->vehiculo->modelo }}
                                         <br><span class="text-sm text-gray-600">Placas: {{ $documento->vehiculo->placas }}</span>
                                         @if($documento->vehiculo->n_serie)
                                             <br><span class="text-sm text-gray-600">Serie: {{ $documento->vehiculo->n_serie }}</span>

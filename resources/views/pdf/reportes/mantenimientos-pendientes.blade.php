@@ -8,7 +8,7 @@
     <div class="report-info">
         <p><strong>Fecha de generación:</strong> {{ date('d/m/Y H:i') }}</p>
         @if($vehiculoId)
-            <p><strong>Vehículo filtrado:</strong> 
+            <p><strong>Activo filtrado:</strong> 
                 @php
                     $vehiculo = \App\Models\Vehiculo::find($vehiculoId);
                 @endphp
@@ -44,7 +44,7 @@
             <span class="stat-value">{{ number_format($estadisticas['mantenimientos_preventivos']) }}</span>
         </div>
         <div class="stat-item">
-            <span class="stat-label">Vehículos Afectados:</span>
+            <span class="stat-label">Activos Afectados:</span>
             <span class="stat-value">{{ number_format($estadisticas['vehiculos_en_mantenimiento']) }}</span>
         </div>
         <div class="stat-item">
@@ -65,7 +65,7 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Vehículo</th>
+                    <th>Activo</th>
                     <th>Placas</th>
                     <th>Tipo</th>
                     <th>Sistema</th>
@@ -130,7 +130,7 @@
                 <tr>
                     <th>Tipo de Servicio</th>
                     <th>Cantidad</th>
-                    <th>Vehículos Afectados</th>
+                    <th>Activos Afectados</th>
                     <th>Días Promedio Pendiente</th>
                     <th>Costo Total</th>
                 </tr>
@@ -151,7 +151,7 @@
 
     <!-- Resumen por sistema de vehículo -->
     <div class="summary-section">
-        <h2>Resumen por Sistema de Vehículo</h2>
+        <h2>Resumen por Sistema de Activo</h2>
         @php
             $resumenSistemas = $mantenimientos->groupBy('sistema_vehiculo')->map(function($registros, $sistema) {
                 $costoTotal = $registros->sum('costo');

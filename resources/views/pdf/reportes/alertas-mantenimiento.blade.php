@@ -2,7 +2,7 @@
 
 @section('title', 'Reporte de Alertas de Mantenimiento')
 @section('report-title', 'Reporte de Alertas de Mantenimiento')
-@section('report-subtitle', 'Análisis preventivo y alertas de mantenimiento pendiente por vehículo')
+@section('report-subtitle', 'Análisis preventivo y alertas de mantenimiento pendiente por activo')
 
 @section('content')
     <!-- Sección de Resumen Ejecutivo -->
@@ -17,7 +17,7 @@
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">{{ $resumen['vehiculos_afectados'] ?? 0 }}</span>
-                        <span class="stat-label">Vehículos Afectados</span>
+                        <span class="stat-label">Activos Afectados</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number text-danger">{{ $resumen['por_urgencia']['critica'] ?? 0 }}</span>
@@ -105,7 +105,7 @@
             <table class="pdf-table">
                 <thead>
                     <tr style="background-color: #e74c3c;">
-                        <th style="width: 25%;">Vehículo</th>
+                        <th style="width: 25%;">Activo</th>
                         <th style="width: 15%;">Tipo</th>
                         <th style="width: 20%;">Descripción</th>
                         <th style="width: 15%;">Km Actual</th>
@@ -141,7 +141,7 @@
         <thead>
             <tr>
                 <th style="width: 5%;">#</th>
-                <th style="width: 16%;">Vehículo</th>
+                <th style="width: 16%;">Activo</th>
                 <th style="width: 10%;">Ubicación</th>
                 <th style="width: 10%;">Tipo Mantenimiento</th>
                 <th style="width: 8%;">Urgencia</th>
@@ -283,14 +283,14 @@
                 @if($alertasAltas->count() > 0)
                     <div style="margin-bottom: 10px;">
                         <strong>Prioridad Alta:</strong>
-                        Programar mantenimiento para {{ $alertasAltas->count() }} vehículos en las próximas 2 semanas.
+                        Programar mantenimiento para {{ $alertasAltas->count() }} activos en las próximas 2 semanas.
                     </div>
                 @endif
                 
                 @if($alertasNormales->count() > 0)
                     <div style="margin-bottom: 10px;">
                         <strong>Mantenimiento Programado:</strong>
-                        Considerar {{ $alertasNormales->count() }} vehículos para mantenimiento preventivo en el próximo mes.
+                        Considerar {{ $alertasNormales->count() }} activos para mantenimiento preventivo en el próximo mes.
                     </div>
                 @endif
                 

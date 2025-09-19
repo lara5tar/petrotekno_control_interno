@@ -114,6 +114,9 @@ class ReporteController extends Controller
             'vehiculos_mantenimiento' => $vehiculos->where('estatus', EstadoVehiculo::EN_MANTENIMIENTO)->count(),
             'vehiculos_fuera_servicio' => $vehiculos->where('estatus', EstadoVehiculo::FUERA_DE_SERVICIO)->count(),
             'vehiculos_baja' => $vehiculos->where('estatus', EstadoVehiculo::BAJA)->count(),
+            // Estadísticas de kilometraje para el PDF
+            'vehiculos_con_kilometraje_registrado' => $vehiculos->where('kilometraje_actual', '>', 0)->count(),
+            'vehiculos_sin_kilometraje_registrado' => $vehiculos->where('kilometraje_actual', '<=', 0)->count(),
         ];
 
         // Procesar cada vehículo para agregar información adicional

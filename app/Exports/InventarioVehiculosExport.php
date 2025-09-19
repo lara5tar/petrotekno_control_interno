@@ -63,6 +63,6 @@ class InventarioVehiculosExport implements FromCollection, WithHeadings, WithMap
 
     public function title(): string
     {
-        return 'Inventario Vehículos';
+        return 'Inventario Activos';
     }
 }

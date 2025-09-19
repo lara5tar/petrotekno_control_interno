@@ -64,7 +64,7 @@
                 @endif
                 <div class="info-row">
                     <div class="info-label">Total de Registros:</div>
-                    <div class="info-value">{{ count($vehiculos) }} vehículos</div>
+                    <div class="info-value">{{ count($vehiculos) }} activos</div>
                 </div>
             </div>
         </div>
@@ -127,7 +127,7 @@
             @empty
                 <tr>
                     <td colspan="9" class="text-center text-muted p-15">
-                        No se encontraron vehículos con los criterios especificados
+                        No se encontraron activos con los criterios especificados
                     </td>
                 </tr>
             @endforelse
@@ -170,5 +170,5 @@
 @endsection
 
 @section('footer-info')
-    Inventario generado el {{ now()->format('d/m/Y H:i:s') }} - Total: {{ count($vehiculos) }} vehículos
+    Inventario generado el {{ now()->format('d/m/Y H:i:s') }} - Total: {{ count($vehiculos) }} activos
 @endsection

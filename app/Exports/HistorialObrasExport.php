@@ -27,7 +27,7 @@ class HistorialObrasExport implements FromCollection, WithHeadings, WithMapping,
     {
         return [
             'ID',
-            'Vehículo',
+            'Activo',
             'Marca',
             'Modelo',
             'Placas',
@@ -68,6 +68,6 @@ class HistorialObrasExport implements FromCollection, WithHeadings, WithMapping,
 
     public function title(): string
     {
-        return 'Historial Obras Vehículos';
+        return 'Historial Obras Activos';
     }
 }

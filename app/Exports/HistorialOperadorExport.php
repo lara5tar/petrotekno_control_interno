@@ -28,7 +28,7 @@ class HistorialOperadorExport implements FromCollection, WithHeadings, WithMappi
         return [
             'ID',
             'Operador',
-            'Vehículo',
+            'Activo',
             'Marca',
             'Modelo',
             'Placas',
