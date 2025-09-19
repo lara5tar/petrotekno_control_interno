@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Models\Mantenimiento;
+use App\Models\Personal;
 use App\Models\Vehiculo;
 use App\Observers\MantenimientoObserver;
+use App\Observers\PersonalObserver;
 use App\Observers\VehiculoObserver;
 use App\View\Composers\AlertasComposer;
 use Illuminate\Support\ServiceProvider;
@@ -34,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Registrar observers
         Mantenimiento::observe(MantenimientoObserver::class);
+        Personal::observe(PersonalObserver::class);
         Vehiculo::observe(VehiculoObserver::class);
 
         // Registrar View Composers

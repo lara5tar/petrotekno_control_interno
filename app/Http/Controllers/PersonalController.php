@@ -650,19 +650,8 @@ class PersonalController extends Controller
         try {
             $personal = Personal::findOrFail($id);
 
-            // Verificar si tiene usuario asociado
-            if ($personal->usuario) {
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'No se puede eliminar el personal porque tiene un usuario asociado',
-                    ], 400);
-                }
-
-                return redirect()
-                    ->back()
-                    ->withErrors(['error' => 'No se puede eliminar el personal porque tiene un usuario asociado']);
-            }
+            // El PersonalObserver se encarga de eliminar automáticamente el usuario asociado
+            // por lo que ya no es necesario verificar si tiene usuario asociado
 
             // Guardamos información para el log antes de eliminar
             $infoPersonal = "{$personal->nombre_completo} - {$personal->categoria->nombre_categoria}";
