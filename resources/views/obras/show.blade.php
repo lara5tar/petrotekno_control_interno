@@ -318,8 +318,8 @@
                                         Activos Asignados
                                     </h5>
                                     
-                                    @if(isset($permisos) && $permisos->contains('editar_obras'))
-                                    <button onclick="openAsignarVehiculosModal()" 
+                                    @hasPermission('actualizar_obras')
+                                    <button onclick="openAsignarActivosModal()" 
                                        class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs"
                                        id="btn-asignar-vehiculos">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -327,7 +327,7 @@
                                         </svg>
                                         Asignar Activos
                                     </button>
-                                    @endif
+                                    @endhasPermission
                                 </div>
                                 
                                 @if($obra->vehiculos && $obra->vehiculos->count() > 0)
@@ -1029,7 +1029,7 @@
             <h3 id="modal-vehiculos-title" class="text-lg font-semibold text-gray-900">
                 Asignar Activos a la Obra
             </h3>
-            <button onclick="closeAsignarVehiculosModal()" class="text-gray-400 hover:text-gray-600">
+            <button onclick="closeAsignarActivosModal()" class="text-gray-400 hover:text-gray-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
