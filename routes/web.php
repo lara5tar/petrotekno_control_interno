@@ -23,6 +23,11 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// Ruta de preview para el correo de credenciales (solo para desarrollo)
+Route::get('/preview-email', function () {
+    return view('preview-email');
+})->name('preview.email');
+
 // Rutas de autenticación (sin registro público)
 Auth::routes(['register' => false]);
 

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Personal;
 use App\Models\Role;
+use App\Mail\CredencialesUsuarioMail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -41,8 +42,11 @@ class UsuarioService
             'rol_id' => $datosUsuario['rol_id'],
         ]);
 
-        // Envío de email automático deshabilitado por solicitud del usuario
-        // $this->enviarPasswordPorEmail($usuario, $password, $personal);
+        // Cargar la relación del rol para obtener el nombre
+        $usuario->load('rol');
+
+        // Enviar credenciales por email automáticamente
+        $this->enviarCredencialesPorEmail($usuario, $password, $personal);
 
         return [
             'usuario' => $usuario,
@@ -51,36 +55,67 @@ class UsuarioService
     }
 
     /**
-     * Generar una contraseña aleatoria segura
+     * Generar contraseña aleatoria de 8 caracteres (letras y números)
      */
     private function generarPasswordAleatoria(): string
     {
-        // Generar contraseña de 12 caracteres con mayúsculas, minúsculas, números y símbolos
-        $uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $lowercase = 'abcdefghijklmnopqrstuvwxyz';
-        $numbers = '0123456789';
-        $symbols = '!@#$%&*';
-
-        $password = '';
-
-        // Asegurar al menos uno de cada tipo
-        $password .= $uppercase[random_int(0, strlen($uppercase) - 1)];
-        $password .= $lowercase[random_int(0, strlen($lowercase) - 1)];
-        $password .= $numbers[random_int(0, strlen($numbers) - 1)];
-        $password .= $symbols[random_int(0, strlen($symbols) - 1)];
-
-        // Completar con caracteres aleatorios
-        $allChars = $uppercase . $lowercase . $numbers . $symbols;
-        for ($i = 4; $i < 12; $i++) {
-            $password .= $allChars[random_int(0, strlen($allChars) - 1)];
-        }
-
-        // Mezclar los caracteres
-        return str_shuffle($password);
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        return substr(str_shuffle($characters), 0, 8);
     }
 
     /**
-     * Enviar contraseña por email al usuario
+     * Generar contraseña personalizada (método legacy, ya no se usa)
+     */
+    private function generarPasswordPersonalizada(string $nombre, string $apellido): string
+    {
+        // Tomar las primeras 3 letras del nombre y apellido
+        $iniciales = substr(strtolower($nombre), 0, 3) . substr(strtolower($apellido), 0, 3);
+        
+        // Agregar números aleatorios
+        $numeros = rand(10, 99);
+        
+        return $iniciales . $numeros;
+    }
+
+    /**
+     * Enviar credenciales por email al usuario
+     */
+    private function enviarCredencialesPorEmail(User $usuario, string $password, Personal $personal): void
+    {
+        try {
+            $credencialesMail = new CredencialesUsuarioMail(
+                nombrePersonal: $personal->nombre_completo,
+                emailUsuario: $usuario->email,
+                passwordGenerada: $password,
+                rolUsuario: $usuario->rol->nombre_rol,
+                urlLogin: route('login')
+            );
+
+            Mail::to($usuario->email)->send($credencialesMail);
+
+            \Log::info('Email de credenciales enviado exitosamente', [
+                'usuario_id' => $usuario->id,
+                'email' => $usuario->email,
+                'personal' => $personal->nombre_completo
+            ]);
+
+        } catch (\Exception $e) {
+            // Log del error pero no fallar la creación del usuario
+            \Log::error('Error al enviar email de credenciales', [
+                'usuario_id' => $usuario->id,
+                'email' => $usuario->email,
+                'personal' => $personal->nombre_completo,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // No lanzar excepción, solo loggear el error
+            // La contraseña se mostrará en pantalla independientemente del email
+        }
+    }
+
+    /**
+     * Enviar contraseña por email al usuario (método legacy)
      */
     private function enviarPasswordPorEmail(User $usuario, string $password, Personal $personal): void
     {
