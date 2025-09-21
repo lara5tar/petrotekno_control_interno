@@ -120,11 +120,11 @@
                     @forelse($vehiculos as $vehiculo)
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $vehiculo->id }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $vehiculo->placas }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $vehiculo->n_serie }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $vehiculo->marca }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $vehiculo->modelo }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $vehiculo->anio }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ !empty($vehiculo->placas) ? $vehiculo->placas : 'Sin placas' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ !empty($vehiculo->n_serie) ? $vehiculo->n_serie : 'Sin serie' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ !empty($vehiculo->marca) ? $vehiculo->marca : 'Sin marca' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ !empty($vehiculo->modelo) ? $vehiculo->modelo : 'Sin modelo' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ !empty($vehiculo->anio) ? $vehiculo->anio : 'Sin año' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $vehiculo->tipoActivo ? $vehiculo->tipoActivo->nombre : 'No asignado' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @php
@@ -168,7 +168,7 @@
                                 @endhasPermission
                                 
                                 @hasPermission('eliminar_vehiculos')
-                                <button data-activo-id="{{ $vehiculo->id }}" data-activo-placas="{{ $vehiculo->placas }}" class="btn-eliminar text-red-600 hover:text-red-900" title="Eliminar activo">
+                                <button data-activo-id="{{ $vehiculo->id }}" data-activo-placas="{{ !empty($vehiculo->placas) ? $vehiculo->placas : 'Sin placas' }}" class="btn-eliminar text-red-600 hover:text-red-900" title="Eliminar activo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                                     </svg>

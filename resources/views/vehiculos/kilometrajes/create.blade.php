@@ -19,8 +19,8 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h1 class="text-xl font-semibold text-gray-800">Registrar Nuevo Kilometraje</h1>
-                        <p class="text-sm text-gray-600 mt-1">{{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->anio }})</p>
-                        <p class="text-xs text-gray-500">Placas: {{ $vehiculo->placas }}</p>
+                        <p class="text-sm text-gray-600 mt-1">{{ !empty($vehiculo->marca) ? $vehiculo->marca : 'Sin marca' }} {{ !empty($vehiculo->modelo) ? $vehiculo->modelo : 'Sin modelo' }} ({{ !empty($vehiculo->anio) ? $vehiculo->anio : 'Sin año' }})</p>
+                        <p class="text-xs text-gray-500">Placas: {{ !empty($vehiculo->placas) ? $vehiculo->placas : 'Sin placas' }}</p>
                     </div>
                     <div class="text-right">
                         <div class="text-sm font-medium text-gray-600">Kilometraje Actual</div>

@@ -54,7 +54,7 @@ class StoreVehiculoRequest extends FormRequest
                 'unique:vehiculos,n_serie',
             ],
             'placas' => [
-                'required',
+                'nullable',
                 'string',
                 'max:20',
                 'unique:vehiculos,placas',
@@ -271,7 +271,6 @@ class StoreVehiculoRequest extends FormRequest
             'n_serie.max' => 'El número de serie no puede exceder 100 caracteres',
             'n_serie.unique' => 'Este número de serie ya está registrado en el sistema',
             
-            'placas.required' => 'Las placas del vehículo son obligatorias',
             'placas.string' => 'Las placas deben ser un texto válido',
             'placas.max' => 'Las placas no pueden exceder 20 caracteres',
             'placas.unique' => 'Estas placas ya están registradas en el sistema',

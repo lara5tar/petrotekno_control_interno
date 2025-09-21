@@ -66,7 +66,7 @@ class UpdateVehiculoRequest extends FormRequest
             ],
             'placas' => [
                 'sometimes',
-                'required',
+                'nullable',
                 'string',
                 'max:20',
                 'regex:/^[A-Z0-9\-]+$/',
@@ -149,7 +149,6 @@ class UpdateVehiculoRequest extends FormRequest
             'n_serie.required' => 'El número de serie es obligatorio.',
             'n_serie.unique' => 'Este número de serie ya está registrado.',
             'n_serie.max' => 'El número de serie no puede exceder 100 caracteres.',
-            'placas.required' => 'Las placas del vehículo son obligatorias.',
             'placas.unique' => 'Estas placas ya están registradas.',
             'placas.regex' => 'Las placas solo pueden contener letras, números y guiones.',
             'placas.max' => 'Las placas no pueden exceder 20 caracteres.',

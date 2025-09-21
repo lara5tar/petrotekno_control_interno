@@ -19,8 +19,8 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h1 class="text-xl font-semibold text-gray-800">Detalle del Kilometraje</h1>
-                        <p class="text-sm text-gray-600 mt-1">{{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->anio }})</p>
-                        <p class="text-xs text-gray-500">Placas: {{ $vehiculo->placas }}</p>
+                        <p class="text-sm text-gray-600 mt-1">{{ !empty($vehiculo->marca) ? $vehiculo->marca : 'Sin marca' }} {{ !empty($vehiculo->modelo) ? $vehiculo->modelo : 'Sin modelo' }} ({{ !empty($vehiculo->anio) ? $vehiculo->anio : 'Sin año' }})</p>
+                        <p class="text-xs text-gray-500">Placas: {{ !empty($vehiculo->placas) ? $vehiculo->placas : 'Sin placas' }}</p>
                     </div>
                     <div class="text-right">
                         <div class="text-sm font-medium text-gray-600">Kilometraje Registrado</div>
@@ -111,7 +111,7 @@
                         
                         <div class="mt-3 flex justify-center">
                             <a href="{{ Storage::url($kilometraje->imagen) }}" 
-                               download="kilometraje_{{ $vehiculo->placas }}_{{ $kilometraje->kilometraje }}.jpg"
+                               download="kilometraje_{{ !empty($vehiculo->placas) ? $vehiculo->placas : 'sin_placas' }}_{{ $kilometraje->kilometraje }}.jpg"
                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm flex items-center transition-colors duration-200">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -189,19 +189,19 @@
                     <div class="p-4 space-y-3">
                         <div class="flex justify-between">
                             <span class="text-sm text-gray-600">Marca:</span>
-                            <span class="text-sm font-medium">{{ $vehiculo->marca }}</span>
+                            <span class="text-sm font-medium">{{ !empty($vehiculo->marca) ? $vehiculo->marca : 'Sin marca' }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-sm text-gray-600">Modelo:</span>
-                            <span class="text-sm font-medium">{{ $vehiculo->modelo }}</span>
+                            <span class="text-sm font-medium">{{ !empty($vehiculo->modelo) ? $vehiculo->modelo : 'Sin modelo' }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-sm text-gray-600">Año:</span>
-                            <span class="text-sm font-medium">{{ $vehiculo->anio }}</span>
+                            <span class="text-sm font-medium">{{ !empty($vehiculo->anio) ? $vehiculo->anio : 'Sin año' }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-sm text-gray-600">Placas:</span>
-                            <span class="text-sm font-medium">{{ $vehiculo->placas }}</span>
+                            <span class="text-sm font-medium">{{ !empty($vehiculo->placas) ? $vehiculo->placas : 'Sin placas' }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-sm text-gray-600">Kilometraje Actual:</span>

@@ -106,7 +106,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Marca</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $vehiculo->marca ?? 'Nissan' }}
+                                {{ !empty($vehiculo->marca) ? $vehiculo->marca : 'Sin marca' }}
                             </div>
                         </div>
                     </div>
@@ -117,13 +117,13 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Modelo</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $vehiculo->modelo ?? 'NP300' }}
+                                {{ !empty($vehiculo->modelo) ? $vehiculo->modelo : 'Sin modelo' }}
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Año</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $vehiculo->anio ?? '2023' }}
+                                {{ !empty($vehiculo->anio) ? $vehiculo->anio : 'Sin año' }}
                             </div>
                         </div>
                     </div>
@@ -132,13 +132,13 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Placas</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $vehiculo->placas ?? 'NL-ABC-1234' }}
+                                {{ !empty($vehiculo->placas) ? $vehiculo->placas : 'Sin placas' }}
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Serie</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $vehiculo->n_serie ?? 'NS123456789' }}
+                                {{ !empty($vehiculo->n_serie) ? $vehiculo->n_serie : 'Sin número de serie' }}
                             </div>
                         </div>
                     </div>
@@ -147,13 +147,13 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Estado</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $vehiculo->estado ?? 'No especificado' }}
+                                {{ !empty($vehiculo->estado) ? $vehiculo->estado : 'Sin estado' }}
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Municipio</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $vehiculo->municipio ?? 'No especificado' }}
+                                {{ !empty($vehiculo->municipio) ? $vehiculo->municipio : 'Sin municipio' }}
                             </div>
                         </div>
                     </div>
@@ -237,7 +237,7 @@
                             @if(!empty($vehiculo->url_imagen) && $vehiculo->url_imagen !== null && $vehiculo->url_imagen !== '')
                             <div class="bg-gray-100 rounded overflow-hidden mb-2" id="image-container">
                                 <img src="{{ $vehiculo->url_imagen }}" 
-                                     alt="Activo {{ $vehiculo->marca ?? 'Nissan' }} {{ $vehiculo->modelo ?? 'NP300' }}" 
+                                     alt="Activo {{ !empty($vehiculo->marca) ? $vehiculo->marca : 'Sin marca' }} {{ !empty($vehiculo->modelo) ? $vehiculo->modelo : 'Sin modelo' }}" 
                                          class="w-full h-auto object-contain max-h-64"
                                          id="vehicle-image"
                                          onload="handleImageLoad()"
@@ -1279,7 +1279,7 @@
         </div>
         
         <div class="modal-form-group p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
-            <p><strong>Activo:</strong> {{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->placas }})</p>
+            <p><strong>Activo:</strong> {{ !empty($vehiculo->marca) ? $vehiculo->marca : 'Sin marca' }} {{ !empty($vehiculo->modelo) ? $vehiculo->modelo : 'Sin modelo' }} ({{ !empty($vehiculo->placas) ? $vehiculo->placas : 'Sin placas' }})</p>
             @if(isset($vehiculo->operador) && $vehiculo->operador)
                 <p class="mt-2"><strong>Operador Actual:</strong> {{ $vehiculo->operador->nombre_completo }}</p>
             @else
@@ -1383,7 +1383,7 @@
         </div>
         
         <div class="mb-4 text-sm text-gray-600">
-            <p><strong>Activo:</strong> {{ $vehiculo->marca }} {{ $vehiculo->modelo }} ({{ $vehiculo->placas }})</p>
+            <p><strong>Activo:</strong> {{ !empty($vehiculo->marca) ? $vehiculo->marca : 'Sin marca' }} {{ !empty($vehiculo->modelo) ? $vehiculo->modelo : 'Sin modelo' }} ({{ !empty($vehiculo->placas) ? $vehiculo->placas : 'Sin placas' }})</p>
         </div>
 
         <form id="registrar-mantenimiento-form" method="POST" action="{{ route('mantenimientos.store') }}">
