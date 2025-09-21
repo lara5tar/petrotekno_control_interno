@@ -449,170 +449,114 @@
 @push('scripts')
 <script src="{{ asset('js/estados-municipios.js') }}"></script>
 <script>
-    // Función para manejar el cambio de tipo de activo
-    function handleTipoActivoChange() {
-        const tipoActivoSelect = document.getElementById('tipo_activo_id');
-        const kilometrajeField = document.getElementById('kilometraje-field');
-        const mantenimientoSection = document.getElementById('mantenimiento-section');
-        
-        if (!tipoActivoSelect.value) {
-            // Si no hay tipo seleccionado, mostrar todos los campos
-            if (kilometrajeField) kilometrajeField.style.display = 'block';
-            if (mantenimientoSection) mantenimientoSection.style.display = 'block';
-            return;
-        }
-        
-        // Hacer petición AJAX para obtener información del tipo de activo
-        fetch(`/tipos-activos/${tipoActivoSelect.value}/info`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error al obtener información del tipo de activo');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Habilitar o deshabilitar campos según tiene_kilometraje
-            if (data.data.tiene_kilometraje) {
-                // Habilitar campos de kilometraje y mantenimiento
-                if (kilometrajeField) {
-                    kilometrajeField.style.opacity = '1';
-                    kilometrajeField.style.pointerEvents = 'auto';
-                    // Hacer el campo requerido si tiene kilometraje
-                    const input = kilometrajeField.querySelector('input');
-                    if (input) {
-                        input.setAttribute('required', 'required');
-                        input.disabled = false;
-                        input.style.backgroundColor = '';
-                        input.style.color = '';
-                        input.style.cursor = '';
-                    }
-                    const label = kilometrajeField.querySelector('label');
-                    if (label) {
-                        label.style.color = '';
-                        // Agregar asterisco rojo para indicar campo requerido
-                        if (!label.querySelector('.required-asterisk')) {
-                            const asterisk = document.createElement('span');
-                            asterisk.className = 'required-asterisk';
-                            asterisk.style.color = 'red';
-                            asterisk.style.marginLeft = '4px';
-                            asterisk.textContent = '*';
-                            label.appendChild(asterisk);
-                        }
-                    }
-                }
-                if (mantenimientoSection) {
-                    mantenimientoSection.style.opacity = '1';
-                    mantenimientoSection.style.pointerEvents = 'auto';
-                    // Habilitar todos los inputs de mantenimiento
-                    const mantenimientoInputs = mantenimientoSection.querySelectorAll('input[type="number"]');
-                    mantenimientoInputs.forEach(input => {
-                        input.disabled = false;
-                        input.style.backgroundColor = '';
-                        input.style.color = '';
-                        input.style.cursor = '';
-                    });
-                    const labels = mantenimientoSection.querySelectorAll('label');
-                    labels.forEach(label => {
-                        label.style.color = '';
-                    });
-                }
-            } else {
-                // Deshabilitar campos de kilometraje y mantenimiento con estilo gris
-                if (kilometrajeField) {
-                    kilometrajeField.style.opacity = '0.6';
-                    kilometrajeField.style.pointerEvents = 'none';
-                    // Remover el atributo required y limpiar el valor
-                    const input = kilometrajeField.querySelector('input');
-                    if (input) {
-                        input.removeAttribute('required');
-                        input.value = '';
-                        input.disabled = true;
-                        input.style.backgroundColor = '#f3f4f6';
-                        input.style.color = '#9ca3af';
-                        input.style.cursor = 'not-allowed';
-                    }
-                    const label = kilometrajeField.querySelector('label');
-                    if (label) {
-                        label.style.color = '#9ca3af';
-                        // Remover asterisco rojo si existe
-                        const asterisk = label.querySelector('.required-asterisk');
-                        if (asterisk) {
-                            asterisk.remove();
-                        }
-                    }
-                }
-                if (mantenimientoSection) {
-                    mantenimientoSection.style.opacity = '0.6';
-                    mantenimientoSection.style.pointerEvents = 'none';
-                    // Limpiar valores y deshabilitar campos de mantenimiento
-                    const mantenimientoInputs = mantenimientoSection.querySelectorAll('input[type="number"]');
-                    mantenimientoInputs.forEach(input => {
-                        input.value = '';
-                        input.disabled = true;
-                        input.style.backgroundColor = '#f3f4f6';
-                        input.style.color = '#9ca3af';
-                        input.style.cursor = 'not-allowed';
-                    });
-                    const labels = mantenimientoSection.querySelectorAll('label');
-                    labels.forEach(label => {
-                        label.style.color = '#9ca3af';
-                    });
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            // En caso de error, habilitar todos los campos por defecto
-            if (kilometrajeField) {
-                kilometrajeField.style.opacity = '1';
-                kilometrajeField.style.pointerEvents = 'auto';
-                const input = kilometrajeField.querySelector('input');
-                if (input) {
-                    input.disabled = false;
-                    input.style.backgroundColor = '';
-                    input.style.color = '';
-                    input.style.cursor = '';
-                }
-                const label = kilometrajeField.querySelector('label');
-                if (label) {
-                    label.style.color = '';
-                }
-            }
-            if (mantenimientoSection) {
-                mantenimientoSection.style.opacity = '1';
-                mantenimientoSection.style.pointerEvents = 'auto';
-                const mantenimientoInputs = mantenimientoSection.querySelectorAll('input[type="number"]');
-                mantenimientoInputs.forEach(input => {
-                    input.disabled = false;
-                    input.style.backgroundColor = '';
-                    input.style.color = '';
-                    input.style.cursor = '';
-                });
-                const labels = mantenimientoSection.querySelectorAll('label');
-                labels.forEach(label => {
-                    label.style.color = '';
-                });
-            }
-        });
-    }
-    
     // Inicializar cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', function() {
         const tipoActivoSelect = document.getElementById('tipo_activo_id');
-        if (tipoActivoSelect) {
-            // Agregar event listener para cambios
-            tipoActivoSelect.addEventListener('change', handleTipoActivoChange);
+        const kilometrajeField = document.getElementById('kilometraje-field');
+        const kilometrajeInput = document.getElementById('kilometraje_actual');
+        const mantenimientoSection = document.getElementById('mantenimiento-section');
+        
+        // Obtener todos los campos de intervalos de mantenimiento
+        const intervalosFields = [
+            document.getElementById('intervalo_km_motor'),
+            document.getElementById('intervalo_km_transmision'),
+            document.getElementById('intervalo_km_hidraulico')
+        ];
+        
+        function toggleKilometrajeFields() {
+            const tipoActivoId = tipoActivoSelect.value;
             
-            // Ejecutar al cargar la página si ya hay un valor seleccionado
-            if (tipoActivoSelect.value) {
-                handleTipoActivoChange();
+            if (!tipoActivoId) {
+                // Si no hay tipo de activo seleccionado, ocultar todo
+                hideKilometrajeFields();
+                return;
             }
+            
+            // Hacer petición AJAX para obtener información del tipo de activo
+            fetch(`/tipos-activos/${tipoActivoId}/info`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        const tieneKilometraje = data.data.tiene_kilometraje;
+                        
+                        if (tieneKilometraje) {
+                            showKilometrajeFields();
+                        } else {
+                            hideKilometrajeFields();
+                        }
+                    } else {
+                        console.error('Error al obtener información del tipo de activo');
+                        hideKilometrajeFields();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error en la petición AJAX:', error);
+                    hideKilometrajeFields();
+                });
+        }
+        
+        function showKilometrajeFields() {
+            // Mostrar y habilitar campo de kilometraje
+            if (kilometrajeField) {
+                kilometrajeField.style.display = 'block';
+            }
+            if (kilometrajeInput) {
+                kilometrajeInput.disabled = false;
+                kilometrajeInput.required = true;
+                kilometrajeInput.style.backgroundColor = '';
+                kilometrajeInput.style.color = '';
+            }
+            
+            // Mostrar sección de mantenimiento e intervalos
+            if (mantenimientoSection) {
+                mantenimientoSection.style.display = 'block';
+            }
+            
+            // Habilitar campos de intervalos
+            intervalosFields.forEach(field => {
+                if (field) {
+                    field.disabled = false;
+                    field.style.backgroundColor = '';
+                    field.style.color = '';
+                }
+            });
+        }
+        
+        function hideKilometrajeFields() {
+            // Deshabilitar y poner en gris el campo de kilometraje
+            if (kilometrajeField) {
+                kilometrajeField.style.display = 'block'; // Mantener visible pero deshabilitado
+            }
+            if (kilometrajeInput) {
+                kilometrajeInput.disabled = true;
+                kilometrajeInput.required = false;
+                kilometrajeInput.value = '';
+                kilometrajeInput.style.backgroundColor = '#f3f4f6';
+                kilometrajeInput.style.color = '#9ca3af';
+            }
+            
+            // Ocultar sección de intervalos de mantenimiento
+            if (mantenimientoSection) {
+                mantenimientoSection.style.display = 'none';
+            }
+            
+            // Deshabilitar y limpiar campos de intervalos
+            intervalosFields.forEach(field => {
+                if (field) {
+                    field.disabled = true;
+                    field.value = '';
+                    field.style.backgroundColor = '#f3f4f6';
+                    field.style.color = '#9ca3af';
+                }
+            });
+        }
+        
+        // Ejecutar al cargar la página
+        toggleKilometrajeFields();
+        
+        // Ejecutar cuando cambie la selección
+        if (tipoActivoSelect) {
+            tipoActivoSelect.addEventListener('change', toggleKilometrajeFields);
         }
         
         // Validación adicional antes de enviar el formulario
