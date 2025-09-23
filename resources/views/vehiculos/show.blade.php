@@ -145,16 +145,32 @@
 
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div>
+                            <label class="block text-sm font-medium text-gray-600">Valor Comercial</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                @if($vehiculo->valor_comercial)
+                                    ${{ number_format($vehiculo->valor_comercial, 2) }}
+                                @else
+                                    Sin valor asignado
+                                @endif
+                            </div>
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium text-gray-600">Estado</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ !empty($vehiculo->estado) ? $vehiculo->estado : 'Sin estado' }}
                             </div>
                         </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mt-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Municipio</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ !empty($vehiculo->municipio) ? $vehiculo->municipio : 'Sin municipio' }}
                             </div>
+                        </div>
+                        <div>
+                            <!-- Espacio vacío para mantener el grid -->
                         </div>
                     </div>
 

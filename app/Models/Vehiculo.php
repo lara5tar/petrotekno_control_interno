@@ -91,6 +91,7 @@ class Vehiculo extends Model
         'intervalo_km_transmision',
         'intervalo_km_hidraulico',
         'observaciones',
+        'valor_comercial',
         'operador_id',
         'estado',
         'municipio',
@@ -112,6 +113,7 @@ class Vehiculo extends Model
         'intervalo_km_motor' => 'integer',
         'intervalo_km_transmision' => 'integer',
         'intervalo_km_hidraulico' => 'integer',
+        'valor_comercial' => 'decimal:2',
         'fecha_eliminacion' => 'datetime',
         'documentos_adicionales' => 'array',
         'estatus' => EstadoVehiculo::class, // Cambio temporal: usar 'estatus'
