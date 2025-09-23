@@ -200,13 +200,15 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Licencia de Manejo</label>
                             <div class="flex items-center space-x-2">
-                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
-                                    {{ $personal->no_licencia ?? 'No registrado' }}
-                                </div>
                                 @php
                                     $documentoLicencia = $documentosPorTipo['licencia'] ?? $documentosPorTipo['Licencia de Manejo'] ?? null;
                                     $tieneDocumentoLicencia = !is_null($documentoLicencia) && is_object($documentoLicencia);
+                                    $tieneArchivoLicencia = !empty($personal->url_licencia);
+                                    $tieneAlgunaLicencia = $tieneDocumentoLicencia || $tieneArchivoLicencia;
                                 @endphp
+                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                    {{ $personal->no_licencia ?? 'No registrado' }}
+                                </div>
                                 @if($tieneDocumentoLicencia)
                                 <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         onclick="viewPersonalDocument('{{ $documentoLicencia->url_documento }}')"
@@ -215,7 +217,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                     </svg>
                                 </button>
-                                @elseif($personal->url_licencia)
+                                @elseif($tieneArchivoLicencia)
                                 <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
                                         onclick="viewPersonalDocument('{{ asset('storage/' . $personal->url_licencia) }}')"
                                         title="Ver archivo adjunto">
