@@ -106,14 +106,14 @@
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <x-form-input name="marca" label="Marca" required placeholder="Ej: Ford, Chevrolet, Toyota" />
+                        <x-form-input name="marca" label="Marca" required placeholder="Ej: Ford, Chevrolet, Toyota"  />
                         <x-form-input name="modelo" label="Modelo" required placeholder="Ej: F-150, Silverado, Hilux" />
                         <x-form-input name="n_serie" label="Número de Serie (VIN)" required placeholder="1FTFW1ET5DFA12345" />
                     </div>
                     
                     <!-- Campos Opcionales -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                        <x-form-input name="anio" label="Año" type="number" min="1990" max="2025" placeholder="2023" />
+                        <x-form-input name="anio" label="Año" type="number" min="1990" max="2025" placeholder="2023" required />
                         <x-form-input name="placas" label="Placas" placeholder="ABC-123-A" />
                         <div id="kilometraje-field">
                             <div class="form-group">
@@ -563,6 +563,28 @@
         const form = document.querySelector('form');
         if (form) {
             form.addEventListener('submit', function(e) {
+                // Validar campos requeridos
+                const camposRequeridos = [
+                    { id: 'tipo_activo_id', nombre: 'Tipo de Activo' },
+                    { id: 'marca', nombre: 'Marca' },
+                    { id: 'modelo', nombre: 'Modelo' },
+                    { id: 'n_serie', nombre: 'Número de Serie' }
+                ];
+                
+                let errores = [];
+                
+                // Validar campos básicos requeridos
+                camposRequeridos.forEach(campo => {
+                    const input = document.getElementById(campo.id);
+                    if (input && (!input.value || input.value.trim() === '')) {
+                        errores.push(campo.nombre);
+                        input.classList.add('border-red-500');
+                    } else if (input) {
+                        input.classList.remove('border-red-500');
+                    }
+                });
+                
+                // Validación específica para kilometraje en vehículos
                 const tipoActivoSelect = document.getElementById('tipo_activo_id');
                 const kilometrajeInput = document.getElementById('kilometraje_actual');
                 
@@ -571,19 +593,32 @@
                     
                     // Si es tipo de activo con kilometraje (ID 1 = Vehículo)
                     if (tipoActivoId === '1' && (!kilometrajeInput.value || kilometrajeInput.value.trim() === '')) {
-                        e.preventDefault();
-                        
-                        // Mostrar mensaje de error
-                        alert('Por favor, ingrese el kilometraje actual. Este campo es obligatorio para vehículos.');
-                        
-                        // Enfocar el campo
-                        kilometrajeInput.focus();
-                        
-                        // Agregar clase de error visual
+                        errores.push('Kilometraje Actual (requerido para vehículos)');
                         kilometrajeInput.classList.add('border-red-500');
-                        
-                        return false;
+                    } else if (kilometrajeInput) {
+                        kilometrajeInput.classList.remove('border-red-500');
                     }
+                }
+                
+                // Si hay errores, prevenir el envío
+                if (errores.length > 0) {
+                    e.preventDefault();
+                    
+                    // Mostrar mensaje de error
+                    alert('Por favor, complete los siguientes campos obligatorios:\n\n• ' + errores.join('\n• '));
+                    
+                    // Enfocar el primer campo con error
+                    const primerCampoError = camposRequeridos.find(campo => {
+                        const input = document.getElementById(campo.id);
+                        return input && (!input.value || input.value.trim() === '');
+                    });
+                    
+                    if (primerCampoError) {
+                        const input = document.getElementById(primerCampoError.id);
+                        if (input) input.focus();
+                    }
+                    
+                    return false;
                 }
             });
         }

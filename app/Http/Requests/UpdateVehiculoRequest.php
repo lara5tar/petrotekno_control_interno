@@ -52,7 +52,7 @@ class UpdateVehiculoRequest extends FormRequest
             ],
             'anio' => [
                 'sometimes',
-                'required',
+                'nullable',
                 'integer',
                 'min:1990',
                 'max:' . (date('Y') + 1),
@@ -62,7 +62,6 @@ class UpdateVehiculoRequest extends FormRequest
                 'required',
                 'string',
                 'max:100',
-                Rule::unique('vehiculos', 'n_serie')->ignore($vehiculoId),
             ],
             'placas' => [
                 'sometimes',
@@ -70,7 +69,6 @@ class UpdateVehiculoRequest extends FormRequest
                 'string',
                 'max:20',
                 'regex:/^[A-Z0-9\-]+$/',
-                Rule::unique('vehiculos', 'placas')->ignore($vehiculoId),
             ],
             'estatus' => [
                 'sometimes',
@@ -118,6 +116,11 @@ class UpdateVehiculoRequest extends FormRequest
                 'string',
                 'max:100',
             ],
+            'numero_poliza' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
             // Validaciones para documentos adicionales
             'documentos_adicionales.*' => [
                 'nullable',
@@ -143,13 +146,10 @@ class UpdateVehiculoRequest extends FormRequest
             'modelo.required' => 'El modelo del vehículo es obligatorio.',
             'modelo.min' => 'El modelo debe tener al menos 2 caracteres.',
             'modelo.max' => 'El modelo no puede exceder 100 caracteres.',
-            'anio.required' => 'El año del vehículo es obligatorio.',
             'anio.min' => 'El año debe ser mayor o igual a 1990.',
             'anio.max' => 'El año no puede ser mayor al próximo año.',
             'n_serie.required' => 'El número de serie es obligatorio.',
-            'n_serie.unique' => 'Este número de serie ya está registrado.',
             'n_serie.max' => 'El número de serie no puede exceder 100 caracteres.',
-            'placas.unique' => 'Estas placas ya están registradas.',
             'placas.regex' => 'Las placas solo pueden contener letras, números y guiones.',
             'placas.max' => 'Las placas no pueden exceder 20 caracteres.',
             'estatus.required' => 'El estatus del vehículo es obligatorio.',

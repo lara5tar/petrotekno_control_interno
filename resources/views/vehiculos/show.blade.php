@@ -1864,26 +1864,40 @@
                 }
             });
         }
-
-        // Mostrar mensajes de sesión (éxito/error)
-        @if(session('success'))
-            showNotification(@json(session('success')), 'success');
-        @endif
-
-        @if(session('error'))
-            showNotification(@json(session('error')), 'error');
-        @endif
-
-        // Si hay errores de validación, reabrir el modal
-        @if($errors->any())
-            openKilometrajeModal();
-            
-            // Mostrar errores específicos
-            @foreach($errors->all() as $error)
-                showNotification(@json($error), 'error');
-            @endforeach
-        @endif
     });
+</script>
+
+<!-- Blade directives for session messages -->
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        showNotification(@json(session('success')), 'success');
+    });
+</script>
+@endif
+
+@if(session('error'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        showNotification(@json(session('error')), 'error');
+    });
+</script>
+@endif
+
+@if($errors->any())
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        openKilometrajeModal();
+        
+        // Mostrar errores específicos
+        @foreach($errors->all() as $error)
+            showNotification(@json($error), 'error');
+        @endforeach
+    });
+</script>
+@endif
+
+<script>
 
     // Función para mostrar notificaciones
     function showNotification(message, type = 'info') {

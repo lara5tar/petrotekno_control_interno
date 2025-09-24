@@ -68,16 +68,9 @@ class UserFriendlyErrorService
             if (str_contains($message, 'rfc')) {
                 return 'Este RFC ya está registrado en el sistema.';
             }
-            if (str_contains($message, 'numero_poliza')) {
-                return 'Este número de póliza ya está registrado en el sistema.';
-            }
-            if (str_contains($message, 'placas')) {
-                return 'Estas placas ya están registradas en el sistema.';
-            }
-            if (str_contains($message, 'n_serie')) {
-                return 'Este número de serie ya está registrado en el sistema.';
-            }
-            return 'Este registro ya existe en el sistema.';
+
+            // Mensaje genérico de duplicado eliminado para permitir duplicados en vehículos
+            // return 'Este registro ya existe en el sistema.';
         }
 
         // Errores de datos demasiado largos
@@ -222,7 +215,7 @@ class UserFriendlyErrorService
     /**
      * Obtiene un mensaje específico para operaciones comunes
      */
-    public static function getOperationMessage(string $operation, Exception $e = null): string
+    public static function getOperationMessage(string $operation, ?Exception $e = null): string
     {
         $operations = [
             'crear_personal' => 'crear el personal',

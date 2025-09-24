@@ -51,13 +51,11 @@ class StoreVehiculoRequest extends FormRequest
                 'required',
                 'string',
                 'max:100',
-                'unique:vehiculos,n_serie',
             ],
             'placas' => [
                 'nullable',
                 'string',
                 'max:20',
-                'unique:vehiculos,placas',
                 'regex:/^[A-Z0-9\-]+$/',
             ],
             'kilometraje_actual' => $this->getKilometrajeRules(),
@@ -100,6 +98,11 @@ class StoreVehiculoRequest extends FormRequest
                 'max:100',
             ],
             'municipio' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+            'numero_poliza' => [
                 'nullable',
                 'string',
                 'max:100',
@@ -261,7 +264,6 @@ class StoreVehiculoRequest extends FormRequest
             'modelo.min' => 'El modelo debe tener al menos 2 caracteres',
             'modelo.max' => 'El modelo no puede tener más de 100 caracteres',
             
-            'anio.required' => 'El año del vehículo es obligatorio',
             'anio.integer' => 'El año debe ser un número entero',
             'anio.min' => 'El año debe ser mayor o igual a 1990',
             'anio.max' => 'El año no puede ser mayor al próximo año',
@@ -269,11 +271,9 @@ class StoreVehiculoRequest extends FormRequest
             'n_serie.required' => 'El número de serie es obligatorio',
             'n_serie.string' => 'El número de serie debe ser un texto válido',
             'n_serie.max' => 'El número de serie no puede exceder 100 caracteres',
-            'n_serie.unique' => 'Este número de serie ya está registrado en el sistema',
             
             'placas.string' => 'Las placas deben ser un texto válido',
             'placas.max' => 'Las placas no pueden exceder 20 caracteres',
-            'placas.unique' => 'Estas placas ya están registradas en el sistema',
             'placas.regex' => 'Las placas solo pueden contener letras, números y guiones',
             
             'kilometraje_actual.required' => 'El kilometraje actual es obligatorio para este tipo de activo',
@@ -400,7 +400,7 @@ class StoreVehiculoRequest extends FormRequest
         }
         
         return [
-            'required',
+            'nullable',  // Cambiado de 'required' a 'nullable'
             'integer',
             'min:0',
             'max:9999999',
