@@ -336,7 +336,7 @@
                                             <div>
                                                 <label class="block text-sm text-gray-600">Activo</label>
                                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                                    {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
+                                                    {{ ($vehiculo->marca ?: 'Sin marca') }} {{ ($vehiculo->modelo ?: 'Sin modelo') }}
                                                 </div>
                                             </div>
                                             
@@ -344,13 +344,13 @@
                                                 <div>
                                                     <label class="block text-sm text-gray-600">Placas</label>
                                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                        {{ $vehiculo->placas }}
+                                                        {{ $vehiculo->placas ?: 'Sin placa' }}
                                                     </div>
                                                 </div>
                                                 <div>
                                                     <label class="block text-sm text-gray-600">Año</label>
                                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                        {{ $vehiculo->anio ?? 'N/A' }}
+                                                        {{ $vehiculo->anio ?: 'Sin año' }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -359,13 +359,13 @@
                                                 <div>
                                                     <label class="block text-sm text-gray-600">Serie</label>
                                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                        {{ $vehiculo->n_serie ?? 'N/A' }}
+                                                        {{ $vehiculo->n_serie ?: 'Sin serie' }}
                                                     </div>
                                                 </div>
                                                 <div>
                                                     <label class="block text-sm text-gray-600">Kilometraje</label>
                                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                        {{ $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) : 'N/A' }} km
+                                                        {{ $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) . ' km' : 'Sin kilometraje' }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -423,7 +423,7 @@
                                         <div>
                                             <label class="block text-sm text-gray-600">Activo</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                                {{ $obra->vehiculo->marca }} {{ $obra->vehiculo->modelo }}
+                                                {{ ($obra->vehiculo->marca ?: 'Sin marca') }} {{ ($obra->vehiculo->modelo ?: 'Sin modelo') }}
                                             </div>
                                         </div>
                                         
@@ -431,13 +431,13 @@
                                             <div>
                                                 <label class="block text-sm text-gray-600">Placas</label>
                                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                    {{ $obra->vehiculo->placas }}
+                                                    {{ $obra->vehiculo->placas ?: 'Sin placa' }}
                                                 </div>
                                             </div>
                                             <div>
                                                 <label class="block text-sm text-gray-600">Año</label>
                                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                    {{ $obra->vehiculo->anio ?? 'N/A' }}
+                                                    {{ $obra->vehiculo->anio ?: 'Sin año' }}
                                                 </div>
                                             </div>
                                         </div>
@@ -446,13 +446,13 @@
                                             <div>
                                                 <label class="block text-sm text-gray-600">Serie</label>
                                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                    {{ $obra->vehiculo->n_serie ?? 'N/A' }}
+                                                    {{ $obra->vehiculo->n_serie ?: 'Sin serie' }}
                                                 </div>
                                             </div>
                                             <div>
                                                 <label class="block text-sm text-gray-600">Kilometraje</label>
                                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                    {{ $obra->vehiculo->kilometraje_actual ? number_format($obra->vehiculo->kilometraje_actual) : 'N/A' }} km
+                                                    {{ $obra->vehiculo->kilometraje_actual ? number_format($obra->vehiculo->kilometraje_actual) . ' km' : 'Sin kilometraje' }}
                                                 </div>
                                             </div>
                                         </div>
