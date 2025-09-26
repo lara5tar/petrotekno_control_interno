@@ -113,7 +113,7 @@
                     
                     <!-- Campos Opcionales -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                        <x-form-input name="anio" label="Año" type="number" min="1990" max="2025" placeholder="2023" required />
+                        <x-form-input name="anio" label="Año" type="number" min="1950" max="2025" placeholder="2023" required />
                         <x-form-input name="placas" label="Placas" placeholder="ABC-123-A" />
                         <div id="kilometraje-field">
                             <div class="form-group">

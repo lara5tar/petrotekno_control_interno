@@ -54,7 +54,7 @@ class UpdateVehiculoRequest extends FormRequest
                 'sometimes',
                 'nullable',
                 'integer',
-                'min:1990',
+                'min:1950',
                 'max:' . (date('Y') + 1),
             ],
             'n_serie' => [
@@ -146,7 +146,7 @@ class UpdateVehiculoRequest extends FormRequest
             'modelo.required' => 'El modelo del vehículo es obligatorio.',
             'modelo.min' => 'El modelo debe tener al menos 2 caracteres.',
             'modelo.max' => 'El modelo no puede exceder 100 caracteres.',
-            'anio.min' => 'El año debe ser mayor o igual a 1990.',
+            'anio.min' => 'El año debe ser mayor o igual a 1950.',
             'anio.max' => 'El año no puede ser mayor al próximo año.',
             'n_serie.required' => 'El número de serie es obligatorio.',
             'n_serie.max' => 'El número de serie no puede exceder 100 caracteres.',

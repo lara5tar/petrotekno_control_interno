@@ -85,7 +85,7 @@
                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <x-form-input name="marca" label="Marca" required placeholder="Ej: Ford, Chevrolet, Toyota" :value="old('marca', $vehiculo->marca)" />
                         <x-form-input name="modelo" label="Modelo" required placeholder="Ej: F-150, Silverado, Corolla" :value="old('modelo', $vehiculo->modelo)" />
-                        <x-form-input name="anio" label="Año" type="number" placeholder="Ej: 2020" min="1900" :max="date('Y') + 1" :value="old('anio', $vehiculo->anio)" />
+                        <x-form-input name="anio" label="Año" type="number" placeholder="Ej: 2020" min="1950" :max="date('Y') + 1" :value="old('anio', $vehiculo->anio)" />
                         
                         <x-form-input name="numero_serie" label="Número de Serie (VIN)" required placeholder="Número de identificación del activo" :value="old('numero_serie', $vehiculo->numero_serie)" />
                         <x-form-input name="placas" label="Placas" placeholder="Número de placas" :value="old('placas', $vehiculo->placas)" />

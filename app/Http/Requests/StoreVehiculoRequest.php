@@ -44,7 +44,7 @@ class StoreVehiculoRequest extends FormRequest
             'anio' => [
                 'required',
                 'integer',
-                'min:1990',
+                'min:1950',
                 'max:' . (date('Y') + 1),
             ],
             'n_serie' => [
@@ -265,7 +265,7 @@ class StoreVehiculoRequest extends FormRequest
             'modelo.max' => 'El modelo no puede tener más de 100 caracteres',
             
             'anio.integer' => 'El año debe ser un número entero',
-            'anio.min' => 'El año debe ser mayor o igual a 1990',
+            'anio.min' => 'El año debe ser mayor o igual a 1950',
             'anio.max' => 'El año no puede ser mayor al próximo año',
             
             'n_serie.required' => 'El número de serie es obligatorio',
