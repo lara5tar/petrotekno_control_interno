@@ -353,6 +353,7 @@ class ObraController extends Controller
             // Validación de los datos de entrada
             $validated = $request->validate([
                 'nombre_obra' => 'required|string|max:255',
+                'ubicacion' => 'nullable|string|max:500',
                 'estatus' => 'required|in:planificada,en_progreso,suspendida,completada,cancelada',
                 'avance' => 'nullable|integer|min:0|max:100',
                 'fecha_inicio' => 'required|date',
@@ -381,6 +382,7 @@ class ObraController extends Controller
             // Crear la obra
             $obra = Obra::create([
                 'nombre_obra' => $validated['nombre_obra'],
+                'ubicacion' => $validated['ubicacion'] ?? null,
                 'estatus' => $validated['estatus'],
                 'avance' => $validated['avance'] ?? 0,
                 'fecha_inicio' => $validated['fecha_inicio'],
@@ -853,6 +855,7 @@ class ObraController extends Controller
             
             $validatedData = $request->validate([
                 'nombre_obra' => 'required|string|max:255',
+                'ubicacion' => 'nullable|string|max:500',
                 'estatus' => 'required|in:planificada,en_progreso,suspendida,completada,cancelada',
                 'fecha_inicio' => 'required|date',
                 'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
