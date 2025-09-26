@@ -210,10 +210,17 @@ class AsignacionObra extends Model
             }
         });
 
-        // Log de creación
+        // Log de creación y cambio de estado del vehículo
         static::created(function ($asignacion) {
+            // Cambiar estado del vehículo a 'asignado' cuando se crea una asignación activa
+            if ($asignacion->estado === self::ESTADO_ACTIVA && $asignacion->vehiculo) {
+                $asignacion->vehiculo->update([
+                    'estatus' => \App\Enums\EstadoVehiculo::ASIGNADO
+                ]);
+            }
+
             // Solo crear log si hay un usuario autenticado
-            if (auth()->id()) {
+            if (auth()->check()) {
                 \App\Models\LogAccion::create([
                     'usuario_id' => auth()->id(),
                     'accion' => 'crear_asignacion_obra',
@@ -221,6 +228,51 @@ class AsignacionObra extends Model
                     'registro_id' => $asignacion->id,
                     'detalles' => "Asignación creada: Vehículo {$asignacion->vehiculo->nombre_completo} -> Obra {$asignacion->obra->nombre_obra}",
                 ]);
+            }
+        });
+
+        // Cambiar estado del vehículo cuando se actualiza una asignación
+        static::updated(function ($asignacion) {
+            if ($asignacion->vehiculo) {
+                // Si la asignación se libera, cambiar estado a disponible
+                if ($asignacion->estado === self::ESTADO_LIBERADA && $asignacion->fecha_liberacion) {
+                    // Verificar que no tenga otras asignaciones activas
+                    $tieneOtrasAsignaciones = self::where('vehiculo_id', $asignacion->vehiculo_id)
+                        ->where('id', '!=', $asignacion->id)
+                        ->where('estado', self::ESTADO_ACTIVA)
+                        ->whereNull('fecha_liberacion')
+                        ->exists();
+
+                    if (!$tieneOtrasAsignaciones) {
+                        $asignacion->vehiculo->update([
+                            'estatus' => \App\Enums\EstadoVehiculo::DISPONIBLE
+                        ]);
+                    }
+                }
+                // Si la asignación se activa, cambiar estado a asignado
+                elseif ($asignacion->estado === self::ESTADO_ACTIVA) {
+                    $asignacion->vehiculo->update([
+                        'estatus' => \App\Enums\EstadoVehiculo::ASIGNADO
+                    ]);
+                }
+            }
+        });
+
+        // Cambiar estado del vehículo cuando se elimina una asignación
+        static::deleted(function ($asignacion) {
+            if ($asignacion->vehiculo) {
+                // Verificar que no tenga otras asignaciones activas
+                $tieneOtrasAsignaciones = self::where('vehiculo_id', $asignacion->vehiculo_id)
+                    ->where('id', '!=', $asignacion->id)
+                    ->where('estado', self::ESTADO_ACTIVA)
+                    ->whereNull('fecha_liberacion')
+                    ->exists();
+
+                if (!$tieneOtrasAsignaciones) {
+                    $asignacion->vehiculo->update([
+                        'estatus' => \App\Enums\EstadoVehiculo::DISPONIBLE
+                    ]);
+                }
             }
         });
     }

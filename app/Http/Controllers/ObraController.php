@@ -1154,30 +1154,49 @@ class ObraController extends Controller
             ]);
 
             $vehiculosSeleccionados = $validated['vehiculos'] ?? [];
-            $vehiculosAnteriores = $obra->vehiculos->pluck('id')->toArray();
-
-            // Sincronizar vehículos usando la tabla pivot
-            $obra->vehiculos()->detach(); // Remover todas las asignaciones actuales
             
-            // Asignar nuevos vehículos si hay seleccionados
-            if (!empty($vehiculosSeleccionados)) {
-                $asignacionesData = [];
-                foreach ($vehiculosSeleccionados as $vehiculoId) {
-                    $asignacionesData[$vehiculoId] = [
-                        'fecha_asignacion' => now(),
-                        'fecha_liberacion' => null,
-                        'observaciones' => $validated['observaciones'] ?? null,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ];
+            // Obtener asignaciones actuales activas
+            $asignacionesActuales = AsignacionObra::where('obra_id', $obra->id)
+                ->where('estado', AsignacionObra::ESTADO_ACTIVA)
+                ->whereNull('fecha_liberacion')
+                ->get();
+            
+            $vehiculosAnteriores = $asignacionesActuales->pluck('vehiculo_id')->toArray();
+
+            DB::beginTransaction();
+
+            // Liberar vehículos que ya no están seleccionados
+            $vehiculosADesasignar = array_diff($vehiculosAnteriores, $vehiculosSeleccionados);
+            foreach ($vehiculosADesasignar as $vehiculoId) {
+                $asignacion = $asignacionesActuales->where('vehiculo_id', $vehiculoId)->first();
+                if ($asignacion) {
+                    $asignacion->update([
+                        'estado' => AsignacionObra::ESTADO_LIBERADA,
+                        'fecha_liberacion' => now(),
+                        'observaciones' => ($asignacion->observaciones ?? '') . ' - Liberado desde edición de obra'
+                    ]);
                 }
-                $obra->vehiculos()->attach($asignacionesData);
+            }
+            
+            // Asignar nuevos vehículos
+            $vehiculosNuevos = array_diff($vehiculosSeleccionados, $vehiculosAnteriores);
+            foreach ($vehiculosNuevos as $vehiculoId) {
+                $vehiculo = Vehiculo::find($vehiculoId);
+                if ($vehiculo) {
+                    AsignacionObra::create([
+                        'obra_id' => $obra->id,
+                        'vehiculo_id' => $vehiculo->id,
+                        'fecha_asignacion' => now(),
+                        'kilometraje_inicial' => $vehiculo->kilometraje_actual,
+                        'observaciones' => $validated['observaciones'] ?? 'Vehículo asignado desde edición de obra',
+                        'estado' => AsignacionObra::ESTADO_ACTIVA,
+                    ]);
+                }
             }
 
+            DB::commit();
+
             // Registrar acción en logs
-            $vehiculosNuevos = array_diff($vehiculosSeleccionados, $vehiculosAnteriores);
-            $vehiculosADesasignar = array_diff($vehiculosAnteriores, $vehiculosSeleccionados);
-            
             $detalles = sprintf(
                 'Vehículos asignados: %d. Anteriores: %d, Nuevos: %d, Desasignados: %d. Observaciones: %s',
                 count($vehiculosSeleccionados),

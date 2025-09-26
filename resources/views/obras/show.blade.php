@@ -765,6 +765,25 @@
                                                 <tr>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                                                         {{ $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo : 'Sin activo' }}
+                                                        @if($asignacion->vehiculo && $asignacion->vehiculo->estatus)
+                                                            <div class="mt-1">
+                                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                                                    @if($asignacion->vehiculo->estatus->value === 'asignado')
+                                                                        bg-blue-100 text-blue-800
+                                                                    @elseif($asignacion->vehiculo->estatus->value === 'disponible')
+                                                                        bg-green-100 text-green-800
+                                                                    @elseif($asignacion->vehiculo->estatus->value === 'en_mantenimiento')
+                                                                        bg-yellow-100 text-yellow-800
+                                                                    @elseif($asignacion->vehiculo->estatus->value === 'fuera_de_servicio')
+                                                                        bg-red-100 text-red-800
+                                                                    @else
+                                                                        bg-gray-100 text-gray-800
+                                                                    @endif
+                                                                ">
+                                                                    {{ $asignacion->vehiculo->estatus->nombre() }}
+                                                                </span>
+                                                            </div>
+                                                        @endif
                                                     </td>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                                         {{ $asignacion->operador ? $asignacion->operador->nombre_completo : 'Sin operador' }}

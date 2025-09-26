@@ -147,7 +147,25 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Estado</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ !empty($vehiculo->estado) ? $vehiculo->estado : 'Sin estado' }}
+                                @if($vehiculo->estatus)
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                        @if($vehiculo->estatus->value === 'asignado')
+                                            bg-blue-100 text-blue-800
+                                        @elseif($vehiculo->estatus->value === 'disponible')
+                                            bg-green-100 text-green-800
+                                        @elseif($vehiculo->estatus->value === 'en_mantenimiento')
+                                            bg-yellow-100 text-yellow-800
+                                        @elseif($vehiculo->estatus->value === 'fuera_de_servicio')
+                                            bg-red-100 text-red-800
+                                        @else
+                                            bg-gray-100 text-gray-800
+                                        @endif
+                                    ">
+                                        {{ $vehiculo->estatus->nombre() }}
+                                    </span>
+                                @else
+                                    Sin estado
+                                @endif
                             </div>
                         </div>
                         <div>
