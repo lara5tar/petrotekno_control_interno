@@ -132,7 +132,7 @@ class Vehiculo extends Model
     /**
      * Relación: Un vehículo puede tener asignaciones activas (obras no liberadas)
      */
-    public function asignacionesActivas(): HasMany
+    public function asignacionesActivas()
     {
         return $this->obras()->whereNull('fecha_liberacion');
     }

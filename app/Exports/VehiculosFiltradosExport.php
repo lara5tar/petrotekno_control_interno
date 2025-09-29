@@ -52,12 +52,20 @@ class VehiculosFiltradosExport implements FromCollection, WithHeadings, WithMapp
             'Estado',
             'Kilometraje Actual',
             'Ubicación',
+            'Obra asignada',
             'Fecha Registro'
         ];
     }
 
     public function map($vehiculo): array
     {
+        // Obtener obra asignada activa
+        $obraAsignada = 'Sin obra asignada';
+        $asignacionActiva = $vehiculo->asignacionesActivas()->first();
+        if ($asignacionActiva && $asignacionActiva->obra) {
+            $obraAsignada = $asignacionActiva->obra->nombre_obra;
+        }
+
         return [
             $vehiculo->id,
             $vehiculo->marca,
@@ -69,6 +77,7 @@ class VehiculosFiltradosExport implements FromCollection, WithHeadings, WithMapp
             $vehiculo->estatus ? $vehiculo->estatus->nombre() : 'N/A',
             $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) . ' km' : 'Sin registro',
             ($vehiculo->estado && $vehiculo->municipio) ? $vehiculo->estado . ', ' . $vehiculo->municipio : ($vehiculo->estado ?: ($vehiculo->municipio ?: 'Sin ubicación')),
+            $obraAsignada,
             $vehiculo->created_at ? $vehiculo->created_at->format('d/m/Y') : 'N/A'
         ];
     }
@@ -111,11 +120,11 @@ class VehiculosFiltradosExport implements FromCollection, WithHeadings, WithMapp
                 
                 // Título principal
                 $sheet->setCellValue('A1', 'REPORTE DE VEHÍCULOS FILTRADOS');
-                $sheet->mergeCells('A1:K1');
+                $sheet->mergeCells('A1:L1');
                 
                 // Subtítulo con fecha
                 $sheet->setCellValue('A2', 'Generado el ' . now()->format('d/m/Y H:i:s'));
-                $sheet->mergeCells('A2:K2');
+                $sheet->mergeCells('A2:L2');
                 
                 // Información de filtros aplicados
                 $row = 4;
@@ -168,11 +177,12 @@ class VehiculosFiltradosExport implements FromCollection, WithHeadings, WithMapp
                 $sheet->getColumnDimension('H')->setWidth(12);
                 $sheet->getColumnDimension('I')->setWidth(15);
                 $sheet->getColumnDimension('J')->setWidth(15);
-                $sheet->getColumnDimension('K')->setWidth(12);
+                $sheet->getColumnDimension('K')->setWidth(20);
+                $sheet->getColumnDimension('L')->setWidth(12);
                 
                 // Aplicar bordes a la tabla
                 $lastRow = 8 + count($this->vehiculos);
-                $sheet->getStyle('A8:K' . $lastRow)->applyFromArray([
+                $sheet->getStyle('A8:L' . $lastRow)->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,
@@ -187,7 +197,7 @@ class VehiculosFiltradosExport implements FromCollection, WithHeadings, WithMapp
                 $sheet->getStyle('E8:E' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 $sheet->getStyle('H8:H' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 $sheet->getStyle('I8:I' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                $sheet->getStyle('K8:K' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('L8:L' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             }
         ];
     }

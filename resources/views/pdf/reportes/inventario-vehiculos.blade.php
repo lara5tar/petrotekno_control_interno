@@ -84,8 +84,9 @@
                 <th style="width: 9%;">Placas</th>
                 <th style="width: 12%;">No. Serie</th>
                 <th style="width: 13%;">Ubicación</th>
-                <th style="width: 10%;">Estado</th>
-                <th style="width: 13%;">Km Actual</th>
+                <th style="width: 15%;">Obra asignada</th>
+                <th style="width: 8%;">Estado</th>
+                <th style="width: 10%;">Km Actual</th>
             </tr>
         </thead>
         <tbody>
@@ -109,6 +110,17 @@
                         @else
                             Sin ubicación
                         @endif
+                    </td>
+                    <td class="text-center">
+                        @php
+                            $obraAsignada = 'Sin obra asignada';
+                            // Buscar asignación activa directamente en las relaciones cargadas
+                            $asignacionActiva = $vehiculo->asignacionesObra->where('estado', 'activa')->first();
+                            if ($asignacionActiva && $asignacionActiva->obra) {
+                                $obraAsignada = $asignacionActiva->obra->nombre_obra;
+                            }
+                        @endphp
+                        <span class="font-small">{{ $obraAsignada }}</span>
                     </td>
                     <td class="text-center">
                         @php
@@ -136,7 +148,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" class="text-center text-muted p-15">
+                    <td colspan="10" class="text-center text-muted p-15">
                         No se encontraron activos con los criterios especificados
                     </td>
                 </tr>

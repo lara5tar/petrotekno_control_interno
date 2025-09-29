@@ -33,6 +33,7 @@ class InventarioVehiculosExport implements FromCollection, WithHeadings, WithMap
             'Placas',
             'No. Serie',
             'Ubicación',
+            'Obra asignada',
             'Estado',
             'Km Actual'
         ];
@@ -52,6 +53,14 @@ class InventarioVehiculosExport implements FromCollection, WithHeadings, WithMap
             $ubicacion = 'Sin ubicación';
         }
 
+        // Obtener obra asignada activa
+        $obraAsignada = 'Sin obra asignada';
+        // Buscar asignación activa directamente en las relaciones cargadas
+        $asignacionActiva = $vehiculo->asignacionesObra->where('estado', 'activa')->first();
+        if ($asignacionActiva && $asignacionActiva->obra) {
+            $obraAsignada = $asignacionActiva->obra->nombre_obra;
+        }
+
         return [
             $vehiculo->id,
             $vehiculo->marca . ' ' . $vehiculo->modelo,
@@ -60,6 +69,7 @@ class InventarioVehiculosExport implements FromCollection, WithHeadings, WithMap
             $vehiculo->placas ?: 'N/A',
             $vehiculo->n_serie ?: 'N/A',
             $ubicacion,
+            $obraAsignada,
             $vehiculo->estatus ? $vehiculo->estatus->nombre() : 'N/A',
             $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) . ' km' : 'Sin registro'
         ];

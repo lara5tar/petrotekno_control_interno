@@ -83,7 +83,13 @@ class ReporteController extends Controller
         }
 
         // Ordenar por marca, modelo y año
-        $vehiculos = $query->with('tipoActivo')
+        $vehiculos = $query->with([
+                            'tipoActivo',
+                            'asignacionesObra' => function($query) {
+                                $query->where('estado', 'activa')
+                                      ->with('obra:id,nombre_obra');
+                            }
+                        ])
                           ->orderBy('vehiculos.marca')
                           ->orderBy('vehiculos.modelo')
                           ->orderBy('vehiculos.anio')
