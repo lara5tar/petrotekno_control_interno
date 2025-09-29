@@ -304,7 +304,12 @@
                         </td>
                         <td>
                             @if($mantenimiento->vehiculo)
-                                {{ $mantenimiento->vehiculo->ubicacion }}
+                                @php
+                                    $estado = $mantenimiento->vehiculo->estado ?? '';
+                                    $municipio = $mantenimiento->vehiculo->municipio ?? '';
+                                    $ubicacion = trim($estado . ($estado && $municipio ? ', ' : '') . $municipio);
+                                @endphp
+                                {{ $ubicacion ?: 'Sin ubicación' }}
                             @else
                                 <span style="color: #9ca3af;">Sin ubicación</span>
                             @endif

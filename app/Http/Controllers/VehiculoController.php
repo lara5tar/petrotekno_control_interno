@@ -13,15 +13,21 @@ use App\Models\LogAccion;
 use App\Models\Personal;
 use App\Models\TipoActivo;
 use App\Models\Vehiculo;
+use App\Exports\VehiculosFiltradosExport;
+use App\Traits\PdfGeneratorTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class VehiculoController extends Controller
 {
+    use PdfGeneratorTrait;
+
     /**
      * Display a listing of the resource.
      */
@@ -1287,5 +1293,130 @@ class VehiculoController extends Controller
         }
         
         return null; // Facturas e imágenes normalmente no tienen vencimiento
+    }
+
+    /**
+     * Descargar reporte de vehículos filtrados en formato PDF
+     */
+    public function descargarReportePdf(Request $request)
+    {
+        $this->authorize('ver_vehiculos');
+
+        // Aplicar los mismos filtros que en el index con optimizaciones para grandes volúmenes
+        $query = Vehiculo::select([
+            'id', 'marca', 'modelo', 'anio', 'placas', 'n_serie', 
+            'estado', 'municipio', 'estatus', 'kilometraje_actual', 'tipo_activo_id', 'created_at'
+        ])->with(['tipoActivo:id,nombre']);
+
+        // Aplicar filtros
+        if ($request->filled('buscar')) {
+            $termino = $request->get('buscar');
+            $query->buscar($termino);
+        }
+
+        if ($request->filled('estado')) {
+            $query->porEstado($request->get('estado'));
+        }
+
+        if ($request->filled('anio')) {
+            $query->porAnio($request->get('anio'));
+        }
+
+        // Obtener vehículos con límite para evitar problemas de memoria
+        $vehiculos = $query->orderBy('marca')->orderBy('modelo')->limit(5000)->get();
+
+        // Preparar estadísticas de manera eficiente
+        $estadisticas = [
+            'total' => $vehiculos->count(),
+            'por_estado' => [
+                'disponible' => $vehiculos->where('estatus', EstadoVehiculo::DISPONIBLE)->count(),
+                'asignado' => $vehiculos->where('estatus', EstadoVehiculo::ASIGNADO)->count(),
+                'mantenimiento' => $vehiculos->where('estatus', EstadoVehiculo::EN_MANTENIMIENTO)->count(),
+                'fuera_servicio' => $vehiculos->where('estatus', EstadoVehiculo::FUERA_DE_SERVICIO)->count(),
+                'baja' => $vehiculos->where('estatus', EstadoVehiculo::BAJA)->count(),
+            ],
+        ];
+
+        // Calcular estadísticas de kilometraje solo si hay vehículos con kilometraje
+        $vehiculosConKm = $vehiculos->whereNotNull('kilometraje_actual');
+        if ($vehiculosConKm->count() > 0) {
+            $estadisticas['kilometraje_promedio'] = $vehiculosConKm->avg('kilometraje_actual');
+            $estadisticas['vehiculos_con_kilometraje'] = $vehiculosConKm->count();
+        }
+
+        // Preparar filtros aplicados para mostrar en el reporte
+        $filtrosAplicados = [
+            'buscar' => $request->get('buscar'),
+            'estado' => $request->get('estado'),
+            'anio' => $request->get('anio'),
+        ];
+
+        // Procesar cada vehículo para agregar información adicional de manera eficiente
+        $vehiculos = $vehiculos->map(function($vehiculo) {
+            // Agregar nombre del tipo de activo
+            $vehiculo->tipo_activo_nombre = $vehiculo->tipoActivo->nombre ?? 'Sin tipo';
+            return $vehiculo;
+        });
+
+        // Generar PDF usando el trait
+        $pdf = $this->createVehiculosFiltradosPdf($vehiculos, $estadisticas, $filtrosAplicados);
+
+        return $pdf->download('reporte-vehiculos-filtrados-' . now()->format('Y-m-d-H-i-s') . '.pdf');
+    }
+
+    /**
+     * Descargar reporte de vehículos filtrados en formato Excel
+     */
+    public function descargarReporteExcel(Request $request)
+    {
+        $this->authorize('ver_vehiculos');
+
+        // Aplicar los mismos filtros que en el index con optimizaciones
+        $query = Vehiculo::select([
+            'id', 'marca', 'modelo', 'anio', 'placas', 'n_serie', 
+            'estado', 'municipio', 'estatus', 'kilometraje_actual', 'tipo_activo_id', 'created_at'
+        ])->with(['tipoActivo:id,nombre']);
+
+        // Aplicar filtros
+        if ($request->filled('buscar')) {
+            $termino = $request->get('buscar');
+            $query->buscar($termino);
+        }
+
+        if ($request->filled('estado')) {
+            $query->porEstado($request->get('estado'));
+        }
+
+        if ($request->filled('anio')) {
+            $query->porAnio($request->get('anio'));
+        }
+
+        // Para Excel, podemos manejar más registros pero con límite de seguridad
+        $vehiculos = $query->orderBy('marca')->orderBy('modelo')->limit(10000)->get();
+
+        // Preparar estadísticas de manera eficiente
+        $estadisticas = [
+            'total' => $vehiculos->count(),
+            'por_estado' => [
+                'disponible' => $vehiculos->where('estatus', EstadoVehiculo::DISPONIBLE)->count(),
+                'asignado' => $vehiculos->where('estatus', EstadoVehiculo::ASIGNADO)->count(),
+                'mantenimiento' => $vehiculos->where('estatus', EstadoVehiculo::EN_MANTENIMIENTO)->count(),
+                'fuera_servicio' => $vehiculos->where('estatus', EstadoVehiculo::FUERA_DE_SERVICIO)->count(),
+                'baja' => $vehiculos->where('estatus', EstadoVehiculo::BAJA)->count(),
+            ],
+        ];
+
+        // Preparar filtros aplicados
+        $filtrosAplicados = [
+            'buscar' => $request->get('buscar'),
+            'estado' => $request->get('estado'),
+            'anio' => $request->get('anio'),
+        ];
+
+        // Usar la clase Export optimizada
+        return Excel::download(
+            new VehiculosFiltradosExport($vehiculos, $filtrosAplicados, $estadisticas),
+            'reporte-vehiculos-filtrados-' . now()->format('Y-m-d-H-i-s') . '.xlsx'
+        );
     }
 }

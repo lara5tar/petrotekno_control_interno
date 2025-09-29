@@ -93,6 +93,35 @@
             </div>
 
         </form>
+        
+        <!-- Botones de descarga de reportes -->
+        <div class="mt-4 pt-4 border-t border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="text-sm text-gray-600">
+                    <span class="font-medium">{{ $vehiculos->total() }}</span> vehículos encontrados
+                    @if(request()->hasAny(['search', 'estado']))
+                        <span class="text-gray-500">(filtrados)</span>
+                    @endif
+                </div>
+                <div class="flex gap-2">
+                    <!-- Botón de descarga PDF -->
+                    <button onclick="descargarReporte('pdf')" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Descargar PDF
+                    </button>
+                    
+                    <!-- Botón de descarga Excel -->
+                    <button onclick="descargarReporte('excel')" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Descargar Excel
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Tabla de activos -->
@@ -292,6 +321,60 @@
         });
     });
 
+    // Función para descargar reportes manteniendo los filtros aplicados
+    function descargarReporte(tipo) {
+        // Obtener los parámetros de filtro actuales
+        const urlParams = new URLSearchParams(window.location.search);
+        const filtros = {};
+        
+        // Capturar filtros de la URL
+        if (urlParams.get('search')) {
+            filtros.search = urlParams.get('search');
+        }
+        if (urlParams.get('estado')) {
+            filtros.estado = urlParams.get('estado');
+        }
+        
+        // Construir la URL de descarga
+        let url;
+        if (tipo === 'pdf') {
+            url = '{{ route("vehiculos.descargar-reporte-pdf") }}';
+        } else if (tipo === 'excel') {
+            url = '{{ route("vehiculos.descargar-reporte-excel") }}';
+        }
+        
+        // Agregar parámetros de filtro a la URL
+        const params = new URLSearchParams(filtros);
+        if (params.toString()) {
+            url += '?' + params.toString();
+        }
+        
+        // Mostrar indicador de carga
+        const boton = event.target.closest('button');
+        const textoOriginal = boton.innerHTML;
+        boton.disabled = true;
+        boton.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Generando...
+        `;
+        
+        // Crear enlace temporal para descarga
+        const link = document.createElement('a');
+        link.href = url;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Restaurar botón después de un breve delay
+        setTimeout(() => {
+            boton.disabled = false;
+            boton.innerHTML = textoOriginal;
+        }, 2000);
+    }
     function confirmarEliminacion(id, placas) {
         if (confirm(`¿Estás seguro de que deseas eliminar el activo con placas ${placas}?`)) {
             // Crear formulario y enviarlo

@@ -63,6 +63,15 @@ Route::middleware('auth')->prefix('vehiculos')->name('vehiculos.')->group(functi
     Route::get('/busqueda-predictiva', [App\Http\Controllers\VehiculoController::class, 'busquedaPredictiva'])
         ->name('busqueda-predictiva');
     
+    // Rutas para descarga de reportes filtrados
+    Route::get('/descargar-reporte-pdf', [App\Http\Controllers\VehiculoController::class, 'descargarReportePdf'])
+        ->name('descargar-reporte-pdf')
+        ->middleware('permission:ver_vehiculos');
+    
+    Route::get('/descargar-reporte-excel', [App\Http\Controllers\VehiculoController::class, 'descargarReporteExcel'])
+        ->name('descargar-reporte-excel')
+        ->middleware('permission:ver_vehiculos');
+    
     Route::get('/create', [App\Http\Controllers\VehiculoController::class, 'create'])
         ->name('create')
         ->middleware('permission:crear_vehiculos');

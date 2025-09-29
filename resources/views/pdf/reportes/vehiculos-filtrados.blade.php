@@ -1,8 +1,8 @@
 @extends('pdf.layouts.base')
 
-@section('title', 'Inventario de Activos')
-@section('report-title', 'Inventario General de Activos')
-@section('report-subtitle', 'Reporte completo del inventario de activos')
+@section('title', 'Reporte de Vehículos Filtrados')
+@section('report-title', 'Reporte de Vehículos Filtrados')
+@section('report-subtitle', 'Listado de vehículos según criterios de filtrado aplicados')
 
 @section('content')
     <!-- Sección de Estadísticas -->
@@ -13,7 +13,7 @@
                 <div class="stats-row">
                     <div class="stat-item">
                         <span class="stat-number">{{ $estadisticas['total'] ?? 0 }}</span>
-                        <span class="stat-label">Total Activos</span>
+                        <span class="stat-label">Total Vehículos</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">{{ $estadisticas['por_estado']['disponible'] ?? 0 }}</span>
@@ -41,19 +41,20 @@
     @endif
 
     <!-- Información de Filtros Aplicados -->
-    @if(isset($filtros) && count($filtros) > 0)
+    @if(isset($filtros) && count(array_filter($filtros)) > 0)
         <div class="pdf-info-section">
+            <h3 class="info-title">Filtros Aplicados</h3>
             <div class="info-grid">
-                @if(isset($filtros['estatus']) && $filtros['estatus'])
+                @if(isset($filtros['buscar']) && $filtros['buscar'])
                     <div class="info-row">
-                        <div class="info-label">Estado Filtrado:</div>
-                        <div class="info-value">{{ ucfirst(str_replace('_', ' ', $filtros['estatus'])) }}</div>
+                        <div class="info-label">Búsqueda:</div>
+                        <div class="info-value">{{ $filtros['buscar'] }}</div>
                     </div>
                 @endif
-                @if(isset($filtros['marca']) && $filtros['marca'])
+                @if(isset($filtros['estado']) && $filtros['estado'])
                     <div class="info-row">
-                        <div class="info-label">Marca Filtrada:</div>
-                        <div class="info-value">{{ $filtros['marca'] }}</div>
+                        <div class="info-label">Estado Filtrado:</div>
+                        <div class="info-value">{{ ucfirst(str_replace('_', ' ', $filtros['estado'])) }}</div>
                     </div>
                 @endif
                 @if(isset($filtros['anio']) && $filtros['anio'])
@@ -64,7 +65,11 @@
                 @endif
                 <div class="info-row">
                     <div class="info-label">Total de Registros:</div>
-                    <div class="info-value">{{ count($vehiculos) }} activos</div>
+                    <div class="info-value">{{ count($vehiculos) }} vehículos</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Fecha de Generación:</div>
+                    <div class="info-value">{{ now()->format('d/m/Y H:i:s') }}</div>
                 </div>
             </div>
         </div>
@@ -86,6 +91,7 @@
                 <th style="width: 13%;">Ubicación</th>
                 <th style="width: 10%;">Estado</th>
                 <th style="width: 13%;">Km Actual</th>
+                <th style="width: 10%;">Registro</th>
             </tr>
         </thead>
         <tbody>
@@ -100,12 +106,8 @@
                     <td class="text-center no-wrap">{{ $vehiculo->placas ?: 'N/A' }}</td>
                     <td class="font-small break-word">{{ $vehiculo->n_serie ?: 'N/A' }}</td>
                     <td class="text-center">
-                        @if($vehiculo->estado && $vehiculo->municipio)
-                            {{ $vehiculo->estado }}, {{ $vehiculo->municipio }}
-                        @elseif($vehiculo->estado)
-                            {{ $vehiculo->estado }}
-                        @elseif($vehiculo->municipio)
-                            {{ $vehiculo->municipio }}
+                        @if($vehiculo->estado || $vehiculo->municipio)
+                            {{ $vehiculo->estado }}{{ $vehiculo->estado && $vehiculo->municipio ? ', ' : '' }}{{ $vehiculo->municipio }}
                         @else
                             Sin ubicación
                         @endif
@@ -133,11 +135,14 @@
                             <span class="text-muted font-small">Sin registro</span>
                         @endif
                     </td>
+                    <td class="text-center font-small">
+                        {{ $vehiculo->created_at ? $vehiculo->created_at->format('d/m/Y') : 'N/A' }}
+                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" class="text-center text-muted p-15">
-                        No se encontraron activos con los criterios especificados
+                    <td colspan="10" class="text-center text-muted p-15">
+                        No se encontraron vehículos con los criterios especificados
                     </td>
                 </tr>
             @endforelse
@@ -172,13 +177,22 @@
                         <span class="stat-number">{{ $minKm ? number_format($minKm, 0) : '0' }}</span>
                         <span class="stat-label">Menor Km</span>
                     </div>
-
                 </div>
             </div>
         </div>
     @endif
-@endsection
 
-@section('footer-info')
-    Inventario generado el {{ now()->format('d/m/Y H:i:s') }} - Total: {{ count($vehiculos) }} activos
+    <!-- Notas adicionales -->
+    <div class="pdf-notes-section mt-20">
+        <h3 class="notes-title">Notas Importantes</h3>
+        <ul class="notes-list">
+            <li>Este reporte incluye únicamente los vehículos que cumplen con los criterios de filtrado aplicados.</li>
+            <li>Los datos de kilometraje corresponden al último registro disponible en el sistema.</li>
+            <li>Los vehículos sin ubicación específica se muestran como "Sin ubicación".</li>
+            <li>El estado de cada vehículo refleja su situación actual en el sistema de control interno.</li>
+            @if(isset($filtros['buscar']) && $filtros['buscar'])
+                <li>La búsqueda aplicada incluye coincidencias en marca, modelo, placas y número de serie.</li>
+            @endif
+        </ul>
+    </div>
 @endsection

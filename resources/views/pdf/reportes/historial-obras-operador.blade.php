@@ -145,7 +145,12 @@
                         @endif
                     </td>
                     <td class="text-center">
-                        {{ $asignacion->vehiculo->ubicacion ?? 'Sin ubicación' }}
+                        @php
+                            $estado = $asignacion->vehiculo->estado ?? '';
+                            $municipio = $asignacion->vehiculo->municipio ?? '';
+                            $ubicacion = trim($estado . ($estado && $municipio ? ', ' : '') . $municipio);
+                        @endphp
+                        {{ $ubicacion ?: 'Sin ubicación' }}
                     </td>
                     <td class="text-center">
                         {{ $asignacion->fecha_asignacion ? \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y') : 'N/A' }}
