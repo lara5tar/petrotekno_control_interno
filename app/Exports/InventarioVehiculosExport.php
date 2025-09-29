@@ -26,30 +26,42 @@ class InventarioVehiculosExport implements FromCollection, WithHeadings, WithMap
     public function headings(): array
     {
         return [
-            'ID',
-            'Marca',
-            'Modelo',
+            '#',
+            'Marca/Modelo',
+            'Tipo',
             'Año',
             'Placas',
             'No. Serie',
-            'Tipo',
-            'Estatus',
-            'Kilometraje Actual'
+            'Ubicación',
+            'Estado',
+            'Km Actual'
         ];
     }
 
     public function map($vehiculo): array
     {
+        // Construir ubicación igual que en el PDF
+        $ubicacion = '';
+        if ($vehiculo->estado && $vehiculo->municipio) {
+            $ubicacion = $vehiculo->estado . ', ' . $vehiculo->municipio;
+        } elseif ($vehiculo->estado) {
+            $ubicacion = $vehiculo->estado;
+        } elseif ($vehiculo->municipio) {
+            $ubicacion = $vehiculo->municipio;
+        } else {
+            $ubicacion = 'Sin ubicación';
+        }
+
         return [
             $vehiculo->id,
-            $vehiculo->marca,
-            $vehiculo->modelo,
-            $vehiculo->anio,
-            $vehiculo->placas,
-            $vehiculo->n_serie,
+            $vehiculo->marca . ' ' . $vehiculo->modelo,
             $vehiculo->tipoActivo ? $vehiculo->tipoActivo->nombre : 'Sin tipo',
-            $vehiculo->estatus ? $vehiculo->estatus->nombre() : 'N/A', // Usar el método nombre() del enum
-            $vehiculo->kilometraje_actual
+            $vehiculo->anio,
+            $vehiculo->placas ?: 'N/A',
+            $vehiculo->n_serie ?: 'N/A',
+            $ubicacion,
+            $vehiculo->estatus ? $vehiculo->estatus->nombre() : 'N/A',
+            $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) . ' km' : 'Sin registro'
         ];
     }
 

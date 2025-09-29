@@ -26,17 +26,14 @@ class MantenimientosExport implements FromCollection, WithHeadings, WithMapping,
     public function headings(): array
     {
         return [
-            'ID',
-            'Fecha Inicio',
-            'Fecha Fin',
-            'Tipo Servicio',
-            'Activo',
+            '#',
+            'Fecha',
+            'Tipo',
             'Descripción',
-            'Costo',
             'Kilometraje',
-            'Proveedor',
-            'Estado',
-            'Observaciones'
+            'Costo',
+            'Proveedor/Taller',
+            'Estado'
         ];
     }
 
@@ -45,17 +42,12 @@ class MantenimientosExport implements FromCollection, WithHeadings, WithMapping,
         return [
             $mantenimiento->id,
             $mantenimiento->fecha_inicio ? $mantenimiento->fecha_inicio->format('d/m/Y') : 'N/A',
-            $mantenimiento->fecha_fin ? $mantenimiento->fecha_fin->format('d/m/Y') : 'En curso',
             $mantenimiento->tipo_servicio ?? 'N/A',
-            $mantenimiento->vehiculo ? 
-                $mantenimiento->vehiculo->marca . ' ' . $mantenimiento->vehiculo->modelo . ' - ' . $mantenimiento->vehiculo->placas 
-                : 'N/A',
             $mantenimiento->descripcion ?? 'N/A',
-            $mantenimiento->costo ? '$' . number_format($mantenimiento->costo, 2) : 'N/A',
             $mantenimiento->kilometraje ? number_format($mantenimiento->kilometraje, 0) . ' km' : 'N/A',
+            $mantenimiento->costo ? '$' . number_format($mantenimiento->costo, 2) : 'N/A',
             $mantenimiento->proveedor ?? 'N/A',
-            ucfirst($mantenimiento->estado ?? 'pendiente'),
-            $mantenimiento->observaciones ?? 'Sin observaciones'
+            ucfirst($mantenimiento->estado ?? 'pendiente')
         ];
     }
 

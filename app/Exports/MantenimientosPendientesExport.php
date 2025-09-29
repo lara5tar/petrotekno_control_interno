@@ -26,43 +26,30 @@ class MantenimientosPendientesExport implements FromCollection, WithHeadings, Wi
     public function headings(): array
     {
         return [
-            'ID',
+            '#',
             'Fecha Inicio',
             'Tipo Servicio',
             'Activo',
-            'Marca',
-            'Modelo', 
-            'Placas',
-            'Sistema Activo',
             'Descripción',
             'Costo Estimado',
             'Proveedor',
-            'Días Pendiente',
-            'Observaciones'
+            'Días Pendiente'
         ];
     }
 
     public function map($mantenimiento): array
     {
-        $diasPendiente = $mantenimiento->fecha_inicio ? 
-            $mantenimiento->fecha_inicio->diffInDays(now()) : 'N/A';
-
         return [
             $mantenimiento->id,
             $mantenimiento->fecha_inicio ? $mantenimiento->fecha_inicio->format('d/m/Y') : 'N/A',
             $mantenimiento->tipo_servicio ?? 'N/A',
             $mantenimiento->vehiculo ? 
-                $mantenimiento->vehiculo->marca . ' ' . $mantenimiento->vehiculo->modelo 
+                $mantenimiento->vehiculo->marca . ' ' . $mantenimiento->vehiculo->modelo . ' - ' . $mantenimiento->vehiculo->placas 
                 : 'N/A',
-            $mantenimiento->vehiculo->marca ?? 'N/A',
-            $mantenimiento->vehiculo->modelo ?? 'N/A',
-            $mantenimiento->vehiculo->placas ?? 'N/A',
-            $mantenimiento->sistema_vehiculo ?? 'N/A',
-            $mantenimiento->descripcion ?? 'Sin descripción',
+            $mantenimiento->descripcion ?? 'N/A',
             $mantenimiento->costo ? '$' . number_format($mantenimiento->costo, 2) : 'N/A',
-            $mantenimiento->proveedor ?? 'Sin proveedor',
-            $diasPendiente,
-            $mantenimiento->observaciones ?? 'Sin observaciones'
+            $mantenimiento->proveedor ?? 'N/A',
+            $mantenimiento->fecha_inicio ? $mantenimiento->fecha_inicio->diffInDays(now()) . ' días' : 'N/A'
         ];
     }
 

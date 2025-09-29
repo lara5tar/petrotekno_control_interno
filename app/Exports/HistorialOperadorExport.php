@@ -26,36 +26,40 @@ class HistorialOperadorExport implements FromCollection, WithHeadings, WithMappi
     public function headings(): array
     {
         return [
-            'ID',
-            'Operador',
-            'Activo',
-            'Marca',
-            'Modelo',
-            'Placas',
+            '#',
+            'Fecha',
             'Obra',
-            'Fecha Inicio',
-            'Fecha Fin',
-            'Estado',
-            'Días Asignado'
+            'Ubicación',
+            'Descripción',
+            'Observaciones'
         ];
     }
 
-    public function map($asignacion): array
+    public function map($obra): array
     {
+        // Construir ubicación igual que en el PDF
+        $ubicacion = '';
+        if ($obra->vehiculo) {
+            if ($obra->vehiculo->estado && $obra->vehiculo->municipio) {
+                $ubicacion = $obra->vehiculo->estado . ', ' . $obra->vehiculo->municipio;
+            } elseif ($obra->vehiculo->estado) {
+                $ubicacion = $obra->vehiculo->estado;
+            } elseif ($obra->vehiculo->municipio) {
+                $ubicacion = $obra->vehiculo->municipio;
+            } else {
+                $ubicacion = 'Sin ubicación';
+            }
+        } else {
+            $ubicacion = 'Sin ubicación';
+        }
+
         return [
-            $asignacion->id,
-            $asignacion->operador->nombre_completo ?? 'N/A',
-            $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo,
-            $asignacion->vehiculo->marca,
-            $asignacion->vehiculo->modelo,
-            $asignacion->vehiculo->placas,
-            $asignacion->obra->nombre ?? 'N/A',
-            $asignacion->fecha_inicio ? $asignacion->fecha_inicio->format('d/m/Y') : 'N/A',
-            $asignacion->fecha_fin ? $asignacion->fecha_fin->format('d/m/Y') : 'En curso',
-            ucfirst($asignacion->estado ?? 'activo'),
-            $asignacion->fecha_inicio && $asignacion->fecha_fin 
-                ? $asignacion->fecha_inicio->diffInDays($asignacion->fecha_fin) 
-                : ($asignacion->fecha_inicio ? $asignacion->fecha_inicio->diffInDays(now()) : 'N/A')
+            $obra->id,
+            $obra->fecha ? $obra->fecha->format('d/m/Y') : 'N/A',
+            $obra->nombre ?? 'N/A',
+            $ubicacion,
+            $obra->descripcion ?? 'N/A',
+            $obra->observaciones ?? 'Sin observaciones'
         ];
     }
 

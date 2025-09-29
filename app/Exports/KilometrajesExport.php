@@ -26,16 +26,12 @@ class KilometrajesExport implements FromCollection, WithHeadings, WithMapping, W
     public function headings(): array
     {
         return [
-            'ID',
-            'Fecha Captura',
-            'Activo',
-            'Marca',
-            'Modelo',
-            'Placas',
+            '#',
             'Kilometraje',
-            'Combustible (L)',
+            'Fecha',
+            'Combustible',
             'Obra',
-            'Operador',
+            'Registrado por',
             'Observaciones'
         ];
     }
@@ -44,14 +40,8 @@ class KilometrajesExport implements FromCollection, WithHeadings, WithMapping, W
     {
         return [
             $kilometraje->id,
-            $kilometraje->fecha_captura ? $kilometraje->fecha_captura->format('d/m/Y H:i') : 'N/A',
-            $kilometraje->vehiculo ? 
-                $kilometraje->vehiculo->marca . ' ' . $kilometraje->vehiculo->modelo 
-                : 'N/A',
-            $kilometraje->vehiculo->marca ?? 'N/A',
-            $kilometraje->vehiculo->modelo ?? 'N/A',
-            $kilometraje->vehiculo->placas ?? 'N/A',
             $kilometraje->kilometraje ? number_format($kilometraje->kilometraje, 0) . ' km' : 'N/A',
+            $kilometraje->fecha_captura ? $kilometraje->fecha_captura->format('d/m/Y H:i') : 'N/A',
             $kilometraje->cantidad_combustible ? number_format($kilometraje->cantidad_combustible, 2) . ' L' : 'N/A',
             $kilometraje->obra->nombre ?? 'N/A',
             $kilometraje->operador ?? 'N/A',
