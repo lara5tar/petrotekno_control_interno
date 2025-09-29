@@ -141,7 +141,7 @@
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td class="text-bold">
-                        <div>{{ $asignacion->obra->nombre ?? 'N/A' }}</div>
+                        <div>{{ $asignacion->obra->nombre_obra ?? 'N/A' }}</div>
                         @if($asignacion->obra && $asignacion->obra->cliente)
                             <div class="font-small text-muted">Cliente: {{ $asignacion->obra->cliente }}</div>
                         @endif
