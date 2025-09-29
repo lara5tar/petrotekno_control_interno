@@ -135,6 +135,31 @@
         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
             <div class="divide-y divide-gray-200">
 
+                <!-- Cambiar Contraseña -->
+                <div class="p-6 hover:bg-gray-50 transition duration-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center flex-1">
+                            <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-lg font-semibold text-gray-900">Cambiar Contraseña</h4>
+                                <p class="text-sm text-gray-500 mt-1">Actualiza tu contraseña para mantener tu cuenta segura</p>
+                            </div>
+                        </div>
+                        <div class="ml-6">
+                            <a href="{{ route('password.change.show') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition duration-200 inline-flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-4 4-4-4 4-4 .257-.257A6 6 0 1118 8zm-6-2a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Cambiar Contraseña
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Logs del Sistema -->
                 <div class="p-6 hover:bg-gray-50 transition duration-200">
                     <div class="flex items-center justify-between">

@@ -785,6 +785,14 @@ Route::middleware(['auth', App\Http\Middleware\CanAccessConfiguration::class])->
     })->name('admin.configuracion.index');
 });
 
+// Rutas para cambio de contraseña
+Route::middleware(['auth'])->group(function () {
+    Route::get('/cambiar-contrasena', [App\Http\Controllers\PasswordChangeController::class, 'show'])
+        ->name('password.change.show');
+    Route::post('/cambiar-contrasena', [App\Http\Controllers\PasswordChangeController::class, 'update'])
+        ->name('password.change.update');
+});
+
 // ================================
 // MÓDULO DE REPORTES
 // ================================

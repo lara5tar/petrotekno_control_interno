@@ -129,7 +129,7 @@
                 </a>
                 
                 <!-- Información del usuario -->
-                <span class="text-petroyellow">{{ Auth::user()->name ?? 'Usuario' }}</span>
+                <span class="text-petroyellow">{{ Auth::user()->nombre_completo ?? 'Usuario' }}</span>
                 <span class="text-sm text-gray-400">v1.0</span>
             </div>
         </div>
