@@ -33,6 +33,7 @@ class KilometrajesExport implements FromCollection, WithHeadings, WithMapping, W
             'Modelo',
             'Placas',
             'Kilometraje',
+            'Combustible (L)',
             'Obra',
             'Operador',
             'Observaciones'
@@ -51,6 +52,7 @@ class KilometrajesExport implements FromCollection, WithHeadings, WithMapping, W
             $kilometraje->vehiculo->modelo ?? 'N/A',
             $kilometraje->vehiculo->placas ?? 'N/A',
             $kilometraje->kilometraje ? number_format($kilometraje->kilometraje, 0) . ' km' : 'N/A',
+            $kilometraje->cantidad_combustible ? number_format($kilometraje->cantidad_combustible, 2) . ' L' : 'N/A',
             $kilometraje->obra->nombre ?? 'N/A',
             $kilometraje->operador ?? 'N/A',
             $kilometraje->observaciones ?? 'Sin observaciones'

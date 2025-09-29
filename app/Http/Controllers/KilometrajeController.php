@@ -161,6 +161,18 @@ class KilometrajeController extends Controller
                 $data['obra_id'] = $obraActual->id;
             }
 
+            // Si fecha_captura viene solo como fecha, agregar la hora actual
+            if (isset($data['fecha_captura'])) {
+                $fechaCaptura = Carbon::parse($data['fecha_captura']);
+                // Si no tiene hora (es solo fecha), agregar la hora actual
+                if ($fechaCaptura->format('H:i:s') === '00:00:00') {
+                    $data['fecha_captura'] = Carbon::now()->format('Y-m-d H:i:s');
+                }
+            }
+
+            // Agregar la fecha de creación del registro
+            $data['created_at_registro'] = Carbon::now();
+
             $kilometraje = Kilometraje::create($data);
 
             // Actualizar kilometraje actual del vehículo si es mayor
@@ -645,6 +657,15 @@ class KilometrajeController extends Controller
                     $fechaCaptura = Carbon::parse($fecha);
                 }
             }
+            
+            // Agregar la hora actual si solo se proporcionó la fecha
+            if ($fechaCaptura->format('H:i:s') === '00:00:00') {
+                $fechaCaptura = $fechaCaptura->setTime(
+                    Carbon::now()->hour,
+                    Carbon::now()->minute,
+                    Carbon::now()->second
+                );
+            }
         } catch (\Exception $e) {
             return [
                 'exito' => false,
@@ -810,6 +831,7 @@ class KilometrajeController extends Controller
             'usuario_captura_id' => Auth::id(),
             'observaciones' => $datosValidados['observaciones'],
             'cantidad_combustible' => $datosValidados['cantidad_combustible'],
+            'created_at_registro' => Carbon::now(),
         ]);
     }
 
@@ -926,6 +948,7 @@ class KilometrajeController extends Controller
             'usuario_captura_id' => Auth::id(),
             'observaciones' => $observaciones,
             'cantidad_combustible' => $cantidadCombustible,
+            'created_at_registro' => Carbon::now(),
         ]);
 
         // Actualizar kilometraje actual del vehículo si es mayor
@@ -1036,6 +1059,7 @@ class KilometrajeController extends Controller
             'usuario_captura_id' => Auth::id(),
             'observaciones' => $observaciones,
             'cantidad_combustible' => $cantidadCombustible,
+            'created_at_registro' => Carbon::now(),
         ]);
 
         // Actualizar kilometraje actual del vehículo si es mayor
@@ -1153,7 +1177,8 @@ class KilometrajeController extends Controller
                 'kilometraje' => $request->kilometraje,
                 'fecha_captura' => $request->fecha_captura,
                 'usuario_captura_id' => Auth::id(),
-                'observaciones' => $request->observaciones
+                'observaciones' => $request->observaciones,
+                'created_at_registro' => Carbon::now(),
             ]);
 
             // Actualizar kilometraje actual del vehículo si es mayor

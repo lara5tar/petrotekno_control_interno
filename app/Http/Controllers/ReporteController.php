@@ -723,11 +723,20 @@ class ReporteController extends Controller
             $query->where('kilometrajes.fecha_captura', '<=', $fechaFin);
         }
 
-        // Ordenar por fecha descendente
-        $kilometrajes = $query->orderBy('kilometrajes.fecha_captura', 'desc')
-            ->orderBy('vehiculos.marca')
-            ->orderBy('vehiculos.modelo')
-            ->paginate(50);
+        // Ordenar por vehículo y luego por fecha de creación del registro descendente (más nuevo al más viejo)
+        if ($formato === 'pdf') {
+            // Para PDF obtener todos los registros sin paginación
+            $kilometrajes = $query->orderBy('vehiculos.marca')
+                ->orderBy('vehiculos.modelo')
+                ->orderBy('kilometrajes.created_at_registro', 'desc')
+                ->get();
+        } else {
+            // Para vista HTML usar paginación
+            $kilometrajes = $query->orderBy('vehiculos.marca')
+                ->orderBy('vehiculos.modelo')
+                ->orderBy('kilometrajes.created_at_registro', 'desc')
+                ->paginate(50);
+        }
 
         // Obtener vehículos disponibles para el filtro
         $vehiculosDisponibles = Vehiculo::select('id', 'marca', 'modelo', 'anio', 'placas')
@@ -736,12 +745,19 @@ class ReporteController extends Controller
             ->get();
 
         // Estadísticas generales
-        $estadisticas = [
-            'total_registros' => $kilometrajes->total(),
-            'vehiculos_con_kilometraje' => Kilometraje::distinct('vehiculo_id')->count(),
-            'kilometraje_promedio' => Kilometraje::avg('kilometraje')
-            // Se eliminó la referencia a último registro
-        ];
+        if ($formato === 'pdf') {
+            $estadisticas = [
+                'total_registros' => $kilometrajes->count(),
+                'vehiculos_con_kilometraje' => Kilometraje::distinct('vehiculo_id')->count(),
+                'kilometraje_promedio' => Kilometraje::avg('kilometraje')
+            ];
+        } else {
+            $estadisticas = [
+                'total_registros' => $kilometrajes->total(),
+                'vehiculos_con_kilometraje' => Kilometraje::distinct('vehiculo_id')->count(),
+                'kilometraje_promedio' => Kilometraje::avg('kilometraje')
+            ];
+        }
 
         // Si se solicita Excel, generar y retornar
         if ($formato === 'excel') {

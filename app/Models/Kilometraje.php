@@ -22,10 +22,12 @@ class Kilometraje extends Model
         'usuario_captura_id',
         'observaciones',
         'cantidad_combustible',
+        'created_at_registro',
     ];
 
     protected $casts = [
-        'fecha_captura' => 'date',
+        'fecha_captura' => 'datetime',
+        'created_at_registro' => 'datetime',
         'kilometraje' => 'integer',
         'cantidad_combustible' => 'decimal:2',
     ];

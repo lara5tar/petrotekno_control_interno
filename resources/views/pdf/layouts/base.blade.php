@@ -255,9 +255,9 @@
         }
         
         .status-asignado {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+            background-color: #f4c430;
+            color: #8b6914;
+            border: 1px solid #e6b800;
         }
         
         .status-mantenimiento {
@@ -309,9 +309,15 @@
         }
         
         .status-normal {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+            background-color: #f4c430;
+            color: #8b6914;
+            border: 1px solid #e6b800;
+        }
+        
+        .status-info {
+            background-color: #f4c430;
+            color: #8b6914;
+            border: 1px solid #e6b800;
         }
         
         /* ===========================
