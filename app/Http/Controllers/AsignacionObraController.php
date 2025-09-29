@@ -355,23 +355,26 @@ class AsignacionObraController extends Controller
                 return redirect()->back()->with('error', $message)->withInput();
             }
 
+            // Obtener el vehículo para usar su kilometraje actual si no se proporciona uno
+            $vehiculo = Vehiculo::find($request->vehiculo_id);
+            $kilometrajeInicial = $request->kilometraje_inicial ?? ($vehiculo ? $vehiculo->kilometraje_actual : 0);
+
             // Crear la asignación en la tabla asignaciones_obra
             $asignacion = AsignacionObra::create([
                 'obra_id' => $request->obra_id,
                 'vehiculo_id' => $request->vehiculo_id,
                 'operador_id' => $request->operador_id,
                 'fecha_asignacion' => now(),
-                'kilometraje_inicial' => $request->kilometraje_inicial,
+                'kilometraje_inicial' => $kilometrajeInicial,
                 'observaciones' => $request->observaciones,
                 'estado' => 'activa',
             ]);
 
             // Actualizar el estatus del vehículo a "Asignado"
-            $vehiculo = Vehiculo::find($request->vehiculo_id);
             if ($vehiculo) {
                 $vehiculo->update([
                     'estatus' => EstadoVehiculo::ASIGNADO->value,
-                    'kilometraje_actual' => $request->kilometraje_inicial,
+                    'kilometraje_actual' => $kilometrajeInicial,
                 ]);
             }
 
