@@ -81,15 +81,11 @@
                     @endforeach
                 </select>
             </div>
-            <div class="flex-1 md:flex-none md:w-48">
-                <label for="marca" class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
-                <input type="text" id="marca" name="marca" value="{{ request('marca') }}" placeholder="Filtrar por marca" class="p-2 border border-gray-300 rounded-md w-full">
-            </div>
             <div class="flex gap-2">
                 <button type="submit" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md transition duration-200">
                     Filtrar
                 </button>
-                @if(request()->hasAny(['search', 'estado', 'marca']))
+                @if(request()->hasAny(['search', 'estado']))
                     <a href="{{ route('vehiculos.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-200">
                         Limpiar
                     </a>

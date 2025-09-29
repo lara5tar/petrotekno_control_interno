@@ -37,10 +37,6 @@ class VehiculoController extends Controller
             $query->buscar($termino);
         }
 
-        if ($request->filled('marca')) {
-            $query->porMarca($request->get('marca'));
-        }
-
         if ($request->filled('estado')) {
             $query->porEstado($request->get('estado'));
         }
@@ -52,12 +48,11 @@ class VehiculoController extends Controller
         $vehiculos = $query->orderBy('marca')->orderBy('modelo')->paginate(15);
 
         // Obtener valores únicos para filtros
-        $marcas = Vehiculo::distinct()->pluck('marca')->sort();
         $estados = collect(EstadoVehiculo::cases())->mapWithKeys(function ($estado) {
             return [$estado->value => $estado->nombre()];
         });
 
-        return view('vehiculos.index', compact('vehiculos', 'marcas', 'estados'));
+        return view('vehiculos.index', compact('vehiculos', 'estados'));
     }
 
     /**
