@@ -148,26 +148,7 @@ class UpdateObraRequest extends FormRequest
                 $obra = \App\Models\Obra::find($obraId);
             }
 
-            // Validación de transiciones de estatus
-            if ($this->has('estatus') && $obra) {
-                $nuevoEstatus = $this->estatus;
-                $estatusActual = $obra->estatus;
-
-                $transicionesPermitidas = [
-                    Obra::ESTATUS_PLANIFICADA => [Obra::ESTATUS_EN_PROGRESO, Obra::ESTATUS_CANCELADA],
-                    Obra::ESTATUS_EN_PROGRESO => [Obra::ESTATUS_SUSPENDIDA, Obra::ESTATUS_COMPLETADA, Obra::ESTATUS_CANCELADA],
-                    Obra::ESTATUS_SUSPENDIDA => [Obra::ESTATUS_EN_PROGRESO, Obra::ESTATUS_CANCELADA],
-                    Obra::ESTATUS_COMPLETADA => [], // No se puede cambiar desde completada
-                    Obra::ESTATUS_CANCELADA => [], // No se puede cambiar desde cancelada
-                ];
-
-                if ($nuevoEstatus !== $estatusActual &&
-                    ! in_array($nuevoEstatus, $transicionesPermitidas[$estatusActual] ?? [])) {
-                    $validator->errors()->add('estatus',
-                        "No se puede cambiar el estatus de '{$estatusActual}' a '{$nuevoEstatus}'."
-                    );
-                }
-            }
+            // Permitir cambios de estado sin restricciones
 
             // Validación: Si está completada, avance debe ser 100
             if ($this->has('estatus') && $this->estatus === Obra::ESTATUS_COMPLETADA) {

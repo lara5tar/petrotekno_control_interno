@@ -257,29 +257,23 @@ class ObraController extends Controller
                         }
                     }
                     
-                    // Agregar información de asignación a cada vehículo
-                    $vehiculos = $todosVehiculos->map(function($vehiculo) use ($vehiculosAsignados) {
-                        $vehiculo->esta_asignado = isset($vehiculosAsignados[$vehiculo->id]);
-                        $vehiculo->obra_asignada = $vehiculosAsignados[$vehiculo->id] ?? null;
+                    // Filtrar solo vehículos disponibles (no asignados)
+                    $vehiculos = $todosVehiculos->filter(function($vehiculo) use ($vehiculosAsignados) {
+                        return !isset($vehiculosAsignados[$vehiculo->id]);
+                    });
+                    
+                    // Agregar información de disponibilidad
+                    $vehiculos = $vehiculos->map(function($vehiculo) {
+                        $vehiculo->esta_asignado = false;
+                        $vehiculo->obra_asignada = null;
                         
                         return $vehiculo;
                     });
                     
-                    // Ordenar: disponibles primero, luego asignados
-                    $vehiculosDisponibles = $vehiculos->filter(function($vehiculo) {
-                        return !$vehiculo->esta_asignado;
-                    });
-                    
-                    $vehiculosNoDisponibles = $vehiculos->filter(function($vehiculo) {
-                        return $vehiculo->esta_asignado;
-                    });
-                    
-                    $vehiculos = $vehiculosDisponibles->concat($vehiculosNoDisponibles);
-                    
                     Log::info('Vehículos procesados correctamente', [
                         'total' => $vehiculos->count(),
-                        'disponibles' => $vehiculosDisponibles->count(),
-                        'no_disponibles' => $vehiculosNoDisponibles->count(),
+                        'disponibles' => $vehiculos->count(),
+                        'no_disponibles' => 0,
                         'vehiculos_detalle' => $vehiculos->map(function($vehiculo) {
                             return [
                                 'id' => $vehiculo->id,
@@ -558,13 +552,11 @@ class ObraController extends Controller
                 ->orderBy('nombre_completo')
                 ->get();
 
-            // Cargar vehículos disponibles para el modal (incluye todos los vehículos activos)
+            // Cargar vehículos disponibles para el modal (solo vehículos no asignados)
             Log::info('Cargando vehículos para el modal');
             $vehiculosDisponibles = \App\Models\Vehiculo::with('obraActual')
-                ->whereIn('estatus', [
-                    \App\Enums\EstadoVehiculo::DISPONIBLE,
-                    \App\Enums\EstadoVehiculo::ASIGNADO
-                ])
+                ->where('estatus', \App\Enums\EstadoVehiculo::DISPONIBLE)
+                ->whereDoesntHave('asignacionesObraActivas')
                 ->orderBy('marca')
                 ->orderBy('modelo')
                 ->get();
@@ -1060,6 +1052,67 @@ class ObraController extends Controller
             ]);
         } catch (Exception $e) {
             return response()->json(['error' => 'Error al obtener opciones de estatus.'], 500);
+        }
+    }
+
+    /**
+     * Update obra status via AJAX.
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        try {
+            if (! $this->hasPermission('actualizar_obras')) {
+                return response()->json(['error' => 'No tienes permisos para actualizar obras.'], 403);
+            }
+
+            $obra = Obra::findOrFail($id);
+            
+            $request->validate([
+                'estatus' => 'required|in:planificada,en_progreso,suspendida,completada,cancelada',
+            ]);
+
+            $nuevoEstatus = $request->estatus;
+            $estatusActual = $obra->estatus;
+
+            // Permitir cambios de estado sin restricciones
+
+            // Si se completa, establecer avance al 100%
+            if ($nuevoEstatus === Obra::ESTATUS_COMPLETADA) {
+                $obra->avance = 100;
+            }
+
+            $obra->estatus = $nuevoEstatus;
+            $obra->save();
+
+            // Log de la acción
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'actualizar_estatus_obra',
+                'tabla_afectada' => 'obras',
+                'registro_id' => $obra->id,
+                'detalles' => "Estatus cambiado de '{$estatusActual}' a '{$nuevoEstatus}'",
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Estatus actualizado exitosamente.',
+                'data' => [
+                    'estatus' => $obra->estatus,
+                    'estatus_display' => ucfirst(str_replace('_', ' ', $obra->estatus)),
+                    'avance' => $obra->avance,
+                ]
+            ]);
+
+        } catch (Exception $e) {
+            Log::error('Error al actualizar estatus de obra', [
+                'obra_id' => $id,
+                'error' => $e->getMessage(),
+                'user_id' => Auth::id()
+            ]);
+
+            return response()->json([
+                'error' => 'Error al actualizar el estatus: ' . $e->getMessage()
+            ], 500);
         }
     }
 

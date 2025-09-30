@@ -164,9 +164,10 @@ class AsignacionObraController extends Controller
             // Obtener datos para el formulario
             $obras = Obra::activas()->orderBy('nombre_obra')->get(['id', 'nombre_obra', 'estado']);
 
-            // Cargar vehículos disponibles primero
+            // Cargar solo vehículos disponibles (no asignados)
             $vehiculosDisponibles = Vehiculo::disponibles()
                 ->with('estatus')
+                ->whereDoesntHave('asignacionesObraActivas')
                 ->orderBy('marca')
                 ->orderBy('modelo')
                 ->get()
@@ -179,26 +180,8 @@ class AsignacionObraController extends Controller
                     ];
                 });
 
-            // Cargar vehículos asignados para mostrarlos al final como no seleccionables
-            $vehiculosAsignados = Vehiculo::whereHas('asignacionesObraActivas')
-                ->with(['estatus', 'asignacionesObraActivas.obra'])
-                ->orderBy('marca')
-                ->orderBy('modelo')
-                ->get()
-                ->map(function ($vehiculo) {
-                    $obraAsignada = $vehiculo->asignacionesObraActivas->first();
-                    $textoEstado = $obraAsignada ? " (Asignado a: {$obraAsignada->obra->nombre_obra})" : " (No disponible)";
-                    
-                    return [
-                        'id' => $vehiculo->id,
-                        'nombre_completo' => $vehiculo->nombre_completo . $textoEstado,
-                        'disponible' => false,
-                        'texto_estado' => $textoEstado
-                    ];
-                });
-
-            // Combinar ambas listas: disponibles primero, asignados después
-            $vehiculos = $vehiculosDisponibles->concat($vehiculosAsignados);
+            // Solo mostrar vehículos disponibles
+            $vehiculos = $vehiculosDisponibles;
 
             $operadores = Personal::activos()->operadores()->orderBy('nombre_completo')->get([
                 'id',

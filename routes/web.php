@@ -500,6 +500,10 @@ Route::middleware('auth')->group(function () {
         ->name('obras.asignar-vehiculos')
         ->middleware('permission:actualizar_obras');
 
+    Route::patch('/obras/{obra}/update-status', [\App\Http\Controllers\ObraController::class, 'updateStatus'])
+        ->name('obras.update-status')
+        ->middleware('permission:actualizar_obras');
+
     Route::post('/obras/{id}/restore', [\App\Http\Controllers\ObraController::class, 'restore'])
         ->name('obras.restore')
         ->middleware('permission:restaurar_obras');

@@ -402,26 +402,13 @@ class Obra extends Model
     }
 
     /**
-     * Método para cambiar el estatus con validaciones
+     * Método para cambiar el estatus sin restricciones
      */
     public function cambiarEstatus($nuevoEstatus, $motivo = null)
     {
         $estatusAnterior = $this->estatus;
 
-        // Validar transiciones permitidas
-        $transicionesPermitidas = [
-            self::ESTATUS_PLANIFICADA => [self::ESTATUS_EN_PROGRESO, self::ESTATUS_CANCELADA],
-            self::ESTATUS_EN_PROGRESO => [self::ESTATUS_SUSPENDIDA, self::ESTATUS_COMPLETADA, self::ESTATUS_CANCELADA],
-            self::ESTATUS_SUSPENDIDA => [self::ESTATUS_EN_PROGRESO, self::ESTATUS_CANCELADA],
-            self::ESTATUS_COMPLETADA => [], // No se puede cambiar desde completada
-            self::ESTATUS_CANCELADA => [], // No se puede cambiar desde cancelada
-        ];
-
-        if (! in_array($nuevoEstatus, $transicionesPermitidas[$estatusAnterior] ?? [])) {
-            throw new \InvalidArgumentException(
-                "No se puede cambiar de '{$estatusAnterior}' a '{$nuevoEstatus}'"
-            );
-        }
+        // Permitir cambios de estado sin restricciones
 
         $this->estatus = $nuevoEstatus;
 

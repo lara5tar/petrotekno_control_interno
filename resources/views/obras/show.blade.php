@@ -138,11 +138,39 @@
                 <!-- Estado Actual -->
                 <div>
                     <div class="text-sm font-medium text-gray-600 mb-1">Estado Actual</div>
-                    <div class="bg-{{ $obra->estatus === 'en_progreso' ? 'green' : ($obra->estatus === 'completada' ? 'blue' : 'orange') }}-500 text-white p-2 rounded text-center">
-                        <div class="text-sm font-bold">{{ ucfirst(str_replace('_', ' ', $obra->estatus)) }}</div>
+                    <div id="status-container" class="relative">
+                        <select id="status-selector" 
+                                class="w-full p-2 rounded text-center font-bold text-white border-0 focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                                style="background-color: {{ $obra->estatus === 'en_progreso' ? '#10b981' : ($obra->estatus === 'completada' ? '#3b82f6' : '#f59e0b') }}"
+                                data-obra-id="{{ $obra->id }}"
+                                data-current-status="{{ $obra->estatus }}">
+                            @php
+                                $statusOptions = [
+                                    'planificada' => 'Planificada',
+                                    'en_progreso' => 'En Progreso',
+                                    'suspendida' => 'Suspendida',
+                                    'completada' => 'Completada',
+                                    'cancelada' => 'Cancelada'
+                                ];
+                            @endphp
+                            
+                            @foreach($statusOptions as $value => $label)
+                                <option value="{{ $value }}" 
+                                        {{ $obra->estatus === $value ? 'selected' : '' }}
+                                        data-color="{{ $value === 'en_progreso' ? '#10b981' : ($value === 'completada' ? '#3b82f6' : '#f59e0b') }}">
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                        
                         @if($obra->esta_atrasada)
-                        <div class="text-xs bg-red-600 inline-block px-2 py-0.5 rounded mt-1">Atrasada</div>
+                        <div class="text-xs bg-red-600 text-white inline-block px-2 py-0.5 rounded mt-1">Atrasada</div>
                         @endif
+                        
+                        <!-- Loading indicator -->
+                        <div id="status-loading" class="hidden absolute inset-0 bg-gray-500 bg-opacity-50 rounded flex items-center justify-center">
+                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1344,6 +1372,102 @@
                 }
             });
         }
+
+        // Status selector functionality
+        const statusSelector = document.getElementById('status-selector');
+        console.log('Status selector found:', !!statusSelector);
+        if (statusSelector) {
+            console.log('Adding change event listener to status selector');
+            statusSelector.addEventListener('change', function(e) {
+                console.log('Status selector change event triggered');
+                const newStatus = e.target.value;
+                const currentStatus = e.target.dataset.currentStatus;
+                const obraId = e.target.dataset.obraId;
+                
+                console.log('New status:', newStatus);
+                console.log('Current status:', currentStatus);
+                console.log('Obra ID:', obraId);
+                
+                if (newStatus === currentStatus) {
+                    console.log('No change detected, returning');
+                    return; // No cambio
+                }
+
+                // Mostrar loading
+                console.log('Showing loading indicator');
+                const loadingIndicator = document.getElementById('status-loading');
+                if (loadingIndicator) {
+                    loadingIndicator.classList.remove('hidden');
+                }
+
+                // Hacer petición AJAX
+                console.log('Making AJAX request to:', `/obras/${obraId}/update-status`);
+                fetch(`/obras/${obraId}/update-status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        estatus: newStatus
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Actualizar el color del selector
+                        const selectedOption = statusSelector.querySelector(`option[value="${newStatus}"]`);
+                        const newColor = selectedOption.dataset.color;
+                        statusSelector.style.backgroundColor = newColor;
+                        
+                        // Actualizar el estado actual
+                        statusSelector.dataset.currentStatus = newStatus;
+                        
+                        // Mostrar mensaje de éxito
+                        showNotification('Estado actualizado exitosamente', 'success');
+                        
+                        // Recargar la página después de un breve delay para mostrar los cambios
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        throw new Error(data.error || 'Error al actualizar el estado');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Revertir el selector al estado anterior
+                    statusSelector.value = currentStatus;
+                    showNotification(error.message || 'Error al actualizar el estado', 'error');
+                })
+                .finally(() => {
+                    // Ocultar loading
+                    if (loadingIndicator) {
+                        loadingIndicator.classList.add('hidden');
+                    }
+                });
+            });
+        }
     });
+
+    // Función para mostrar notificaciones
+    function showNotification(message, type = 'info') {
+        // Crear elemento de notificación
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white ${
+            type === 'success' ? 'bg-green-500' : 
+            type === 'error' ? 'bg-red-500' : 
+            'bg-blue-500'
+        }`;
+        notification.textContent = message;
+        
+        // Agregar al DOM
+        document.body.appendChild(notification);
+        
+        // Remover después de 3 segundos
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
 </script>
 @endpush
