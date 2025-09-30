@@ -58,7 +58,15 @@ class AppServiceProvider extends ServiceProvider
             'ver_personal', 'crear_personal', 'editar_personal', 'eliminar_personal',
             'ver_obras', 'crear_obras', 'actualizar_obras', 'eliminar_obras',
             'ver_mantenimientos', 'crear_mantenimientos', 'actualizar_mantenimientos', 'eliminar_mantenimientos',
-            'ver_asignaciones', 'crear_asignaciones', 'editar_asignaciones', 'eliminar_asignaciones'
+            'ver_asignaciones', 'crear_asignaciones', 'editar_asignaciones', 'eliminar_asignaciones',
+            // Permisos de roles y usuarios
+            'ver_roles', 'crear_roles', 'editar_roles', 'eliminar_roles',
+            'ver_usuarios', 'crear_usuarios', 'editar_usuarios', 'eliminar_usuarios',
+            'ver_permisos', 'asignar_permisos',
+            // Permisos de documentos
+            'ver_documentos', 'crear_documentos', 'editar_documentos', 'eliminar_documentos',
+            // Permisos de sistema
+            'ver_logs', 'administrar_sistema', 'ver_reportes', 'exportar_reportes'
         ];
 
         foreach ($permissions as $permission) {
