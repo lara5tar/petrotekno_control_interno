@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Operadores en ' . ($obra->nombre ?? 'Obra'))
+@section('title', 'Operadores en ' . ($obra->nombre_obra ?? 'Obra'))
 
 @section('content')
 <div class="container-fluid">
@@ -14,10 +14,10 @@
                             <li class="breadcrumb-item">
                                 <a href="{{ route('operadores.obras-por-operador') }}">Obras por Operador</a>
                             </li>
-                            <li class="breadcrumb-item active">Operadores en {{ $obra->nombre ?? 'Obra' }}</li>
+                            <li class="breadcrumb-item active">Operadores en {{ $obra->nombre_obra ?? 'Obra' }}</li>
                         </ol>
                     </nav>
-                    <h1 class="h3 mb-2">👷‍♂️ Operadores en {{ $obra->nombre ?? 'Obra' }}</h1>
+                    <h1 class="h3 mb-2">👷‍♂️ Operadores en {{ $obra->nombre_obra ?? 'Obra' }}</h1>
                     <p class="text-muted mb-0">Historial de operadores que han trabajado en esta obra</p>
                 </div>
                 <div>
@@ -37,7 +37,7 @@
                                 <table class="table table-sm">
                                     <tr>
                                         <td><strong>Nombre:</strong></td>
-                                        <td>{{ $obra->nombre }}</td>
+                                        <td>{{ $obra->nombre_obra }}</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Ubicación:</strong></td>

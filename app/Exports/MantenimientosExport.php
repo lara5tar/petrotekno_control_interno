@@ -26,28 +26,44 @@ class MantenimientosExport implements FromCollection, WithHeadings, WithMapping,
     public function headings(): array
     {
         return [
-            '#',
             'Fecha',
+            'Activo',
+            'Ubicación',
             'Tipo',
             'Descripción',
-            'Kilometraje',
             'Costo',
-            'Proveedor/Taller',
-            'Estado'
+            'Km',
+            'Responsable'
         ];
     }
 
     public function map($mantenimiento): array
     {
+        // Construir ubicación
+        $ubicacion = '';
+        if ($mantenimiento->vehiculo) {
+            if ($mantenimiento->vehiculo->estado && $mantenimiento->vehiculo->municipio) {
+                $ubicacion = $mantenimiento->vehiculo->estado . ', ' . $mantenimiento->vehiculo->municipio;
+            } elseif ($mantenimiento->vehiculo->estado) {
+                $ubicacion = $mantenimiento->vehiculo->estado;
+            } elseif ($mantenimiento->vehiculo->municipio) {
+                $ubicacion = $mantenimiento->vehiculo->municipio;
+            } else {
+                $ubicacion = 'Sin ubicación';
+            }
+        } else {
+            $ubicacion = 'Sin ubicación';
+        }
+
         return [
-            $mantenimiento->id,
             $mantenimiento->fecha_inicio ? $mantenimiento->fecha_inicio->format('d/m/Y') : 'N/A',
+            $mantenimiento->vehiculo ? $mantenimiento->vehiculo->marca . ' ' . $mantenimiento->vehiculo->modelo : 'N/A',
+            $ubicacion,
             $mantenimiento->tipo_servicio ?? 'N/A',
             $mantenimiento->descripcion ?? 'N/A',
-            $mantenimiento->kilometraje ? number_format($mantenimiento->kilometraje, 0) . ' km' : 'N/A',
             $mantenimiento->costo ? '$' . number_format($mantenimiento->costo, 2) : 'N/A',
-            $mantenimiento->proveedor ?? 'N/A',
-            ucfirst($mantenimiento->estado ?? 'pendiente')
+            $mantenimiento->kilometraje ? number_format($mantenimiento->kilometraje, 0) . ' km' : 'N/A',
+            $mantenimiento->responsable ?? 'N/A'
         ];
     }
 

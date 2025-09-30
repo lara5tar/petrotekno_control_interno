@@ -91,7 +91,7 @@ class Kilometraje extends Model
 
     public function getDiasDesdeCaptura(): int
     {
-        return (int) $this->fecha_captura->diffInDays(Carbon::now());
+        return (int) floor($this->fecha_captura->diffInDays(Carbon::now()));
     }
 
     // Métodos para reglas de negocio

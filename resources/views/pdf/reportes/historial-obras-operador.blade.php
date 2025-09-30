@@ -128,7 +128,7 @@
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td class="text-bold">
-                        <div>{{ $asignacion->obra->nombre ?? 'N/A' }}</div>
+                        <div>{{ $asignacion->obra->nombre_obra ?? 'N/A' }}</div>
                         @if($asignacion->obra && $asignacion->obra->cliente)
                             <div class="font-small text-muted">{{ $asignacion->obra->cliente }}</div>
                         @endif
@@ -164,15 +164,26 @@
                     </td>
                     <td class="text-center">
                         @php
-                            $estadoClass = match($asignacion->estado) {
-                                'activo' => 'status-activo',
-                                'finalizado' => 'status-finalizado',
-                                'pendiente' => 'status-pendiente',
+                            $estadoObra = $asignacion->obra->estatus ?? 'sin_estado';
+                            $estadoClass = match($estadoObra) {
+                                'planificada' => 'status-pendiente',
+                                'en_progreso' => 'status-activo',
+                                'suspendida' => 'status-pendiente',
+                                'completada' => 'status-finalizado',
+                                'cancelada' => 'status-finalizado',
                                 default => 'status-pendiente'
+                            };
+                            $estadoTexto = match($estadoObra) {
+                                'planificada' => 'Planificada',
+                                'en_progreso' => 'En Progreso',
+                                'suspendida' => 'Suspendida',
+                                'completada' => 'Completada',
+                                'cancelada' => 'Cancelada',
+                                default => 'Sin Estado'
                             };
                         @endphp
                         <span class="status-badge {{ $estadoClass }}">
-                            {{ ucfirst($asignacion->estado) }}
+                            {{ $estadoTexto }}
                         </span>
                     </td>
                     <td class="text-center">
@@ -202,7 +213,7 @@
                             @php
                                 $fechaFin = $asignacion->fecha_finalizacion ? \Carbon\Carbon::parse($asignacion->fecha_finalizacion) : now();
                                 $fechaInicio = \Carbon\Carbon::parse($asignacion->fecha_asignacion);
-                                $diasTrabajados = $fechaInicio->diffInDays($fechaFin);
+                                $diasTrabajados = floor($fechaInicio->diffInDays($fechaFin));
                             @endphp
                             <span class="text-bold">{{ $diasTrabajados }}</span>
                             <div class="font-small text-muted">días</div>
@@ -238,7 +249,7 @@
                         $totalDiasTrabajados = $asignacionesConFechas->sum(function($a) {
                             $fechaFin = $a->fecha_finalizacion ? \Carbon\Carbon::parse($a->fecha_finalizacion) : now();
                             $fechaInicio = \Carbon\Carbon::parse($a->fecha_asignacion);
-                            return $fechaInicio->diffInDays($fechaFin);
+                            return floor($fechaInicio->diffInDays($fechaFin));
                         });
                         $promedioDiasPorObra = $asignacionesConFechas->count() > 0 ? $totalDiasTrabajados / $asignacionesConFechas->count() : 0;
                         

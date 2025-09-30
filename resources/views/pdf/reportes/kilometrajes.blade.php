@@ -127,7 +127,7 @@
                             </td>
                             <td class="text-center">
                                 @if($kilometraje->obra)
-                                    <span class="status-badge status-asignado">{{ $kilometraje->obra->nombre }}</span>
+                                    <span class="status-badge status-asignado">{{ $kilometraje->obra->nombre_obra }}</span>
                                 @else
                                     <span class="text-muted font-small">Sin obra</span>
                                 @endif

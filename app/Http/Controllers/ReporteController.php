@@ -354,7 +354,7 @@ class ReporteController extends Controller
             'promedio_dias_asignacion' => $asignaciones->where('estado', \App\Models\AsignacionObra::ESTADO_LIBERADA)
                 ->avg(function($asignacion) {
                     if ($asignacion->fecha_liberacion && $asignacion->fecha_asignacion) {
-                        return $asignacion->fecha_asignacion->diffInDays($asignacion->fecha_liberacion);
+                        return floor($asignacion->fecha_asignacion->diffInDays($asignacion->fecha_liberacion));
                     }
                     return 0;
                 })
@@ -364,9 +364,9 @@ class ReporteController extends Controller
         $asignaciones = $asignaciones->map(function($asignacion) {
             // Calcular duración
             if ($asignacion->fecha_liberacion && $asignacion->fecha_asignacion) {
-                $asignacion->duracion_dias = $asignacion->fecha_asignacion->diffInDays($asignacion->fecha_liberacion);
+                $asignacion->duracion_dias = floor($asignacion->fecha_asignacion->diffInDays($asignacion->fecha_liberacion));
             } elseif ($asignacion->estado === \App\Models\AsignacionObra::ESTADO_ACTIVA) {
-                $asignacion->duracion_dias = $asignacion->fecha_asignacion->diffInDays(now());
+                $asignacion->duracion_dias = floor($asignacion->fecha_asignacion->diffInDays(now()));
             } else {
                 $asignacion->duracion_dias = null;
             }
@@ -490,21 +490,16 @@ class ReporteController extends Controller
         $obraId = $request->get('obra_id');
         $formato = $request->get('formato', 'html');
 
-        // Query base para obtener historial del operador usando la tabla historial_operador_vehiculo
-        $query = \App\Models\HistorialOperadorVehiculo::with([
+        // Query base para obtener asignaciones del operador directamente desde asignaciones_obra
+        $query = \App\Models\AsignacionObra::with([
             'vehiculo:id,marca,modelo,anio,placas,n_serie',
-            'operadorNuevo:id,nombre_completo',
-            'operadorAnterior:id,nombre_completo',
-            'usuarioAsigno:id,email',
+            'operador:id,nombre_completo',
             'obra:id,nombre_obra,estatus'
         ]);
 
         // Aplicar filtros
         if ($operadorId) {
-            $query->where(function($q) use ($operadorId) {
-                $q->where('operador_nuevo_id', $operadorId)
-                  ->orWhere('operador_anterior_id', $operadorId);
-            });
+            $query->where('operador_id', $operadorId);
         }
 
         if ($fechaInicio) {
@@ -526,10 +521,12 @@ class ReporteController extends Controller
 
         // Calcular estadísticas
         $estadisticas = [
-            'total_movimientos' => $asignaciones->count(),
-            'asignaciones_iniciales' => $asignaciones->where('tipo_movimiento', 'asignacion_inicial')->count(),
-            'cambios_operador' => $asignaciones->where('tipo_movimiento', 'cambio_operador')->count(),
-            'remociones' => $asignaciones->where('tipo_movimiento', 'remocion_operador')->count(),
+            'total_asignaciones' => $asignaciones->count(),
+            'asignaciones_activas' => $asignaciones->whereNull('fecha_liberacion')->count(),
+            'asignaciones_finalizadas' => $asignaciones->whereNotNull('fecha_liberacion')->count(),
+            'kilometraje_total' => $asignaciones->sum(function($asignacion) {
+                return $asignacion->kilometraje_final - $asignacion->kilometraje_inicial;
+            }),
             'vehiculos_diferentes' => $asignaciones->pluck('vehiculo_id')->unique()->count(),
             'obras_diferentes' => $asignaciones->whereNotNull('obra_id')->pluck('obra_id')->unique()->count()
         ];

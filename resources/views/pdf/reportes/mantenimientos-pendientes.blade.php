@@ -79,7 +79,7 @@
             <tbody>
                 @foreach($mantenimientos as $mantenimiento)
                     @php
-                        $diasPendiente = $mantenimiento->fecha_inicio->diffInDays(now());
+                        $diasPendiente = floor($mantenimiento->fecha_inicio->diffInDays(now()));
                     @endphp
                     <tr>
                         <td>{{ $mantenimiento->vehiculo->marca }} {{ $mantenimiento->vehiculo->modelo }}</td>
@@ -112,7 +112,7 @@
             $resumenTipos = $mantenimientos->groupBy('tipo_servicio')->map(function($registros, $tipo) {
                 $costoTotal = $registros->sum('costo');
                 $diasPromedio = $registros->avg(function($item) {
-                    return $item->fecha_inicio->diffInDays(now());
+                    return floor($item->fecha_inicio->diffInDays(now()));
                 });
                 
                 return [
@@ -156,7 +156,7 @@
             $resumenSistemas = $mantenimientos->groupBy('sistema_vehiculo')->map(function($registros, $sistema) {
                 $costoTotal = $registros->sum('costo');
                 $diasPromedio = $registros->avg(function($item) {
-                    return $item->fecha_inicio->diffInDays(now());
+                    return floor($item->fecha_inicio->diffInDays(now()));
                 });
                 
                 return [
@@ -195,11 +195,11 @@
         <h2>Alertas y Recomendaciones</h2>
         @php
             $mantenimientosUrgentes = $mantenimientos->filter(function($m) {
-                return $m->fecha_inicio->diffInDays(now()) > 30;
+                return floor($m->fecha_inicio->diffInDays(now())) > 30;
             });
             
             $mantenimientosAtencion = $mantenimientos->filter(function($m) {
-                $dias = $m->fecha_inicio->diffInDays(now());
+                $dias = floor($m->fecha_inicio->diffInDays(now()));
                 return $dias > 15 && $dias <= 30;
             });
         @endphp

@@ -436,8 +436,8 @@ class AsignacionObraController extends Controller
             // Calcular estadísticas adicionales
             $estadisticas = [
                 'duracion_dias' => $obra->fecha_asignacion && $obra->fecha_liberacion
-                    ? Carbon::parse($obra->fecha_asignacion)->diffInDays(Carbon::parse($obra->fecha_liberacion))
-                    : ($obra->fecha_asignacion ? Carbon::parse($obra->fecha_asignacion)->diffInDays(now()) : null),
+                    ? floor(Carbon::parse($obra->fecha_asignacion)->diffInDays(Carbon::parse($obra->fecha_liberacion)))
+                    : ($obra->fecha_asignacion ? floor(Carbon::parse($obra->fecha_asignacion)->diffInDays(now())) : null),
                 'kilometraje_recorrido' => $obra->kilometraje_recorrido,
                 'combustible_consumido' => $obra->combustible_consumido,
                 'esta_activa' => is_null($obra->fecha_liberacion),

@@ -28,14 +28,13 @@ class InventarioVehiculosExport implements FromCollection, WithHeadings, WithMap
         return [
             '#',
             'Marca/Modelo',
-            'Tipo',
             'Año',
             'Placas',
-            'No. Serie',
-            'Ubicación',
-            'Obra asignada',
+            'Serie',
             'Estado',
-            'Km Actual'
+            'Ubicación',
+            'KM Actual',
+            'Estado KM'
         ];
     }
 
@@ -53,25 +52,22 @@ class InventarioVehiculosExport implements FromCollection, WithHeadings, WithMap
             $ubicacion = 'Sin ubicación';
         }
 
-        // Obtener obra asignada activa
-        $obraAsignada = 'Sin obra asignada';
-        // Buscar asignación activa directamente en las relaciones cargadas
-        $asignacionActiva = $vehiculo->asignacionesObra->where('estado', 'activa')->first();
-        if ($asignacionActiva && $asignacionActiva->obra) {
-            $obraAsignada = $asignacionActiva->obra->nombre_obra;
+        // Determinar estado del kilometraje
+        $estadoKm = 'Sin registro';
+        if ($vehiculo->kilometraje_actual) {
+            $estadoKm = 'Actualizado';
         }
 
         return [
             $vehiculo->id,
             $vehiculo->marca . ' ' . $vehiculo->modelo,
-            $vehiculo->tipoActivo ? $vehiculo->tipoActivo->nombre : 'Sin tipo',
             $vehiculo->anio,
             $vehiculo->placas ?: 'N/A',
             $vehiculo->n_serie ?: 'N/A',
-            $ubicacion,
-            $obraAsignada,
             $vehiculo->estatus ? $vehiculo->estatus->nombre() : 'N/A',
-            $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) . ' km' : 'Sin registro'
+            $ubicacion,
+            $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) . ' km' : 'Sin registro',
+            $estadoKm
         ];
     }
 

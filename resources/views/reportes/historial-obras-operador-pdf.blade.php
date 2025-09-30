@@ -377,12 +377,13 @@
             <thead>
                 <tr>
                     <th style="width: 10%;">Fecha</th>
-                    <th style="width: 15%;">Tipo Movimiento</th>
-                    <th style="width: 18%;">Activo</th>
-                    <th style="width: 15%;">Operador Anterior</th>
-                    <th style="width: 15%;">Operador Nuevo</th>
+                    <th style="width: 15%;">Tipo</th>
+                    <th style="width: 20%;">Activo</th>
+                    <th style="width: 15%;">Operador</th>
                     <th style="width: 15%;">Obra</th>
-                    <th style="width: 12%;">Usuario</th>
+                    <th style="width: 10%;">Km Inicial</th>
+                    <th style="width: 10%;">Km Final</th>
+                    <th style="width: 5%;">Fecha Creación</th>
                 </tr>
             </thead>
             <tbody>
@@ -393,27 +394,7 @@
                             <small style="color: #666;">{{ $asignacion->fecha_asignacion->format('H:i') }}</small>
                         </td>
                         <td>
-                            @php
-                                $badgeClass = 'badge ';
-                                switch($asignacion->tipo_movimiento) {
-                                    case 'asignacion_inicial':
-                                        $badgeClass .= 'badge-asignacion';
-                                        $texto = 'Asignación Inicial';
-                                        break;
-                                    case 'cambio_operador':
-                                        $badgeClass .= 'badge-cambio';
-                                        $texto = 'Cambio de Operador';
-                                        break;
-                                    case 'remocion_operador':
-                                        $badgeClass .= 'badge-remocion';
-                                        $texto = 'Remoción';
-                                        break;
-                                    default:
-                                        $badgeClass .= 'badge-asignacion';
-                                        $texto = ucfirst(str_replace('_', ' ', $asignacion->tipo_movimiento));
-                                }
-                            @endphp
-                            <span class="{{ $badgeClass }}">{{ $texto }}</span>
+                            <span class="badge badge-asignacion">Asignación</span>
                         </td>
                         <td>
                             @if($asignacion->vehiculo)
@@ -424,17 +405,10 @@
                             @endif
                         </td>
                         <td>
-                            @if($asignacion->operadorAnterior)
-                                {{ $asignacion->operadorAnterior->nombre_completo }}
+                            @if($asignacion->operador)
+                                {{ $asignacion->operador->nombre_completo }}
                             @else
-                                <em style="color: #999;">Sin operador anterior</em>
-                            @endif
-                        </td>
-                        <td>
-                            @if($asignacion->operadorNuevo)
-                                {{ $asignacion->operadorNuevo->nombre_completo }}
-                            @else
-                                <em style="color: #999;">Sin operador nuevo</em>
+                                <em style="color: #999;">Sin operador</em>
                             @endif
                         </td>
                         <td>
@@ -445,13 +419,27 @@
                             @endif
                         </td>
                         <td>
-                            {{ $asignacion->usuarioAsigno ? $asignacion->usuarioAsigno->email : 'Sistema' }}
+                            @if($asignacion->kilometraje_inicial)
+                                {{ number_format($asignacion->kilometraje_inicial, 0, ',', '.') }} km
+                            @else
+                                <em style="color: #999;">-</em>
+                            @endif
+                        </td>
+                        <td>
+                            @if($asignacion->kilometraje_final)
+                                {{ number_format($asignacion->kilometraje_final, 0, ',', '.') }} km
+                            @else
+                                <em style="color: #999;">-</em>
+                            @endif
+                        </td>
+                        <td>
+                            {{ $asignacion->created_at->format('d/m/Y H:i') }}
                         </td>
                     </tr>
 
                     @if($asignacion->motivo || $asignacion->observaciones)
                         <tr class="detalle-row">
-                            <td colspan="7">
+                            <td colspan="9">
                                 @if($asignacion->motivo)
                                     <strong>Motivo:</strong> {{ $asignacion->motivo }}<br>
                                 @endif

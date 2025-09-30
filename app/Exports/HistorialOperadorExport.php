@@ -26,40 +26,28 @@ class HistorialOperadorExport implements FromCollection, WithHeadings, WithMappi
     public function headings(): array
     {
         return [
-            '#',
             'Fecha',
+            'Tipo',
+            'Activo',
+            'Operador',
             'Obra',
-            'Ubicación',
-            'Descripción',
-            'Observaciones'
+            'Km Inicial',
+            'Km Final',
+            'Fecha Creación'
         ];
     }
 
-    public function map($obra): array
+    public function map($asignacion): array
     {
-        // Construir ubicación igual que en el PDF
-        $ubicacion = '';
-        if ($obra->vehiculo) {
-            if ($obra->vehiculo->estado && $obra->vehiculo->municipio) {
-                $ubicacion = $obra->vehiculo->estado . ', ' . $obra->vehiculo->municipio;
-            } elseif ($obra->vehiculo->estado) {
-                $ubicacion = $obra->vehiculo->estado;
-            } elseif ($obra->vehiculo->municipio) {
-                $ubicacion = $obra->vehiculo->municipio;
-            } else {
-                $ubicacion = 'Sin ubicación';
-            }
-        } else {
-            $ubicacion = 'Sin ubicación';
-        }
-
         return [
-            $obra->id,
-            $obra->fecha ? $obra->fecha->format('d/m/Y') : 'N/A',
-            $obra->nombre ?? 'N/A',
-            $ubicacion,
-            $obra->descripcion ?? 'N/A',
-            $obra->observaciones ?? 'Sin observaciones'
+            $asignacion->created_at ? $asignacion->created_at->format('d/m/Y') : 'N/A',
+            'Asignación',
+            $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo : 'N/A',
+            $asignacion->operador ? $asignacion->operador->nombre_completo : 'N/A',
+            $asignacion->obra ? $asignacion->obra->nombre_obra : 'N/A',
+            $asignacion->kilometraje_inicial ? number_format($asignacion->kilometraje_inicial) . ' km' : 'N/A',
+            $asignacion->kilometraje_final ? number_format($asignacion->kilometraje_final) . ' km' : 'N/A',
+            $asignacion->created_at ? $asignacion->created_at->format('d/m/Y H:i') : 'N/A'
         ];
     }
 

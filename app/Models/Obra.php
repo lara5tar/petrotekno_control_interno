@@ -323,7 +323,7 @@ class Obra extends Model
         $fechaInicio = Carbon::parse($this->fecha_inicio)->startOfDay();
         $fechaActual = Carbon::now()->startOfDay();
 
-        return (int) $fechaInicio->diffInDays($fechaActual);
+        return (int) floor($fechaInicio->diffInDays($fechaActual));
     }
 
     /**
@@ -342,7 +342,7 @@ class Obra extends Model
             return 0;
         }
 
-        return (int) $fechaActual->diffInDays($fechaFin);
+        return (int) floor($fechaActual->diffInDays($fechaFin));
     }
 
     /**
@@ -357,7 +357,7 @@ class Obra extends Model
         $fechaInicio = Carbon::parse($this->fecha_inicio)->startOfDay();
         $fechaFin = Carbon::parse($this->fecha_fin)->endOfDay();
 
-        return (int) ($fechaInicio->diffInDays($fechaFin) + 1);
+        return (int) floor($fechaInicio->diffInDays($fechaFin) + 1);
     }
 
     /**

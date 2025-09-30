@@ -225,7 +225,7 @@ trait PdfGeneratorTrait
                                               }),
             'promedio_dias' => $asignaciones->whereNotNull('fecha_asignacion')->avg(function($a) {
                 $fechaFin = $a->fecha_finalizacion ?: now();
-                return \Carbon\Carbon::parse($a->fecha_asignacion)->diffInDays($fechaFin);
+                return floor(\Carbon\Carbon::parse($a->fecha_asignacion)->diffInDays($fechaFin));
             })
         ];
     }

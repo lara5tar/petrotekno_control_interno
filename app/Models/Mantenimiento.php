@@ -239,13 +239,13 @@ class Mantenimiento extends Model
         
         if ($this->fecha_fin) {
             $fechaFin = Carbon::parse($this->fecha_fin);
-            $dias = (int) $fechaInicio->diffInDays($fechaFin);
+            $dias = floor($fechaInicio->diffInDays($fechaFin));
             // Si es el mismo día, contar como mínimo 1 día
             return $dias == 0 ? 1 : $dias;
         }
 
         // Si no hay fecha_fin, calcular días hasta hoy
-        $dias = (int) $fechaInicio->diffInDays(Carbon::now());
+        $dias = floor($fechaInicio->diffInDays(Carbon::now()));
         // Si es el mismo día, contar como mínimo 1 día
         return $dias == 0 ? 1 : $dias;
     }

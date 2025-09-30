@@ -209,7 +209,7 @@
                                                 <small class="text-muted">{{ $registro->fecha_asignacion->format('H:i') }}</small>
                                             </td>
                                             <td>
-                                                <strong>{{ $registro->obra->nombre }}</strong><br>
+                                                <strong>{{ $registro->obra->nombre_obra }}</strong><br>
                                                 <small class="text-muted">{{ $registro->obra->ubicacion }}</small>
                                             </td>
                                             <td>

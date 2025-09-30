@@ -80,6 +80,16 @@ class HistorialOperadorVehiculo extends Model
     }
 
     /**
+     * Relación con la asignación de obra correspondiente
+     */
+    public function asignacionObra(): BelongsTo
+    {
+        return $this->belongsTo(AsignacionObra::class, 'vehiculo_id', 'vehiculo_id')
+                    ->whereColumn('asignaciones_obra.obra_id', 'historial_operador_vehiculo.obra_id')
+                    ->whereColumn('asignaciones_obra.operador_id', 'historial_operador_vehiculo.operador_nuevo_id');
+    }
+
+    /**
      * Scope para filtrar por vehículo
      */
     public function scopePorVehiculo($query, $vehiculoId)
@@ -233,7 +243,7 @@ class HistorialOperadorVehiculo extends Model
 
         $primeraAsignacion = $historial->first()->fecha_asignacion;
         $ultimaAsignacion = $historial->last()->fecha_asignacion;
-        $diasTrabajados = $primeraAsignacion->diffInDays($ultimaAsignacion) + 1;
+        $diasTrabajados = floor($primeraAsignacion->diffInDays($ultimaAsignacion)) + 1;
 
         return [
             'total_asignaciones' => $historial->count(),

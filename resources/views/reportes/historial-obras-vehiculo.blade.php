@@ -141,7 +141,7 @@
                                 <option value="">Todas las obras</option>
                                 @foreach($obrasDisponibles as $obra)
                                     <option value="{{ $obra->id }}" {{ request('obra_id') == $obra->id ? 'selected' : '' }}>
-                                        {{ $obra->nombre }}
+                                        {{ $obra->nombre_obra }}
                                     </option>
                                 @endforeach
                             </select>

@@ -117,11 +117,11 @@ class AsignacionObra extends Model
     {
         if (!$this->fecha_liberacion) {
             return $this->fecha_asignacion ? 
-                Carbon::parse($this->fecha_asignacion)->diffInDays(Carbon::now()) : null;
+                (int) floor(Carbon::parse($this->fecha_asignacion)->diffInDays(Carbon::now())) : null;
         }
 
         return $this->fecha_asignacion ? 
-            Carbon::parse($this->fecha_asignacion)->diffInDays(Carbon::parse($this->fecha_liberacion)) : null;
+            (int) floor(Carbon::parse($this->fecha_asignacion)->diffInDays(Carbon::parse($this->fecha_liberacion))) : null;
     }
 
     public function getKilometrajeRecorridoAttribute(): ?int

@@ -440,7 +440,7 @@ class MantenimientoAlertasController extends Controller
         return [
             'tipo' => $tipoDocumento,
             'fecha_vencimiento' => $fechaVencimiento,
-            'dias_restantes' => round($diasRestantes),
+            'dias_restantes' => floor($diasRestantes),
             'estado' => $estado,
             'fecha_vencimiento_formateada' => $fechaVencimiento->format('d/m/Y')
         ];
