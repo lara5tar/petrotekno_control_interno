@@ -182,9 +182,19 @@ class AsignacionObra extends Model
                 $this->observaciones,
         ]);
 
-        // Actualizar kilometraje del vehículo
-        if ($this->vehiculo && $kilometrajeFinal > $this->vehiculo->kilometraje_actual) {
-            $this->vehiculo->update(['kilometraje_actual' => $kilometrajeFinal]);
+        // Actualizar kilometraje y estado del vehículo
+        if ($this->vehiculo) {
+            $updateData = [];
+            
+            // Actualizar kilometraje si es mayor
+            if ($kilometrajeFinal > $this->vehiculo->kilometraje_actual) {
+                $updateData['kilometraje_actual'] = $kilometrajeFinal;
+            }
+            
+            // Cambiar estado del vehículo a DISPONIBLE
+            $updateData['estatus'] = \App\Enums\EstadoVehiculo::DISPONIBLE->value;
+            
+            $this->vehiculo->update($updateData);
         }
 
         return true;

@@ -907,7 +907,32 @@ class ObraController extends Controller
             $nombreObra = $obra->nombre_obra ?? 'ID: ' . $obra->id;
             $obraId = $obra->id;
 
+            // Liberar todas las asignaciones activas antes de eliminar la obra
+            $asignacionesActivas = $obra->asignacionesActivas;
+            $vehiculosLiberados = [];
+            
+            foreach ($asignacionesActivas as $asignacion) {
+                // Liberar la asignación usando el método existente
+                $asignacion->liberar(
+                    $asignacion->vehiculo->kilometraje_actual ?? 0,
+                    'Liberado automáticamente por eliminación de obra'
+                );
+                
+                $vehiculosLiberados[] = $asignacion->vehiculo->nombre_completo;
+            }
+
             $obra->delete();
+
+            // Log adicional si se liberaron vehículos
+            if (!empty($vehiculosLiberados)) {
+                LogAccion::create([
+                    'usuario_id' => Auth::id(),
+                    'accion' => 'liberar_vehiculos_obra',
+                    'tabla_afectada' => 'asignaciones_obra',
+                    'registro_id' => $obraId,
+                    'detalles' => "Vehículos liberados por eliminación de obra '{$nombreObra}': " . implode(', ', $vehiculosLiberados),
+                ]);
+            }
 
             LogAccion::create([
                 'usuario_id' => Auth::id(),
