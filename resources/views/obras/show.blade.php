@@ -367,15 +367,15 @@
                                     @endhasPermission
                                 </div>
                                 
-                                @if($obra->vehiculos && $obra->vehiculos->count() > 0)
+                                @if($obra->asignacionesActivas && $obra->asignacionesActivas->count() > 0)
                                     <div class="space-y-4">
-                                        @foreach($obra->vehiculos as $vehiculo)
+                                        @foreach($obra->asignacionesActivas as $asignacion)
                                         <div class="space-y-3">
                                             <!-- Información del vehículo en componentes grises -->
                                             <div>
                                                 <label class="block text-sm text-gray-600">Activo</label>
                                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                                    {{ ($vehiculo->marca ?: 'Sin marca') }} {{ ($vehiculo->modelo ?: 'Sin modelo') }}
+                                                    {{ ($asignacion->vehiculo->marca ?: 'Sin marca') }} {{ ($asignacion->vehiculo->modelo ?: 'Sin modelo') }}
                                                 </div>
                                             </div>
                                             
@@ -383,13 +383,13 @@
                                                 <div>
                                                     <label class="block text-sm text-gray-600">Placas</label>
                                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                        {{ $vehiculo->placas ?: 'Sin placa' }}
+                                                        {{ $asignacion->vehiculo->placas ?: 'Sin placa' }}
                                                     </div>
                                                 </div>
                                                 <div>
                                                     <label class="block text-sm text-gray-600">Año</label>
                                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                        {{ $vehiculo->anio ?: 'Sin año' }}
+                                                        {{ $asignacion->vehiculo->anio ?: 'Sin año' }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -398,53 +398,52 @@
                                                 <div>
                                                     <label class="block text-sm text-gray-600">Serie</label>
                                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                        {{ $vehiculo->n_serie ?: 'Sin serie' }}
+                                                        {{ $asignacion->vehiculo->n_serie ?: 'Sin serie' }}
                                                     </div>
                                                 </div>
                                                 <div>
                                                     <label class="block text-sm text-gray-600">Kilometraje</label>
                                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                        {{ $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) . ' km' : 'Sin kilometraje' }}
+                                                        {{ $asignacion->vehiculo->kilometraje_actual ? number_format($asignacion->vehiculo->kilometraje_actual) . ' km' : 'Sin kilometraje' }}
                                                     </div>
                                                 </div>
                                             </div>
                                             
-                                            @if(isset($vehiculo->pivot) && $vehiculo->pivot->fecha_asignacion)
                                             <div class="grid grid-cols-2 gap-3">
                                                 <div>
                                                     <label class="block text-sm text-gray-600">Fecha de Asignación</label>
                                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                        {{ \Carbon\Carbon::parse($vehiculo->pivot->fecha_asignacion)->format('d/m/Y') }}
+                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y') }}
                                                     </div>
                                                 </div>
                                                 <div>
                                                     <label class="block text-sm text-gray-600">Operador</label>
                                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                        {{ $vehiculo->operadorActual ? $vehiculo->operadorActual->nombre_completo : 'Sin operador asignado' }}
+                                                        {{ $asignacion->operador ? $asignacion->operador->nombre_completo : 'Sin operador asignado' }}
                                                     </div>
                                                 </div>
                                             </div>
-                                            @endif
                                             
                                             <!-- Botones de acción -->
-                                            <div class="flex justify-between items-center pt-3 border-t border-gray-200">
-                                                <a href="{{ route('vehiculos.show', $vehiculo->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-md transition-colors duration-200 flex items-center text-xs">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div class="flex gap-2 pt-3 border-t border-gray-200">
+                                                <a href="{{ route('vehiculos.show', $asignacion->vehiculo->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-md transition-colors duration-200 flex items-center text-xs h-8">
+                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                     </svg>
                                                     Ver Detalles
                                                 </a>
                                                 
-                                                @if(isset($permisos) && $permisos->contains('eliminar_asignacion_vehiculo'))
-                                                <form action="{{ route('obras.desasignar_vehiculo', ['obra' => $obra->id, 'vehiculo' => $vehiculo->id]) }}" method="POST" onsubmit="return confirm('¿Estás seguro de desasignar este vehículo de la obra?')" class="inline">
+                                                @if(isset($permisos) && $permisos->contains('liberar_asignaciones'))
+                                                <form action="{{ route('obras.liberar-asignacion', ['obra' => $obra->id, 'asignacion' => $asignacion->id]) }}" method="POST" onsubmit="return confirm('¿Estás seguro de liberar la asignación de este vehículo?')" class="inline">
                                                     @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="bg-red-100 text-red-600 hover:bg-red-200 py-1 px-3 rounded text-xs flex items-center transition-colors duration-200">
-                                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    <button type="submit" class="bg-red-100 text-red-600 hover:bg-red-200 py-1 px-3 rounded-md text-xs flex items-center transition-colors duration-200 h-8">
+                                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
+                                                            <circle cx="12" cy="16" r="1"></circle>
+                                                            <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
                                                         </svg>
-                                                        Desasignar
+                                                        Liberar Asignación
                                                     </button>
                                                 </form>
                                                 @endif
@@ -606,6 +605,9 @@
                             </div>
                             @endif
                         </div>
+                        
+                        <!-- Espacio en blanco al final de la pestaña de recursos -->
+                        <div style="height: 100px;"></div>
                     </div>
 
                     <!-- Contenido de Documentos -->
@@ -823,12 +825,22 @@
                                                         {{ number_format($asignacion->kilometraje_inicial) }} km
                                                     </td>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                        <a href="{{ route('obras.show', $obra->id) }}" class="text-blue-600 hover:text-blue-900 mr-2">
-                                                            <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                            </svg>
-                                                        </a>
+                                                        <div class="flex space-x-2">
+                                                            <a href="{{ route('obras.show', $obra->id) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
+                                                                <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                                </svg>
+                                                            </a>
+                                                            @if(isset($permisos) && $permisos->contains('actualizar_obras'))
+                                                            <button onclick="abrirModalLiberarAsignacion({{ $asignacion->id }}, '{{ $asignacion->vehiculo->marca }} {{ $asignacion->vehiculo->modelo }}', {{ $asignacion->kilometraje_inicial }})" 
+                                                                    class="text-red-600 hover:text-red-900" title="Liberar asignación">
+                                                                <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                                                                </svg>
+                                                            </button>
+                                                            @endif
+                                                        </div>
                                                     </td>
                                                 </tr>
                                                 @endforeach
@@ -1469,5 +1481,128 @@
             notification.remove();
         }, 3000);
     }
+
+    // Función para abrir el modal de liberar asignación
+    function abrirModalLiberarAsignacion(asignacionId, vehiculoNombre, kilometrajeInicial) {
+        document.getElementById('asignacion-id').value = asignacionId;
+        document.getElementById('vehiculo-nombre').textContent = vehiculoNombre;
+        document.getElementById('kilometraje-inicial').textContent = kilometrajeInicial;
+        document.getElementById('kilometraje-final').min = kilometrajeInicial;
+        document.getElementById('modal-liberar-asignacion').classList.remove('hidden');
+    }
+
+    // Función para cerrar el modal de liberar asignación
+    function cerrarModalLiberarAsignacion() {
+        document.getElementById('modal-liberar-asignacion').classList.add('hidden');
+        document.getElementById('form-liberar-asignacion').reset();
+    }
+
+    // Función para confirmar la liberación de asignación
+    function confirmarLiberarAsignacion() {
+        const form = document.getElementById('form-liberar-asignacion');
+        const formData = new FormData(form);
+        const asignacionId = document.getElementById('asignacion-id').value;
+        
+        // Mostrar loading
+        const submitBtn = document.getElementById('btn-confirmar-liberacion');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Liberando...';
+
+        fetch(`/obras/{{ $obra->id }}/liberar-asignacion/${asignacionId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                showNotification(data.message, 'success');
+                cerrarModalLiberarAsignacion();
+                // Recargar la página para mostrar los cambios
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else if (data.error) {
+                throw new Error(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification(error.message || 'Error al liberar la asignación', 'error');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        });
+    }
 </script>
+
+<!-- Modal para liberar asignación -->
+<div id="modal-liberar-asignacion" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Liberar Asignación</h3>
+                <button onclick="cerrarModalLiberarAsignacion()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="form-liberar-asignacion" onsubmit="event.preventDefault(); confirmarLiberarAsignacion();">
+                <input type="hidden" id="asignacion-id" name="asignacion_id">
+                
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">
+                        ¿Está seguro de que desea liberar la asignación del vehículo 
+                        <strong id="vehiculo-nombre"></strong>?
+                    </p>
+                </div>
+
+                <div class="mb-4">
+                    <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
+                        <p class="text-sm text-blue-700">
+                            <strong>Kilometraje Final:</strong> Se utilizará automáticamente el kilometraje actual del vehículo.
+                        </p>
+                        <p class="text-xs text-gray-600 mt-1">
+                            Kilometraje inicial: <span id="kilometraje-inicial"></span> km
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="observaciones-liberacion" class="block text-sm font-medium text-gray-700 mb-2">
+                        Observaciones
+                    </label>
+                    <textarea id="observaciones-liberacion" 
+                              name="observaciones_liberacion" 
+                              rows="3" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="Observaciones sobre la liberación (opcional)"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button type="button" 
+                            onclick="cerrarModalLiberarAsignacion()" 
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        Cancelar
+                    </button>
+                    <button type="submit" 
+                            id="btn-confirmar-liberacion"
+                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        Liberar Asignación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Espacio en blanco al final de la página -->
+<div style="height: 100px;"></div>
+
 @endpush

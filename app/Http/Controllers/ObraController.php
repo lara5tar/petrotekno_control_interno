@@ -528,8 +528,8 @@ class ObraController extends Controller
                 return redirect()->back()->with('error', 'Obra no encontrada.');
             }
 
-            // NUEVO: Asignar los vehículos a una propiedad adicional para la vista
-            $obra->vehiculos = $obra->vehiculosAsignados;
+            // NUEVO: Asignar los vehículos con datos pivot para la vista
+            $obra->vehiculos = $obra->vehiculos;
             
             Log::info('Obra encontrada exitosamente', [
                 'obra_id' => $obra->id,
@@ -566,10 +566,13 @@ class ObraController extends Controller
             if (Auth::check()) {
                 // Verificar permisos específicos que necesita la vista
                 if ($this->hasPermission('actualizar_obras')) {
-                    $permisos->push('editar_obras'); // Mantener nombre para compatibilidad con vista
+                    $permisos = $permisos->push('actualizar_obras');
                 }
                 if ($this->hasPermission('eliminar_obras')) {
-                    $permisos->push('eliminar_obras');
+                    $permisos = $permisos->push('eliminar_obras');
+                }
+                if ($this->hasPermission('liberar_asignaciones')) {
+                    $permisos = $permisos->push('liberar_asignaciones');
                 }
             }
 
@@ -1316,6 +1319,128 @@ class ObraController extends Controller
             ]);
 
             return redirect()->back()->with('error', 'Error al asignar vehículos: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Liberar una asignación específica desde la vista de obra
+     */
+    public function liberarAsignacion(Request $request, Obra $obra, AsignacionObra $asignacion)
+    {
+        try {
+            Log::info('=== INICIO ObraController@liberarAsignacion ===', [
+                'user_id' => Auth::id(),
+                'obra_id' => $obra->id,
+                'asignacion_id' => $asignacion->id,
+                'request_data' => $request->all()
+            ]);
+
+            if (! $this->hasPermission('actualizar_obras')) {
+                $message = 'No tienes permisos para liberar asignaciones.';
+                if ($request->expectsJson()) {
+                    return response()->json(['error' => $message], 403);
+                }
+                return redirect()->back()->with('error', $message);
+            }
+
+            // Verificar que la asignación pertenece a la obra
+            if ($asignacion->obra_id !== $obra->id) {
+                $message = 'La asignación no pertenece a esta obra.';
+                if ($request->expectsJson()) {
+                    return response()->json(['error' => $message], 400);
+                }
+                return redirect()->back()->with('error', $message);
+            }
+
+            // Verificar que la asignación está activa
+            if ($asignacion->estado !== AsignacionObra::ESTADO_ACTIVA) {
+                $message = 'Esta asignación ya ha sido liberada.';
+                if ($request->expectsJson()) {
+                    return response()->json(['error' => $message], 400);
+                }
+                return redirect()->back()->with('error', $message);
+            }
+
+            // Obtener el kilometraje actual del vehículo automáticamente
+            $kilometraje_final = $asignacion->vehiculo->kilometraje_actual;
+
+            // Validar datos de entrada (sin requerir kilometraje_final ya que se toma automáticamente)
+            $request->validate([
+                'observaciones_liberacion' => 'nullable|string|max:1000',
+            ], [
+                'observaciones_liberacion.max' => 'Las observaciones no pueden exceder 1000 caracteres.',
+            ]);
+
+            // Verificar que el kilometraje actual sea mayor o igual al inicial
+            if ($kilometraje_final < ($asignacion->kilometraje_inicial ?? 0)) {
+                $message = "El kilometraje actual del vehículo ({$kilometraje_final} km) es menor al kilometraje inicial de la asignación (" . ($asignacion->kilometraje_inicial ?? 0) . " km). Por favor, actualiza el kilometraje del vehículo antes de liberar la asignación.";
+                if ($request->expectsJson()) {
+                    return response()->json(['error' => $message], 400);
+                }
+                return redirect()->back()->with('error', $message);
+            }
+
+            DB::beginTransaction();
+
+            // Usar el método liberar del modelo con el kilometraje actual del vehículo
+            $asignacion->liberar(
+                $kilometraje_final,
+                $request->observaciones_liberacion
+            );
+
+            // Log de la acción
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'liberar_asignacion_obra',
+                'tabla_afectada' => 'asignaciones_obra',
+                'registro_id' => $asignacion->id,
+                'detalles' => "Asignación liberada desde obra: {$asignacion->vehiculo->marca} {$asignacion->vehiculo->modelo} ({$asignacion->vehiculo->placas}) - Kilometraje: {$kilometraje_final} km",
+            ]);
+
+            DB::commit();
+
+            Log::info('Asignación liberada exitosamente', [
+                'asignacion_id' => $asignacion->id,
+                'obra_id' => $obra->id,
+                'user_id' => Auth::id()
+            ]);
+
+            $message = 'Asignación liberada exitosamente.';
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $message,
+                    'data' => $asignacion->fresh(['vehiculo', 'operador', 'obra']),
+                ]);
+            }
+
+            return redirect()->route('obras.show', $obra)->with('success', $message);
+
+        } catch (ValidationException $e) {
+            DB::rollBack();
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => 'Datos de validación incorrectos.',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+            return redirect()->back()->withErrors($e->errors())->withInput();
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            
+            Log::error('=== ERROR EN ObraController@liberarAsignacion ===', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'obra_id' => $obra->id,
+                'asignacion_id' => $asignacion->id,
+                'user_id' => Auth::id()
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Error al liberar la asignación.'], 500);
+            }
+            return redirect()->back()->with('error', 'Error al liberar la asignación: ' . $e->getMessage());
         }
     }
 }

@@ -507,6 +507,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/obras/{id}/restore', [\App\Http\Controllers\ObraController::class, 'restore'])
         ->name('obras.restore')
         ->middleware('permission:restaurar_obras');
+
+    Route::post('/obras/{obra}/liberar-asignacion/{asignacion}', [\App\Http\Controllers\ObraController::class, 'liberarAsignacion'])
+        ->name('obras.liberar-asignacion')
+        ->middleware('permission:actualizar_obras');
 });
 
 // Rutas para Kilometrajes (Vista general independiente + integración en vehículos)
