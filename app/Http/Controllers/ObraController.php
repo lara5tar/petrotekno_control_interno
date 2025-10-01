@@ -1236,6 +1236,15 @@ class ObraController extends Controller
 
             $vehiculosSeleccionados = $validated['vehiculos'] ?? [];
             
+            // Validar que se haya seleccionado al menos un vehículo
+            if (empty($vehiculosSeleccionados)) {
+                Log::warning('Intento de asignación sin vehículos seleccionados', [
+                    'obra_id' => $obra->id,
+                    'user_id' => Auth::id()
+                ]);
+                return redirect()->back()->with('error', 'Debe seleccionar al menos un vehículo para asignar a la obra.');
+            }
+            
             // Obtener asignaciones actuales activas
             $asignacionesActuales = AsignacionObra::where('obra_id', $obra->id)
                 ->where('estado', AsignacionObra::ESTADO_ACTIVA)
