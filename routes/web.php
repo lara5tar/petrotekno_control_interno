@@ -496,6 +496,10 @@ Route::middleware('auth')->group(function () {
         ->name('obras.cambiar-encargado')
         ->middleware('permission:actualizar_obras');
 
+    Route::patch('/obras/{obra}/liberar-encargado', [\App\Http\Controllers\ObraController::class, 'liberarEncargado'])
+        ->name('obras.liberar-encargado')
+        ->middleware('permission:actualizar_obras');
+
     Route::patch('/obras/{obra}/asignar-vehiculos', [\App\Http\Controllers\ObraController::class, 'asignarVehiculos'])
         ->name('obras.asignar-vehiculos')
         ->middleware('permission:actualizar_obras');

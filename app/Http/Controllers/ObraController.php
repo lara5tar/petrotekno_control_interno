@@ -1207,6 +1207,84 @@ class ObraController extends Controller
     }
 
     /**
+     * Liberar encargado de una obra
+     */
+    public function liberarEncargado(Request $request, Obra $obra)
+    {
+        try {
+            Log::info('=== INICIO ObraController@liberarEncargado ===', [
+                'obra_id' => $obra->id,
+                'user_id' => Auth::id(),
+                'datos_recibidos' => $request->all()
+            ]);
+
+            // Verificar permisos
+            if (!$this->hasPermission('actualizar_obras')) {
+                Log::warning('Usuario sin permisos para liberar encargado de obra', [
+                    'user_id' => Auth::id(),
+                    'obra_id' => $obra->id
+                ]);
+                return redirect()->back()->with('error', 'No tienes permisos para liberar el encargado de esta obra.');
+            }
+
+            // Verificar que la obra tenga un encargado asignado
+            if (!$obra->encargado_id) {
+                Log::warning('Intento de liberar encargado de obra sin encargado asignado', [
+                    'obra_id' => $obra->id,
+                    'user_id' => Auth::id()
+                ]);
+                return redirect()->back()->with('error', 'Esta obra no tiene un responsable asignado.');
+            }
+
+            // Validar datos (observaciones opcionales)
+            $validated = $request->validate([
+                'observaciones' => 'nullable|string|max:500'
+            ]);
+
+            $encargadoAnterior = $obra->encargado;
+
+            // Liberar encargado (establecer como null)
+            $obra->encargado_id = null;
+            $obra->save();
+
+            // Registrar acción en logs
+            LogAccion::create([
+                'usuario_id' => Auth::id(),
+                'accion' => 'liberar_encargado_obra',
+                'tabla_afectada' => 'obras',
+                'registro_id' => $obra->id,
+                'detalles' => sprintf(
+                    'Responsable liberado: "%s". Observaciones: %s',
+                    $encargadoAnterior ? $encargadoAnterior->nombre_completo : 'Sin encargado',
+                    $validated['observaciones'] ?? 'Ninguna'
+                ),
+            ]);
+
+            Log::info('Encargado de obra liberado exitosamente', [
+                'obra_id' => $obra->id,
+                'encargado_liberado' => $encargadoAnterior ? $encargadoAnterior->nombre_completo : 'Sin encargado'
+            ]);
+
+            return redirect()->route('obras.show', $obra)
+                ->with('success', sprintf(
+                    'Responsable "%s" liberado exitosamente de la obra.',
+                    $encargadoAnterior ? $encargadoAnterior->nombre_completo : 'Sin nombre'
+                ));
+
+        } catch (Exception $e) {
+            Log::error('=== ERROR EN ObraController@liberarEncargado ===', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'obra_id' => $obra->id,
+                'user_id' => Auth::id()
+            ]);
+
+            return redirect()->back()->with('error', 'Error al liberar el encargado: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Asignar vehículos a una obra
      */
     public function asignarVehiculos(Request $request, Obra $obra)
