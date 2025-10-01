@@ -72,7 +72,7 @@
             @method('PUT')
             
             <div class="space-y-8">
-                <!-- Información del Vehículo -->
+                <!-- Información del Activo -->
                 <div class="bg-white border border-gray-200 rounded-lg p-6">
                     <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">

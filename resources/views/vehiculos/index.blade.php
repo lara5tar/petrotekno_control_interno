@@ -122,15 +122,15 @@
         <div class="mt-4 pt-4 border-t border-gray-200">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div class="text-sm text-gray-600">
-                    <span class="font-medium">{{ $vehiculos->total() }}</span> vehículos encontrados
+                    <span class="font-medium">{{ $vehiculos->total() }}</span> activos encontrados
                     @if(request()->hasAny(['buscar', 'estado', 'anio']))
                         <span class="text-blue-600 font-medium">(filtrados)</span>
                         <div class="text-xs text-gray-500 mt-1">
-                            Los reportes incluirán solo los vehículos filtrados
+                            Los reportes incluirán solo los activos filtrados
                         </div>
                     @else
                         <div class="text-xs text-gray-500 mt-1">
-                            Los reportes incluirán todos los vehículos
+                            Los reportes incluirán todos los activos
                         </div>
                     @endif
                 </div>
@@ -385,7 +385,7 @@
         if (filtrosInfo.length > 0) {
             console.log(`Generando reporte ${tipoReporte} con filtros: ${filtrosInfo.join(', ')}`);
         } else {
-            console.log(`Generando reporte ${tipoReporte} de todos los vehículos`);
+            console.log(`Generando reporte ${tipoReporte} de todos los activos`);
         }
         
         // Construir la URL de descarga
@@ -628,7 +628,7 @@
                             <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0120 12a8 8 0 10-8 8 8 8 0 008-8z"></path>
                             </svg>
-                            <p class="text-lg font-medium">No se encontraron vehículos</p>
+                            <p class="text-lg font-medium">No se encontraron activos</p>
                             <p class="text-sm">Intenta con otros términos de búsqueda</p>
                         </div>
                     </td>
