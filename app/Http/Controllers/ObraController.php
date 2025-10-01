@@ -505,19 +505,29 @@ class ObraController extends Controller
             }
 
             Log::info('Buscando obra por ID');
-            // Modificado: Cargar datos completos con eager loading optimizado
+            // Modificado: Cargar datos completos con eager loading optimizado (sin asignacionesActivas)
             $obra = Obra::with([
                 'encargado', // Cargar encargado básico
                 'encargado.usuario', // Si el encargado tiene usuario asociado
                 'encargado.categoria', // Categoría del personal encargado
                 'vehiculo', // Relación antigua (para compatibilidad)
                 'vehiculosAsignados', // NUEVA RELACIÓN: Vehículos asignados a través de asignaciones
-                'asignacionesActivas', // Asignaciones activas
-                'asignacionesActivas.vehiculo', // Datos del vehículo en cada asignación
-                'asignacionesActivas.operador', // Datos del operador en cada asignación
-                'asignacionesLiberadas',
                 'historialOperadores' // NUEVO: Cargar historial de operadores
             ])->find($id);
+
+            // Paginación para asignaciones activas
+            $asignacionesActivas = AsignacionObra::with(['vehiculo', 'operador', 'vehiculo.operador'])
+                ->where('obra_id', $id)
+                ->where('estado', AsignacionObra::ESTADO_ACTIVA)
+                ->orderBy('fecha_asignacion', 'desc')
+                ->paginate(10, ['*'], 'activas_page');
+
+            // Paginación para asignaciones liberadas
+            $asignacionesLiberadas = AsignacionObra::with(['vehiculo', 'operador', 'vehiculo.operador'])
+                ->where('obra_id', $id)
+                ->where('estado', AsignacionObra::ESTADO_LIBERADA)
+                ->orderBy('fecha_asignacion', 'desc')
+                ->paginate(10, ['*'], 'historial_page');
 
             if (! $obra) {
                 Log::warning('Obra no encontrada', ['obra_id' => $id]);
@@ -561,6 +571,13 @@ class ObraController extends Controller
                 ->orderBy('modelo')
                 ->get();
 
+            // Cargar operadores disponibles para el modal
+            Log::info('Cargando operadores disponibles para el modal');
+            $operadoresDisponibles = Personal::with('categoria')
+                ->where('estatus', 'activo')
+                ->orderBy('nombre_completo')
+                ->get();
+
             // Obtener permisos del usuario actual
             $permisos = collect([]);
             if (Auth::check()) {
@@ -579,9 +596,10 @@ class ObraController extends Controller
             Log::info('Renderizando vista obras.show', [
                 'responsables_count' => $responsables->count(),
                 'vehiculos_count' => $vehiculosDisponibles->count(),
+                'operadores_count' => $operadoresDisponibles->count(),
                 'permisos_count' => $permisos->count()
             ]);
-            return view('obras.show', compact('obra', 'responsables', 'vehiculosDisponibles', 'permisos'));
+            return view('obras.show', compact('obra', 'responsables', 'vehiculosDisponibles', 'operadoresDisponibles', 'permisos', 'asignacionesActivas', 'asignacionesLiberadas'));
         } catch (Exception $e) {
             Log::error('=== ERROR EN ObraController@show ===', [
                 'message' => $e->getMessage(),
@@ -1309,10 +1327,13 @@ class ObraController extends Controller
             $validated = $request->validate([
                 'vehiculos' => 'nullable|array',
                 'vehiculos.*' => 'exists:vehiculos,id',
+                'operadores' => 'nullable|array',
+                'operadores.*' => 'exists:personal,id',
                 'observaciones' => 'nullable|string|max:500'
             ]);
 
             $vehiculosSeleccionados = $validated['vehiculos'] ?? [];
+            $operadoresSeleccionados = $validated['operadores'] ?? [];
             
             // Validar que se haya seleccionado al menos un vehículo
             if (empty($vehiculosSeleccionados)) {
@@ -1348,16 +1369,37 @@ class ObraController extends Controller
             
             // Asignar nuevos vehículos
             $vehiculosNuevos = array_diff($vehiculosSeleccionados, $vehiculosAnteriores);
+            
+            // Crear un mapeo de vehículos a operadores basado en el orden de selección
+            $vehiculoOperadorMap = [];
+            foreach ($vehiculosSeleccionados as $index => $vehiculoId) {
+                if (isset($operadoresSeleccionados[$index])) {
+                    $vehiculoOperadorMap[$vehiculoId] = $operadoresSeleccionados[$index];
+                }
+            }
+            
             foreach ($vehiculosNuevos as $vehiculoId) {
                 $vehiculo = Vehiculo::find($vehiculoId);
                 if ($vehiculo) {
+                    // Obtener el operador correspondiente del mapeo, o usar el operador del vehículo como fallback
+                    $operadorId = isset($vehiculoOperadorMap[$vehiculoId]) ? $vehiculoOperadorMap[$vehiculoId] : $vehiculo->operador_id;
+                    
                     AsignacionObra::create([
                         'obra_id' => $obra->id,
                         'vehiculo_id' => $vehiculo->id,
+                        'operador_id' => $operadorId,
                         'fecha_asignacion' => now(),
                         'kilometraje_inicial' => $vehiculo->kilometraje_actual,
                         'observaciones' => $validated['observaciones'] ?? 'Vehículo asignado desde edición de obra',
                         'estado' => AsignacionObra::ESTADO_ACTIVA,
+                    ]);
+                    
+                    Log::info('Nueva asignación creada', [
+                        'obra_id' => $obra->id,
+                        'vehiculo_id' => $vehiculo->id,
+                        'operador_id' => $operadorId,
+                        'operador_nombre' => $operadorId ? Personal::find($operadorId)->nombre_completo ?? 'N/A' : 'Sin operador',
+                        'operador_origen' => isset($vehiculoOperadorMap[$vehiculoId]) ? 'formulario' : 'vehiculo'
                     ]);
                 }
             }

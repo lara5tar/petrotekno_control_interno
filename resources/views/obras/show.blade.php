@@ -428,7 +428,7 @@
                                                 <div>
                                                     <label class="block text-sm text-gray-600">Operador</label>
                                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                        {{ $asignacion->operador ? $asignacion->operador->nombre_completo : 'Sin operador asignado' }}
+                                                        {{ $asignacion->operador ? $asignacion->operador->nombre_completo : ($asignacion->vehiculo->operador ? $asignacion->vehiculo->operador->nombre_completo : 'Sin operador asignado') }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -799,8 +799,8 @@
                                                     <!-- Acciones en línea -->
                                                 </td>
                                             </tr>
-                                            @elseif($obra->asignacionesActivas && $obra->asignacionesActivas->count() > 0)
-                                                @foreach($obra->asignacionesActivas as $asignacion)
+                                            @elseif($asignacionesActivas && $asignacionesActivas->count() > 0)
+                                                @foreach($asignacionesActivas as $asignacion)
                                                 <tr>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                                                         {{ $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo : 'Sin activo' }}
@@ -863,6 +863,95 @@
                                         </tbody>
                                     </table>
                                 </div>
+
+                                <!-- Paginación para Asignaciones Activas -->
+                                @if($asignacionesActivas && $asignacionesActivas->hasPages())
+                                <div class="mt-4 px-4 py-3 bg-gray-50 border-t border-gray-200 sm:px-6">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex-1 flex justify-between sm:hidden">
+                                            @if ($asignacionesActivas->onFirstPage())
+                                                <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md">
+                                                    Anterior
+                                                </span>
+                                            @else
+                                                <a href="{{ $asignacionesActivas->previousPageUrl() }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                                                    Anterior
+                                                </a>
+                                            @endif
+
+                                            @if ($asignacionesActivas->hasMorePages())
+                                                <a href="{{ $asignacionesActivas->nextPageUrl() }}" class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                                                    Siguiente
+                                                </a>
+                                            @else
+                                                <span class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md">
+                                                    Siguiente
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                            <div>
+                                                <p class="text-sm text-gray-700">
+                                                    Mostrando
+                                                    <span class="font-medium">{{ $asignacionesActivas->firstItem() ?? 0 }}</span>
+                                                    a
+                                                    <span class="font-medium">{{ $asignacionesActivas->lastItem() ?? 0 }}</span>
+                                                    de
+                                                    <span class="font-medium">{{ $asignacionesActivas->total() }}</span>
+                                                    resultados
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <span class="relative z-0 inline-flex shadow-sm rounded-md">
+                                                    @if ($asignacionesActivas->onFirstPage())
+                                                        <span aria-disabled="true" aria-label="Anterior">
+                                                            <span class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-l-md leading-5" aria-hidden="true">
+                                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+                                                    @else
+                                                        <a href="{{ $asignacionesActivas->previousPageUrl() }}" rel="prev" class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md leading-5 hover:text-gray-400 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150" aria-label="Anterior">
+                                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </a>
+                                                    @endif
+
+                                                    @foreach ($asignacionesActivas->getUrlRange(1, $asignacionesActivas->lastPage()) as $page => $url)
+                                                        @if ($page == $asignacionesActivas->currentPage())
+                                                            <span aria-current="page">
+                                                                <span class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-white bg-blue-600 border border-blue-600 cursor-default leading-5">{{ $page }}</span>
+                                                            </span>
+                                                        @else
+                                                            <a href="{{ $url }}" class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 hover:text-gray-500 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150" aria-label="Ir a la página {{ $page }}">{{ $page }}</a>
+                                                        @endif
+                                                    @endforeach
+
+                                                    @if ($asignacionesActivas->hasMorePages())
+                                                        <a href="{{ $asignacionesActivas->nextPageUrl() }}" rel="next" class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md leading-5 hover:text-gray-400 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150" aria-label="Siguiente">
+                                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </a>
+                                                    @else
+                                                        <span aria-disabled="true" aria-label="Siguiente">
+                                                            <span class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-r-md leading-5" aria-hidden="true">
+                                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+                                                    @endif
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
                             </div>
 
                             <!-- Asignaciones Históricas -->
@@ -888,54 +977,21 @@
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
-                                            @if($obra->historialOperadores && $obra->historialOperadores->count() > 0)
-                                                @foreach($obra->historialOperadores->take(10) as $historial)
+                                            @if($asignacionesLiberadas && $asignacionesLiberadas->count() > 0)
+                                                @foreach($asignacionesLiberadas as $asignacion)
                                                 <tr>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                        {{ $historial->vehiculo ? $historial->vehiculo->marca . ' ' . $historial->vehiculo->modelo . ' (' . $historial->vehiculo->placas . ')' : 'Sin activo' }}
+                                                        {{ $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo . ' (' . $asignacion->vehiculo->placas . ')' : 'Sin activo' }}
                                                     </td>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                        {{ $historial->operadorNuevo ? $historial->operadorNuevo->nombre_completo : 'Sin operador' }}
+                                                        {{ $asignacion->operador ? $asignacion->operador->nombre_completo : ($asignacion->vehiculo && $asignacion->vehiculo->operador ? $asignacion->vehiculo->operador->nombre_completo : 'Sin operador') }}
                                                     </td>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                        {{ $historial->fecha_asignacion->format('d/m/Y H:i') }}
+                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y') }} - 
+                                                        {{ $asignacion->fecha_liberacion ? \Carbon\Carbon::parse($asignacion->fecha_liberacion)->format('d/m/Y') : 'En curso' }}
                                                     </td>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                        {{ $historial->usuarioAsigno ? $historial->usuarioAsigno->name : 'Sistema' }}
-                                                    </td>
-                                                </tr>
-                                                @endforeach
-                                            @elseif($obra->fecha_liberacion)
-                                            <tr>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {{ $obra->vehiculo ? $obra->vehiculo->marca . ' ' . $obra->vehiculo->modelo : 'Sin activo' }}
-                                                </td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $obra->operador ? $obra->operador->nombre_completo : 'Sin operador' }}
-                                                </td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $obra->fecha_asignacion ? \Carbon\Carbon::parse($obra->fecha_asignacion)->format('d/m/Y') : 'N/A' }} -
-                                                    {{ \Carbon\Carbon::parse($obra->fecha_liberacion)->format('d/m/Y') }}
-                                                </td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $obra->usuarioAsigno ? $obra->usuarioAsigno->name : 'Sistema' }}
-                                                </td>
-                                            </tr>
-                                            @elseif($obra->asignacionesLiberadas && $obra->asignacionesLiberadas->count() > 0)
-                                                @foreach($obra->asignacionesLiberadas->take(5) as $asignacion)
-                                                <tr>
-                                                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                        {{ $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo : 'Sin activo' }}
-                                                    </td>
-                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                        {{ $asignacion->operador ? $asignacion->operador->nombre_completo : 'Sin operador' }}
-                                                    </td>
-                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y') }} -
-                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_liberacion)->format('d/m/Y') }}
-                                                    </td>
-                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                        {{ $asignacion->usuarioAsigno ? $asignacion->usuarioAsigno->name : 'Sistema' }}
+                                                        Sistema
                                                     </td>
                                                 </tr>
                                                 @endforeach
@@ -947,6 +1003,100 @@
                                                 </tr>
                                             @endif
                                         </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Controles de paginación -->
+                                @if($asignacionesLiberadas && $asignacionesLiberadas->hasPages())
+                                <div class="mt-4 px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex-1 flex justify-between sm:hidden">
+                                            @if ($asignacionesLiberadas->onFirstPage())
+                                                <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md">
+                                                    Anterior
+                                                </span>
+                                            @else
+                                                <a href="{{ $asignacionesLiberadas->previousPageUrl() }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                                                    Anterior
+                                                </a>
+                                            @endif
+
+                                            @if ($asignacionesLiberadas->hasMorePages())
+                                                <a href="{{ $asignacionesLiberadas->nextPageUrl() }}" class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                                                    Siguiente
+                                                </a>
+                                            @else
+                                                <span class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md">
+                                                    Siguiente
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                            <div>
+                                                <p class="text-sm text-gray-700 leading-5">
+                                                    Mostrando
+                                                    <span class="font-medium">{{ $asignacionesLiberadas->firstItem() }}</span>
+                                                    a
+                                                    <span class="font-medium">{{ $asignacionesLiberadas->lastItem() }}</span>
+                                                    de
+                                                    <span class="font-medium">{{ $asignacionesLiberadas->total() }}</span>
+                                                    resultados
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <span class="relative z-0 inline-flex shadow-sm rounded-md">
+                                                    {{-- Botón Anterior --}}
+                                                    @if ($asignacionesLiberadas->onFirstPage())
+                                                        <span aria-disabled="true" aria-label="Anterior">
+                                                            <span class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-l-md leading-5" aria-hidden="true">
+                                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+                                                    @else
+                                                        <a href="{{ $asignacionesLiberadas->previousPageUrl() }}" rel="prev" class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md leading-5 hover:text-gray-400 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150" aria-label="Anterior">
+                                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </a>
+                                                    @endif
+
+                                                    {{-- Enlaces de páginas --}}
+                                                    @foreach ($asignacionesLiberadas->getUrlRange(1, $asignacionesLiberadas->lastPage()) as $page => $url)
+                                                        @if ($page == $asignacionesLiberadas->currentPage())
+                                                            <span aria-current="page">
+                                                                <span class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-white bg-blue-600 border border-gray-300 cursor-default leading-5">{{ $page }}</span>
+                                                            </span>
+                                                        @else
+                                                            <a href="{{ $url }}" class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 hover:text-gray-500 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150" aria-label="Ir a la página {{ $page }}">{{ $page }}</a>
+                                                        @endif
+                                                    @endforeach
+
+                                                    {{-- Botón Siguiente --}}
+                                                    @if ($asignacionesLiberadas->hasMorePages())
+                                                        <a href="{{ $asignacionesLiberadas->nextPageUrl() }}" rel="next" class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md leading-5 hover:text-gray-400 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150" aria-label="Siguiente">
+                                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </a>
+                                                    @else
+                                                        <span aria-disabled="true" aria-label="Siguiente">
+                                                            <span class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-r-md leading-5" aria-hidden="true">
+                                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+                                                    @endif
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
                                     </table>
                                 </div>
                             </div>
@@ -1048,6 +1198,8 @@
                 </select>
                 <p class="mt-1 text-xs text-gray-500">Selecciona el personal con categoría "Responsable de obra" para supervisión del proyecto</p>
             </div>
+            
+
             
             <!-- Observaciones -->
             <div class="mb-4">
