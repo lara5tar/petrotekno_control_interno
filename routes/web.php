@@ -63,6 +63,15 @@ Route::middleware('auth')->prefix('vehiculos')->name('vehiculos.')->group(functi
     Route::get('/busqueda-predictiva', [App\Http\Controllers\VehiculoController::class, 'busquedaPredictiva'])
         ->name('busqueda-predictiva');
     
+    // Rutas de búsqueda de vehículos (API endpoints accesibles desde web)
+    Route::get('/search', [\App\Http\Controllers\Api\VehiculoSearchController::class, 'search'])
+        ->name('search')
+        ->middleware('permission:ver_vehiculos');
+    
+    Route::get('/suggestions', [\App\Http\Controllers\Api\VehiculoSearchController::class, 'search'])
+        ->name('suggestions')
+        ->middleware('permission:ver_vehiculos');
+    
     // Rutas para descarga de reportes filtrados
     Route::get('/descargar-reporte-pdf', [App\Http\Controllers\VehiculoController::class, 'descargarReportePdf'])
         ->name('descargar-reporte-pdf')

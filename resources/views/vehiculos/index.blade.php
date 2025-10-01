@@ -67,7 +67,30 @@
                             <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <input type="text" id="search" name="search" value="{{ request('search') }}" placeholder="Buscar por placa, modelo, marca, serie..." class="pl-10 p-2 border border-gray-300 rounded-md w-full">
+                    <input type="text" 
+                           id="buscar" 
+                           name="buscar" 
+                           value="{{ request('buscar') }}"
+                           placeholder="Buscar por marca, modelo, placas o número de serie..." 
+                           class="pl-10 pr-10 p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                           autocomplete="off">
+                    
+                    <!-- Loading indicator -->
+                    <div id="search-loading" class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none hidden">
+                        <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                    
+                    <!-- Clear button -->
+                    <button type="button" 
+                            id="clear-search" 
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200 hidden">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div class="flex-1 md:flex-none md:w-48">
@@ -81,6 +104,7 @@
                     @endforeach
                 </select>
             </div>
+
             <div class="flex gap-2">
                 <button type="submit" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md transition duration-200">
                     Filtrar
@@ -99,13 +123,20 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div class="text-sm text-gray-600">
                     <span class="font-medium">{{ $vehiculos->total() }}</span> vehículos encontrados
-                    @if(request()->hasAny(['search', 'estado']))
-                        <span class="text-gray-500">(filtrados)</span>
+                    @if(request()->hasAny(['buscar', 'estado', 'anio']))
+                        <span class="text-blue-600 font-medium">(filtrados)</span>
+                        <div class="text-xs text-gray-500 mt-1">
+                            Los reportes incluirán solo los vehículos filtrados
+                        </div>
+                    @else
+                        <div class="text-xs text-gray-500 mt-1">
+                            Los reportes incluirán todos los vehículos
+                        </div>
                     @endif
                 </div>
                 <div class="flex gap-2">
                     <!-- Botón de descarga PDF -->
-                    <button onclick="descargarReporte('pdf')" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
+                    <button onclick="descargarReporte('pdf')" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200" title="Descargar reporte PDF con filtros aplicados">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -113,7 +144,7 @@
                     </button>
                     
                     <!-- Botón de descarga Excel -->
-                    <button onclick="descargarReporte('excel')" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
+                    <button onclick="descargarReporte('excel')" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200" title="Descargar reporte Excel con filtros aplicados">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -127,7 +158,7 @@
     <!-- Tabla de activos -->
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table id="vehiculos-table" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
@@ -328,11 +359,33 @@
         const filtros = {};
         
         // Capturar filtros de la URL
-        if (urlParams.get('search')) {
-            filtros.search = urlParams.get('search');
+        if (urlParams.get('buscar')) {
+            filtros.buscar = urlParams.get('buscar');
         }
         if (urlParams.get('estado')) {
             filtros.estado = urlParams.get('estado');
+        }
+        if (urlParams.get('anio')) {
+            filtros.anio = urlParams.get('anio');
+        }
+        
+        // Si hay una búsqueda activa en tiempo real, usar ese término en lugar del de la URL
+        const searchInput = document.getElementById('buscar');
+        if (searchInput && searchInput.value.trim() && isSearchActive) {
+            filtros.buscar = searchInput.value.trim();
+        }
+        
+        // Mostrar información sobre filtros aplicados
+        let filtrosInfo = [];
+        if (filtros.buscar) filtrosInfo.push(`Búsqueda: "${filtros.buscar}"`);
+        if (filtros.estado) filtrosInfo.push(`Estado: "${filtros.estado}"`);
+        if (filtros.anio) filtrosInfo.push(`Año: "${filtros.anio}"`);
+        
+        const tipoReporte = tipo === 'pdf' ? 'PDF' : 'Excel';
+        if (filtrosInfo.length > 0) {
+            console.log(`Generando reporte ${tipoReporte} con filtros: ${filtrosInfo.join(', ')}`);
+        } else {
+            console.log(`Generando reporte ${tipoReporte} de todos los vehículos`);
         }
         
         // Construir la URL de descarga
@@ -401,5 +454,365 @@
             form.submit();
         }
     }
+
+    // ========================================
+    // BÚSQUEDA EN TIEMPO REAL
+    // ========================================
+    
+    let searchTimeout;
+    let currentSearchRequest;
+    
+    const searchInput = document.getElementById('buscar');
+    const searchLoading = document.getElementById('search-loading');
+    const clearButton = document.getElementById('clear-search');
+    
+    // Mostrar/ocultar botón de limpiar
+    function toggleClearButton() {
+        if (searchInput.value.trim()) {
+            clearButton.classList.remove('hidden');
+        } else {
+            clearButton.classList.add('hidden');
+            restoreOriginalTable();
+        }
+    }
+    
+    // Mostrar indicador de carga
+    function showLoading() {
+        searchLoading.classList.remove('hidden');
+        clearButton.classList.add('hidden');
+    }
+    
+    // Ocultar indicador de carga
+    function hideLoading() {
+        searchLoading.classList.add('hidden');
+        toggleClearButton();
+    }
+    
+    // Variables para el estado original de la tabla
+    let originalTableContent = null;
+    let isSearchActive = false;
+    
+    // Guardar contenido original de la tabla
+    function saveOriginalTableContent() {
+        if (!originalTableContent) {
+            const tbody = document.querySelector('#vehiculos-table tbody');
+            if (tbody) {
+                originalTableContent = tbody.innerHTML;
+            }
+        }
+    }
+    
+    // Restaurar contenido original de la tabla
+    function restoreOriginalTable() {
+        if (originalTableContent) {
+            const tbody = document.querySelector('#vehiculos-table tbody');
+            if (tbody) {
+                tbody.innerHTML = originalTableContent;
+                isSearchActive = false;
+                // Mostrar paginación después de restaurar
+                const pagination = document.querySelector('.bg-white.px-4.py-3.border-t');
+                if (pagination) {
+                    pagination.style.display = 'block';
+                }
+                // Re-agregar event listeners a los botones de eliminar
+                const botonesEliminar = document.querySelectorAll('.btn-eliminar');
+                botonesEliminar.forEach(function(boton) {
+                    boton.addEventListener('click', function() {
+                        const activoId = this.getAttribute('data-activo-id');
+                        const activoPlacas = this.getAttribute('data-activo-placas');
+                        confirmarEliminacion(activoId, activoPlacas);
+                    });
+                });
+            }
+        }
+    }
+    
+    // Realizar búsqueda AJAX
+    async function performSearch(query) {
+        // Guardar contenido original si no se ha hecho
+        saveOriginalTableContent();
+        
+        if (!query.trim()) {
+            restoreOriginalTable();
+            return;
+        }
+        
+        // Cancelar búsqueda anterior si existe
+        if (currentSearchRequest) {
+            currentSearchRequest.abort();
+        }
+        
+        showLoading();
+        isSearchActive = true;
+        
+        try {
+            // Obtener filtros actuales con verificación de null
+            const estadoElement = document.getElementById('estado');
+            const anioElement = document.getElementById('anio');
+            const estado = estadoElement ? estadoElement.value : '';
+            const anio = anioElement ? anioElement.value : '';
+            
+            // Crear URL con parámetros (sin límite para mostrar todos los resultados)
+            const params = new URLSearchParams({
+                buscar: query,
+                ...(estado && { estado }),
+                ...(anio && { anio }),
+                limit: 50 // Aumentamos el límite para la tabla
+            });
+            
+            // Crear AbortController para cancelar la petición si es necesario
+            const controller = new AbortController();
+            currentSearchRequest = controller;
+            
+            const response = await fetch(`/vehiculos/search?${params}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                signal: controller.signal
+            });
+            
+            if (!response.ok) {
+                // Intentar obtener mensaje de error del servidor
+                let errorMessage = 'Error en la búsqueda';
+                try {
+                    const errorData = await response.json();
+                    if (errorData?.mensaje) {
+                        errorMessage = errorData.mensaje;
+                    } else if (response.status === 403) {
+                        errorMessage = 'No tienes permisos para realizar búsquedas';
+                    } else if (response.status === 404) {
+                        errorMessage = 'Ruta de búsqueda no encontrada';
+                    }
+                } catch (jsonError) {
+                    if (response.status === 403) {
+                        errorMessage = 'No tienes permisos para realizar búsquedas';
+                    } else if (response.status === 404) {
+                        errorMessage = 'Ruta de búsqueda no encontrada';
+                    }
+                }
+                throw new Error(errorMessage);
+            }
+            
+            const data = await response.json();
+            displaySearchResultsInTable(data);
+            
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error('Error en búsqueda:', error);
+                displaySearchErrorInTable(error.message || 'Error al realizar la búsqueda');
+            }
+        } finally {
+            hideLoading();
+            currentSearchRequest = null;
+        }
+    }
+    
+    // Mostrar resultados de búsqueda en la tabla principal
+    function displaySearchResultsInTable(data) {
+        const tbody = document.querySelector('#vehiculos-table tbody');
+        if (!tbody) return;
+        
+        // Ocultar paginación durante búsqueda
+        const pagination = document.querySelector('.bg-white.px-4.py-3.border-t');
+        if (pagination) {
+            pagination.style.display = 'none';
+        }
+        
+        if (!data.vehiculos || data.vehiculos.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="px-6 py-8 text-center text-gray-500">
+                        <div class="flex flex-col items-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0120 12a8 8 0 10-8 8 8 8 0 008-8z"></path>
+                            </svg>
+                            <p class="text-lg font-medium">No se encontraron vehículos</p>
+                            <p class="text-sm">Intenta con otros términos de búsqueda</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        } else {
+            const resultsHtml = data.vehiculos.map(vehiculo => {
+                const statusColor = getStatusColorForTable(vehiculo.estatus);
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            ${vehiculo.id}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${vehiculo.marca || 'N/A'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${vehiculo.modelo || 'N/A'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${vehiculo.anio || 'N/A'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${vehiculo.tipo_activo || 'N/A'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${vehiculo.placas || 'Sin placas'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${vehiculo.n_serie || 'N/A'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
+                                ${vehiculo.estatus_nombre}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end space-x-2">
+                                <a href="/vehiculos/${vehiculo.id}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </a>
+                                <a href="/vehiculos/${vehiculo.id}/edit" class="text-indigo-600 hover:text-indigo-900" title="Editar activo">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                    </svg>
+                                </a>
+                                <button data-activo-id="${vehiculo.id}" data-activo-placas="${vehiculo.placas || 'Sin placas'}" class="btn-eliminar text-red-600 hover:text-red-900" title="Eliminar activo">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            tbody.innerHTML = resultsHtml;
+        }
+    }
+    
+    // Mostrar error de búsqueda en la tabla
+    function displaySearchErrorInTable(mensaje = 'Error al realizar la búsqueda') {
+        const tbody = document.querySelector('#vehiculos-table tbody');
+        if (!tbody) return;
+        
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="px-6 py-8 text-center text-red-500">
+                    <div class="flex flex-col items-center">
+                        <svg class="mx-auto h-12 w-12 text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-lg font-medium">${mensaje}</p>
+                        <p class="text-sm">Inténtalo de nuevo en unos momentos</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+    
+    // Obtener color del estado para la tabla
+    function getStatusColorForTable(estatus) {
+        const colors = {
+            'disponible': 'bg-green-100 text-green-800',
+            'asignado': 'bg-blue-100 text-blue-800',
+            'en_mantenimiento': 'bg-yellow-100 text-yellow-800',
+            'fuera_de_servicio': 'bg-red-100 text-red-800',
+            'baja': 'bg-gray-100 text-gray-800'
+        };
+        return colors[estatus] || 'bg-gray-100 text-gray-800';
+    }
+    
+    // Obtener color del estado
+    function getStatusColor(estatus) {
+        const colors = {
+            'disponible': 'bg-green-100 text-green-800',
+            'asignado': 'bg-blue-100 text-blue-800',
+            'en_mantenimiento': 'bg-yellow-100 text-yellow-800',
+            'fuera_de_servicio': 'bg-red-100 text-red-800',
+            'baja': 'bg-gray-100 text-gray-800'
+        };
+        return colors[estatus] || 'bg-gray-100 text-gray-800';
+    }
+    
+    // Eliminar funciones de sugerencias que ya no se usan
+    // Las funciones getSuggestions y displaySuggestions han sido removidas
+    // ya que ahora la búsqueda se muestra directamente en la tabla
+
+    // Event listeners para búsqueda mejorada
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Limpiar timeout anterior
+        clearTimeout(searchTimeout);
+        
+        // Mostrar/ocultar botón de limpiar
+        toggleClearButton();
+        
+        // Si no hay query, restaurar tabla original
+        if (!query) {
+            restoreOriginalTable();
+            return;
+        }
+        
+        // Realizar búsqueda directa sin sugerencias
+        if (query.length >= 1) {
+            searchTimeout = setTimeout(() => {
+                performSearch(query);
+            }, 250); // Debounce de 250ms
+        }
+    });
+
+    // Limpiar búsqueda
+    clearButton.addEventListener('click', function() {
+        searchInput.value = '';
+        searchInput.focus();
+        restoreOriginalTable();
+        toggleClearButton();
+        
+        // Limpiar timeout si existe
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+    });
+    
+    // Ocultar resultados al hacer clic fuera
+    document.addEventListener('click', function(event) {
+        if (!searchInput.contains(event.target)) {
+            // Solo restaurar si hay una búsqueda activa y se hace clic fuera
+            if (isSearchActive && !searchInput.value.trim()) {
+                restoreOriginalTable();
+            }
+        }
+    });
+    
+    // Mostrar resultados al hacer focus si hay contenido
+    searchInput.addEventListener('focus', function() {
+        const query = this.value.trim();
+        if (query && query.length >= 1) {
+            performSearch(query);
+        }
+    });
+    
+    // Navegación con teclado mejorada
+    searchInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            this.value = '';
+            restoreOriginalTable();
+            toggleClearButton();
+            this.blur();
+        } else if (event.key === 'Enter') {
+            event.preventDefault();
+            const query = this.value.trim();
+            if (query) {
+                performSearch(query);
+            }
+        }
+    });
+    
+    // Inicializar estado del botón de limpiar
+    toggleClearButton();
 </script>
 @endpush

@@ -284,7 +284,8 @@ class Vehiculo extends Model
             $q->where('marca', 'like', "%{$termino}%")
                 ->orWhere('modelo', 'like', "%{$termino}%")
                 ->orWhere('placas', 'like', "%{$termino}%")
-                ->orWhere('n_serie', 'like', "%{$termino}%");
+                ->orWhere('n_serie', 'like', "%{$termino}%")
+                ->orWhere('anio', 'like', "%{$termino}%");
         });
     }
 

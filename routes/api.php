@@ -11,6 +11,7 @@ use App\Http\Controllers\PersonalController;
 // use App\Http\Controllers\RoleController; // Comentado - RoleController no existe
 // use App\Http\Controllers\UserController; // Comentado - UserController no existe
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\VehiculoSearchController;
 use App\Models\CatalogoEstatus;
 use App\Models\LogAccion;
 use App\Models\Permission;
@@ -64,31 +65,47 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:eliminar_usuarios');
 
         Route::post('/{id}/restore', [UserController::class, 'restore'])
-            ->middleware('permission:editar_usuarios');
+            ->middleware('permission:restaurar_usuarios');
     });
     */
 
-    // Rutas de roles - solo administradores - COMENTADAS (RoleController no existe)
+    // Rutas de roles - requieren permisos específicos - COMENTADAS (RoleController no existe)
     /*
-    Route::prefix('roles')->middleware('role:Admin')->group(function () {
-        Route::get('/', [RoleController::class, 'index']);
-        Route::post('/', [RoleController::class, 'store']);
-        Route::get('/{id}', [RoleController::class, 'show']);
-        Route::put('/{id}', [RoleController::class, 'update']);
-        Route::delete('/{id}', [RoleController::class, 'destroy']);
-        Route::post('/{roleId}/permissions/{permissionId}', [RoleController::class, 'attachPermission']);
-        Route::delete('/{roleId}/permissions/{permissionId}', [RoleController::class, 'detachPermission']);
+    Route::prefix('roles')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])
+            ->middleware('permission:ver_roles');
+
+        Route::post('/', [RoleController::class, 'store'])
+            ->middleware('permission:crear_roles');
+
+        Route::get('/{id}', [RoleController::class, 'show'])
+            ->middleware('permission:ver_roles');
+
+        Route::put('/{id}', [RoleController::class, 'update'])
+            ->middleware('permission:editar_roles');
+
+        Route::delete('/{id}', [RoleController::class, 'destroy'])
+            ->middleware('permission:eliminar_roles');
     });
     */
 
-    // Rutas de permisos - solo administradores - COMENTADAS (PermissionController no existe)
+    // Rutas de permisos - requieren permisos específicos - COMENTADAS (PermissionController no existe)
     /*
-    Route::prefix('permissions')->middleware('role:Admin')->group(function () {
-        Route::get('/', [PermissionController::class, 'index']);
-        Route::post('/', [PermissionController::class, 'store']);
-        Route::get('/{id}', [PermissionController::class, 'show']);
-        Route::put('/{id}', [PermissionController::class, 'update']);
-        Route::delete('/{id}', [PermissionController::class, 'destroy']);
+    Route::prefix('permissions')->group(function () {
+        Route::get('/', [PermissionController::class, 'index'])
+            ->middleware('permission:ver_permisos');
+
+        Route::post('/', [PermissionController::class, 'store'])
+            ->middleware('permission:crear_permisos');
+
+        Route::get('/{id}', [PermissionController::class, 'show'])
+            ->middleware('permission:ver_permisos');
+
+        Route::put('/{id}', [PermissionController::class, 'update'])
+            ->middleware('permission:editar_permisos');
+
+        Route::delete('/{id}', [PermissionController::class, 'destroy'])
+            ->middleware('permission:eliminar_permisos');
     });
     */
 
@@ -116,7 +133,7 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('permission:eliminar_personal');
     });
 
-    // Rutas de vehículos
+    // Rutas de vehículos (excepto búsqueda que usa auth web)
     Route::prefix('vehiculos')->group(function () {
         Route::get('/', [VehiculoController::class, 'index'])
             ->middleware('permission:ver_vehiculos');
@@ -144,6 +161,19 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{id}/restore', [VehiculoController::class, 'restore'])
             ->middleware('permission:restaurar_vehiculos');
     });
+});
+
+// Comentar las rutas de búsqueda de vehículos - movidas a web.php
+/*
+// Rutas de búsqueda de vehículos sin middleware de autenticación para debug
+Route::prefix('vehiculos')->group(function () {
+    Route::get('/search', [\App\Http\Controllers\Api\VehiculoSearchController::class, 'search']);
+    Route::get('/suggestions', [\App\Http\Controllers\Api\VehiculoSearchController::class, 'search']);
+});
+*/
+
+// Continuación de rutas protegidas por autenticación
+Route::middleware('auth:sanctum')->group(function () {
 
     // Rutas de obras
     Route::prefix('obras')->group(function () {
