@@ -51,7 +51,7 @@ class VehiculoController extends Controller
             $query->porAnio($request->get('anio'));
         }
 
-        $vehiculos = $query->orderBy('marca')->orderBy('modelo')->paginate(15);
+        $vehiculos = $query->orderBy('id')->paginate(15);
 
         // Obtener valores únicos para filtros
         $estados = collect(EstadoVehiculo::cases())->mapWithKeys(function ($estado) {
