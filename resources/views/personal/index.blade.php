@@ -101,18 +101,15 @@
                         @endforeach
                     </select>
                 </div>
+                @if(request()->hasAny(['buscar', 'categoria_id', 'estatus']))
                 <div class="flex flex-col">
                     <!-- Label invisible para alineación -->
                     <label class="block text-sm font-medium text-gray-700 mb-1 invisible">Acciones</label>
-                    @if(request()->hasAny(['buscar', 'categoria_id', 'estatus']))
-                        <a href="{{ route('personal.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition duration-200 h-10 flex items-center justify-center">
-                            Limpiar
-                        </a>
-                    @else
-                        <!-- Espacio invisible para mantener alineación -->
-                        <div class="h-10"></div>
-                    @endif
+                    <a href="{{ route('personal.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition duration-200 h-10 flex items-center justify-center">
+                        Limpiar
+                    </a>
                 </div>
+                @endif
             </div>
         </form>
     </div>
