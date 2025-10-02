@@ -57,7 +57,7 @@
                                name="buscar" 
                                value="{{ request('buscar') }}"
                                placeholder="Buscar por nombre, categoría, RFC, NSS..." 
-                               class="pl-10 pr-10 p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                               class="pl-10 pr-10 p-2 border border-gray-300 rounded-lg w-full h-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                                autocomplete="off">
                         
                         <!-- Loading indicator -->
@@ -82,7 +82,7 @@
                     <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
                     <select id="estado" 
                             name="estatus"
-                            class="p-2 border border-gray-300 rounded-md w-full">
+                            class="p-2 border border-gray-300 rounded-md w-full h-10">
                         <option value="">Todos</option>
                         <option value="activo" {{ request('estatus') == 'activo' ? 'selected' : '' }}>Activo</option>
                         <option value="inactivo" {{ request('estatus') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
@@ -92,7 +92,7 @@
                     <label for="categoria" class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
                     <select id="categoria" 
                             name="categoria_id"
-                            class="p-2 border border-gray-300 rounded-md w-full">
+                            class="p-2 border border-gray-300 rounded-md w-full h-10">
                         <option value="">Todos</option>
                         @foreach($categorias as $categoria)
                             <option value="{{ $categoria->id }}" {{ request('categoria_id') == $categoria->id ? 'selected' : '' }}>
@@ -101,11 +101,16 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex flex-col">
+                    <!-- Label invisible para alineación -->
+                    <label class="block text-sm font-medium text-gray-700 mb-1 invisible">Acciones</label>
                     @if(request()->hasAny(['buscar', 'categoria_id', 'estatus']))
-                        <a href="{{ route('personal.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition duration-200">
+                        <a href="{{ route('personal.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition duration-200 h-10 flex items-center justify-center">
                             Limpiar
                         </a>
+                    @else
+                        <!-- Espacio invisible para mantener alineación -->
+                        <div class="h-10"></div>
                     @endif
                 </div>
             </div>
