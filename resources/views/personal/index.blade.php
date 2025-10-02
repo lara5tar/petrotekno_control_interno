@@ -45,7 +45,7 @@
         <form method="GET" action="{{ route('personal.index') }}" id="filtrosForm">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div class="flex-1">
-                    <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                    <label for="buscar" class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
@@ -53,11 +53,29 @@
                             </svg>
                         </div>
                         <input type="text" 
-                               id="search" 
-                               name="search" 
-                               value="{{ request('search') }}"
-                               placeholder="Buscar por nombre, categoría, etc." 
-                               class="pl-10 p-2 border border-gray-300 rounded-md w-full">
+                               id="buscar" 
+                               name="buscar" 
+                               value="{{ request('buscar') }}"
+                               placeholder="Buscar por nombre, categoría, RFC, NSS..." 
+                               class="pl-10 pr-10 p-3 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                               autocomplete="off">
+                        
+                        <!-- Loading indicator -->
+                        <div id="search-loading" class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none hidden">
+                            <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                        
+                        <!-- Clear button -->
+                        <button type="button" 
+                                id="clear-search" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200 hidden">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
                 <div class="flex-1 md:flex-none md:w-48">
@@ -71,8 +89,8 @@
                     </select>
                 </div>
                 <div class="flex-1 md:flex-none md:w-48">
-                    <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                    <select id="tipo" 
+                    <label for="categoria" class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                    <select id="categoria" 
                             name="categoria_id"
                             class="p-2 border border-gray-300 rounded-md w-full">
                         <option value="">Todos</option>
@@ -84,10 +102,7 @@
                     </select>
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded transition duration-200">
-                        Filtrar
-                    </button>
-                    @if(request()->hasAny(['search', 'categoria_id', 'estatus']))
+                    @if(request()->hasAny(['buscar', 'categoria_id', 'estatus']))
                         <a href="{{ route('personal.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition duration-200">
                             Limpiar
                         </a>
@@ -100,7 +115,7 @@
     <!-- Tabla de personal -->
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table id="personal-table" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Empleado</th>
@@ -170,13 +185,13 @@
                                     </svg>
                                     <h3 class="mt-2 text-sm font-medium text-gray-900">No hay personal</h3>
                                     <p class="mt-1 text-sm text-gray-500">
-                                        @if(request()->hasAny(['search', 'categoria_id', 'estatus']))
+                                        @if(request()->hasAny(['buscar', 'categoria_id', 'estatus']))
                                             No se encontró personal con los criterios especificados.
                                         @else
                                             Aún no hay personal registrado en el sistema.
                                         @endif
                                     </p>
-                                    @if(request()->hasAny(['search', 'categoria_id', 'estatus']))
+                                    @if(request()->hasAny(['buscar', 'categoria_id', 'estatus']))
                                         <div class="mt-4">
                                             <a href="{{ route('personal.index') }}" 
                                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded text-gray-700 bg-gray-100 hover:bg-gray-200">
@@ -225,42 +240,109 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Elementos del formulario
-    const searchInput = document.getElementById('search');
-    const estadoSelect = document.getElementById('estado');
-    const tipoSelect = document.getElementById('tipo');
-    const form = document.getElementById('filtrosForm');
+    console.log('🚀 Personal page loaded - SIMPLIFIED VERSION');
     
-    // Función para enviar el formulario automáticamente
-    function autoSubmit() {
-        form.submit();
+    // VERSIÓN ULTRA SIMPLE - SOLO FILTROS BÁSICOS
+    const estadoSelect = document.getElementById('estado');
+    const categoriaSelect = document.getElementById('categoria');
+    const filtrosForm = document.getElementById('filtrosForm');
+    const searchInput = document.getElementById('buscar');
+    
+    console.log('Elements found:', {
+        estadoSelect: !!estadoSelect,
+        categoriaSelect: !!categoriaSelect,
+        filtrosForm: !!filtrosForm,
+        searchInput: !!searchInput
+    });
+    
+    // Función para limpiar campos vacíos antes de enviar
+    function limpiarCamposVacios() {
+        // Si el campo de búsqueda está vacío, removerlo del formulario temporalmente
+        if (searchInput && searchInput.value.trim() === '') {
+            searchInput.removeAttribute('name');
+        } else if (searchInput) {
+            searchInput.setAttribute('name', 'buscar');
+        }
+        
+        // Si estado está en "Todos", removerlo
+        if (estadoSelect && estadoSelect.value === '') {
+            estadoSelect.removeAttribute('name');
+        } else if (estadoSelect) {
+            estadoSelect.setAttribute('name', 'estatus');
+        }
+        
+        // Si categoría está en "Todos", removerlo
+        if (categoriaSelect && categoriaSelect.value === '') {
+            categoriaSelect.removeAttribute('name');
+        } else if (categoriaSelect) {
+            categoriaSelect.setAttribute('name', 'categoria_id');
+        }
     }
     
-    // Event listeners para filtros automáticos
-    estadoSelect.addEventListener('change', autoSubmit);
-    tipoSelect.addEventListener('change', autoSubmit);
-    
-    // Event listener para búsqueda con delay
-    let searchTimeout;
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(function() {
-            autoSubmit();
-        }, 500); // Esperar 500ms después de que el usuario deje de escribir
-    });
-    
-    // Prevenir envío múltiple del formulario
-    form.addEventListener('submit', function() {
-        const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Filtrando...';
-            setTimeout(function() {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Filtrar';
-            }, 2000);
+    // Función simple: limpiar y submit del formulario
+    function aplicarFiltros() {
+        console.log('📤 Submitting form with filters...');
+        console.log('Estado:', estadoSelect ? estadoSelect.value : 'N/A');
+        console.log('Categoría:', categoriaSelect ? categoriaSelect.value : 'N/A');
+        
+        if (filtrosForm) {
+            limpiarCamposVacios();
+            filtrosForm.submit();
         }
-    });
+    }
+    
+    // Event listener para estado
+    if (estadoSelect) {
+        estadoSelect.addEventListener('change', function() {
+            console.log('📊 Estado changed to:', this.value);
+            aplicarFiltros();
+        });
+    }
+    
+    // Event listener para categoría
+    if (categoriaSelect) {
+        categoriaSelect.addEventListener('change', function() {
+            console.log('👥 Categoría changed to:', this.value);
+            aplicarFiltros();
+        });
+    }
+    
+    // Búsqueda básica (solo input, sin AJAX)
+    if (searchInput) {
+        let searchTimeout;
+        
+        searchInput.addEventListener('input', function() {
+            const value = this.value;
+            console.log('🔍 Search input:', value);
+            
+            // Clear previous timeout
+            clearTimeout(searchTimeout);
+            
+            // Simple debounce - submit form after 1 second of no typing
+            searchTimeout = setTimeout(function() {
+                if (value.length >= 2 || value.length === 0) {
+                    console.log('📤 Submitting search form...');
+                    limpiarCamposVacios();
+                    filtrosForm.submit();
+                }
+            }, 1000);
+        });
+        
+        // Submit on Enter
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                console.log('⏎ Enter pressed, submitting form...');
+                limpiarCamposVacios();
+                filtrosForm.submit();
+            }
+        });
+    }
+    
+    // Event listener para el botón Filtrar
+    // REMOVIDO: Ya no necesitamos botón filtrar - filtrado automático
+    
+    console.log('✅ Simple filters initialized');
 });
 </script>
 @endpush

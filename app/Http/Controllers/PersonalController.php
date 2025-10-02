@@ -34,25 +34,47 @@ class PersonalController extends Controller
             return redirect()->back()->with('error', 'No tienes permisos para acceder a esta sección');
         }
 
+        // DEBUG: Logging de parámetros recibidos
+        \Log::info('PersonalController@index - Parámetros recibidos:', [
+            'all_params' => $request->all(),
+            'buscar' => $request->get('buscar'),
+            'estatus' => $request->get('estatus'),
+            'categoria_id' => $request->get('categoria_id'),
+            'filled_checks' => [
+                'buscar' => $request->filled('buscar'),
+                'search' => $request->filled('search'),
+                'estatus' => $request->filled('estatus'),
+                'categoria_id' => $request->filled('categoria_id')
+            ]
+        ]);
+
         $query = Personal::with('categoria');
 
-        // Filtros
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('nombre_completo', 'like', "%{$search}%")
-                    ->orWhereHas('categoria', function ($cq) use ($search) {
-                        $cq->where('nombre_categoria', 'like', "%{$search}%");
+        // Filtros - IMPORTANTE: Verificar que no sean strings vacíos
+        // Buscar también acepta el parámetro 'search'
+        $searchTerm = $request->get('buscar', $request->get('search'));
+        if (!empty($searchTerm) && trim($searchTerm) !== '') {
+            \Log::info('PersonalController@index - Aplicando filtro de búsqueda:', ['search' => $searchTerm]);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('nombre_completo', 'like', "%{$searchTerm}%")
+                    ->orWhereHas('categoria', function ($cq) use ($searchTerm) {
+                        $cq->where('nombre_categoria', 'like', "%{$searchTerm}%");
                     });
             });
         }
 
-        if ($request->filled('categoria_id')) {
-            $query->where('categoria_id', $request->categoria_id);
+        // Filtro de categoría - verificar que no sea vacío
+        $categoriaId = $request->get('categoria_id');
+        if (!empty($categoriaId) && trim($categoriaId) !== '') {
+            \Log::info('PersonalController@index - Aplicando filtro de categoría:', ['categoria_id' => $categoriaId]);
+            $query->where('categoria_id', $categoriaId);
         }
 
-        if ($request->filled('estatus')) {
-            $query->where('estatus', $request->estatus);
+        // Filtro de estatus - verificar que no sea vacío
+        $estatus = $request->get('estatus');
+        if (!empty($estatus) && trim($estatus) !== '') {
+            \Log::info('PersonalController@index - Aplicando filtro de estatus:', ['estatus' => $estatus]);
+            $query->where('estatus', $estatus);
         }
 
         // Orden - Los registros más recientes primero
@@ -64,6 +86,13 @@ class PersonalController extends Controller
 
         $personal = $query->paginate($perPage);
 
+        // DEBUG: Logging de resultados
+        \Log::info('PersonalController@index - Resultados:', [
+            'total_found' => $personal->total(),
+            'per_page' => $perPage,
+            'current_page' => $personal->currentPage()
+        ]);
+
         // Respuesta híbrida
         if ($request->expectsJson()) {
             return response()->json([
@@ -74,15 +103,26 @@ class PersonalController extends Controller
         }
 
         // Obtener opciones para filtros
-        $categoriasOptions = CategoriaPersonal::select('id', 'nombre_categoria')
+        $categorias = CategoriaPersonal::select('id', 'nombre_categoria')
             ->orderBy('nombre_categoria')
             ->get();
 
         $estatusDisponibles = ['activo', 'inactivo'];
 
+        // DEBUG: Logging de datos enviados a la vista
+        \Log::info('PersonalController@index - Datos enviados a vista:', [
+            'personal_count' => $personal->count(),
+            'categorias_count' => $categorias->count(),
+            'request_params_for_view' => [
+                'buscar' => $request->get('buscar'),
+                'estatus' => $request->get('estatus'),
+                'categoria_id' => $request->get('categoria_id')
+            ]
+        ]);
+
         return view('personal.index', compact(
             'personal',
-            'categoriasOptions',
+            'categorias',
             'estatusDisponibles'
         ));
     }

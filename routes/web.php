@@ -7,6 +7,8 @@ use App\Http\Controllers\MantenimientoAlertasController;
 use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\PersonalCompleteController;
 use App\Http\Controllers\PersonalManagementController;
+use App\Http\Controllers\Api\PersonalSearchController;
+use App\Http\Controllers\TestPersonalController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -185,6 +187,15 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         return view('personal.index', compact('personal', 'categorias'));
     })->name('index')->middleware('permission:ver_personal');
 
+    // Rutas de búsqueda de personal (API endpoints accesibles desde web)
+    Route::get('/search', [\App\Http\Controllers\Api\PersonalSearchController::class, 'search'])
+        ->name('search')
+        ->middleware('permission:ver_personal');
+    
+    Route::get('/suggestions', [\App\Http\Controllers\Api\PersonalSearchController::class, 'suggestions'])
+        ->name('suggestions')
+        ->middleware('permission:ver_personal');
+
     // Ruta para mostrar formulario de crear personal (usando categorías reales de BD)
     Route::get('/create', function () {
         // Obtener categorías reales de la base de datos
@@ -354,6 +365,17 @@ Route::middleware('auth')->prefix('personal')->name('personal.')->group(function
         return redirect()->route('personal.index')
             ->with('success', "Personal '{$nombre}' eliminado exitosamente.");
     })->name('destroy')->middleware('permission:eliminar_personal');
+});
+
+// Rutas de búsqueda de personal (API endpoints accesibles desde web)
+Route::middleware('auth')->prefix('personal')->name('personal.')->group(function () {
+    Route::get('search', [App\Http\Controllers\Api\PersonalSearchController::class, 'search'])
+        ->name('search')
+        ->middleware('permission:ver_personal');
+    
+    Route::get('suggestions', [App\Http\Controllers\Api\PersonalSearchController::class, 'suggestions'])
+        ->name('suggestions')
+        ->middleware('permission:ver_personal');
 });
 
 // Rutas para Documentos
@@ -896,3 +918,7 @@ Route::middleware('auth')->prefix('api/operadores')->group(function () {
     Route::get('/{operador}/obras/{obraId}/estadisticas', [App\Http\Controllers\OperadorObraController::class, 'apiEstadisticasOperadorEnObra'])
         ->middleware('permission:ver_personal');
 });
+
+// Ruta de prueba para filtros de personal
+Route::get('/test-personal-filtros', [TestPersonalController::class, 'testFiltros'])
+    ->middleware('auth');
