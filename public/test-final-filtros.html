@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Filtros Personal - FINAL</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .test-section { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #007bff; }
+        .test-form { background: #e9ecef; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .form-row { display: flex; gap: 15px; align-items: end; margin-bottom: 15px; }
+        .form-group { flex: 1; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .results { background: #d4edda; padding: 10px; border-radius: 4px; margin-top: 10px; }
+        .error { background: #f8d7da; padding: 10px; border-radius: 4px; margin-top: 10px; }
+        .direct-link { background: #fff3cd; padding: 10px; border-radius: 4px; margin: 5px 0; }
+        .direct-link a { color: #856404; font-weight: bold; text-decoration: none; }
+        .direct-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test FINAL - Filtros de Personal</h1>
+        
+        <div class="test-section">
+            <h2>📊 Datos Disponibles</h2>
+            <p><strong>Personal:</strong> 2 registros (Administrador Sistema, test)</p>
+            <p><strong>Estatus:</strong> Ambos son 'activo'</p>
+            <p><strong>Categoría:</strong> Ambos son categoría '1' (Admin)</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🔗 Tests Directos (URLs con parámetros)</h2>
+            <p>Estos enlaces van directamente al controlador con parámetros. Si funcionan, el backend está bien.</p>
+            
+            <div class="direct-link">
+                <strong>Sin filtros:</strong><br>
+                <a href="http://127.0.0.1:8000/personal" target="_blank">http://127.0.0.1:8000/personal</a>
+                <div class="results">Esperado: 2 personas</div>
+            </div>
+
+            <div class="direct-link">
+                <strong>Filtro Estatus:</strong><br>
+                <a href="http://127.0.0.1:8000/personal?estatus=activo" target="_blank">http://127.0.0.1:8000/personal?estatus=activo</a>
+                <div class="results">Esperado: 2 personas + dropdown "Activo" seleccionado</div>
+            </div>
+
+            <div class="direct-link">
+                <strong>Filtro Categoría:</strong><br>
+                <a href="http://127.0.0.1:8000/personal?categoria_id=1" target="_blank">http://127.0.0.1:8000/personal?categoria_id=1</a>
+                <div class="results">Esperado: 2 personas + dropdown "Admin" seleccionado</div>
+            </div>
+
+            <div class="direct-link">
+                <strong>Ambos Filtros:</strong><br>
+                <a href="http://127.0.0.1:8000/personal?estatus=activo&categoria_id=1" target="_blank">http://127.0.0.1:8000/personal?estatus=activo&categoria_id=1</a>
+                <div class="results">Esperado: 2 personas + ambos dropdowns seleccionados</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📝 Formulario Manual</h2>
+            <p>Este formulario replica exactamente lo que debería hacer la página de personal.</p>
+            
+            <div class="test-form">
+                <form method="GET" action="http://127.0.0.1:8000/personal" target="_blank">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="buscar">Buscar:</label>
+                            <input type="text" id="buscar" name="buscar" placeholder="Ej: ad">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="estatus">Estado:</label>
+                            <select id="estatus" name="estatus">
+                                <option value="">Todos</option>
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="categoria_id">Categoría:</label>
+                            <select id="categoria_id" name="categoria_id">
+                                <option value="">Todas</option>
+                                <option value="1">Admin</option>
+                                <option value="2">Operador</option>
+                                <option value="3">Responsable de obra</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="submit">🔍 Filtrar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔧 Tests Específicos</h2>
+            
+            <div class="test-form">
+                <h3>Solo Estatus = Activo</h3>
+                <form method="GET" action="http://127.0.0.1:8000/personal" target="_blank">
+                    <input type="hidden" name="estatus" value="activo">
+                    <button type="submit">Test Estatus Activo</button>
+                </form>
+                <div class="results">Debe mostrar 2 personas con "Activo" seleccionado</div>
+            </div>
+
+            <div class="test-form">
+                <h3>Solo Categoría = Admin (ID 1)</h3>
+                <form method="GET" action="http://127.0.0.1:8000/personal" target="_blank">
+                    <input type="hidden" name="categoria_id" value="1">
+                    <button type="submit">Test Categoría Admin</button>
+                </form>
+                <div class="results">Debe mostrar 2 personas con "Admin" seleccionado</div>
+            </div>
+
+            <div class="test-form">
+                <h3>Búsqueda = "ad"</h3>
+                <form method="GET" action="http://127.0.0.1:8000/personal" target="_blank">
+                    <input type="hidden" name="buscar" value="ad">
+                    <button type="submit">Test Búsqueda</button>
+                </form>
+                <div class="results">Debe mostrar 1 persona (Administrador Sistema)</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 Instrucciones</h2>
+            <ol>
+                <li><strong>Paso 1:</strong> Asegúrate de estar logueado en <a href="http://127.0.0.1:8000/login" target="_blank">http://127.0.0.1:8000/login</a></li>
+                <li><strong>Paso 2:</strong> Prueba los "Tests Directos" (enlaces azules)</li>
+                <li><strong>Paso 3:</strong> Usa los "Tests Específicos" (botones)</li>
+                <li><strong>Paso 4:</strong> Verifica que los dropdowns muestren la opción correcta seleccionada</li>
+                <li><strong>Paso 5:</strong> Si todo funciona aquí pero no en la página original, el problema es JavaScript</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h2>🚨 Diagnóstico</h2>
+            <div class="error">
+                <strong>Si los tests directos NO funcionan:</strong><br>
+                • Problema en el controlador PersonalController<br>
+                • Problema en el modelo Personal<br>
+                • Problema de autenticación/permisos
+            </div>
+            
+            <div class="results">
+                <strong>Si los tests directos SÍ funcionan:</strong><br>
+                • El backend está perfecto<br>
+                • El problema está en el JavaScript de la página personal/index.blade.php<br>
+                • Necesita simplificar el JavaScript o arreglar event listeners
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Log para debug
+        console.log('Página de test cargada');
+        console.log('Si ves este mensaje, JavaScript está funcionando');
+        
+        // Test simple de fetch
+        function testFetch() {
+            fetch('http://127.0.0.1:8000/personal?estatus=activo')
+                .then(response => {
+                    console.log('Test fetch response:', response.status);
+                })
+                .catch(error => {
+                    console.error('Test fetch error:', error);
+                });
+        }
+        
+        // Ejecutar test en 2 segundos
+        setTimeout(testFetch, 2000);
+    </script>
+</body>
+</html>

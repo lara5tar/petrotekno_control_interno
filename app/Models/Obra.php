@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -231,6 +232,36 @@ class Obra extends Model
         return $this->hasMany(HistorialOperadorVehiculo::class, 'obra_id')
             ->with(['operadorNuevo', 'vehiculo', 'usuarioAsigno'])
             ->orderBy('fecha_asignacion', 'desc');
+    }
+
+    /**
+     * Relación con el historial de responsables asignados a esta obra
+     */
+    public function historialResponsables(): HasMany
+    {
+        return $this->hasMany(AsignacionObraResponsable::class, 'obra_id')
+            ->with(['responsable', 'usuarioAsigno', 'usuarioLibero'])
+            ->orderBy('fecha_asignacion', 'desc');
+    }
+
+    /**
+     * Relación con el responsable actual de la obra
+     */
+    public function responsableActual(): HasOne
+    {
+        return $this->hasOne(AsignacionObraResponsable::class, 'obra_id')
+            ->where('estado', AsignacionObraResponsable::ESTADO_ACTIVA)
+            ->with(['responsable']);
+    }
+
+    /**
+     * Relación con todas las asignaciones activas de responsables
+     */
+    public function asignacionesResponsableActivas(): HasMany
+    {
+        return $this->hasMany(AsignacionObraResponsable::class, 'obra_id')
+            ->where('estado', AsignacionObraResponsable::ESTADO_ACTIVA)
+            ->with(['responsable', 'usuarioAsigno']);
     }
 
     /**
@@ -726,5 +757,133 @@ class Obra extends Model
             self::ESTATUS_EN_PROGRESO,
             self::ESTATUS_SUSPENDIDA
         ]);
+    }
+
+    /**
+     * =====================================================
+     * MÉTODOS PARA GESTIÓN DE HISTORIAL DE RESPONSABLES
+     * =====================================================
+     */
+
+    /**
+     * Asignar un nuevo responsable a la obra
+     */
+    public function asignarResponsable(int $responsableId, int $usuarioAsignoId = null, string $motivo = null): AsignacionObraResponsable
+    {
+        // Liberar el responsable actual si existe
+        $responsableActualAsignacion = $this->responsableActual;
+        if ($responsableActualAsignacion) {
+            $responsableActualAsignacion->liberar(
+                'Cambio de responsable', 
+                $usuarioAsignoId,
+                'Liberado automáticamente por cambio de responsable'
+            );
+        }
+
+        // Crear nueva asignación
+        return AsignacionObraResponsable::create([
+            'obra_id' => $this->id,
+            'responsable_id' => $responsableId,
+            'fecha_asignacion' => now(),
+            'usuario_asigno_id' => $usuarioAsignoId,
+            'motivo_asignacion' => $motivo ?? 'Asignación de responsable',
+            'estado' => AsignacionObraResponsable::ESTADO_ACTIVA,
+        ]);
+    }
+
+    /**
+     * Liberar el responsable actual de la obra
+     */
+    public function liberarResponsable(string $motivo = null, int $usuarioLiberoId = null): bool
+    {
+        $responsableActual = $this->responsableActual;
+        
+        if (!$responsableActual) {
+            throw new \Exception('La obra no tiene un responsable activo asignado');
+        }
+
+        return $responsableActual->liberar($motivo, $usuarioLiberoId);
+    }
+
+    /**
+     * Transferir la responsabilidad de la obra a otro personal
+     */
+    public function transferirResponsable(int $nuevoResponsableId, string $motivo = null, int $usuarioId = null): AsignacionObraResponsable
+    {
+        $responsableActual = $this->responsableActual;
+        
+        if (!$responsableActual) {
+            throw new \Exception('La obra no tiene un responsable activo para transferir');
+        }
+
+        return $responsableActual->transferir($nuevoResponsableId, $motivo, $usuarioId);
+    }
+
+    /**
+     * Obtener el responsable actual de la obra
+     */
+    public function getResponsableActual(): ?Personal
+    {
+        $asignacion = $this->responsableActual;
+        return $asignacion ? $asignacion->responsable : null;
+    }
+
+    /**
+     * Verificar si la obra tiene un responsable activo
+     */
+    public function tieneResponsableActivo(): bool
+    {
+        return $this->responsableActual !== null;
+    }
+
+    /**
+     * Obtener resumen del historial de responsables
+     */
+    public function getResumenResponsables(): array
+    {
+        $historial = $this->historialResponsables;
+        $responsableActual = $this->getResponsableActual();
+
+        return [
+            'responsable_actual' => [
+                'personal' => $responsableActual,
+                'asignacion' => $this->responsableActual,
+                'dias_asignado' => $this->responsableActual?->dias_asignado ?? 0
+            ],
+            'historial' => [
+                'total_asignaciones' => $historial->count(),
+                'total_responsables_diferentes' => $historial->pluck('responsable_id')->unique()->count(),
+                'asignaciones_activas' => $historial->where('estado', AsignacionObraResponsable::ESTADO_ACTIVA)->count(),
+                'asignaciones_liberadas' => $historial->where('estado', AsignacionObraResponsable::ESTADO_LIBERADA)->count(),
+                'asignaciones_transferidas' => $historial->where('estado', AsignacionObraResponsable::ESTADO_TRANSFERIDA)->count(),
+                'detalles' => $historial
+            ]
+        ];
+    }
+
+    /**
+     * Scope para obras con responsable actual
+     */
+    public function scopeConResponsableActivo($query)
+    {
+        return $query->whereHas('responsableActual');
+    }
+
+    /**
+     * Scope para obras sin responsable actual
+     */
+    public function scopeSinResponsableActivo($query)
+    {
+        return $query->whereDoesntHave('responsableActual');
+    }
+
+    /**
+     * Scope para obras de un responsable específico
+     */
+    public function scopeDelResponsable($query, int $responsableId)
+    {
+        return $query->whereHas('responsableActual', function ($q) use ($responsableId) {
+            $q->where('responsable_id', $responsableId);
+        });
     }
 }
