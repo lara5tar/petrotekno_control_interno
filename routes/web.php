@@ -154,38 +154,17 @@ Route::post('/personal', [App\Http\Controllers\PersonalManagementController::cla
 
 // Rutas para Personal CRUD
 Route::middleware('auth')->prefix('personal')->name('personal.')->group(function () {
-    // Ruta para listar personal (datos reales de la base de datos)
-    Route::get('/', function (\Illuminate\Http\Request $request) {
-        // Obtener categorías reales de la base de datos
-        $categorias = \App\Models\CategoriaPersonal::orderBy('nombre_categoria')->get();
+    // Ruta para listar personal (usar PersonalController como vehículos)
+    Route::get('/', [App\Http\Controllers\PersonalController::class, 'index'])->name('index')->middleware('permission:ver_personal');
 
-        // Construir consulta para personal con filtros
-        $query = \App\Models\Personal::with('categoria', 'usuario');
-
-        // Aplicar filtros si existen
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('nombre_completo', 'like', "%{$search}%")
-                    ->orWhereHas('categoria', function ($cq) use ($search) {
-                        $cq->where('nombre_categoria', 'like', "%{$search}%");
-                    });
-            });
-        }
-
-        if ($request->has('categoria_id') && $request->input('categoria_id') !== '') {
-            $query->where('categoria_id', $request->input('categoria_id'));
-        }
-
-        if ($request->has('estatus') && $request->input('estatus') !== '') {
-            $query->where('estatus', $request->input('estatus'));
-        }
-
-        // Paginar resultados - ordenar por ID descendente
-        $personal = $query->reorder('personal.id', 'asc')->paginate(15);
-
-        return view('personal.index', compact('personal', 'categorias'));
-    })->name('index')->middleware('permission:ver_personal');
+    // Rutas para descargar reportes de personal
+    Route::get('/descargar-pdf', [App\Http\Controllers\PersonalController::class, 'descargarReportePdf'])
+        ->name('descargar-reporte-pdf')
+        ->middleware('permission:ver_personal');
+    
+    Route::get('/descargar-excel', [App\Http\Controllers\PersonalController::class, 'descargarReporteExcel'])
+        ->name('descargar-reporte-excel')
+        ->middleware('permission:ver_personal');
 
     // Rutas de búsqueda de personal (API endpoints accesibles desde web)
     Route::get('/search', [\App\Http\Controllers\Api\PersonalSearchController::class, 'search'])

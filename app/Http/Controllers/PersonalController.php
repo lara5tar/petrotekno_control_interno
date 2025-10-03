@@ -18,7 +18,6 @@ class PersonalController extends Controller
 {
     /**
      * Display a listing of the resource.
-     * Patrón Híbrido: API (JSON) + Blade (View)
      */
     public function index(Request $request)
     {
@@ -34,64 +33,28 @@ class PersonalController extends Controller
             return redirect()->back()->with('error', 'No tienes permisos para acceder a esta sección');
         }
 
-        // DEBUG: Logging de parámetros recibidos
-        \Log::info('PersonalController@index - Parámetros recibidos:', [
-            'all_params' => $request->all(),
-            'buscar' => $request->get('buscar'),
-            'estatus' => $request->get('estatus'),
-            'categoria_id' => $request->get('categoria_id'),
-            'filled_checks' => [
-                'buscar' => $request->filled('buscar'),
-                'search' => $request->filled('search'),
-                'estatus' => $request->filled('estatus'),
-                'categoria_id' => $request->filled('categoria_id')
-            ]
-        ]);
-
         $query = Personal::with('categoria');
 
-        // Filtros - IMPORTANTE: Verificar que no sean strings vacíos
-        // Buscar también acepta el parámetro 'search'
-        $searchTerm = $request->get('buscar', $request->get('search'));
-        if (!empty($searchTerm) && trim($searchTerm) !== '') {
-            \Log::info('PersonalController@index - Aplicando filtro de búsqueda:', ['search' => $searchTerm]);
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('nombre_completo', 'like', "%{$searchTerm}%")
-                    ->orWhereHas('categoria', function ($cq) use ($searchTerm) {
-                        $cq->where('nombre_categoria', 'like', "%{$searchTerm}%");
-                    });
-            });
+        // Aplicar filtros - IGUAL QUE VEHICULOS
+        if ($request->filled('buscar')) {
+            $termino = $request->get('buscar');
+            $query->buscar($termino);
         }
 
-        // Filtro de categoría - verificar que no sea vacío
-        $categoriaId = $request->get('categoria_id');
-        if (!empty($categoriaId) && trim($categoriaId) !== '') {
-            \Log::info('PersonalController@index - Aplicando filtro de categoría:', ['categoria_id' => $categoriaId]);
-            $query->where('categoria_id', $categoriaId);
+        if ($request->filled('estatus')) {
+            $query->where('estatus', $request->get('estatus'));
         }
 
-        // Filtro de estatus - verificar que no sea vacío
-        $estatus = $request->get('estatus');
-        if (!empty($estatus) && trim($estatus) !== '') {
-            \Log::info('PersonalController@index - Aplicando filtro de estatus:', ['estatus' => $estatus]);
-            $query->where('estatus', $estatus);
+        if ($request->filled('categoria_id')) {
+            $query->where('categoria_id', $request->get('categoria_id'));
         }
 
-        // Orden - Los registros más recientes primero
-        $query->reorder('personal.id', 'desc');
+        $personal = $query->orderBy('id')->paginate(15);
 
-        // Paginación
-        $perPage = $request->get('per_page', 15);
-        $perPage = max(1, min($perPage, 100)); // Asegurar que esté entre 1 y 100
-
-        $personal = $query->paginate($perPage);
-
-        // DEBUG: Logging de resultados
-        \Log::info('PersonalController@index - Resultados:', [
-            'total_found' => $personal->total(),
-            'per_page' => $perPage,
-            'current_page' => $personal->currentPage()
-        ]);
+        // Obtener opciones para filtros
+        $categorias = CategoriaPersonal::select('id', 'nombre_categoria')
+            ->orderBy('nombre_categoria')
+            ->get();
 
         // Respuesta híbrida
         if ($request->expectsJson()) {
@@ -102,29 +65,7 @@ class PersonalController extends Controller
             ]);
         }
 
-        // Obtener opciones para filtros
-        $categorias = CategoriaPersonal::select('id', 'nombre_categoria')
-            ->orderBy('nombre_categoria')
-            ->get();
-
-        $estatusDisponibles = ['activo', 'inactivo'];
-
-        // DEBUG: Logging de datos enviados a la vista
-        \Log::info('PersonalController@index - Datos enviados a vista:', [
-            'personal_count' => $personal->count(),
-            'categorias_count' => $categorias->count(),
-            'request_params_for_view' => [
-                'buscar' => $request->get('buscar'),
-                'estatus' => $request->get('estatus'),
-                'categoria_id' => $request->get('categoria_id')
-            ]
-        ]);
-
-        return view('personal.index', compact(
-            'personal',
-            'categorias',
-            'estatusDisponibles'
-        ));
+        return view('personal.index', compact('personal', 'categorias'));
     }
 
     /**
@@ -743,5 +684,174 @@ class PersonalController extends Controller
                 ->back()
                 ->withErrors(['error' => 'Error al eliminar el personal: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * Descargar reporte de personal filtrado en formato PDF
+     */
+    public function descargarReportePdf(Request $request)
+    {
+        // Verificar permisos
+        if (! $request->user()->hasPermission('ver_personal')) {
+            abort(403, 'No tienes permiso para descargar reportes de personal');
+        }
+
+        // Aplicar los mismos filtros que en el index
+        $query = Personal::with(['categoria']);
+
+        $buscar = $request->get('buscar');
+        $categoriaId = $request->get('categoria_id');
+        $estatus = $request->get('estatus');
+
+        if (!empty($buscar) && trim($buscar) !== '') {
+            $termino = trim($buscar);
+            $query->where(function ($q) use ($termino) {
+                $q->where('nombre_completo', 'like', "%{$termino}%")
+                  ->orWhere('rfc', 'like', "%{$termino}%")
+                  ->orWhere('curp', 'like', "%{$termino}%")
+                  ->orWhere('nss', 'like', "%{$termino}%");
+            });
+        }
+
+        if (!empty($categoriaId) && trim($categoriaId) !== '') {
+            $query->where('categoria_id', trim($categoriaId));
+        }
+
+        if (!empty($estatus) && trim($estatus) !== '') {
+            $query->where('estatus', trim($estatus));
+        }
+
+        // Obtener personal
+        $personal = $query->orderBy('id')->limit(5000)->get();
+
+        // Preparar estadísticas
+        $estadisticas = [
+            'total' => $personal->count(),
+            'activos' => $personal->where('estatus', 'activo')->count(),
+            'inactivos' => $personal->where('estatus', 'inactivo')->count(),
+        ];
+
+        // Preparar filtros aplicados
+        $filtrosAplicados = [
+            'buscar' => $request->get('buscar'),
+            'categoria_id' => $request->get('categoria_id'),
+            'estatus' => $request->get('estatus'),
+        ];
+
+        // Generar PDF usando DomPDF
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.reportes.personal-filtrado', [
+            'personal' => $personal,
+            'estadisticas' => $estadisticas,
+            'filtros' => $filtrosAplicados,
+        ]);
+
+        return $pdf->download('reporte-personal-' . now()->format('Y-m-d-H-i-s') . '.pdf');
+    }
+
+    /**
+     * Descargar reporte de personal filtrado en formato Excel
+     */
+    public function descargarReporteExcel(Request $request)
+    {
+        // Verificar permisos
+        if (! $request->user()->hasPermission('ver_personal')) {
+            abort(403, 'No tienes permiso para descargar reportes de personal');
+        }
+
+        // Aplicar los mismos filtros que en el index
+        $query = Personal::with(['categoria']);
+
+        $buscar = $request->get('buscar');
+        $categoriaId = $request->get('categoria_id');
+        $estatus = $request->get('estatus');
+
+        if (!empty($buscar) && trim($buscar) !== '') {
+            $termino = trim($buscar);
+            $query->where(function ($q) use ($termino) {
+                $q->where('nombre_completo', 'like', "%{$termino}%")
+                  ->orWhere('rfc', 'like', "%{$termino}%")
+                  ->orWhere('curp_numero', 'like', "%{$termino}%")
+                  ->orWhere('nss', 'like', "%{$termino}%")
+                  ->orWhere('ine', 'like', "%{$termino}%");
+            });
+        }
+
+        if (!empty($categoriaId) && trim($categoriaId) !== '') {
+            $query->where('categoria_id', trim($categoriaId));
+        }
+
+        if (!empty($estatus) && trim($estatus) !== '') {
+            $query->where('estatus', trim($estatus));
+        }
+
+        // Obtener personal
+        $personal = $query->orderBy('id')->limit(10000)->get();
+
+        // Preparar datos para Excel
+        $data = [];
+        $data[] = ['ID', 'Nombre Completo', 'Categoría', 'RFC', 'CURP', 'NSS', 'INE', 'Licencia', 'Dirección', 'Estado', 'Fecha Registro'];
+        
+        foreach ($personal as $persona) {
+            $data[] = [
+                $persona->id,
+                $persona->nombre_completo,
+                $persona->categoria->nombre_categoria ?? 'Sin categoría',
+                $persona->rfc ?: 'N/A',
+                $persona->curp_numero ?: 'N/A',
+                $persona->nss ?: 'N/A',
+                $persona->ine ?: 'N/A',
+                $persona->no_licencia ?: 'N/A',
+                $persona->direccion ?: 'N/A',
+                ucfirst($persona->estatus),
+                $persona->created_at->format('d/m/Y'),
+            ];
+        }
+
+        // Crear archivo Excel simple
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Agregar título
+        $sheet->setCellValue('A1', 'Reporte de Personal');
+        $sheet->mergeCells('A1:K1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+        $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        
+        // Agregar fecha
+        $sheet->setCellValue('A2', 'Fecha: ' . now()->format('d/m/Y H:i:s'));
+        $sheet->mergeCells('A2:K2');
+        
+        // Agregar datos
+        $row = 4;
+        foreach ($data as $rowData) {
+            $col = 'A';
+            foreach ($rowData as $cellData) {
+                $sheet->setCellValue($col . $row, $cellData);
+                $col++;
+            }
+            $row++;
+        }
+        
+        // Estilo de encabezados
+        $sheet->getStyle('A4:K4')->getFont()->setBold(true);
+        $sheet->getStyle('A4:K4')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FFE0E0E0');
+        
+        // Ajustar ancho de columnas
+        foreach (range('A', 'K') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+        
+        // Descargar
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $filename = 'reporte-personal-' . now()->format('Y-m-d-H-i-s') . '.xlsx';
+        
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        
+        $writer->save('php://output');
+        exit;
     }
 }

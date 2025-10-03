@@ -56,7 +56,7 @@
                                id="buscar" 
                                name="buscar" 
                                value="{{ request('buscar') }}"
-                               placeholder="Buscar por nombre, categoría, RFC, NSS..." 
+                               placeholder="Buscar por nombre, RFC, CURP, NSS, INE, licencia o categoría..." 
                                class="pl-10 pr-10 p-2 border border-gray-300 rounded-lg w-full h-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                                autocomplete="off">
                         
@@ -86,6 +86,7 @@
                         <option value="">Todos</option>
                         <option value="activo" {{ request('estatus') == 'activo' ? 'selected' : '' }}>Activo</option>
                         <option value="inactivo" {{ request('estatus') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+                        <option value="suspendido" {{ request('estatus') == 'suspendido' ? 'selected' : '' }}>Suspendido</option>
                     </select>
                 </div>
                 <div class="flex-1 md:flex-none md:w-48">
@@ -101,15 +102,34 @@
                         @endforeach
                     </select>
                 </div>
-                @if(request()->hasAny(['buscar', 'categoria_id', 'estatus']))
+                
+                <!-- Botones de acción -->
                 <div class="flex flex-col">
                     <!-- Label invisible para alineación -->
                     <label class="block text-sm font-medium text-gray-700 mb-1 invisible">Acciones</label>
-                    <a href="{{ route('personal.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition duration-200 h-10 flex items-center justify-center">
-                        Limpiar
-                    </a>
+                    <div class="flex gap-2">
+                        @if(request()->hasAny(['buscar', 'categoria_id', 'estatus']))
+                            <a href="{{ route('personal.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-1.5 px-3 rounded text-sm h-10 flex items-center justify-center transition duration-200">
+                                Limpiar
+                            </a>
+                        @endif
+                        
+                        <!-- Botones de descarga compactos -->
+                        <button onclick="descargarReportePersonal('excel')" class="bg-green-600 hover:bg-green-700 text-white font-medium py-1.5 px-3 rounded text-sm h-10 flex items-center gap-1 transition duration-200" title="Descargar Excel">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Excel
+                        </button>
+                        
+                        <button onclick="descargarReportePersonal('pdf')" class="bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-3 rounded text-sm h-10 flex items-center gap-1 transition duration-200" title="Descargar PDF">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            PDF
+                        </button>
+                    </div>
                 </div>
-                @endif
             </div>
         </form>
     </div>
@@ -120,32 +140,57 @@
             <table id="personal-table" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Empleado</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Registro</th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Completo</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RFC</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CURP</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NSS</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">INE</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @if($personal->count() > 0)
                         @foreach($personal as $persona)
                             <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $persona->id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $persona->nombre_completo }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $persona->categoria->nombre_categoria ?? 'Sin categoría' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{{ $persona->id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <div class="font-medium text-gray-900">{{ $persona->nombre_completo }}</div>
+                                    @if($persona->no_licencia)
+                                        <div class="text-xs text-gray-500">Lic: {{ $persona->no_licencia }}</div>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                        {{ $persona->categoria->nombre_categoria ?? 'Sin categoría' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-xs font-mono text-gray-600">
+                                    {{ $persona->rfc ?: '-' }}
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-xs font-mono text-gray-600">
+                                    {{ $persona->curp_numero ?: '-' }}
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-xs font-mono text-gray-600">
+                                    {{ $persona->nss ?: '-' }}
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-xs font-mono text-gray-600">
+                                    {{ $persona->ine ?: '-' }}
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
                                     @if($persona->estatus === 'activo')
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
                                     @elseif($persona->estatus === 'inactivo')
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inactivo</span>
+                                    @elseif($persona->estatus === 'suspendido')
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Suspendido</span>
                                     @else
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">{{ ucfirst($persona->estatus) }}</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $persona->created_at->format('d/m/Y') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end space-x-2">
                                         @hasPermission('ver_personal')
                                         <a href="{{ route('personal.show', $persona->id) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
@@ -180,7 +225,7 @@
                     @else
                         <!-- Estado vacío dentro de la tabla -->
                         <tr>
-                            <td colspan="6" class="px-6 py-8 text-center">
+                            <td colspan="9" class="px-6 py-8 text-center">
                                 <div class="flex flex-col items-center">
                                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -242,13 +287,13 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Personal page loaded - SIMPLIFIED VERSION');
+    console.log('🚀 Personal page loaded');
     
-    // VERSIÓN ULTRA SIMPLE - SOLO FILTROS BÁSICOS
     const estadoSelect = document.getElementById('estado');
     const categoriaSelect = document.getElementById('categoria');
     const filtrosForm = document.getElementById('filtrosForm');
     const searchInput = document.getElementById('buscar');
+    const clearButton = document.getElementById('clear-search');
     
     console.log('Elements found:', {
         estadoSelect: !!estadoSelect,
@@ -257,38 +302,14 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput: !!searchInput
     });
     
-    // Función para limpiar campos vacíos antes de enviar
-    function limpiarCamposVacios() {
-        // Si el campo de búsqueda está vacío, removerlo del formulario temporalmente
-        if (searchInput && searchInput.value.trim() === '') {
-            searchInput.removeAttribute('name');
-        } else if (searchInput) {
-            searchInput.setAttribute('name', 'buscar');
-        }
-        
-        // Si estado está en "Todos", removerlo
-        if (estadoSelect && estadoSelect.value === '') {
-            estadoSelect.removeAttribute('name');
-        } else if (estadoSelect) {
-            estadoSelect.setAttribute('name', 'estatus');
-        }
-        
-        // Si categoría está en "Todos", removerlo
-        if (categoriaSelect && categoriaSelect.value === '') {
-            categoriaSelect.removeAttribute('name');
-        } else if (categoriaSelect) {
-            categoriaSelect.setAttribute('name', 'categoria_id');
-        }
-    }
-    
-    // Función simple: limpiar y submit del formulario
+    // Función simple: submit del formulario
     function aplicarFiltros() {
-        console.log('📤 Submitting form with filters...');
-        console.log('Estado:', estadoSelect ? estadoSelect.value : 'N/A');
-        console.log('Categoría:', categoriaSelect ? categoriaSelect.value : 'N/A');
+        console.log('📤 Submitting form');
+        console.log('Buscar:', searchInput?.value || '');
+        console.log('Estado:', estadoSelect?.value || '');
+        console.log('Categoría:', categoriaSelect?.value || '');
         
         if (filtrosForm) {
-            limpiarCamposVacios();
             filtrosForm.submit();
         }
     }
@@ -309,25 +330,37 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Búsqueda básica (solo input, sin AJAX)
+    // Búsqueda con debounce
     if (searchInput) {
         let searchTimeout;
+        
+        // Mostrar/ocultar botón de limpiar
+        function toggleClearButton() {
+            if (clearButton) {
+                if (searchInput.value.trim() !== '') {
+                    clearButton.classList.remove('hidden');
+                } else {
+                    clearButton.classList.add('hidden');
+                }
+            }
+        }
+        
+        toggleClearButton();
         
         searchInput.addEventListener('input', function() {
             const value = this.value;
             console.log('🔍 Search input:', value);
             
+            toggleClearButton();
+            
             // Clear previous timeout
             clearTimeout(searchTimeout);
             
-            // Simple debounce - submit form after 1 second of no typing
+            // Debounce - submit form after 800ms of no typing
             searchTimeout = setTimeout(function() {
-                if (value.length >= 2 || value.length === 0) {
-                    console.log('📤 Submitting search form...');
-                    limpiarCamposVacios();
-                    filtrosForm.submit();
-                }
-            }, 1000);
+                console.log('📤 Submitting search form...');
+                aplicarFiltros();
+            }, 800);
         });
         
         // Submit on Enter
@@ -335,16 +368,88 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 console.log('⏎ Enter pressed, submitting form...');
-                limpiarCamposVacios();
-                filtrosForm.submit();
+                clearTimeout(searchTimeout);
+                aplicarFiltros();
             }
         });
     }
     
-    // Event listener para el botón Filtrar
-    // REMOVIDO: Ya no necesitamos botón filtrar - filtrado automático
+    // Botón para limpiar búsqueda
+    if (clearButton && searchInput) {
+        clearButton.addEventListener('click', function() {
+            console.log('🧹 Clearing search');
+            searchInput.value = '';
+            clearButton.classList.add('hidden');
+            aplicarFiltros();
+        });
+    }
     
-    console.log('✅ Simple filters initialized');
+    console.log('✅ Filters initialized');
 });
+
+// Función para descargar reportes de Personal
+function descargarReportePersonal(tipo) {
+    // Obtener los parámetros de filtro actuales
+    const urlParams = new URLSearchParams(window.location.search);
+    const filtros = {};
+    
+    // Capturar filtros de la URL
+    if (urlParams.get('buscar')) {
+        filtros.buscar = urlParams.get('buscar');
+    }
+    if (urlParams.get('estatus')) {
+        filtros.estatus = urlParams.get('estatus');
+    }
+    if (urlParams.get('categoria_id')) {
+        filtros.categoria_id = urlParams.get('categoria_id');
+    }
+    
+    // Si hay una búsqueda activa en tiempo real, usar ese término
+    const searchInput = document.getElementById('buscar');
+    if (searchInput && searchInput.value.trim()) {
+        filtros.buscar = searchInput.value.trim();
+    }
+    
+    console.log(`Generando reporte ${tipo.toUpperCase()} de Personal con filtros:`, filtros);
+    
+    // Construir la URL de descarga (necesitarás crear estas rutas en el controlador)
+    let url;
+    if (tipo === 'pdf') {
+        url = '{{ route("personal.index") }}/descargar-pdf';
+    } else if (tipo === 'excel') {
+        url = '{{ route("personal.index") }}/descargar-excel';
+    }
+    
+    // Agregar parámetros de filtro a la URL
+    const params = new URLSearchParams(filtros);
+    if (params.toString()) {
+        url += '?' + params.toString();
+    }
+    
+    // Mostrar indicador de carga en el botón
+    const boton = event.target.closest('button');
+    const textoOriginal = boton.innerHTML;
+    boton.disabled = true;
+    boton.innerHTML = `
+        <svg class="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+    `;
+    
+    // Crear enlace temporal para descarga
+    const link = document.createElement('a');
+    link.href = url;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Restaurar botón después de un breve delay
+    setTimeout(() => {
+        boton.disabled = false;
+        boton.innerHTML = textoOriginal;
+    }, 2000);
+}
 </script>
 @endpush

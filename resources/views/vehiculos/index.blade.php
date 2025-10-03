@@ -359,5 +359,88 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('✅ Simple filters initialized');
 });
+
+// Función para descargar reportes manteniendo los filtros aplicados
+function descargarReporte(tipo) {
+    // Obtener los parámetros de filtro actuales
+    const urlParams = new URLSearchParams(window.location.search);
+    const filtros = {};
+    
+    // Capturar filtros de la URL
+    if (urlParams.get('buscar')) {
+        filtros.buscar = urlParams.get('buscar');
+    }
+    if (urlParams.get('estado')) {
+        filtros.estado = urlParams.get('estado');
+    }
+    if (urlParams.get('anio')) {
+        filtros.anio = urlParams.get('anio');
+    }
+    
+    // Si hay una búsqueda activa en tiempo real, usar ese término
+    const searchInput = document.getElementById('buscar');
+    if (searchInput && searchInput.value.trim()) {
+        filtros.buscar = searchInput.value.trim();
+    }
+    
+    // Capturar estado actual del filtro
+    const estadoSelect = document.getElementById('estado');
+    if (estadoSelect && estadoSelect.value) {
+        filtros.estado = estadoSelect.value;
+    }
+    
+    // Mostrar información sobre filtros aplicados
+    let filtrosInfo = [];
+    if (filtros.buscar) filtrosInfo.push(`Búsqueda: "${filtros.buscar}"`);
+    if (filtros.estado) filtrosInfo.push(`Estado: "${filtros.estado}"`);
+    if (filtros.anio) filtrosInfo.push(`Año: "${filtros.anio}"`);
+    
+    const tipoReporte = tipo === 'pdf' ? 'PDF' : 'Excel';
+    if (filtrosInfo.length > 0) {
+        console.log(`Generando reporte ${tipoReporte} con filtros: ${filtrosInfo.join(', ')}`);
+    } else {
+        console.log(`Generando reporte ${tipoReporte} de todos los vehículos`);
+    }
+    
+    // Construir la URL de descarga
+    let url;
+    if (tipo === 'pdf') {
+        url = '{{ route("vehiculos.descargar-reporte-pdf") }}';
+    } else if (tipo === 'excel') {
+        url = '{{ route("vehiculos.descargar-reporte-excel") }}';
+    }
+    
+    // Agregar parámetros de filtro a la URL
+    const params = new URLSearchParams(filtros);
+    if (params.toString()) {
+        url += '?' + params.toString();
+    }
+    
+    // Mostrar indicador de carga
+    const boton = event.target.closest('button');
+    const textoOriginal = boton.innerHTML;
+    boton.disabled = true;
+    boton.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Generando...
+    `;
+    
+    // Crear enlace temporal para descarga
+    const link = document.createElement('a');
+    link.href = url;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Restaurar botón después de un breve delay
+    setTimeout(() => {
+        boton.disabled = false;
+        boton.innerHTML = textoOriginal;
+    }, 2000);
+}
 </script>
 @endpush

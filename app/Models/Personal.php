@@ -236,4 +236,22 @@ class Personal extends Model
             $q->whereNull('fecha_liberacion');
         });
     }
+
+    /**
+     * Scope para búsqueda de personal
+     */
+    public function scopeBuscar($query, $termino)
+    {
+        return $query->where(function ($q) use ($termino) {
+            $q->where('nombre_completo', 'like', "%{$termino}%")
+                ->orWhere('rfc', 'like', "%{$termino}%")
+                ->orWhere('curp_numero', 'like', "%{$termino}%")
+                ->orWhere('nss', 'like', "%{$termino}%")
+                ->orWhere('ine', 'like', "%{$termino}%")
+                ->orWhere('no_licencia', 'like', "%{$termino}%")
+                ->orWhereHas('categoria', function ($cq) use ($termino) {
+                    $cq->where('nombre_categoria', 'like', "%{$termino}%");
+                });
+        });
+    }
 }
