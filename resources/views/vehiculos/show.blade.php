@@ -1623,25 +1623,29 @@
     </a>
 
     <!-- Botón Eliminar -->
-    <form action="{{ route('vehiculos.destroy', $vehiculo->id) }}" 
-          method="POST" 
-          class="inline" 
-          onsubmit="return confirm('¿Estás seguro de que quieres eliminar este activo? Esta acción no se puede deshacer.')">
-        @csrf
-        @method('DELETE')
-        <button type="submit" 
-                class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 flex items-center space-x-2 shadow-lg"
-                title="Eliminar Activo">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-            </svg>
-            <span>Eliminar</span>
-        </button>
-    </form>
+    <button type="button" 
+            onclick="openDeleteModal('{{ route('vehiculos.destroy', $vehiculo->id) }}', '{{ $vehiculo->marca ?? 'Sin marca' }} {{ $vehiculo->modelo ?? 'Sin modelo' }}')"
+            class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 flex items-center space-x-2 shadow-lg"
+            title="Eliminar Activo">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+        </svg>
+        <span>Eliminar</span>
+    </button>
 </div>
 
 @endsection
+
+<!-- Modal de confirmación para eliminar vehículo -->
+<x-delete-confirmation-modal 
+    id="delete-confirmation-modal"
+    entity="el vehículo"
+    entityIdField="vehiculo-id"
+    entityDisplayField="vehiculo-info"
+    routeName="vehiculos"
+    additionalText="Esta acción no se puede deshacer y eliminará toda la información asociada al vehículo."
+/>
 
 @push('scripts')
 <script>
@@ -1656,7 +1660,8 @@
             'add-kilometraje-modal',
             'upload-document-modal',
             'registrar-mantenimiento-modal',
-            'responsable-obra-modal'
+            'responsable-obra-modal',
+            'delete-confirmation-modal'
         ];
         
         modalIds.forEach(function(modalId) {
@@ -1666,6 +1671,32 @@
                 modal.style.display = 'none';
             }
         });
+    }
+
+    // ===== FUNCIONES DEL MODAL DE ELIMINACIÓN =====
+    function openDeleteModal(deleteUrl, itemName) {
+        closeAllModals();
+        const modal = document.getElementById('delete-confirmation-modal');
+        const entityIdSpan = document.getElementById('entity-id');
+        const entityDisplaySpan = document.getElementById('entity-display');
+        const form = document.getElementById('delete-confirmation-modal-form');
+        
+        if (modal && entityIdSpan && entityDisplaySpan && form) {
+            // Extraer ID del URL (último segmento)
+            const vehiculoId = deleteUrl.split('/').pop();
+            
+            entityIdSpan.textContent = `#${vehiculoId}`;
+            entityDisplaySpan.textContent = itemName ? ` - ${itemName}` : '';
+            form.setAttribute('action', deleteUrl);
+            modal.classList.remove('hidden');
+        }
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('delete-confirmation-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
     }
 
     // Funciones para el modal de cambiar operador
@@ -2330,7 +2361,8 @@
             'cambiar-obra-modal', 
             'registrar-mantenimiento-modal',
             'responsable-obra-modal',
-            'kilometraje-modal'
+            'kilometraje-modal',
+            'delete-confirmation-modal'
         ];
         
         modalIds.forEach(modalId => {
@@ -2341,6 +2373,22 @@
                 console.log(`Modal ${modalId} forzado a oculto`);
             }
         });
+        
+        // Configurar event listeners para el modal de eliminación
+        const btnCancelarDelete = document.getElementById('delete-confirmation-modal-btn-cancelar');
+        if (btnCancelarDelete) {
+            btnCancelarDelete.addEventListener('click', closeDeleteModal);
+        }
+        
+        // Event listener para cerrar modal al hacer clic fuera
+        const deleteModal = document.getElementById('delete-confirmation-modal');
+        if (deleteModal) {
+            deleteModal.addEventListener('click', function(e) {
+                if (e.target === deleteModal) {
+                    closeDeleteModal();
+                }
+            });
+        }
         
         // Asegurar que el body no tenga overflow hidden
         document.body.style.overflow = 'auto';
