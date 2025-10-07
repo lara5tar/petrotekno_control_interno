@@ -271,6 +271,16 @@
         </div>
         @endif
     </div>
+
+    <!-- Modal de confirmación para eliminar -->
+    <x-delete-confirmation-modal 
+        id="modal-eliminar"
+        entity="el activo"
+        entityIdField="activo-id"
+        entityDisplayField="activo-placas"
+        routeName="vehiculos"
+        additionalText="Esta acción no se puede deshacer."
+    />
 @endsection
 
 @push('scripts')
@@ -358,6 +368,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     console.log('✅ Simple filters initialized');
+});
+
+// Función para manejar eliminación de vehículos usando el componente reutilizable
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar el modal de eliminación con configuración específica para vehículos
+    if (typeof window.initDeleteModal === 'function') {
+        window.initDeleteModal({
+            modalId: 'modal-eliminar',
+            entityIdField: 'activo-id',
+            entityDisplayField: 'activo-placas',
+            deleteButtonSelector: '.btn-eliminar',
+            baseUrl: '{{ url("vehiculos") }}'
+        });
+    } else {
+        console.error('Error: initDeleteModal no está disponible');
+    }
 });
 
 // Función para descargar reportes manteniendo los filtros aplicados
