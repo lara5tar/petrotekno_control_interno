@@ -72,7 +72,7 @@
     <!-- Sección de Estadísticas -->
     @if(isset($estadisticas) && count($estadisticas) > 0)
         <div class="pdf-stats-section">
-            <h3 class="stats-title">Resumen de Mantenimientos</h3>
+            <h3 class="stats-title">Resumen Ejecutivo</h3>
             <div class="stats-grid">
                 <div class="stats-row">
                     <div class="stat-item">
@@ -80,24 +80,53 @@
                         <span class="stat-label">Total Mantenimientos</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">{{ $estadisticas['por_tipo']['motor'] ?? 0 }}</span>
+                        <span class="stat-number">${{ number_format($estadisticas['costo_total'] ?? 0, 2) }}</span>
+                        <span class="stat-label">Costo Total</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">${{ number_format($estadisticas['costo_promedio'] ?? 0, 2) }}</span>
+                        <span class="stat-label">Costo Promedio</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $estadisticas['por_estado']['completados'] ?? 0 }}</span>
+                        <span class="stat-label">Completados</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $estadisticas['por_estado']['en_proceso'] ?? 0 }}</span>
+                        <span class="stat-label">En Proceso</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas por Tipo y Sistema -->
+        <div class="pdf-stats-section">
+            <h3 class="stats-title">Distribución por Tipo y Sistema</h3>
+            <div class="stats-grid">
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $estadisticas['por_tipo_servicio']['PREVENTIVO'] ?? 0 }}</span>
+                        <span class="stat-label">Preventivos</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $estadisticas['por_tipo_servicio']['CORRECTIVO'] ?? 0 }}</span>
+                        <span class="stat-label">Correctivos</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $estadisticas['por_sistema']['motor'] ?? 0 }}</span>
                         <span class="stat-label">Motor</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">{{ $estadisticas['por_tipo']['transmision'] ?? 0 }}</span>
+                        <span class="stat-number">{{ $estadisticas['por_sistema']['transmision'] ?? 0 }}</span>
                         <span class="stat-label">Transmisión</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">{{ $estadisticas['por_tipo']['hidraulico'] ?? 0 }}</span>
+                        <span class="stat-number">{{ $estadisticas['por_sistema']['hidraulico'] ?? 0 }}</span>
                         <span class="stat-label">Hidráulico</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">{{ $estadisticas['por_tipo']['otros'] ?? 0 }}</span>
-                        <span class="stat-label">Otros</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">${{ number_format($estadisticas['costo_total'] ?? 0, 2) }}</span>
-                        <span class="stat-label">Costo Total</span>
+                        <span class="stat-number">{{ $estadisticas['por_sistema']['general'] ?? 0 }}</span>
+                        <span class="stat-label">General</span>
                     </div>
                 </div>
             </div>
@@ -144,88 +173,71 @@
     <table class="pdf-table">
         <thead>
             <tr>
-                <th style="width: 6%;">#</th>
-                <th style="width: 12%;">Fecha</th>
-                <th style="width: 12%;">Tipo</th>
+                <th style="width: 4%">#</th>
+                <th style="width: 8%;">Fecha</th>
+                <th style="width: 10%;">Tipo</th>
+                <th style="width: 8%;">Sistema</th>
                 <th style="width: 25%;">Descripción</th>
-                <th style="width: 10%;">Kilometraje</th>
-                <th style="width: 12%;">Costo</th>
-                <th style="width: 15%;">Proveedor/Taller</th>
-                <th style="width: 8%;">Estado</th>
+                <th style="width: 8%;">Kilometraje</th>
+                <th style="width: 7%;">Costo</th>
             </tr>
         </thead>
         <tbody>
             @forelse($mantenimientos as $index => $mantenimiento)
                 <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
-                    <td class="text-center">
-                        {{ $mantenimiento->fecha_mantenimiento ? \Carbon\Carbon::parse($mantenimiento->fecha_mantenimiento)->format('d/m/Y') : 'N/A' }}
+                    <td class="text-center">{{ $loop->iteration }}</td>
+                    <td class="text-center font-small">
+                        {{ $mantenimiento->fecha_inicio ? $mantenimiento->fecha_inicio->format('d/m/Y') : 'N/A' }}
+                        @if($mantenimiento->fecha_fin)
+                            <br><span class="text-muted">{{ $mantenimiento->fecha_fin->format('d/m/Y') }}</span>
+                        @else
+                            <br><span class="text-muted font-small">En proceso</span>
+                        @endif
                     </td>
-                    <td class="text-center">
+                    <td class="text-center font-small">
                         @php
-                            $tipoClass = match($mantenimiento->tipo_mantenimiento) {
-                                'motor' => 'status-danger',
-                                'transmision' => 'status-warning',
-                                'hidraulico' => 'status-info',
-                                'preventivo' => 'status-normal',
-                                'correctivo' => 'status-alta',
-                                default => 'status-normal'
+                            $tipoFormatted = match($mantenimiento->tipo_mantenimiento) {
+                                'PREVENTIVO' => 'Preventivo',
+                                'CORRECTIVO' => 'Correctivo',
+                                default => ucfirst($mantenimiento->tipo_mantenimiento ?? 'N/A')
                             };
                         @endphp
-                        <span class="status-badge {{ $tipoClass }}">
-                            {{ ucfirst($mantenimiento->tipo_mantenimiento ?? 'N/A') }}
-                        </span>
+                        {{ $tipoFormatted }}
                     </td>
-                    <td>
-                        <div class="text-bold">{{ $mantenimiento->descripcion ?? 'Sin descripción' }}</div>
-                        @if($mantenimiento->observaciones)
-                            <div class="font-small text-muted">{{ Str::limit($mantenimiento->observaciones, 100) }}</div>
-                        @endif
+                    <td class="text-center font-small">
+                        @php
+                            $sistemaFormatted = match($mantenimiento->sistema_vehiculo) {
+                                'motor' => 'Motor',
+                                'transmision' => 'Transmisión',
+                                'hidraulico' => 'Hidráulico',
+                                'general' => 'General',
+                                default => ucfirst($mantenimiento->sistema_vehiculo ?? 'N/A')
+                            };
+                        @endphp
+                        {{ $sistemaFormatted }}
                     </td>
-                    <td class="text-center">
-                        @if($mantenimiento->kilometraje)
-                            <span class="text-bold">{{ number_format($mantenimiento->kilometraje) }} km</span>
+                    <td class="font-small">
+                        {{ Str::limit($mantenimiento->descripcion ?? 'Sin descripción', 80) }}
+                    </td>
+                    <td class="text-center font-small">
+                        @if($mantenimiento->kilometraje_servicio)
+                            {{ number_format($mantenimiento->kilometraje_servicio) }}
+                            <br><span class="text-muted font-small">km</span>
                         @else
-                            <span class="text-muted font-small">N/A</span>
+                            <span class="text-muted">N/A</span>
                         @endif
                     </td>
-                    <td class="text-right">
+                    <td class="text-right font-small">
                         @if($mantenimiento->costo)
-                            <span class="text-bold">${{ number_format($mantenimiento->costo, 2) }}</span>
+                            ${{ number_format($mantenimiento->costo, 2) }}
                         @else
-                            <span class="text-muted font-small">N/A</span>
+                            <span class="text-muted">N/A</span>
                         @endif
-                    </td>
-                    <td>
-                        @if($mantenimiento->proveedor)
-                            <div class="text-bold">{{ $mantenimiento->proveedor }}</div>
-                        @elseif($mantenimiento->taller)
-                            <div class="text-bold">{{ $mantenimiento->taller }}</div>
-                        @else
-                            <span class="text-muted font-small">No especificado</span>
-                        @endif
-                        @if($mantenimiento->numero_factura)
-                            <div class="font-small text-muted">Fact: {{ $mantenimiento->numero_factura }}</div>
-                        @endif
-                    </td>
-                    <td class="text-center">
-                        @php
-                            $estadoClass = match($mantenimiento->estado) {
-                                'completado' => 'status-finalizado',
-                                'en_proceso' => 'status-pendiente',
-                                'programado' => 'status-normal',
-                                'cancelado' => 'status-baja',
-                                default => 'status-normal'
-                            };
-                        @endphp
-                        <span class="status-badge {{ $estadoClass }}">
-                            {{ ucfirst(str_replace('_', ' ', $mantenimiento->estado ?? 'N/A')) }}
-                        </span>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="text-center text-muted p-15">
+                    <td colspan="7" class="text-center text-muted p-15">
                         No se encontraron mantenimientos para este vehículo
                     </td>
                 </tr>
@@ -233,43 +245,73 @@
         </tbody>
     </table>
 
-    <!-- Análisis de Costos por Tipo -->
+    <!-- Análisis de Costos por Sistema -->
     @if(count($mantenimientos) > 0)
         <div class="pdf-stats-section mt-20">
-            <h3 class="stats-title">Análisis de Costos por Tipo</h3>
+            <h3 class="stats-title">Análisis de Costos por Sistema de Vehículo</h3>
+            @php
+                $sistemasCosto = $mantenimientos->whereNotNull('costo')
+                    ->groupBy('sistema_vehiculo')
+                    ->map(function($grupo, $sistema) {
+                        return [
+                            'sistema' => match($sistema) {
+                                'motor' => 'Motor',
+                                'transmision' => 'Transmisión',
+                                'hidraulico' => 'Hidráulico',
+                                'general' => 'General',
+                                default => ucfirst($sistema)
+                            },
+                            'total_servicios' => $grupo->count(),
+                            'costo_total' => $grupo->sum('costo'),
+                            'costo_promedio' => $grupo->avg('costo')
+                        ];
+                    })
+                    ->sortByDesc('costo_total');
+            @endphp
+
             <div class="stats-grid">
                 <div class="stats-row">
-                    @php
-                        $mantenimientosConCosto = $mantenimientos->whereNotNull('costo');
-                        $costoTotal = $mantenimientosConCosto->sum('costo');
-                        $costoPromedio = $mantenimientosConCosto->count() > 0 ? $costoTotal / $mantenimientosConCosto->count() : 0;
-                        $costoMayor = $mantenimientosConCosto->max('costo');
-                        $costoMenor = $mantenimientosConCosto->min('costo');
-                        
-                        $costoPorTipo = $mantenimientosConCosto->groupBy('tipo_mantenimiento')->map(function($grupo) {
-                            return $grupo->sum('costo');
-                        });
-                    @endphp
-                    <div class="stat-item">
-                        <span class="stat-number">${{ number_format($costoTotal, 2) }}</span>
-                        <span class="stat-label">Costo Total</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">${{ number_format($costoPromedio, 2) }}</span>
-                        <span class="stat-label">Costo Promedio</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">${{ number_format($costoMayor, 2) }}</span>
-                        <span class="stat-label">Costo Mayor</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">${{ number_format($costoMenor, 2) }}</span>
-                        <span class="stat-label">Costo Menor</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">{{ $mantenimientosConCosto->count() }}</span>
-                        <span class="stat-label">Con Costo Registrado</span>
-                    </div>
+                    @foreach($sistemasCosto as $sistema)
+                        <div class="stat-item">
+                            <span class="stat-number">${{ number_format($sistema['costo_total'], 2) }}</span>
+                            <span class="stat-label">{{ $sistema['sistema'] }}</span>
+                            <span class="stat-sublabel">{{ $sistema['total_servicios'] }} servicios</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        <!-- Análisis de Costos por Tipo de Mantenimiento -->
+        <div class="pdf-stats-section mt-20">
+            <h3 class="stats-title">Análisis de Costos por Tipo de Mantenimiento</h3>
+            @php
+                $tiposCosto = $mantenimientos->whereNotNull('costo')
+                    ->groupBy('tipo_mantenimiento')
+                    ->map(function($grupo, $tipo) {
+                        return [
+                            'tipo' => match($tipo) {
+                                'PREVENTIVO' => 'Preventivo',
+                                'CORRECTIVO' => 'Correctivo',
+                                default => ucfirst($tipo)
+                            },
+                            'total_servicios' => $grupo->count(),
+                            'costo_total' => $grupo->sum('costo'),
+                            'costo_promedio' => $grupo->avg('costo')
+                        ];
+                    })
+                    ->sortByDesc('costo_total');
+            @endphp
+
+            <div class="stats-grid">
+                <div class="stats-row">
+                    @foreach($tiposCosto as $tipo)
+                        <div class="stat-item">
+                            <span class="stat-number">${{ number_format($tipo['costo_total'], 2) }}</span>
+                            <span class="stat-label">{{ $tipo['tipo'] }}</span>
+                            <span class="stat-sublabel">{{ $tipo['total_servicios'] }} servicios</span>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>

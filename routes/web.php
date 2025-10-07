@@ -580,6 +580,15 @@ Route::middleware('auth')->prefix('mantenimientos')->name('mantenimientos.')->gr
         ->name('estadisticas')
         ->middleware('permission:ver_mantenimientos');
 
+    // Rutas de exportación
+    Route::get('/descargar-pdf', [MantenimientoController::class, 'descargarReportePdf'])
+        ->name('descargar-pdf')
+        ->middleware('permission:ver_mantenimientos');
+
+    Route::get('/descargar-excel', [MantenimientoController::class, 'descargarReporteExcel'])
+        ->name('descargar-excel')
+        ->middleware('permission:ver_mantenimientos');
+
     Route::post('/', [MantenimientoController::class, 'store'])
         ->name('store')
         ->middleware('permission:crear_mantenimientos');

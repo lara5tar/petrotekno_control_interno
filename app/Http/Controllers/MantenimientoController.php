@@ -7,11 +7,16 @@ use App\Models\LogAccion;
 use App\Models\Mantenimiento;
 use App\Models\Vehiculo;
 use App\Services\AlertasMantenimientoService;
+use App\Exports\MantenimientosFiltradosExport;
+use App\Traits\PdfGeneratorTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MantenimientoController extends Controller
 {
+    use PdfGeneratorTrait;
     /**
      * Display a listing of the resource.
      * Patrón Híbrido: API (JSON) + Blade (View)
@@ -630,6 +635,249 @@ class MantenimientoController extends Controller
 
         // Para Blade
         return view('mantenimientos.alertas', compact('alertas', 'resumen'));
+    }
+
+    /**
+     * Descargar reporte de mantenimientos filtrados en formato PDF
+     */
+    public function descargarReportePdf(Request $request)
+    {
+        // Verificar permisos
+        if (! $this->hasPermission('ver_mantenimientos')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para descargar reportes de mantenimiento'], 403);
+            }
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para acceder a esta sección']);
+        }
+
+        // Aplicar los mismos filtros que en el index
+        $query = Mantenimiento::with(['vehiculo']);
+
+        // Aplicar filtros de búsqueda
+        if ($request->filled('buscar')) {
+            $buscar = $request->buscar;
+            $query->where(function ($q) use ($buscar) {
+                $q->where('proveedor', 'like', "%{$buscar}%")
+                    ->orWhere('descripcion', 'like', "%{$buscar}%")
+                    ->orWhereHas('vehiculo', function ($vq) use ($buscar) {
+                        $vq->where('marca', 'like', "%{$buscar}%")
+                            ->orWhere('modelo', 'like', "%{$buscar}%")
+                            ->orWhere('placas', 'like', "%{$buscar}%");
+                    });
+            });
+        }
+
+        // Aplicar filtros específicos
+        if ($request->filled('vehiculo_id')) {
+            $query->where('vehiculo_id', $request->vehiculo_id);
+        }
+
+        if ($request->filled('tipo_servicio')) {
+            $query->where('tipo_servicio', $request->tipo_servicio);
+        }
+
+        if ($request->filled('sistema_vehiculo')) {
+            $query->where('sistema_vehiculo', $request->sistema_vehiculo);
+        }
+
+        if ($request->filled('proveedor')) {
+            $query->where('proveedor', 'like', "%{$request->proveedor}%");
+        }
+
+        // Filtros de fecha
+        if ($request->filled('fecha_inicio_desde')) {
+            $query->whereDate('fecha_inicio', '>=', $request->fecha_inicio_desde);
+        }
+
+        if ($request->filled('fecha_inicio_hasta')) {
+            $query->whereDate('fecha_inicio', '<=', $request->fecha_inicio_hasta);
+        }
+
+        // Filtros de kilometraje
+        if ($request->filled('kilometraje_min')) {
+            $query->where('kilometraje_servicio', '>=', $request->kilometraje_min);
+        }
+
+        if ($request->filled('kilometraje_max')) {
+            $query->where('kilometraje_servicio', '<=', $request->kilometraje_max);
+        }
+
+        // Filtros de costo
+        if ($request->filled('costo_min')) {
+            $query->where('costo', '>=', $request->costo_min);
+        }
+
+        if ($request->filled('costo_max')) {
+            $query->where('costo', '<=', $request->costo_max);
+        }
+
+        // Obtener mantenimientos con límite para PDF (máximo 2000 registros)
+        $mantenimientos = $query->orderBy('fecha_inicio', 'desc')->limit(2000)->get();
+
+        // Preparar estadísticas
+        $estadisticas = [
+            'total' => $mantenimientos->count(),
+            'costo_total' => $mantenimientos->sum('costo') ?? 0,
+            'costo_promedio' => $mantenimientos->avg('costo') ?? 0,
+            'por_tipo_servicio' => [
+                'PREVENTIVO' => $mantenimientos->where('tipo_servicio', 'PREVENTIVO')->count(),
+                'CORRECTIVO' => $mantenimientos->where('tipo_servicio', 'CORRECTIVO')->count(),
+            ],
+            'por_sistema' => [
+                'motor' => $mantenimientos->where('sistema_vehiculo', 'motor')->count(),
+                'transmision' => $mantenimientos->where('sistema_vehiculo', 'transmision')->count(),
+                'hidraulico' => $mantenimientos->where('sistema_vehiculo', 'hidraulico')->count(),
+                'general' => $mantenimientos->where('sistema_vehiculo', 'general')->count(),
+            ],
+            'por_estado' => [
+                'completados' => $mantenimientos->whereNotNull('fecha_fin')->count(),
+                'en_proceso' => $mantenimientos->whereNull('fecha_fin')->count(),
+            ],
+        ];
+
+        // Preparar filtros aplicados para mostrar en el reporte
+        $filtrosAplicados = [
+            'buscar' => $request->get('buscar'),
+            'vehiculo_id' => $request->get('vehiculo_id'),
+            'tipo_servicio' => $request->get('tipo_servicio'),
+            'sistema_vehiculo' => $request->get('sistema_vehiculo'),
+            'proveedor' => $request->get('proveedor'),
+            'fecha_inicio_desde' => $request->get('fecha_inicio_desde'),
+            'fecha_inicio_hasta' => $request->get('fecha_inicio_hasta'),
+            'kilometraje_min' => $request->get('kilometraje_min'),
+            'kilometraje_max' => $request->get('kilometraje_max'),
+            'costo_min' => $request->get('costo_min'),
+            'costo_max' => $request->get('costo_max'),
+        ];
+
+        // Generar PDF usando el trait
+        $pdf = $this->createStandardPdf(
+            'pdf.reportes.mantenimientos-filtrados', 
+            compact('mantenimientos', 'estadisticas', 'filtrosAplicados'),
+            'landscape' // Horizontal para más columnas
+        );
+
+        return $pdf->download('reporte-mantenimientos-filtrados-' . now()->format('Y-m-d-H-i-s') . '.pdf');
+    }
+
+    /**
+     * Descargar reporte de mantenimientos filtrados en formato Excel
+     */
+    public function descargarReporteExcel(Request $request)
+    {
+        // Verificar permisos
+        if (! $this->hasPermission('ver_mantenimientos')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para descargar reportes de mantenimiento'], 403);
+            }
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para acceder a esta sección']);
+        }
+
+        // Aplicar los mismos filtros que en el index
+        $query = Mantenimiento::with(['vehiculo']);
+
+        // Aplicar filtros de búsqueda
+        if ($request->filled('buscar')) {
+            $buscar = $request->buscar;
+            $query->where(function ($q) use ($buscar) {
+                $q->where('proveedor', 'like', "%{$buscar}%")
+                    ->orWhere('descripcion', 'like', "%{$buscar}%")
+                    ->orWhereHas('vehiculo', function ($vq) use ($buscar) {
+                        $vq->where('marca', 'like', "%{$buscar}%")
+                            ->orWhere('modelo', 'like', "%{$buscar}%")
+                            ->orWhere('placas', 'like', "%{$buscar}%");
+                    });
+            });
+        }
+
+        // Aplicar filtros específicos
+        if ($request->filled('vehiculo_id')) {
+            $query->where('vehiculo_id', $request->vehiculo_id);
+        }
+
+        if ($request->filled('tipo_servicio')) {
+            $query->where('tipo_servicio', $request->tipo_servicio);
+        }
+
+        if ($request->filled('sistema_vehiculo')) {
+            $query->where('sistema_vehiculo', $request->sistema_vehiculo);
+        }
+
+        if ($request->filled('proveedor')) {
+            $query->where('proveedor', 'like', "%{$request->proveedor}%");
+        }
+
+        // Filtros de fecha
+        if ($request->filled('fecha_inicio_desde')) {
+            $query->whereDate('fecha_inicio', '>=', $request->fecha_inicio_desde);
+        }
+
+        if ($request->filled('fecha_inicio_hasta')) {
+            $query->whereDate('fecha_inicio', '<=', $request->fecha_inicio_hasta);
+        }
+
+        // Filtros de kilometraje
+        if ($request->filled('kilometraje_min')) {
+            $query->where('kilometraje_servicio', '>=', $request->kilometraje_min);
+        }
+
+        if ($request->filled('kilometraje_max')) {
+            $query->where('kilometraje_servicio', '<=', $request->kilometraje_max);
+        }
+
+        // Filtros de costo
+        if ($request->filled('costo_min')) {
+            $query->where('costo', '>=', $request->costo_min);
+        }
+
+        if ($request->filled('costo_max')) {
+            $query->where('costo', '<=', $request->costo_max);
+        }
+
+        // Para Excel podemos manejar más registros (máximo 5000)
+        $mantenimientos = $query->orderBy('fecha_inicio', 'desc')->limit(5000)->get();
+
+        // Preparar estadísticas
+        $estadisticas = [
+            'total' => $mantenimientos->count(),
+            'costo_total' => $mantenimientos->sum('costo') ?? 0,
+            'costo_promedio' => $mantenimientos->avg('costo') ?? 0,
+            'por_tipo_servicio' => [
+                'PREVENTIVO' => $mantenimientos->where('tipo_servicio', 'PREVENTIVO')->count(),
+                'CORRECTIVO' => $mantenimientos->where('tipo_servicio', 'CORRECTIVO')->count(),
+            ],
+            'por_sistema' => [
+                'motor' => $mantenimientos->where('sistema_vehiculo', 'motor')->count(),
+                'transmision' => $mantenimientos->where('sistema_vehiculo', 'transmision')->count(),
+                'hidraulico' => $mantenimientos->where('sistema_vehiculo', 'hidraulico')->count(),
+                'general' => $mantenimientos->where('sistema_vehiculo', 'general')->count(),
+            ],
+            'por_estado' => [
+                'completados' => $mantenimientos->whereNotNull('fecha_fin')->count(),
+                'en_proceso' => $mantenimientos->whereNull('fecha_fin')->count(),
+            ],
+        ];
+
+        // Preparar filtros aplicados
+        $filtrosAplicados = [
+            'buscar' => $request->get('buscar'),
+            'vehiculo_id' => $request->get('vehiculo_id'),
+            'tipo_servicio' => $request->get('tipo_servicio'),
+            'sistema_vehiculo' => $request->get('sistema_vehiculo'),
+            'proveedor' => $request->get('proveedor'),
+            'fecha_inicio_desde' => $request->get('fecha_inicio_desde'),
+            'fecha_inicio_hasta' => $request->get('fecha_inicio_hasta'),
+            'kilometraje_min' => $request->get('kilometraje_min'),
+            'kilometraje_max' => $request->get('kilometraje_max'),
+            'costo_min' => $request->get('costo_min'),
+            'costo_max' => $request->get('costo_max'),
+        ];
+
+        // Usar la clase Export optimizada
+        return Excel::download(
+            new MantenimientosFiltradosExport($mantenimientos, $filtrosAplicados, $estadisticas),
+            'reporte-mantenimientos-filtrados-' . now()->format('Y-m-d-H-i-s') . '.xlsx'
+        );
     }
 
     /**

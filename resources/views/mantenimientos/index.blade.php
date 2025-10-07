@@ -101,10 +101,37 @@
                             Limpiar
                         </a>
                     @endif
+                    
+                    <!-- Botones de exportación -->
+                    <button onclick="descargarReporte('excel')" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-3 rounded flex items-center gap-1 transition duration-200" title="Descargar Excel">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Excel
+                    </button>
+                    
+                    <button onclick="descargarReporte('pdf')" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-3 rounded flex items-center gap-1 transition duration-200" title="Descargar PDF">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        PDF
+                    </button>
                 </div>
             </div>
         </form>
     </div>
+
+    <!-- Información de registros -->
+    @if($mantenimientos->count() > 0)
+    <div class="mb-4">
+        <p class="text-sm text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            {{ $mantenimientos->total() }} registros encontrados
+        </p>
+    </div>
+    @endif
 
     <!-- Tabla de mantenimientos -->
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -240,3 +267,60 @@
     @endif
 
 @endsection
+
+@push('scripts')
+<script>
+function descargarReporte(tipo) {
+    // Mostrar indicador de carga
+    const tipoReporte = tipo === 'pdf' ? 'PDF' : 'Excel';
+    
+    // Crear formulario dinámico con los filtros actuales
+    const form = document.createElement('form');
+    form.method = 'GET';
+    
+    let url;
+    if (tipo === 'pdf') {
+        url = '{{ route("mantenimientos.descargar-pdf") }}';
+    } else {
+        url = '{{ route("mantenimientos.descargar-excel") }}';
+    }
+    form.action = url;
+    
+    // Agregar parámetros de filtro
+    const params = new URLSearchParams(window.location.search);
+    params.forEach((value, key) => {
+        if (key !== 'page' && value) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = value;
+            form.appendChild(input);
+        }
+    });
+    
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+    
+    // Mostrar mensaje de éxito
+    setTimeout(() => {
+        // Crear notificación temporal
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Descarga de ${tipoReporte} iniciada
+            </div>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 3000);
+    }, 500);
+}
+</script>
+@endpush
