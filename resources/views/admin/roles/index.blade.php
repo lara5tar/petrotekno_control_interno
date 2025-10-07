@@ -161,19 +161,15 @@
                                         @endcan
 
                                         @can('eliminar_roles')
-                                        @if($role->usuarios->count() == 0 && !in_array($role->nombre_rol, ['Admin']))
-                                            <form action="{{ route('admin.roles.destroy', $role) }}" 
-                                                  method="POST" 
-                                                  class="inline"
-                                                  onsubmit="return confirm('¿Estás seguro de eliminar este rol? Esta acción no se puede deshacer.')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900" title="Eliminar rol">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                                    </svg>
-                                                </button>
-                                            </form>
+                                        @if($role->usuarios->count() == 0 && !in_array($role->nombre_rol, ['Admin', 'Administrador']))
+                                            <button type="button" 
+                                                    onclick="openDeleteModal('{{ route('admin.roles.destroy', $role) }}', '{{ $role->nombre_rol }}')"
+                                                    class="text-red-600 hover:text-red-900" 
+                                                    title="Eliminar rol">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
                                         @endif
                                         @endcan
                                     </div>
@@ -207,3 +203,125 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+// Función para mostrar mensajes de éxito
+function showSuccessMessage(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50';
+    successDiv.innerHTML = message;
+    
+    // Agregar al DOM
+    document.body.appendChild(successDiv);
+    
+    // Remover después de 3 segundos
+    setTimeout(() => {
+        if (successDiv.parentNode) {
+            successDiv.parentNode.removeChild(successDiv);
+        }
+    }, 3000);
+}
+
+// Modal de eliminación
+function openDeleteModal(deleteUrl, itemName) {
+    const modal = document.getElementById('modal-eliminar');
+    const entityIdSpan = document.getElementById('entity-id');
+    const entityDisplaySpan = document.getElementById('entity-display');
+    const deleteForm = document.getElementById('modal-eliminar-form');
+    
+    if (!modal || !entityIdSpan || !entityDisplaySpan || !deleteForm) {
+        console.error('No se encontraron los elementos del modal');
+        return;
+    }
+    
+    // Extraer ID de la URL
+    const urlParts = deleteUrl.split('/');
+    const itemId = urlParts[urlParts.length - 1];
+    
+    entityIdSpan.textContent = `#${itemId}`;
+    entityDisplaySpan.textContent = ` - ${itemName}`;
+    deleteForm.action = deleteUrl;
+    modal.classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('modal-eliminar');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+// Manejar el clic en cancelar
+document.addEventListener('DOMContentLoaded', function() {
+    const cancelBtn = document.getElementById('modal-eliminar-btn-cancelar');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeDeleteModal);
+    }
+    
+    // Manejar el envío del formulario
+    const deleteForm = document.getElementById('modal-eliminar-form');
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            // Mostrar estado de carga
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Eliminando...';
+            
+            // Realizar la petición AJAX
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mostrar mensaje de éxito
+                    showSuccessMessage(data.message || 'Rol eliminado exitosamente');
+                    // Recargar la página después de un breve retraso
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(data.message || 'Error al eliminar');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al eliminar: ' + error.message);
+                
+                // Restaurar botón
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            })
+            .finally(() => {
+                closeDeleteModal();
+            });
+        });
+    }
+    
+    // Cerrar modal al hacer clic fuera
+    const modal = document.getElementById('modal-eliminar');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeDeleteModal();
+            }
+        });
+    }
+});
+</script>
+@endpush
+
+<!-- Modal de confirmación de eliminación -->
+<x-delete-confirmation-modal />

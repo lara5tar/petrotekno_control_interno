@@ -957,6 +957,7 @@ class ObraController extends Controller
 
             if ($request->expectsJson()) {
                 return response()->json([
+                    'success' => true,
                     'message' => 'Obra eliminada exitosamente.',
                 ]);
             }

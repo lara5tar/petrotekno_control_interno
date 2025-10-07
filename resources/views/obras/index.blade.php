@@ -311,15 +311,15 @@
                                         </a>
                                         @endhasPermission
                                         @hasPermission('eliminar_obras')
-                                        <form action="{{ route('obras.destroy', $obra) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta obra?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900" title="Eliminar">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
-                                        </form>
+                                        <button type="button" 
+                                                class="text-red-600 hover:text-red-900 eliminar-obra-btn" 
+                                                title="Eliminar obra"
+                                                data-obra-id="{{ $obra->id }}"
+                                                data-obra-nombre="{{ $obra->nombre_obra }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
                                         @endhasPermission
                                     </div>
                                 </td>
@@ -379,6 +379,15 @@
             {{ $obras->withQueryString()->links() }}
         </div>
     @endif
+
+    <!-- Modal de confirmación de eliminación -->
+    <x-delete-confirmation-modal 
+        id="modal-eliminar-obra"
+        entity="la obra"
+        entityIdField="obra-id"
+        entityDisplayField="obra-nombre"
+        additionalText="Esta acción eliminará la obra y todos sus registros asociados permanentemente."
+    />
 @endsection
 
 @push('scripts')
@@ -456,6 +465,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const progress = progressBar.getAttribute('data-progress');
         progressBar.style.width = progress + '%';
     });
+
+    // Inicializar modal de eliminación para obras
+    if (typeof window.initDeleteModal === 'function') {
+        window.initDeleteModal({
+            modalId: 'modal-eliminar-obra',
+            entityIdField: 'obra-id',
+            entityDisplayField: 'obra-nombre',
+            deleteButtonSelector: '.eliminar-obra-btn',
+            baseUrl: '/obras'
+        });
+        console.log('✅ Modal de eliminación inicializado para: modal-eliminar-obra');
+    } else {
+        console.error('❌ Función initDeleteModal no encontrada');
+    }
 });
 </script>
 @endpush

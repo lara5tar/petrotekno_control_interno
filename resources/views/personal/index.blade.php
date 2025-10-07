@@ -208,15 +208,14 @@
                                         </a>
                                         @endhasPermission
                                         @hasPermission('eliminar_personal')
-                                        <form action="{{ route('personal.destroy', $persona->id) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de que quieres eliminar a {{ $persona->nombre_completo }}? Esta acción no se puede deshacer.')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900" title="Eliminar">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
-                                        </form>
+                                        <button data-personal-id="{{ $persona->id }}" 
+                                                data-personal-nombre="#{{ $persona->id }} - {{ $persona->nombre_completo }}"
+                                                class="btn-eliminar-personal text-red-600 hover:text-red-900" 
+                                                title="Eliminar empleado">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
                                         @endhasPermission
                                     </div>
                                 </td>
@@ -282,12 +281,34 @@
             </div>
         @endif
     </div>
+
+    <!-- Modal de confirmación para eliminar personal -->
+    <x-delete-confirmation-modal 
+        id="modal-eliminar-personal"
+        entity="el empleado"
+        entityIdField="personal-id"
+        entityDisplayField="personal-nombre"
+        additionalText="Esta acción eliminará el registro del empleado permanentemente."
+    />
 @endsection
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Personal page loaded');
+    
+    // Inicializar modal de eliminación para personal
+    if (typeof window.initDeleteModal === 'function') {
+        window.initDeleteModal({
+            modalId: 'modal-eliminar-personal',
+            entityIdField: 'personal-id',
+            entityDisplayField: 'personal-nombre',
+            deleteButtonSelector: '.btn-eliminar-personal',
+            baseUrl: '{{ url("personal") }}'
+        });
+    } else {
+        console.error('Error: initDeleteModal no está disponible para personal');
+    }
     
     const estadoSelect = document.getElementById('estado');
     const categoriaSelect = document.getElementById('categoria');

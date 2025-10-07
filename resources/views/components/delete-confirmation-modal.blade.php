@@ -19,7 +19,7 @@
             <h3 class="text-lg font-medium text-gray-900 mb-2">Confirmar eliminación</h3>
             <div class="mb-4">
                 <p class="text-sm text-gray-500">
-                    ¿Está seguro de que desea eliminar {{ $entity }} <span id="{{ $id }}-info" class="font-semibold"></span>?
+                    ¿Está seguro de que desea eliminar {{ $entity }} <span id="entity-id" class="font-semibold"></span><span id="entity-display"></span>?
                 </p>
                 <p class="text-xs text-gray-400 mt-2">
                     {{ $additionalText }}
@@ -56,11 +56,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const modal = document.getElementById(modalId);
         const formEliminar = document.getElementById(modalId + '-form');
-        const entityInfo = document.getElementById(modalId + '-info');
+        const entityIdSpan = document.getElementById('entity-id');
+        const entityDisplaySpan = document.getElementById('entity-display');
         const btnCancelar = document.getElementById(modalId + '-btn-cancelar');
         const botonesEliminar = document.querySelectorAll(deleteButtonSelector);
 
-        if (!modal || !formEliminar || !entityInfo || !btnCancelar) {
+        if (!modal || !formEliminar || !entityIdSpan || !entityDisplaySpan || !btnCancelar) {
             console.error('Error: No se encontraron todos los elementos del modal de eliminación');
             return;
         }
@@ -71,19 +72,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 const entityId = this.getAttribute('data-' + entityIdField);
                 const entityDisplay = this.getAttribute('data-' + entityDisplayField);
                 
+                console.log('Datos obtenidos:', { entityId, entityDisplay });
+                
                 // Actualizar el modal con la información de la entidad
-                entityInfo.textContent = `#${entityId}${entityDisplay ? ' (' + entityDisplay + ')' : ''}`;
+                entityIdSpan.textContent = `#${entityId}`;
+                entityDisplaySpan.textContent = entityDisplay ? ` - ${entityDisplay}` : '';
                 
                 // Configurar el formulario con la URL correcta
-                let deleteUrl;
-                if (routeName) {
-                    // Si se proporciona un nombre de ruta, usar route helper (requiere que esté definido)
-                    deleteUrl = baseUrl ? `${baseUrl}/${entityId}` : `{{ url('') }}/${routeName}/${entityId}`;
-                } else {
-                    deleteUrl = baseUrl ? `${baseUrl}/${entityId}` : entityId;
-                }
+                const deleteUrl = `${baseUrl}/${entityId}`;
                 
                 formEliminar.setAttribute('action', deleteUrl);
+                
+                console.log('Modal configurado con URL:', deleteUrl);
                 
                 // Mostrar el modal
                 modal.classList.remove('hidden');

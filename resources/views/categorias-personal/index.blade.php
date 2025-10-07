@@ -127,15 +127,14 @@
                                             </svg>
                                         </a>
                                         @if($categoria->personal_count == 0)
-                                        <form action="{{ route('categorias-personal.destroy', $categoria) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de que quieres eliminar la categoría {{ $categoria->nombre_categoria }}? Esta acción no se puede deshacer.')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900" title="Eliminar">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
-                                        </form>
+                                        <button type="button" 
+                                                onclick="openDeleteModal('{{ route('categorias-personal.destroy', $categoria) }}', '{{ $categoria->nombre_categoria }}')"
+                                                class="text-red-600 hover:text-red-900" 
+                                                title="Eliminar">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
                                         @else
                                         <span class="text-gray-400" title="No se puede eliminar: tiene personal asignado">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -409,5 +408,106 @@ document.getElementById('createCategoryModal').addEventListener('click', functio
         closeCategoryModal();
     }
 });
+
+// Modal de eliminación
+function openDeleteModal(deleteUrl, itemName) {
+    const modal = document.getElementById('modal-eliminar');
+    const entityIdSpan = document.getElementById('entity-id');
+    const entityDisplaySpan = document.getElementById('entity-display');
+    const deleteForm = document.getElementById('modal-eliminar-form');
+    
+    if (!modal || !entityIdSpan || !entityDisplaySpan || !deleteForm) {
+        console.error('No se encontraron los elementos del modal');
+        return;
+    }
+    
+    // Extraer ID de la URL
+    const urlParts = deleteUrl.split('/');
+    const itemId = urlParts[urlParts.length - 1];
+    
+    entityIdSpan.textContent = `#${itemId}`;
+    entityDisplaySpan.textContent = ` - ${itemName}`;
+    deleteForm.action = deleteUrl;
+    modal.classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('modal-eliminar');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+// Manejar el clic en cancelar
+document.addEventListener('DOMContentLoaded', function() {
+    const cancelBtn = document.getElementById('modal-eliminar-btn-cancelar');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeDeleteModal);
+    }
+    
+    // Manejar el envío del formulario
+    const deleteForm = document.getElementById('modal-eliminar-form');
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            // Mostrar estado de carga
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Eliminando...';
+            
+            // Realizar la petición AJAX
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mostrar mensaje de éxito
+                    showSuccessMessage(data.message || 'Categoría eliminada exitosamente');
+                    // Recargar la página después de un breve retraso
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(data.message || 'Error al eliminar');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al eliminar: ' + error.message);
+                
+                // Restaurar botón
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            })
+            .finally(() => {
+                closeDeleteModal();
+            });
+        });
+    }
+    
+    // Cerrar modal al hacer clic fuera
+    const modal = document.getElementById('modal-eliminar');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeDeleteModal();
+            }
+        });
+    }
+});
 </script>
 @endpush
+
+<!-- Modal de confirmación de eliminación -->
+<x-delete-confirmation-modal />

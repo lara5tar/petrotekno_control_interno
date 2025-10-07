@@ -430,7 +430,10 @@ class MantenimientoController extends Controller
             $mantenimiento = Mantenimiento::findOrFail($id);
 
             // Guardamos información para el log antes de eliminar
-            $infoMantenimiento = "{$mantenimiento->vehiculo->marca} {$mantenimiento->vehiculo->modelo} ({$mantenimiento->vehiculo->placas}) - {$mantenimiento->tipo_servicio}";
+            $vehiculoInfo = $mantenimiento->vehiculo 
+                ? "{$mantenimiento->vehiculo->marca} {$mantenimiento->vehiculo->modelo} ({$mantenimiento->vehiculo->placas})"
+                : 'Activo no disponible';
+            $infoMantenimiento = "{$vehiculoInfo} - {$mantenimiento->tipo_servicio}";
 
             $mantenimiento->delete();
 

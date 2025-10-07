@@ -167,22 +167,44 @@ class RoleController extends Controller
     {
         try {
             if ($role->usuarios()->count() > 0) {
+                if (request()->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No se puede eliminar un rol que tiene usuarios asignados'
+                    ], 400);
+                }
+
                 return redirect()->route('admin.roles.index')
                     ->with('error', 'No se puede eliminar un rol que tiene usuarios asignados');
             }
 
-            // No permitir eliminar roles del sistema
-            if (in_array($role->nombre_rol, ['Admin', 'Administrador', 'Supervisor', 'Operador'])) {
+            // No permitir eliminar roles del sistema (solo Admin/Administrador)
+            if (in_array($role->nombre_rol, ['Admin', 'Administrador'])) {
+                if (request()->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No se puede eliminar el rol de administrador'
+                    ], 400);
+                }
+
                 return redirect()->route('admin.roles.index')
-                    ->with('error', 'No se puede eliminar un rol del sistema');
+                    ->with('error', 'No se puede eliminar el rol de administrador');
             }
 
             DB::beginTransaction();
             
+            $nombreRol = $role->nombre_rol;
             $role->permisos()->detach();
             $role->delete();
             
             DB::commit();
+
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Rol eliminado exitosamente'
+                ]);
+            }
 
             return redirect()->route('admin.roles.index')
                 ->with('success', 'Rol eliminado exitosamente');
@@ -190,6 +212,15 @@ class RoleController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error en RoleController@destroy: ' . $e->getMessage());
+
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al eliminar el rol',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
             return redirect()->route('admin.roles.index')
                 ->with('error', 'Error al eliminar el rol: ' . $e->getMessage());
         }
