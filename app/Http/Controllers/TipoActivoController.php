@@ -63,7 +63,7 @@ class TipoActivoController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255|unique:tipo_activos,nombre',
+            'nombre' => 'required|string|max:255',
             'tiene_kilometraje' => 'boolean'
         ]);
 
@@ -146,7 +146,7 @@ class TipoActivoController extends Controller
     public function update(Request $request, TipoActivo $tipoActivo)
     {
         $validated = $request->validate([
-            'nombre' => 'required|string|max:255|unique:tipo_activos,nombre,' . $tipoActivo->id,
+            'nombre' => 'required|string|max:255',
             'tiene_kilometraje' => 'boolean'
         ]);
 
