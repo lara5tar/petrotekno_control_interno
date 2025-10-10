@@ -350,6 +350,17 @@ document.addEventListener('DOMContentLoaded', function() {
             searchTimeout = setTimeout(function() {
                 if (value.length >= 2 || value.length === 0) {
                     console.log('📤 Submitting search form...');
+                    
+                    // Guardar la posición del cursor antes del envío
+                    const cursorPosition = searchInput.selectionStart;
+                    
+                    // Agregar parámetros ocultos para mantener el estado
+                    const cursorInput = document.createElement('input');
+                    cursorInput.type = 'hidden';
+                    cursorInput.name = 'cursor_position';
+                    cursorInput.value = cursorPosition;
+                    filtrosForm.appendChild(cursorInput);
+                    
                     limpiarCamposVacios();
                     filtrosForm.submit();
                 }
@@ -361,6 +372,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 console.log('⏎ Enter pressed, submitting form...');
+                
+                // Guardar la posición del cursor antes del envío
+                const cursorPosition = searchInput.selectionStart;
+                
+                // Agregar parámetros ocultos para mantener el estado
+                const cursorInput = document.createElement('input');
+                cursorInput.type = 'hidden';
+                cursorInput.name = 'cursor_position';
+                cursorInput.value = cursorPosition;
+                filtrosForm.appendChild(cursorInput);
+                
                 limpiarCamposVacios();
                 filtrosForm.submit();
             }
@@ -368,6 +390,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     console.log('✅ Simple filters initialized');
+    
+    // Restaurar el cursor después de la carga de la página
+    window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const cursorPosition = urlParams.get('cursor_position');
+        
+        if (cursorPosition && searchInput && searchInput.value) {
+            searchInput.focus();
+            searchInput.setSelectionRange(parseInt(cursorPosition), parseInt(cursorPosition));
+        }
+    });
 });
 
 // Función para manejar eliminación de vehículos usando el componente reutilizable

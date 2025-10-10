@@ -330,6 +330,18 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Estado:', estadoSelect?.value || '');
         console.log('Categoría:', categoriaSelect?.value || '');
         
+        // Guardar la posición del cursor antes del envío si hay búsqueda activa
+        if (searchInput && searchInput.value && document.activeElement === searchInput) {
+            const cursorPosition = searchInput.selectionStart;
+            
+            // Agregar parámetros ocultos para mantener el estado
+            const cursorInput = document.createElement('input');
+            cursorInput.type = 'hidden';
+            cursorInput.name = 'cursor_position';
+            cursorInput.value = cursorPosition;
+            filtrosForm.appendChild(cursorInput);
+        }
+        
         if (filtrosForm) {
             filtrosForm.submit();
         }
@@ -406,6 +418,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     console.log('✅ Filters initialized');
+    
+    // Restaurar el cursor después de la carga de la página
+    window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const cursorPosition = urlParams.get('cursor_position');
+        
+        if (cursorPosition && searchInput && searchInput.value) {
+            searchInput.focus();
+            searchInput.setSelectionRange(parseInt(cursorPosition), parseInt(cursorPosition));
+        }
+    });
 });
 
 // Función para descargar reportes de Personal

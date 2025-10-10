@@ -458,8 +458,30 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(function() {
+                // Guardar la posición del cursor antes del envío
+                const cursorPosition = searchInput.selectionStart;
+                const searchValue = searchInput.value;
+                
+                // Agregar parámetros ocultos para mantener el estado
+                const cursorInput = document.createElement('input');
+                cursorInput.type = 'hidden';
+                cursorInput.name = 'cursor_position';
+                cursorInput.value = cursorPosition;
+                form.appendChild(cursorInput);
+                
                 autoSubmit();
             }, 500); // Esperar 500ms después de que el usuario deje de escribir
+        });
+        
+        // Restaurar el cursor después de la carga de la página
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cursorPosition = urlParams.get('cursor_position');
+            
+            if (cursorPosition && searchInput.value) {
+                searchInput.focus();
+                searchInput.setSelectionRange(parseInt(cursorPosition), parseInt(cursorPosition));
+            }
         });
     }
     
