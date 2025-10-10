@@ -93,9 +93,6 @@
                            class="p-2 border border-gray-300 rounded-md w-full">
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded transition duration-200">
-                        Filtrar
-                    </button>
                     @if(request()->hasAny(['buscar', 'vehiculo_id', 'tipo_servicio', 'fecha_desde']))
                         <a href="{{ route('mantenimientos.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition duration-200">
                             Limpiar
@@ -273,8 +270,81 @@
 
 @push('scripts')
 <script>
-// Inicializar modal de eliminación para mantenimientos
 document.addEventListener('DOMContentLoaded', function() {
+    // Elementos del formulario de filtros
+    const searchInput = document.getElementById('search');
+    const activoSelect = document.getElementById('activo');
+    const tipoSelect = document.getElementById('tipo');
+    const fechaInput = document.getElementById('fecha');
+    const form = document.getElementById('filtrosForm');
+    
+    // Verificar que todos los elementos existen
+    if (!searchInput || !activoSelect || !tipoSelect || !fechaInput || !form) {
+        console.error('Algunos elementos del formulario no se encontraron:', {
+            searchInput: !!searchInput,
+            activoSelect: !!activoSelect,
+            tipoSelect: !!tipoSelect,
+            fechaInput: !!fechaInput,
+            form: !!form
+        });
+        return;
+    }
+    
+    // Variable para prevenir envíos múltiples
+    let isSubmitting = false;
+    
+    // Función para enviar el formulario automáticamente
+    function autoSubmit() {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        
+        // Mostrar indicador de carga
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Filtrando...';
+        }
+        
+        form.submit();
+    }
+    
+    // Event listeners para filtros automáticos
+    if (activoSelect) {
+        activoSelect.addEventListener('change', autoSubmit);
+    }
+    
+    if (tipoSelect) {
+        tipoSelect.addEventListener('change', autoSubmit);
+    }
+    
+    if (fechaInput) {
+        fechaInput.addEventListener('change', autoSubmit);
+    }
+    
+    // Event listener para búsqueda con delay
+    let searchTimeout;
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
+                autoSubmit();
+            }, 500); // Esperar 500ms después de que el usuario deje de escribir
+        });
+    }
+    
+    // Prevenir envío múltiple del formulario
+    form.addEventListener('submit', function() {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Filtrando...';
+        }
+    });
+
+    // Inicializar modal de eliminación para mantenimientos
     if (typeof window.initDeleteModal === 'function') {
         window.initDeleteModal({
             modalId: 'modal-eliminar-mantenimiento',
@@ -283,8 +353,9 @@ document.addEventListener('DOMContentLoaded', function() {
             deleteButtonSelector: '.btn-eliminar-mantenimiento',
             baseUrl: '{{ url("mantenimientos") }}'
         });
+        console.log('✅ Modal de eliminación inicializado para: modal-eliminar-mantenimiento');
     } else {
-        console.error('Error: initDeleteModal no está disponible para mantenimientos');
+        console.error('❌ Función initDeleteModal no encontrada');
     }
 });
 
