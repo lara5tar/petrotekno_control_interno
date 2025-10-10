@@ -235,15 +235,53 @@
                     </a>
                 </div>
             @endif
+            
+            <!-- Paginación incrustada en la tabla -->
+            @if($mantenimientos->count() > 0 && $mantenimientos->hasPages())
+            <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        @if($mantenimientos->onFirstPage())
+                            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-500 bg-white cursor-default">
+                                Anterior
+                            </span>
+                        @else
+                            <a href="{{ $mantenimientos->previousPageUrl() }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Anterior
+                            </a>
+                        @endif
+
+                        @if($mantenimientos->hasMorePages())
+                            <a href="{{ $mantenimientos->nextPageUrl() }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Siguiente
+                            </a>
+                        @else
+                            <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-500 bg-white cursor-default">
+                                Siguiente
+                            </span>
+                        @endif
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Mostrando
+                                <span class="font-medium">{{ $mantenimientos->firstItem() }}</span>
+                                a
+                                <span class="font-medium">{{ $mantenimientos->lastItem() }}</span>
+                                de
+                                <span class="font-medium">{{ $mantenimientos->total() }}</span>
+                                resultados
+                            </p>
+                        </div>
+                        <div>
+                            {{ $mantenimientos->appends(request()->query())->links() }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
-
-    @if($mantenimientos->count() > 0)
-    <!-- Paginación -->
-    <div class="mt-6">
-        {{ $mantenimientos->appends(request()->query())->links() }}
-    </div>
-    @endif
 
     <!-- Modal de confirmación para eliminar mantenimiento -->
     <x-delete-confirmation-modal 
