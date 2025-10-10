@@ -5,38 +5,73 @@ namespace App\Http\Controllers;
 use App\Models\Personal;
 use App\Models\HistorialOperadorVehiculo;
 use App\Models\AsignacionObra;
+use App\Models\Obra;
+use App\Exports\OperadoresObrasFiltradosExport;
+use App\Traits\PdfGeneratorTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class OperadorObraController extends Controller
 {
-    /**
-     * Mostrar vista principal de obras por operador
-     */
-    public function index()
+    use PdfGeneratorTrait;
+    
+    public function index(Request $request)
     {
-        // Obtener operadores que han tenido asignaciones de obra
-        $operadoresConObras = Personal::whereHas('historialOperadorVehiculo', function ($query) {
-            $query->whereNotNull('obra_id');
-        })
-        ->withCount(['historialOperadorVehiculo as total_asignaciones_obra' => function ($query) {
-            $query->whereNotNull('obra_id');
-        }])
-        ->orderBy('nombre_completo')
-        ->get();
+        $query = Personal::whereHas('historialOperadorVehiculo', function ($subquery) {
+            $subquery->whereNotNull('obra_id');
+        });
 
-        return view('operadores.obras-por-operador', compact('operadoresConObras'));
+        if ($request->filled('buscar')) {
+            $buscar = $request->buscar;
+            $query->where(function ($q) use ($buscar) {
+                $q->where('nombre_completo', 'like', "%{$buscar}%")
+                  ->orWhere('curp_numero', 'like', "%{$buscar}%")
+                  ->orWhere('rfc', 'like', "%{$buscar}%")
+                  ->orWhere('nss', 'like', "%{$buscar}%")
+                  ->orWhere('no_licencia', 'like', "%{$buscar}%");
+            });
+        }
+
+        if ($request->filled('estado')) {
+            $query->where('estatus', $request->estado);
+        }
+
+        if ($request->filled('obra_id')) {
+            $query->whereHas('historialOperadorVehiculo', function ($subquery) use ($request) {
+                $subquery->where('obra_id', $request->obra_id);
+            });
+        }
+
+        if ($request->filled('solo_activos') && $request->solo_activos === 'true') {
+            $query->where('estatus', 'activo');
+        }
+
+        $operadoresConObras = $query->withCount(['historialOperadorVehiculo as total_asignaciones_obra' => function ($subquery) {
+                $subquery->whereNotNull('obra_id');
+            }])
+            ->with(['historialOperadorVehiculo.obra.encargado', 'historialOperadorVehiculo.vehiculo'])
+            ->orderBy('nombre_completo')
+            ->get();
+
+        $estadosOptions = Personal::select('estatus')->distinct()->pluck('estatus', 'estatus');
+        $obrasOptions = Obra::select('id', 'nombre_obra')->orderBy('nombre_obra')->get();
+
+        $estadisticas = [
+            'total_operadores' => $operadoresConObras->count(),
+            'total_asignaciones' => $operadoresConObras->sum('total_asignaciones_obra'),
+            'operadores_activos' => $operadoresConObras->where('estatus', 'activo')->count(),
+            'promedio_asignaciones' => $operadoresConObras->count() > 0 ? round($operadoresConObras->sum('total_asignaciones_obra') / $operadoresConObras->count(), 1) : 0,
+        ];
+
+        return view('operadores.obras-por-operador', compact('operadoresConObras', 'estadosOptions', 'obrasOptions', 'estadisticas'));
     }
 
-    /**
-     * Mostrar detalle de obras de un operador específico
-     */
     public function show(Personal $operador)
     {
-        // Obtener historial de obras del operador usando el método del modelo
         $historialObras = HistorialOperadorVehiculo::historialObrasPorOperador($operador->id);
-
-        // Obtener estadísticas generales
+        
         $estadisticas = [
             'total_obras' => $historialObras->count(),
             'total_asignaciones' => HistorialOperadorVehiculo::where('operador_nuevo_id', $operador->id)
@@ -46,7 +81,6 @@ class OperadorObraController extends Controller
             'vehiculo_actual' => $operador->vehiculoActual(),
         ];
 
-        // Obtener historial detallado reciente (últimos 20 registros)
         $historialDetallado = HistorialOperadorVehiculo::where('operador_nuevo_id', $operador->id)
             ->whereNotNull('obra_id')
             ->with(['vehiculo', 'obra', 'usuarioAsigno'])
@@ -61,97 +95,158 @@ class OperadorObraController extends Controller
         ));
     }
 
-    /**
-     * API: Obtener obras de un operador específico
-     */
-    public function apiObrasOperador(Personal $operador)
-    {
-        $historialObras = HistorialOperadorVehiculo::historialObrasPorOperador($operador->id);
-
-        return response()->json([
-            'success' => true,
-            'operador' => [
-                'id' => $operador->id,
-                'nombre' => $operador->nombre_completo,
-                'categoria' => $operador->categoria->nombre ?? 'Sin categoría',
-            ],
-            'obras' => $historialObras->map(function ($item) {
-                return [
-                    'obra_id' => $item['obra']->id,
-                    'obra_nombre' => $item['obra']->nombre,
-                    'obra_ubicacion' => $item['obra']->ubicacion,
-                    'primera_asignacion' => $item['primera_asignacion']->format('d/m/Y H:i'),
-                    'total_asignaciones' => $item['total_asignaciones'],
-                    'vehiculos_usados' => $item['vehiculos_asignados']->count(),
-                    'vehiculos_detalle' => $item['vehiculos_asignados']->map(function ($vehiculo) {
-                        return [
-                            'id' => $vehiculo->id,
-                            'marca' => $vehiculo->marca,
-                            'modelo' => $vehiculo->modelo,
-                            'placas' => $vehiculo->placas,
-                        ];
-                    })
-                ];
-            })
-        ]);
-    }
-
-    /**
-     * API: Obtener estadísticas de operador en obra específica
-     */
-    public function apiEstadisticasOperadorEnObra(Personal $operador, $obraId)
-    {
-        $estadisticas = HistorialOperadorVehiculo::estadisticasOperadorEnObra($operador->id, $obraId);
-
-        return response()->json([
-            'success' => true,
-            'estadisticas' => $estadisticas
-        ]);
-    }
-
-    /**
-     * Filtrar operadores por obra específica
-     */
-    public function filtrarPorObra(Request $request)
-    {
-        $obraId = $request->input('obra_id');
-        
-        if (!$obraId) {
-            return redirect()->route('operadores.obras-por-operador');
-        }
-
-        // Obtener operadores que han trabajado en esta obra específica
-        $operadoresEnObra = Personal::whereHas('historialOperadorVehiculo', function ($query) use ($obraId) {
-            $query->where('obra_id', $obraId);
-        })
-        ->withCount(['historialOperadorVehiculo as asignaciones_en_obra' => function ($query) use ($obraId) {
-            $query->where('obra_id', $obraId);
-        }])
-        ->with(['historialOperadorVehiculo' => function ($query) use ($obraId) {
-            $query->where('obra_id', $obraId)
-                ->with(['vehiculo', 'obra'])
-                ->orderBy('fecha_asignacion', 'desc');
-        }])
-        ->orderBy('nombre_completo')
-        ->get();
-
-        // Obtener información de la obra
-        $obra = \App\Models\Obra::find($obraId);
-
-        return view('operadores.operadores-por-obra', compact('operadoresEnObra', 'obra'));
-    }
-
-    /**
-     * Obtener la obra actual de un operador
-     */
     private function obtenerObraActual($operadorId)
     {
-        // Buscar en asignaciones activas donde el operador esté asignado
         $asignacionActiva = AsignacionObra::where('operador_id', $operadorId)
             ->where('estado', 'activa')
             ->with('obra')
             ->first();
 
         return $asignacionActiva?->obra;
+    }
+
+    public function descargarReportePdf(Request $request)
+    {
+        if (!Auth::user() || !Auth::user()->can('ver_personal')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para descargar reportes de operadores'], 403);
+            }
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para acceder a esta sección']);
+        }
+
+        $query = Personal::whereHas('historialOperadorVehiculo', function ($subquery) {
+            $subquery->whereNotNull('obra_id');
+        });
+
+        if ($request->filled('buscar')) {
+            $buscar = $request->buscar;
+            $query->where(function ($q) use ($buscar) {
+                $q->where('nombre_completo', 'like', "%{$buscar}%")
+                  ->orWhere('curp_numero', 'like', "%{$buscar}%")
+                  ->orWhere('rfc', 'like', "%{$buscar}%")
+                  ->orWhere('nss', 'like', "%{$buscar}%")
+                  ->orWhere('no_licencia', 'like', "%{$buscar}%");
+            });
+        }
+
+        if ($request->filled('estado')) {
+            $query->where('estatus', $request->estado);
+        }
+
+        if ($request->filled('obra_id')) {
+            $query->whereHas('historialOperadorVehiculo', function ($subquery) use ($request) {
+                $subquery->where('obra_id', $request->obra_id);
+            });
+        }
+
+        if ($request->filled('solo_activos') && $request->solo_activos === 'true') {
+            $query->where('estatus', 'activo');
+        }
+
+        $operadoresConObras = $query->withCount(['historialOperadorVehiculo as total_asignaciones_obra' => function ($subquery) {
+                $subquery->whereNotNull('obra_id');
+            }])
+            ->with(['historialOperadorVehiculo.obra.encargado', 'historialOperadorVehiculo.vehiculo'])
+            ->orderBy('nombre_completo')
+            ->limit(2000)
+            ->get();
+
+        $estadisticas = [
+            'total_operadores' => $operadoresConObras->count(),
+            'total_asignaciones' => $operadoresConObras->sum('total_asignaciones_obra'),
+            'operadores_activos' => $operadoresConObras->where('estatus', 'activo')->count(),
+            'promedio_asignaciones' => $operadoresConObras->count() > 0 ? round($operadoresConObras->sum('total_asignaciones_obra') / $operadoresConObras->count(), 1) : 0,
+            'por_estado' => [
+                'activo' => $operadoresConObras->where('estatus', 'activo')->count(),
+                'inactivo' => $operadoresConObras->where('estatus', 'inactivo')->count(),
+                'suspendido' => $operadoresConObras->where('estatus', 'suspendido')->count(),
+            ],
+        ];
+
+        $filtrosAplicados = [
+            'buscar' => $request->get('buscar'),
+            'estado' => $request->get('estado'),
+            'obra_id' => $request->get('obra_id'),
+            'solo_activos' => $request->get('solo_activos'),
+        ];
+
+        $pdf = $this->createStandardPdf(
+            'pdf.reportes.operadores-obras-filtrados', 
+            compact('operadoresConObras', 'estadisticas', 'filtrosAplicados'),
+            'landscape'
+        );
+
+        return $pdf->download('reporte-operadores-obras-filtrados-' . now()->format('Y-m-d-H-i-s') . '.pdf');
+    }
+
+    public function descargarReporteExcel(Request $request)
+    {
+        if (!Auth::user() || !Auth::user()->can('ver_personal')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para descargar reportes de operadores'], 403);
+            }
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para acceder a esta sección']);
+        }
+
+        $query = Personal::whereHas('historialOperadorVehiculo', function ($subquery) {
+            $subquery->whereNotNull('obra_id');
+        });
+
+        if ($request->filled('buscar')) {
+            $buscar = $request->buscar;
+            $query->where(function ($q) use ($buscar) {
+                $q->where('nombre_completo', 'like', "%{$buscar}%")
+                  ->orWhere('curp_numero', 'like', "%{$buscar}%")
+                  ->orWhere('rfc', 'like', "%{$buscar}%")
+                  ->orWhere('nss', 'like', "%{$buscar}%")
+                  ->orWhere('no_licencia', 'like', "%{$buscar}%");
+            });
+        }
+
+        if ($request->filled('estado')) {
+            $query->where('estatus', $request->estado);
+        }
+
+        if ($request->filled('obra_id')) {
+            $query->whereHas('historialOperadorVehiculo', function ($subquery) use ($request) {
+                $subquery->where('obra_id', $request->obra_id);
+            });
+        }
+
+        if ($request->filled('solo_activos') && $request->solo_activos === 'true') {
+            $query->where('estatus', 'activo');
+        }
+
+        $operadoresConObras = $query->withCount(['historialOperadorVehiculo as total_asignaciones_obra' => function ($subquery) {
+                $subquery->whereNotNull('obra_id');
+            }])
+            ->with(['historialOperadorVehiculo.obra.encargado', 'historialOperadorVehiculo.vehiculo'])
+            ->orderBy('nombre_completo')
+            ->limit(5000)
+            ->get();
+
+        $estadisticas = [
+            'total_operadores' => $operadoresConObras->count(),
+            'total_asignaciones' => $operadoresConObras->sum('total_asignaciones_obra'),
+            'operadores_activos' => $operadoresConObras->where('estatus', 'activo')->count(),
+            'promedio_asignaciones' => $operadoresConObras->count() > 0 ? round($operadoresConObras->sum('total_asignaciones_obra') / $operadoresConObras->count(), 1) : 0,
+            'por_estado' => [
+                'activo' => $operadoresConObras->where('estatus', 'activo')->count(),
+                'inactivo' => $operadoresConObras->where('estatus', 'inactivo')->count(),
+                'suspendido' => $operadoresConObras->where('estatus', 'suspendido')->count(),
+            ],
+        ];
+
+        $filtrosAplicados = [
+            'buscar' => $request->get('buscar'),
+            'estado' => $request->get('estado'),
+            'obra_id' => $request->get('obra_id'),
+            'solo_activos' => $request->get('solo_activos'),
+        ];
+
+        return Excel::download(
+            new OperadoresObrasFiltradosExport($operadoresConObras, $filtrosAplicados, $estadisticas),
+            'reporte-operadores-obras-filtrados-' . now()->format('Y-m-d-H-i-s') . '.xlsx'
+        );
     }
 }

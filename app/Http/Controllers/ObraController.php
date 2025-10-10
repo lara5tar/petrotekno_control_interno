@@ -8,6 +8,8 @@ use App\Models\Obra;
 use App\Models\Personal;
 use App\Models\User;
 use App\Models\Vehiculo;
+use App\Exports\ObrasFiltradosExport;
+use App\Traits\PdfGeneratorTrait;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -16,9 +18,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ObraController extends Controller
 {
+    use PdfGeneratorTrait;
     /**
      * Display a listing of obras with hybrid response.
      */
@@ -1572,5 +1576,146 @@ class ObraController extends Controller
             }
             return redirect()->back()->with('error', 'Error al liberar la asignación: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Descargar reporte de obras filtradas en formato PDF
+     */
+    public function descargarReportePdf(Request $request)
+    {
+        // Verificar permisos
+        if (!$this->hasPermission('ver_obras')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para descargar reportes de obras'], 403);
+            }
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para acceder a esta sección']);
+        }
+
+        // Aplicar los mismos filtros que en el index
+        $query = Obra::with(['vehiculo', 'operador', 'encargado']);
+
+        // Aplicar filtros de búsqueda
+        if ($request->filled('buscar') || $request->filled('search')) {
+            $searchTerm = $request->buscar ?? $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('nombre_obra', 'like', "%{$searchTerm}%")
+                    ->orWhere('estatus', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        // Aplicar filtros específicos
+        if ($request->filled('estatus')) {
+            $query->where('estatus', $request->estatus);
+        }
+
+        if ($request->filled('fecha_inicio')) {
+            $query->whereDate('fecha_inicio', '>=', $request->fecha_inicio);
+        }
+
+        if ($request->filled('solo_activas') && $request->solo_activas === 'true') {
+            $query->activas();
+        }
+
+        // Obtener obras con límite para PDF (máximo 2000 registros)
+        $obras = $query->orderBy('id', 'asc')->limit(2000)->get();
+
+        // Preparar estadísticas
+        $estadisticas = [
+            'total' => $obras->count(),
+            'costo_total' => $obras->sum('costo_total') ?? 0,
+            'costo_promedio' => $obras->avg('costo_total') ?? 0,
+            'por_estatus' => [
+                'activa' => $obras->where('estatus', 'activa')->count(),
+                'en_progreso' => $obras->where('estatus', 'en_progreso')->count(),
+                'completada' => $obras->where('estatus', 'completada')->count(),
+                'suspendida' => $obras->where('estatus', 'suspendida')->count(),
+            ],
+        ];
+
+        // Preparar filtros aplicados para mostrar en el reporte
+        $filtrosAplicados = [
+            'buscar' => $request->get('buscar') ?? $request->get('search'),
+            'estatus' => $request->get('estatus'),
+            'fecha_inicio' => $request->get('fecha_inicio'),
+            'solo_activas' => $request->get('solo_activas'),
+        ];
+
+        // Generar PDF usando el trait
+        $pdf = $this->createStandardPdf(
+            'pdf.reportes.obras-filtradas', 
+            compact('obras', 'estadisticas', 'filtrosAplicados'),
+            'landscape' // Horizontal para más columnas
+        );
+
+        return $pdf->download('reporte-obras-filtradas-' . now()->format('Y-m-d-H-i-s') . '.pdf');
+    }
+
+    /**
+     * Descargar reporte de obras filtradas en formato Excel
+     */
+    public function descargarReporteExcel(Request $request)
+    {
+        // Verificar permisos
+        if (!$this->hasPermission('ver_obras')) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'No tienes permisos para descargar reportes de obras'], 403);
+            }
+            return redirect()->route('home')->withErrors(['error' => 'No tienes permisos para acceder a esta sección']);
+        }
+
+        // Aplicar los mismos filtros que en el index
+        $query = Obra::with(['vehiculo', 'operador', 'encargado']);
+
+        // Aplicar filtros de búsqueda
+        if ($request->filled('buscar') || $request->filled('search')) {
+            $searchTerm = $request->buscar ?? $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('nombre_obra', 'like', "%{$searchTerm}%")
+                    ->orWhere('estatus', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        // Aplicar filtros específicos
+        if ($request->filled('estatus')) {
+            $query->where('estatus', $request->estatus);
+        }
+
+        if ($request->filled('fecha_inicio')) {
+            $query->whereDate('fecha_inicio', '>=', $request->fecha_inicio);
+        }
+
+        if ($request->filled('solo_activas') && $request->solo_activas === 'true') {
+            $query->activas();
+        }
+
+        // Para Excel podemos manejar más registros (máximo 5000)
+        $obras = $query->orderBy('id', 'asc')->limit(5000)->get();
+
+        // Preparar estadísticas
+        $estadisticas = [
+            'total' => $obras->count(),
+            'costo_total' => $obras->sum('costo_total') ?? 0,
+            'costo_promedio' => $obras->avg('costo_total') ?? 0,
+            'por_estatus' => [
+                'activa' => $obras->where('estatus', 'activa')->count(),
+                'en_progreso' => $obras->where('estatus', 'en_progreso')->count(),
+                'completada' => $obras->where('estatus', 'completada')->count(),
+                'suspendida' => $obras->where('estatus', 'suspendida')->count(),
+            ],
+        ];
+
+        // Preparar filtros aplicados
+        $filtrosAplicados = [
+            'buscar' => $request->get('buscar') ?? $request->get('search'),
+            'estatus' => $request->get('estatus'),
+            'fecha_inicio' => $request->get('fecha_inicio'),
+            'solo_activas' => $request->get('solo_activas'),
+        ];
+
+        // Usar la clase Export optimizada
+        return Excel::download(
+            new ObrasFiltradosExport($obras, $filtrosAplicados, $estadisticas),
+            'reporte-obras-filtradas-' . now()->format('Y-m-d-H-i-s') . '.xlsx'
+        );
     }
 }

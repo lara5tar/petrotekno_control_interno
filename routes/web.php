@@ -482,6 +482,15 @@ Route::middleware('auth')->group(function () {
         ->name('obras.create')
         ->middleware('permission:crear_obras');
 
+    // Rutas de exportación (deben ir antes de las rutas con parámetros)
+    Route::get('/obras/descargar-pdf', [\App\Http\Controllers\ObraController::class, 'descargarReportePdf'])
+        ->name('obras.descargar-pdf')
+        ->middleware('permission:ver_obras');
+
+    Route::get('/obras/descargar-excel', [\App\Http\Controllers\ObraController::class, 'descargarReporteExcel'])
+        ->name('obras.descargar-excel')
+        ->middleware('permission:ver_obras');
+
     Route::post('/obras', [\App\Http\Controllers\ObraController::class, 'store'])
         ->name('obras.store')
         ->middleware('permission:crear_obras');
@@ -883,6 +892,15 @@ Route::middleware('auth')->prefix('operadores')->name('operadores.')->group(func
     // Vista principal de obras por operador
     Route::get('/obras-por-operador', [App\Http\Controllers\OperadorObraController::class, 'index'])
         ->name('obras-por-operador')
+        ->middleware('permission:ver_personal');
+    
+    // Rutas de exportación (deben ir antes de las rutas con parámetros)
+    Route::get('/obras-por-operador/descargar-pdf', [App\Http\Controllers\OperadorObraController::class, 'descargarReportePdf'])
+        ->name('obras-por-operador.descargar-pdf')
+        ->middleware('permission:ver_personal');
+
+    Route::get('/obras-por-operador/descargar-excel', [App\Http\Controllers\OperadorObraController::class, 'descargarReporteExcel'])
+        ->name('obras-por-operador.descargar-excel')
         ->middleware('permission:ver_personal');
     
     // Detalle de obras de un operador específico

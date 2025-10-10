@@ -19,6 +19,89 @@
                 </div>
             </div>
 
+            <!-- Filtros y búsqueda -->
+            <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+                <form method="GET" action="{{ route('operadores.obras-por-operador') }}" id="filtrosForm">
+                    <div class="flex flex-wrap gap-4 items-end">
+                        <div class="flex-1 md:flex-none md:w-64">
+                            <label for="buscar" class="block text-sm font-medium text-gray-700 mb-1">Buscar Operador</label>
+                            <input type="text" id="buscar" name="buscar" value="{{ request('buscar') }}" 
+                                   placeholder="Nombre, número empleado o teléfono..." 
+                                   class="p-2 border border-gray-300 rounded-md w-full">
+                        </div>
+                        <div class="flex-1 md:flex-none md:w-48">
+                            <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                            <select id="estado" name="estado" class="p-2 border border-gray-300 rounded-md w-full">
+                                <option value="">Todos los estados</option>
+                                @if(isset($estadosOptions))
+                                    @foreach($estadosOptions as $estado)
+                                        <option value="{{ $estado }}" {{ request('estado') === $estado ? 'selected' : '' }}>
+                                            {{ ucfirst($estado) }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class="flex-1 md:flex-none md:w-64">
+                            <label for="obra_id" class="block text-sm font-medium text-gray-700 mb-1">Obra Específica</label>
+                            <select id="obra_id" name="obra_id" class="p-2 border border-gray-300 rounded-md w-full">
+                                <option value="">Todas las obras</option>
+                                @if(isset($obrasOptions))
+                                    @foreach($obrasOptions as $obra)
+                                        <option value="{{ $obra->id }}" {{ request('obra_id') == $obra->id ? 'selected' : '' }}>
+                                            {{ $obra->nombre_obra }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="solo_activos" name="solo_activos" value="true" 
+                                   {{ request('solo_activos') === 'true' ? 'checked' : '' }}
+                                   class="mr-2">
+                            <label for="solo_activos" class="text-sm font-medium text-gray-700">Solo Activos</label>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition duration-200">
+                                Filtrar
+                            </button>
+                            @if(request()->hasAny(['buscar', 'estado', 'obra_id', 'solo_activos']))
+                                <a href="{{ route('operadores.obras-por-operador') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded transition duration-200">
+                                    Limpiar
+                                </a>
+                            @endif
+                            
+                            <!-- Botones de exportación -->
+                            <button type="button" onclick="descargarReporte('excel')" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-3 rounded flex items-center gap-1 transition duration-200" title="Descargar Excel">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Excel
+                            </button>
+                            
+                            <button type="button" onclick="descargarReporte('pdf')" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-3 rounded flex items-center gap-1 transition duration-200" title="Descargar PDF">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                PDF
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Información de registros -->
+            @if($operadoresConObras->count() > 0)
+            <div class="mb-4">
+                <p class="text-sm text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    {{ $operadoresConObras->count() }} operadores encontrados
+                </p>
+            </div>
+            @endif
+
             <!-- Estadísticas generales -->
             <div class="row mb-4">
                 <div class="col-md-3">
@@ -27,7 +110,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h5 class="card-title">Total Operadores</h5>
-                                    <h2 class="mb-0">{{ $operadoresConObras->count() }}</h2>
+                                    <h2 class="mb-0">{{ $estadisticas['total_operadores'] ?? 0 }}</h2>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-users fa-2x opacity-75"></i>
@@ -42,7 +125,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h5 class="card-title">Total Asignaciones</h5>
-                                    <h2 class="mb-0">{{ $operadoresConObras->sum('total_asignaciones_obra') }}</h2>
+                                    <h2 class="mb-0">{{ $estadisticas['total_asignaciones'] ?? 0 }}</h2>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-tasks fa-2x opacity-75"></i>
@@ -57,7 +140,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h5 class="card-title">Promedio por Operador</h5>
-                                    <h2 class="mb-0">{{ $operadoresConObras->count() > 0 ? round($operadoresConObras->sum('total_asignaciones_obra') / $operadoresConObras->count(), 1) : 0 }}</h2>
+                                    <h2 class="mb-0">{{ $estadisticas['promedio_asignaciones'] ?? 0 }}</h2>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-chart-line fa-2x opacity-75"></i>
@@ -72,7 +155,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h5 class="card-title">Operadores Activos</h5>
-                                    <h2 class="mb-0">{{ $operadoresConObras->where('estado', 'activo')->count() }}</h2>
+                                    <h2 class="mb-0">{{ $estadisticas['operadores_activos'] ?? 0 }}</h2>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-user-check fa-2x opacity-75"></i>
@@ -204,4 +287,51 @@
     font-size: 14px;
 }
 </style>
+
+<script>
+function descargarReporte(tipo) {
+    // Mostrar indicador de carga
+    const tipoReporte = tipo === 'pdf' ? 'PDF' : 'Excel';
+    
+    // Obtener los parámetros de filtro actuales del formulario
+    const filtrosForm = document.getElementById('filtrosForm');
+    const formData = new FormData(filtrosForm);
+    
+    // Crear URL con parámetros
+    let url;
+    if (tipo === 'pdf') {
+        url = '{{ route("operadores.obras-por-operador.descargar-pdf") }}';
+    } else {
+        url = '{{ route("operadores.obras-por-operador.descargar-excel") }}';
+    }
+    
+    // Construir query string con los filtros actuales
+    const params = new URLSearchParams();
+    
+    // Obtener valores específicos de los filtros
+    const buscar = document.querySelector('input[name="buscar"]')?.value?.trim() || '';
+    const estado = document.querySelector('select[name="estado"]')?.value || '';
+    const obraId = document.querySelector('select[name="obra_id"]')?.value || '';
+    const soloActivos = document.querySelector('input[name="solo_activos"]')?.checked || false;
+    
+    // Agregar parámetros solo si tienen valor real (no vacío)
+    if (buscar && buscar !== '') params.append('buscar', buscar);
+    if (estado && estado !== '') params.append('estado', estado);
+    if (obraId && obraId !== '') params.append('obra_id', obraId);
+    if (soloActivos) params.append('solo_activos', 'true');
+    
+    // Crear URL completa
+    const urlConParametros = url + '?' + params.toString();
+    
+    // Usar window.open para descargar sin afectar la página actual
+    const ventanaDescarga = window.open(urlConParametros, '_blank');
+    
+    // Cerrar la ventana después de un breve momento (la descarga ya habrá iniciado)
+    if (ventanaDescarga) {
+        setTimeout(() => {
+            ventanaDescarga.close();
+        }, 1000);
+    }
+}
+</script>
 @endsection

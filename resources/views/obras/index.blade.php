@@ -160,6 +160,21 @@
                             Limpiar
                         </a>
                     @endif
+                    
+                    <!-- Botones de exportación -->
+                    <button type="button" onclick="descargarReporte('excel')" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-3 rounded flex items-center gap-1 transition duration-200" title="Descargar Excel">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Excel
+                    </button>
+                    
+                    <button type="button" onclick="descargarReporte('pdf')" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-3 rounded flex items-center gap-1 transition duration-200" title="Descargar PDF">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        PDF
+                    </button>
                 </div>
             </div>
         </form>
@@ -480,5 +495,50 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('❌ Función initDeleteModal no encontrada');
     }
 });
+
+function descargarReporte(tipo) {
+    // Mostrar indicador de carga
+    const tipoReporte = tipo === 'pdf' ? 'PDF' : 'Excel';
+    
+    // Obtener los parámetros de filtro actuales del formulario
+    const filtrosForm = document.getElementById('filtrosForm');
+    const formData = new FormData(filtrosForm);
+    
+    // Crear URL con parámetros
+    let url;
+    if (tipo === 'pdf') {
+        url = '{{ route("obras.descargar-pdf") }}';
+    } else {
+        url = '{{ route("obras.descargar-excel") }}';
+    }
+    
+    // Construir query string con los filtros actuales
+    const params = new URLSearchParams();
+    
+    // Obtener valores específicos de los filtros
+    const buscar = document.querySelector('input[name="search"]')?.value?.trim() || '';
+    const estatus = document.querySelector('select[name="estatus"]')?.value || '';
+    const fechaInicio = document.querySelector('input[name="fecha_inicio"]')?.value || '';
+    const soloActivas = document.querySelector('input[name="solo_activas"]')?.checked || false;
+    
+    // Agregar parámetros solo si tienen valor real (no vacío)
+    if (buscar && buscar !== '') params.append('buscar', buscar);
+    if (estatus && estatus !== '') params.append('estatus', estatus);
+    if (fechaInicio && fechaInicio !== '') params.append('fecha_inicio', fechaInicio);
+    if (soloActivas) params.append('solo_activas', 'true');
+    
+    // Crear URL completa
+    const urlConParametros = url + '?' + params.toString();
+    
+    // Usar window.open para descargar sin afectar la página actual
+    const ventanaDescarga = window.open(urlConParametros, '_blank');
+    
+    // Cerrar la ventana después de un breve momento (la descarga ya habrá iniciado)
+    if (ventanaDescarga) {
+        setTimeout(() => {
+            ventanaDescarga.close();
+        }, 1000);
+    }
+}
 </script>
 @endpush
