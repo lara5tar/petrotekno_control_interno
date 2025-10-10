@@ -59,15 +59,12 @@ class ObrasSheet implements FromCollection, WithHeadings, WithMapping, WithStyle
             'Fecha Inicio',
             'Fecha Fin',
             'Estatus',
-            'Vehículo Asignado',
-            'Placas',
-            'Operador',
             'Encargado',
             'Ubicación',
             'Descripción',
-            'Costo Total',
+            'Avance (%)',
+            'Observaciones',
             'Duración (días)',
-            'Estado',
             'Fecha Registro'
         ];
     }
@@ -85,32 +82,15 @@ class ObrasSheet implements FromCollection, WithHeadings, WithMapping, WithStyle
             }
         }
 
-        // Información del vehículo
-        $vehiculoInfo = 'N/A';
-        $placas = 'N/A';
-        
-        if ($obra->vehiculo) {
-            $vehiculoInfo = trim($obra->vehiculo->marca . ' ' . $obra->vehiculo->modelo);
-            $placas = $obra->vehiculo->placas ?: 'N/A';
-        }
-
-        // Información del operador
-        $operadorInfo = 'N/A';
-        if ($obra->operador) {
-            $operadorInfo = trim($obra->operador->nombre . ' ' . $obra->operador->apellidos);
-        }
-
         // Información del encargado
         $encargadoInfo = 'N/A';
         if ($obra->encargado) {
-            $encargadoInfo = trim($obra->encargado->nombre . ' ' . $obra->encargado->apellidos);
+            $encargadoInfo = $obra->encargado->nombre_completo ?? 
+                trim(($obra->encargado->nombre ?? '') . ' ' . ($obra->encargado->apellidos ?? ''));
         }
 
         // Ubicación
-        $ubicacion = 'N/A';
-        if ($obra->ubicacion) {
-            $ubicacion = $obra->ubicacion;
-        }
+        $ubicacion = $obra->ubicacion ?? 'N/A';
 
         // Estado de la obra
         $estado = match($obra->estatus) {
@@ -118,8 +98,11 @@ class ObrasSheet implements FromCollection, WithHeadings, WithMapping, WithStyle
             'en_progreso' => 'En Progreso',
             'completada' => 'Completada',
             'suspendida' => 'Suspendida',
-            default => ucfirst($obra->estatus)
+            default => ucfirst($obra->estatus ?? 'N/A')
         };
+
+        // Avance
+        $avance = $obra->avance ? $obra->avance . '%' : 'N/A';
 
         return [
             $obra->id,
@@ -127,15 +110,12 @@ class ObrasSheet implements FromCollection, WithHeadings, WithMapping, WithStyle
             $obra->fecha_inicio ? $obra->fecha_inicio->format('d/m/Y') : 'N/A',
             $obra->fecha_fin ? $obra->fecha_fin->format('d/m/Y') : 'En progreso',
             $estado,
-            $vehiculoInfo,
-            $placas,
-            $operadorInfo,
             $encargadoInfo,
             $ubicacion,
             $obra->descripcion ?? 'N/A',
-            $obra->costo_total ? '$' . number_format($obra->costo_total, 2) : 'N/A',
+            $avance,
+            $obra->observaciones ?? 'N/A',
             $duracion,
-            $estado,
             $obra->created_at ? $obra->created_at->format('d/m/Y H:i') : 'N/A'
         ];
     }
@@ -155,19 +135,25 @@ class ObrasSheet implements FromCollection, WithHeadings, WithMapping, WithStyle
                 ],
             ],
             // Estilo para todas las celdas
-            'A:O' => [
+            'A:L' => [
                 'alignment' => [
                     'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
                 ],
             ],
-            // Columnas de números alineadas a la derecha
-            'L:L' => [
-                'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
-                ],
-            ],
             // Columnas de fechas centradas
             'C:D' => [
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ],
+            // Columna de avance centrada
+            'I:I' => [
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ],
+            // Columna de fecha registro centrada
+            'L:L' => [
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],

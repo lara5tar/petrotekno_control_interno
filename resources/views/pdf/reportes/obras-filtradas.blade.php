@@ -119,15 +119,14 @@
             <table class="pdf-table">
                 <thead>
                     <tr>
-                        <th style="width: 4%">ID</th>
-                        <th style="width: 20%">Nombre de la Obra</th>
-                        <th style="width: 8%">Fecha Inicio</th>
-                        <th style="width: 8%">Fecha Fin</th>
-                        <th style="width: 10%">Estatus</th>
-                        <th style="width: 15%">Vehículo</th>
-                        <th style="width: 12%">Operador</th>
-                        <th style="width: 12%">Encargado</th>
-                        <th style="width: 11%">Costo Total</th>
+                        <th style="width: 5%">ID</th>
+                        <th style="width: 25%">Nombre de la Obra</th>
+                        <th style="width: 10%">Fecha Inicio</th>
+                        <th style="width: 10%">Fecha Fin</th>
+                        <th style="width: 12%">Estatus</th>
+                        <th style="width: 15%">Encargado</th>
+                        <th style="width: 18%">Ubicación</th>
+                        <th style="width: 5%">Avance</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -156,35 +155,20 @@
                                         <span class="status-badge status-suspendida">Suspendida</span>
                                         @break
                                     @default
-                                        {{ ucfirst($obra->estatus) }}
+                                        {{ ucfirst($obra->estatus ?? 'N/A') }}
                                 @endswitch
                             </td>
                             <td class="pdf-cell">
-                                @if($obra->vehiculo)
-                                    {{ trim($obra->vehiculo->marca . ' ' . $obra->vehiculo->modelo) }}
-                                    @if($obra->vehiculo->placas)
-                                        <br><small>{{ $obra->vehiculo->placas }}</small>
-                                    @endif
-                                @else
-                                    N/A
-                                @endif
-                            </td>
-                            <td class="pdf-cell">
-                                @if($obra->operador)
-                                    {{ trim($obra->operador->nombre . ' ' . $obra->operador->apellidos) }}
-                                @else
-                                    N/A
-                                @endif
-                            </td>
-                            <td class="pdf-cell">
                                 @if($obra->encargado)
-                                    {{ trim($obra->encargado->nombre . ' ' . $obra->encargado->apellidos) }}
+                                    {{ $obra->encargado->nombre_completo ?? 
+                                        trim(($obra->encargado->nombre ?? '') . ' ' . ($obra->encargado->apellidos ?? '')) }}
                                 @else
                                     N/A
                                 @endif
                             </td>
-                            <td class="pdf-cell-right">
-                                {{ $obra->costo_total ? '$' . number_format($obra->costo_total, 2) : 'N/A' }}
+                            <td class="pdf-cell">{{ $obra->ubicacion ?? 'N/A' }}</td>
+                            <td class="pdf-cell-center">
+                                {{ $obra->avance ? $obra->avance . '%' : 'N/A' }}
                             </td>
                         </tr>
                     @endforeach
@@ -199,7 +183,7 @@
 
     <!-- Información adicional en el pie -->
     <div class="pdf-footer-info">
-        <p><strong>Nota:</strong> Este reporte muestra un máximo de 2,000 registros. Para informes más extensos, considere aplicar filtros adicionales o utilice el formato Excel.</p>
+        <p><strong>Nota:</strong> Este reporte muestra información general de obras sin detalles de vehículos o operadores. Para informes más extensos, considere aplicar filtros adicionales o utilice el formato Excel.</p>
         <p><strong>Sistema:</strong> Petrotekno Control Interno - Módulo de Obras</p>
     </div>
 @endsection
