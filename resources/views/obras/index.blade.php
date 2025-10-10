@@ -386,14 +386,52 @@
                 </tbody>
             </table>
         @endif
-    </div>
+        
+        <!-- Paginación incrustada en la tabla -->
+        @if(method_exists($obras, 'hasPages') && $obras->hasPages())
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex-1 flex justify-between sm:hidden">
+                    @if($obras->onFirstPage())
+                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-500 bg-white cursor-default">
+                            Anterior
+                        </span>
+                    @else
+                        <a href="{{ $obras->previousPageUrl() }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Anterior
+                        </a>
+                    @endif
 
-    <!-- Paginación -->
-    @if(method_exists($obras, 'hasPages') && $obras->hasPages())
-        <div class="mt-6">
-            {{ $obras->withQueryString()->links() }}
+                    @if($obras->hasMorePages())
+                        <a href="{{ $obras->nextPageUrl() }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Siguiente
+                        </a>
+                    @else
+                        <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-500 bg-white cursor-default">
+                            Siguiente
+                        </span>
+                    @endif
+                </div>
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Mostrando
+                            <span class="font-medium">{{ $obras->firstItem() }}</span>
+                            a
+                            <span class="font-medium">{{ $obras->lastItem() }}</span>
+                            de
+                            <span class="font-medium">{{ $obras->total() }}</span>
+                            resultados
+                        </p>
+                    </div>
+                    <div>
+                        {{ $obras->withQueryString()->links() }}
+                    </div>
+                </div>
+            </div>
         </div>
-    @endif
+        @endif
+    </div>
 
     <!-- Modal de confirmación de eliminación -->
     <x-delete-confirmation-modal 
