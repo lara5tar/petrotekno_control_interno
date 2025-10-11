@@ -71,13 +71,29 @@
                     mainContent.classList.remove('md:ml-64');
                     mainContent.classList.add('md:ml-16');
                 }
-                // Ocultar textos inmediatamente
+                // Ocultar textos y logo, mostrar espaciadores
                 const labels = sidebar.querySelectorAll('.sidebar-label');
-                const title = sidebar.querySelector('.sidebar-title');
+                const logo = sidebar.querySelector('.sidebar-logo');
                 const subtitle = sidebar.querySelector('.sidebar-subtitle');
+                const logoSpacer = sidebar.querySelector('.sidebar-spacer');
+                const subtitleSpacer = sidebar.querySelector('.sidebar-subtitle-spacer');
+                const itemContents = sidebar.querySelectorAll('.sidebar-item-content');
+                const icons = sidebar.querySelectorAll('.sidebar-item-content svg');
+                
                 labels.forEach(label => label.classList.add('hidden'));
-                if (title) title.classList.add('hidden');
+                if (logo) logo.classList.add('hidden');
                 if (subtitle) subtitle.classList.add('hidden');
+                if (logoSpacer) logoSpacer.classList.remove('hidden');
+                if (subtitleSpacer) subtitleSpacer.classList.remove('hidden');
+                
+                // Centrar iconos y quitar margen
+                itemContents.forEach(content => {
+                    content.classList.remove('justify-start');
+                    content.classList.add('md:justify-center');
+                });
+                icons.forEach(icon => {
+                    icon.classList.remove('md:mr-3');
+                });
             } else {
                 sidebar.classList.remove('md:w-16');
                 sidebar.classList.add('md:w-64');
@@ -85,6 +101,23 @@
                     mainContent.classList.remove('md:ml-16');
                     mainContent.classList.add('md:ml-64');
                 }
+                // Mostrar textos y logo, ocultar espaciadores
+                const logoSpacer = sidebar.querySelector('.sidebar-spacer');
+                const subtitleSpacer = sidebar.querySelector('.sidebar-subtitle-spacer');
+                const itemContents = sidebar.querySelectorAll('.sidebar-item-content');
+                const icons = sidebar.querySelectorAll('.sidebar-item-content svg');
+                
+                if (logoSpacer) logoSpacer.classList.add('hidden');
+                if (subtitleSpacer) subtitleSpacer.classList.add('hidden');
+                
+                // Alineación a la izquierda y margen del icono
+                itemContents.forEach(content => {
+                    content.classList.remove('md:justify-center');
+                    content.classList.add('justify-start');
+                });
+                icons.forEach(icon => {
+                    icon.classList.add('md:mr-3');
+                });
             }
             
             // Reactivar transiciones después de un pequeño delay
@@ -177,13 +210,30 @@
                 sidebar.classList.add('md:w-64');
                 mainContent.classList.remove('md:ml-16');
                 mainContent.classList.add('md:ml-64');
-                // Mostrar textos
+                // Mostrar textos y logo, ocultar espaciadores
                 const labels = sidebar.querySelectorAll('.sidebar-label');
-                const title = sidebar.querySelector('.sidebar-title');
+                const logo = sidebar.querySelector('.sidebar-logo');
                 const subtitle = sidebar.querySelector('.sidebar-subtitle');
+                const logoSpacer = sidebar.querySelector('.sidebar-spacer');
+                const subtitleSpacer = sidebar.querySelector('.sidebar-subtitle-spacer');
+                const itemContents = sidebar.querySelectorAll('.sidebar-item-content');
+                const icons = sidebar.querySelectorAll('.sidebar-item-content svg');
+                
                 labels.forEach(label => label.classList.remove('hidden'));
-                if (title) title.classList.remove('hidden');
+                if (logo) logo.classList.remove('hidden');
                 if (subtitle) subtitle.classList.remove('hidden');
+                if (logoSpacer) logoSpacer.classList.add('hidden');
+                if (subtitleSpacer) subtitleSpacer.classList.add('hidden');
+                
+                // Restaurar alineación a la izquierda y margen del icono
+                itemContents.forEach(content => {
+                    content.classList.remove('md:justify-center');
+                    content.classList.add('justify-start');
+                });
+                icons.forEach(icon => {
+                    icon.classList.add('md:mr-3');
+                });
+                
                 // Guardar estado
                 localStorage.setItem('sidebarCollapsed', false);
             } else {
@@ -192,13 +242,30 @@
                 sidebar.classList.add('md:w-16');
                 mainContent.classList.remove('md:ml-64');
                 mainContent.classList.add('md:ml-16');
-                // Ocultar textos
+                // Ocultar textos y logo, mostrar espaciadores
                 const labels = sidebar.querySelectorAll('.sidebar-label');
-                const title = sidebar.querySelector('.sidebar-title');
+                const logo = sidebar.querySelector('.sidebar-logo');
                 const subtitle = sidebar.querySelector('.sidebar-subtitle');
+                const logoSpacer = sidebar.querySelector('.sidebar-spacer');
+                const subtitleSpacer = sidebar.querySelector('.sidebar-subtitle-spacer');
+                const itemContents = sidebar.querySelectorAll('.sidebar-item-content');
+                const icons = sidebar.querySelectorAll('.sidebar-item-content svg');
+                
                 labels.forEach(label => label.classList.add('hidden'));
-                if (title) title.classList.add('hidden');
+                if (logo) logo.classList.add('hidden');
                 if (subtitle) subtitle.classList.add('hidden');
+                if (logoSpacer) logoSpacer.classList.remove('hidden');
+                if (subtitleSpacer) subtitleSpacer.classList.remove('hidden');
+                
+                // Centrar iconos y quitar margen
+                itemContents.forEach(content => {
+                    content.classList.remove('justify-start');
+                    content.classList.add('md:justify-center');
+                });
+                icons.forEach(icon => {
+                    icon.classList.remove('md:mr-3');
+                });
+                
                 // Guardar estado
                 localStorage.setItem('sidebarCollapsed', true);
             }

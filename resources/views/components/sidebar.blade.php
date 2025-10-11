@@ -1,11 +1,23 @@
 <!-- resources/views/components/sidebar.blade.php -->
 <div class="w-full h-full flex flex-col">
-    <div class="text-center px-5 p-10">
+    <!-- Logo visible cuando está expandido -->
+    <div class="text-center px-5 p-10 sidebar-logo">
         <img src="{{ asset('logo-petro2.png') }}" alt="Petrotekno" class="w-48 h-auto mx-auto">
     </div>
     
+    <!-- Espaciador invisible cuando está colapsado (mantiene la altura) -->
+    <div class="text-center px-5 p-10 sidebar-spacer hidden">
+        <div class="w-48 h-auto mx-auto opacity-0">
+            <!-- Espacio invisible del mismo tamaño que el logo -->
+            <div style="height: 120px;"></div>
+        </div>
+    </div>
+    
     <div class="">
+        <!-- Título visible cuando está expandido -->
         <h2 class="text-xl font-bold text-black text-center mb-4 sidebar-subtitle">Menú Principal</h2>
+        <!-- Espaciador invisible cuando está colapsado -->
+        <div class="sidebar-subtitle-spacer hidden" style="height: 44px;"></div>
         <nav>
             <x-sidebar-item 
                 route="{{ route('home') }}" 
@@ -55,13 +67,13 @@
     
     <div class="mt-auto mb-4">
         <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="block py-2.5 px-4 transition duration-200 text-gray-700 font-medium">
-            <div class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-3 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <div class="flex items-center justify-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-gray-700 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                     <polyline points="16,17 21,12 16,7"/>
                     <line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
-                <span class="sidebar-label">Cerrar Sesión</span>
+                <span class="sidebar-label whitespace-nowrap">Cerrar Sesión</span>
             </div>
         </a>
         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">

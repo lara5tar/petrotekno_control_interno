@@ -711,23 +711,34 @@
     @endhasPermission
 
     @hasPermission('eliminar_personal')
-    <!-- Botón Eliminar -->
-    <form action="{{ route('personal.destroy', $personal->id ?? 1) }}" 
-          method="POST" 
-          class="inline" 
-          onsubmit="return confirm('¿Estás seguro de que quieres eliminar este personal? Esta acción no se puede deshacer.')">
-        @csrf
-        @method('DELETE')
-        <button type="submit" 
-                class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 flex items-center space-x-2 shadow-lg"
-                title="Eliminar Personal">
+        @if($personal->id !== 1)
+        <!-- Botón Eliminar -->
+        <form action="{{ route('personal.destroy', $personal->id ?? 1) }}" 
+              method="POST" 
+              class="inline" 
+              onsubmit="return confirm('¿Estás seguro de que quieres eliminar este personal? Esta acción no se puede deshacer.')">
+            @csrf
+            @method('DELETE')
+            <button type="submit" 
+                    class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 flex items-center space-x-2 shadow-lg"
+                    title="Eliminar Personal">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Eliminar</span>
+            </button>
+        </form>
+        @else
+        <!-- Usuario admin protegido -->
+        <div class="inline-flex items-center bg-gray-400 text-white font-medium px-4 py-2 rounded text-sm cursor-not-allowed shadow-lg space-x-2"
+             title="Usuario administrador del sistema - No se puede eliminar">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"></path>
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
             </svg>
-            <span>Eliminar</span>
-        </button>
-    </form>
+            <span>Protegido</span>
+        </div>
+        @endif
     @endhasPermission
 </div>
 @endsection
