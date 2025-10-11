@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Centro de Alertas')
+@section('title', 'Alertas')
 
-@section('header', 'Centro de Alertas Unificado')
+@section('header', 'Alertas')
 
 @section('content')
 <div x-data="{ 
@@ -18,13 +18,12 @@
     {{-- Breadcrumb --}}
     <x-breadcrumb :items="[
         ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
-        ['label' => 'Alertas', 'url' => route('alertas.mantenimiento')],
-        ['label' => 'Centro Unificado']
+        ['label' => 'Alertas']
     ]" />
 
     <!-- Encabezado -->
     <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Centro de Alertas Unificado</h2>
+        <h2 class="text-2xl font-bold text-gray-800">Alertas</h2>
     </div>
 
     <!-- Estadísticas rápidas -->

@@ -41,12 +41,7 @@ Route::get('/alertas/mantenimiento', [MantenimientoAlertasController::class, 'in
     ->name('alertas.mantenimiento')
     ->middleware(['auth', 'permission:ver_mantenimientos']);
 
-// Ruta para vista unificada de alertas
-Route::get('/alertas/unificada', [MantenimientoAlertasController::class, 'unificada'])
-    ->name('alertas.unificada')
-    ->middleware(['auth', 'permission:ver_mantenimientos']);
-
-// Ruta para centro de alertas (alias de unificada)
+// Ruta principal para alertas
 Route::get('/alertas', [MantenimientoAlertasController::class, 'unificada'])
     ->name('alertas.index')
     ->middleware(['auth', 'permission:ver_mantenimientos']);
