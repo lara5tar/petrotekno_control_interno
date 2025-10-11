@@ -139,7 +139,7 @@
     <div class="container">
         <div class="header">
             <div class="logo">
-                <img src="{{ asset('logo-petro2.png') }}" alt="Petrotekno">
+                <img src="{{ $logoUrl }}" alt="Petrotekno" style="display: block; max-width: 180px; height: auto; border: 0;">
             </div>
             <h1>Sistema de Control Interno</h1>
             <p>Petrotekno</p>

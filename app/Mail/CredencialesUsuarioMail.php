@@ -5,6 +5,7 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Headers;
@@ -19,6 +20,7 @@ class CredencialesUsuarioMail extends Mailable
     public string $passwordGenerada;
     public string $rolUsuario;
     public string $urlLogin;
+    public string $logoUrl;
 
     /**
      * Create a new message instance.
@@ -35,6 +37,9 @@ class CredencialesUsuarioMail extends Mailable
         $this->passwordGenerada = $passwordGenerada;
         $this->rolUsuario = $rolUsuario;
         $this->urlLogin = $urlLogin;
+        
+        // Usar URL absoluta para el logo desde petrotekno.app
+        $this->logoUrl = 'https://petrotekno.app/logo-petro2.png';
     }
 
     /**
@@ -88,6 +93,7 @@ class CredencialesUsuarioMail extends Mailable
                 'passwordGenerada' => $this->passwordGenerada,
                 'rolUsuario' => $this->rolUsuario,
                 'urlLogin' => $this->urlLogin,
+                'logoUrl' => $this->logoUrl,
                 'sistemaName' => config('app.name'),
                 'fechaEnvio' => now()->format('d/m/Y H:i:s'),
             ]
