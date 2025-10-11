@@ -16,11 +16,23 @@ class TipoActivoSeeder extends Seeder
         
         $tiposActivo = [
             [
-                'nombre' => 'Vehículo',
+                'nombre' => 'Equipo de Energía',
+                'tiene_kilometraje' => false,
+            ],
+            [
+                'nombre' => 'Equipo de Pavimentación',
+                'tiene_kilometraje' => false,
+            ],
+            [
+                'nombre' => 'Equipo de Transporte',
                 'tiene_kilometraje' => true,
             ],
             [
-                'nombre' => 'Maquinaria',
+                'nombre' => 'Herramienta',
+                'tiene_kilometraje' => false,
+            ],
+            [
+                'nombre' => 'Tractocamiones y Remolques',
                 'tiene_kilometraje' => false,
             ],
         ];
