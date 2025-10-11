@@ -105,6 +105,13 @@ class AsignacionObra extends Model
         return $query;
     }
 
+    public function scopeHistorialPorVehiculoObra($query, $vehiculoId, $obraId)
+    {
+        return $query->where('vehiculo_id', $vehiculoId)
+                     ->where('obra_id', $obraId)
+                     ->orderBy('fecha_asignacion', 'desc');
+    }
+
     /**
      * Accessors
      */
@@ -198,6 +205,44 @@ class AsignacionObra extends Model
         }
 
         return true;
+    }
+
+    /**
+     * Crear una nueva asignación duplicando esta asignación pero con un nuevo operador
+     * Usado cuando se cambia el operador de un vehículo para mantener historial
+     */
+    public function duplicarConNuevoOperador(int $nuevoOperadorId, string $observaciones = null): self
+    {
+        // Finalizar la asignación actual con fecha de liberación = ahora
+        $this->update([
+            'fecha_liberacion' => Carbon::now(),
+            'estado' => self::ESTADO_LIBERADA,
+            'observaciones' => ($this->observaciones ? $this->observaciones . "\n\n" : '') . 
+                             "Asignación finalizada por cambio de operador. " . 
+                             ($observaciones ? "Observaciones: " . $observaciones : '')
+        ]);
+
+        // Crear nueva asignación con los mismos datos pero nuevo operador
+        return self::create([
+            'obra_id' => $this->obra_id,
+            'vehiculo_id' => $this->vehiculo_id,
+            'operador_id' => $nuevoOperadorId,
+            'fecha_asignacion' => Carbon::now(),
+            'kilometraje_inicial' => $this->vehiculo->kilometraje_actual, // Usar kilometraje actual del vehículo
+            'observaciones' => 'Asignación creada por cambio de operador. ' . 
+                             ($observaciones ? "Observaciones: " . $observaciones : ''),
+            'estado' => self::ESTADO_ACTIVA,
+        ]);
+    }
+
+    /**
+     * Obtener el historial completo de asignaciones para un vehículo en una obra específica
+     */
+    public static function obtenerHistorialVehiculoObra(int $vehiculoId, int $obraId): \Illuminate\Database\Eloquent\Collection
+    {
+        return self::with(['operador'])
+                   ->historialPorVehiculoObra($vehiculoId, $obraId)
+                   ->get();
     }
 
     /**

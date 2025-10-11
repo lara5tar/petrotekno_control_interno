@@ -376,9 +376,9 @@
                                     @endhasPermission
                                 </div>
                                 
-                                @if($obra->asignacionesActivas && $obra->asignacionesActivas->count() > 0)
+                                @if($asignacionesActivas && $asignacionesActivas->count() > 0)
                                     <div class="space-y-4">
-                                        @foreach($obra->asignacionesActivas as $asignacion)
+                                        @foreach($asignacionesActivas as $asignacion)
                                         <div class="space-y-3">
                                             <!-- Información del vehículo en componentes grises -->
                                             <div>
@@ -422,13 +422,13 @@
                                                 <div>
                                                     <label class="block text-sm text-gray-600">Fecha de Asignación</label>
                                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y') }}
+                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y H:i') }}
                                                     </div>
                                                 </div>
                                                 <div>
                                                     <label class="block text-sm text-gray-600">Operador</label>
                                                     <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                        {{ $asignacion->operador ? $asignacion->operador->nombre_completo : ($asignacion->vehiculo->operador ? $asignacion->vehiculo->operador->nombre_completo : 'Sin operador asignado') }}
+                                                        {{ $asignacion->operador ? $asignacion->operador->nombre_completo : 'Sin operador' }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -777,7 +777,6 @@
                                                 <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operador</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Asignación</th>
                                                 <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
-                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
@@ -794,9 +793,6 @@
                                                 </td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                                     {{ $obra->kilometraje_inicial ? number_format($obra->kilometraje_inicial) : 'N/A' }} km
-                                                </td>
-                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    <!-- Acciones en línea -->
                                                 </td>
                                             </tr>
                                             @elseif($asignacionesActivas && $asignacionesActivas->count() > 0)
@@ -828,34 +824,16 @@
                                                         {{ $asignacion->operador ? $asignacion->operador->nombre_completo : 'Sin operador' }}
                                                     </td>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y') }}
+                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y H:i') }}
                                                     </td>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                                         {{ number_format($asignacion->kilometraje_inicial) }} km
-                                                    </td>
-                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                        <div class="flex space-x-2">
-                                                            <a href="{{ route('obras.show', $obra->id) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
-                                                                <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                                </svg>
-                                                            </a>
-                                                            @if(isset($permisos) && $permisos->contains('actualizar_obras'))
-                                                            <button onclick="abrirModalLiberarAsignacion({{ $asignacion->id }}, '{{ $asignacion->vehiculo->marca }} {{ $asignacion->vehiculo->modelo }}', {{ $asignacion->kilometraje_inicial }})" 
-                                                                    class="text-red-600 hover:text-red-900" title="Liberar asignación">
-                                                                <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                                                                </svg>
-                                                            </button>
-                                                            @endif
-                                                        </div>
                                                     </td>
                                                 </tr>
                                                 @endforeach
                                             @else
                                                 <tr>
-                                                    <td colspan="5" class="px-3 py-4 text-center text-sm text-gray-500">
+                                                    <td colspan="4" class="px-3 py-4 text-center text-sm text-gray-500">
                                                         No hay asignaciones activas para esta obra
                                                     </td>
                                                 </tr>
@@ -984,11 +962,11 @@
                                                         {{ $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo . ' (' . $asignacion->vehiculo->placas . ')' : 'Sin activo' }}
                                                     </td>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                        {{ $asignacion->operador ? $asignacion->operador->nombre_completo : ($asignacion->vehiculo && $asignacion->vehiculo->operador ? $asignacion->vehiculo->operador->nombre_completo : 'Sin operador') }}
+                                                        {{ $asignacion->operador ? $asignacion->operador->nombre_completo : 'Sin operador' }}
                                                     </td>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y') }} - 
-                                                        {{ $asignacion->fecha_liberacion ? \Carbon\Carbon::parse($asignacion->fecha_liberacion)->format('d/m/Y') : 'En curso' }}
+                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y H:i') }} - 
+                                                        {{ $asignacion->fecha_liberacion ? \Carbon\Carbon::parse($asignacion->fecha_liberacion)->format('d/m/Y H:i') : 'En curso' }}
                                                     </td>
                                                     <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                                         Sistema

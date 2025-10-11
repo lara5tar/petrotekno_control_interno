@@ -523,14 +523,16 @@ class ObraController extends Controller
             $asignacionesActivas = AsignacionObra::with(['vehiculo', 'operador', 'vehiculo.operador'])
                 ->where('obra_id', $id)
                 ->where('estado', AsignacionObra::ESTADO_ACTIVA)
-                ->orderBy('fecha_asignacion', 'desc')
+                ->orderBy('fecha_asignacion', 'asc') // Cambio: ordenar por fecha ascendente (orden de llegada)
+                ->orderBy('id', 'asc') // Orden secundario por ID para casos con misma fecha
                 ->paginate(10, ['*'], 'activas_page');
 
-            // Paginación para asignaciones liberadas
+            // Paginación para asignaciones liberadas (historial)
             $asignacionesLiberadas = AsignacionObra::with(['vehiculo', 'operador', 'vehiculo.operador'])
                 ->where('obra_id', $id)
                 ->where('estado', AsignacionObra::ESTADO_LIBERADA)
-                ->orderBy('fecha_asignacion', 'desc')
+                ->orderBy('fecha_asignacion', 'desc') // Historial: las más recientes primero
+                ->orderBy('id', 'desc') // Orden secundario por ID
                 ->paginate(10, ['*'], 'historial_page');
 
             if (! $obra) {

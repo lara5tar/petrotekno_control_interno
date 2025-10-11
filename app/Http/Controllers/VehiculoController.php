@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\EstadoVehiculo;
 use App\Http\Requests\StoreVehiculoRequest;
 use App\Http\Requests\UpdateVehiculoRequest;
+use App\Models\AsignacionObra;
 use App\Models\CategoriaPersonal;
 use App\Models\CatalogoTipoDocumento;
 use App\Models\Documento;
@@ -1064,11 +1065,23 @@ class VehiculoController extends Controller
                 'operador_id' => $request->operador_id
             ]);
             
-            // Actualizar la asignación de obra si existe
+            // Si existe una asignación activa, manejar según si ya tenía operador o no
             if ($asignacionActiva) {
-                $asignacionActiva->update([
-                    'operador_id' => $request->operador_id
-                ]);
+                // Si la asignación NO tenía operador, simplemente actualizar
+                if (!$asignacionActiva->operador_id) {
+                    $asignacionActiva->update([
+                        'operador_id' => $request->operador_id,
+                        'observaciones' => ($asignacionActiva->observaciones ? $asignacionActiva->observaciones . "\n\n" : '') . 
+                                         'Operador asignado: ' . $nuevoOperador->nombre_completo . 
+                                         ($request->observaciones ? ". Observaciones: " . $request->observaciones : '')
+                    ]);
+                } else {
+                    // Si YA tenía operador, entonces sí duplicar para mantener historial
+                    $asignacionActiva = $asignacionActiva->duplicarConNuevoOperador(
+                        $request->operador_id,
+                        $request->observaciones
+                    );
+                }
             }
 
             // Determinar el tipo de movimiento

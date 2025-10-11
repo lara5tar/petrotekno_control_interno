@@ -125,7 +125,9 @@ class Obra extends Model
      */
     public function asignacionesActivas(): HasMany
     {
-        return $this->asignacionesObra()->activas();
+        return $this->asignacionesObra()->activas()
+            ->orderBy('fecha_asignacion', 'asc')
+            ->orderBy('id', 'asc'); // Orden secundario para casos con misma fecha/hora
     }
 
     /**
@@ -133,7 +135,9 @@ class Obra extends Model
      */
     public function asignacionesLiberadas(): HasMany
     {
-        return $this->asignacionesObra()->liberadas();
+        return $this->asignacionesObra()->liberadas()
+            ->orderBy('fecha_asignacion', 'desc')
+            ->orderBy('id', 'desc'); // Orden secundario para casos con misma fecha/hora
     }
 
     /**
