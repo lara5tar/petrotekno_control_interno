@@ -141,9 +141,10 @@
                     <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estatus</label>
                     <select id="estado" name="estatus" class="p-2 border border-gray-300 rounded-md w-full">
                         <option value="">Todos los estatus</option>
-                        <option value="completada" {{ request('estatus') == 'completada' ? 'selected' : '' }}>Completada</option>
+                        <option value="planificada" {{ request('estatus') == 'planificada' ? 'selected' : '' }}>Planificada</option>
                         <option value="en_progreso" {{ request('estatus') == 'en_progreso' ? 'selected' : '' }}>En Progreso</option>
-                        <option value="pausada" {{ request('estatus') == 'pausada' ? 'selected' : '' }}>Pausada</option>
+                        <option value="suspendida" {{ request('estatus') == 'suspendida' ? 'selected' : '' }}>Suspendida</option>
+                        <option value="completada" {{ request('estatus') == 'completada' ? 'selected' : '' }}>Completada</option>
                         <option value="cancelada" {{ request('estatus') == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
                     </select>
                 </div>
@@ -226,9 +227,9 @@
                                                 En Progreso
                                             </span>
                                             @break
-                                        @case('pausada')
+                                        @case('suspendida')
                                             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                Pausada
+                                                Suspendida
                                             </span>
                                             @break
                                         @case('cancelada')
@@ -236,9 +237,14 @@
                                                 Cancelada
                                             </span>
                                             @break
+                                        @case('planificada')
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                                                Planificada
+                                            </span>
+                                            @break
                                         @default
                                             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                                                Sin definir
+                                                Planificada
                                             </span>
                                     @endswitch
                                 </td>
