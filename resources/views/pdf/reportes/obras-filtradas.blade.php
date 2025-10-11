@@ -154,6 +154,9 @@
                                     @case('suspendida')
                                         <span class="status-badge status-suspendida">Suspendida</span>
                                         @break
+                                    @case('planificada')
+                                        <span class="status-badge status-planificada">Planificada</span>
+                                        @break
                                     @default
                                         {{ ucfirst($obra->estatus ?? 'N/A') }}
                                 @endswitch
@@ -190,30 +193,6 @@
 
 @section('additional-styles')
 <style>
-    .status-badge {
-        padding: 2px 6px;
-        border-radius: 3px;
-        font-size: 0.75em;
-        font-weight: bold;
-        color: white;
-    }
-    
-    .status-activa {
-        background-color: #28a745;
-    }
-    
-    .status-en-progreso {
-        background-color: #007bff;
-    }
-    
-    .status-completada {
-        background-color: #6c757d;
-    }
-    
-    .status-suspendida {
-        background-color: #dc3545;
-    }
-    
     .pdf-cell small {
         font-size: 0.8em;
         color: #666;

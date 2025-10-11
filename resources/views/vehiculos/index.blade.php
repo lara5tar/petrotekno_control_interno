@@ -94,6 +94,17 @@
                 </div>
             </div>
             <div class="flex-1 md:flex-none md:w-48">
+                <label for="tipo_activo" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Activo</label>
+                <select id="tipo_activo" name="tipo_activo_id" class="p-2 border border-gray-300 rounded-md w-full h-10">
+                    <option value="">Todos los tipos</option>
+                    @foreach($tiposActivo as $tipo)
+                        <option value="{{ $tipo->id }}" {{ request('tipo_activo_id') == $tipo->id ? 'selected' : '' }}>
+                            {{ $tipo->nombre }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="flex-1 md:flex-none md:w-48">
                 <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
                 <select id="estado" name="estado" class="p-2 border border-gray-300 rounded-md w-full h-10">
                     <option value="">Todos los estados</option>
@@ -110,7 +121,7 @@
                 <!-- Label invisible para alineación -->
                 <label class="block text-sm font-medium text-gray-700 mb-1 invisible">Acciones</label>
                 <div class="flex gap-2">
-                    @if(request()->hasAny(['buscar', 'estado']))
+                    @if(request()->hasAny(['buscar', 'estado', 'tipo_activo_id']))
                         <a href="{{ route('vehiculos.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-1.5 px-3 rounded text-sm h-10 flex items-center justify-center transition duration-200">
                             Limpiar
                         </a>
@@ -290,11 +301,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // VERSIÓN ULTRA SIMPLE - SOLO FILTROS BÁSICOS
     const estadoSelect = document.getElementById('estado');
+    const tipoActivoSelect = document.getElementById('tipo_activo');
     const filtrosForm = document.getElementById('filtrosForm');
     const searchInput = document.getElementById('buscar');
     
     console.log('Elements found:', {
         estadoSelect: !!estadoSelect,
+        tipoActivoSelect: !!tipoActivoSelect,
         filtrosForm: !!filtrosForm,
         searchInput: !!searchInput
     });
@@ -331,6 +344,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (estadoSelect) {
         estadoSelect.addEventListener('change', function() {
             console.log('📊 Estado changed to:', this.value);
+            aplicarFiltros();
+        });
+    }
+    
+    // Event listener para tipo de activo
+    if (tipoActivoSelect) {
+        tipoActivoSelect.addEventListener('change', function() {
+            console.log('🏗️ Tipo de activo changed to:', this.value);
             aplicarFiltros();
         });
     }
@@ -432,6 +453,9 @@ function descargarReporte(tipo) {
     if (urlParams.get('estado')) {
         filtros.estado = urlParams.get('estado');
     }
+    if (urlParams.get('tipo_activo_id')) {
+        filtros.tipo_activo_id = urlParams.get('tipo_activo_id');
+    }
     if (urlParams.get('anio')) {
         filtros.anio = urlParams.get('anio');
     }
@@ -448,10 +472,20 @@ function descargarReporte(tipo) {
         filtros.estado = estadoSelect.value;
     }
     
+    // Capturar tipo de activo actual del filtro
+    const tipoActivoSelect = document.getElementById('tipo_activo');
+    if (tipoActivoSelect && tipoActivoSelect.value) {
+        filtros.tipo_activo_id = tipoActivoSelect.value;
+    }
+    
     // Mostrar información sobre filtros aplicados
     let filtrosInfo = [];
     if (filtros.buscar) filtrosInfo.push(`Búsqueda: "${filtros.buscar}"`);
     if (filtros.estado) filtrosInfo.push(`Estado: "${filtros.estado}"`);
+    if (filtros.tipo_activo_id) {
+        const tipoActivoText = tipoActivoSelect ? tipoActivoSelect.options[tipoActivoSelect.selectedIndex].text : filtros.tipo_activo_id;
+        filtrosInfo.push(`Tipo: "${tipoActivoText}"`);
+    }
     if (filtros.anio) filtrosInfo.push(`Año: "${filtros.anio}"`);
     
     const tipoReporte = tipo === 'pdf' ? 'PDF' : 'Excel';

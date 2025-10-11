@@ -321,6 +321,45 @@
         }
         
         /* ===========================
+           ESTILOS PARA ESTADOS DE OBRAS
+        =========================== */
+        .status-activa {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-en-progreso {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .status-completada {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+        
+        .status-suspendida {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .status-cancelada {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status-planificada {
+            background-color: #cce5ff;
+            color: #004085;
+            border: 1px solid #b3d9ff;
+        }
+        
+        /* ===========================
            UTILIDADES
         =========================== */
         .text-center { text-align: center; }

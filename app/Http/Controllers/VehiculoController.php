@@ -51,14 +51,21 @@ class VehiculoController extends Controller
             $query->porAnio($request->get('anio'));
         }
 
+        if ($request->filled('tipo_activo_id')) {
+            $query->where('tipo_activo_id', $request->get('tipo_activo_id'));
+        }
+
         $vehiculos = $query->orderBy('id')->paginate(15);
 
         // Obtener valores únicos para filtros
         $estados = collect(EstadoVehiculo::cases())->mapWithKeys(function ($estado) {
             return [$estado->value => $estado->nombre()];
         });
+        
+        // Obtener todos los tipos de activo para el filtro
+        $tiposActivo = TipoActivo::orderBy('nombre')->get();
 
-        return view('vehiculos.index', compact('vehiculos', 'estados'));
+        return view('vehiculos.index', compact('vehiculos', 'estados', 'tiposActivo'));
     }
 
     /**
@@ -1322,6 +1329,10 @@ class VehiculoController extends Controller
             $query->porAnio($request->get('anio'));
         }
 
+        if ($request->filled('tipo_activo_id')) {
+            $query->where('tipo_activo_id', $request->get('tipo_activo_id'));
+        }
+
         // Obtener vehículos con límite para evitar problemas de memoria
         $vehiculos = $query->orderBy('marca')->orderBy('modelo')->limit(5000)->get();
 
@@ -1389,6 +1400,10 @@ class VehiculoController extends Controller
 
         if ($request->filled('anio')) {
             $query->porAnio($request->get('anio'));
+        }
+
+        if ($request->filled('tipo_activo_id')) {
+            $query->where('tipo_activo_id', $request->get('tipo_activo_id'));
         }
 
         // Para Excel, podemos manejar más registros pero con límite de seguridad
