@@ -31,6 +31,8 @@
         .logo img {
             max-width: 180px;
             height: auto;
+            margin: 0 auto;
+            display: block;
         }
         .header h1 {
             color: #161615;
@@ -139,7 +141,7 @@
     <div class="container">
         <div class="header">
             <div class="logo">
-                <img src="{{ $logoUrl }}" alt="Petrotekno" style="display: block; max-width: 180px; height: auto; border: 0;">
+                <img src="{{ $logoUrl }}" alt="Petrotekno" style="display: block; max-width: 180px; height: auto; margin: 0 auto; border: 0;">
             </div>
             <h1>Sistema de Control Interno</h1>
             <p>Petrotekno</p>
