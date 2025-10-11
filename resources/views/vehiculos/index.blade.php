@@ -227,8 +227,27 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="px-6 py-4 text-center text-gray-500">
-                            No se encontraron activos.
+                        <td colspan="9" class="px-6 py-4">
+                            <div class="text-center py-8">
+                                <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                                </svg>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">No hay activos registrados</h3>
+                                <p class="text-gray-500 mb-6">
+                                    @if(request()->hasAny(['buscar', 'estado', 'tipo_activo_id']))
+                                        No se encontraron activos con los filtros aplicados.
+                                    @else
+                                        Comience registrando el primer activo de su flota.
+                                    @endif
+                                </p>
+                                <a href="{{ route('vehiculos.create') }}" 
+                                   class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded inline-flex items-center transition duration-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    Registrar Activo
+                                </a>
+                            </div>
                         </td>
                     </tr>
 

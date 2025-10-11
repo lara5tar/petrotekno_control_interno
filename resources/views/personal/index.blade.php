@@ -224,27 +224,26 @@
                     @else
                         <!-- Estado vacío dentro de la tabla -->
                         <tr>
-                            <td colspan="9" class="px-6 py-8 text-center">
-                                <div class="flex flex-col items-center">
-                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            <td colspan="9" class="px-6 py-4">
+                                <div class="text-center py-8">
+                                    <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                                     </svg>
-                                    <h3 class="mt-2 text-sm font-medium text-gray-900">No hay personal</h3>
-                                    <p class="mt-1 text-sm text-gray-500">
+                                    <h3 class="text-lg font-medium text-gray-900 mb-2">No hay personal registrado</h3>
+                                    <p class="text-gray-500 mb-6">
                                         @if(request()->hasAny(['buscar', 'categoria_id', 'estatus']))
-                                            No se encontró personal con los criterios especificados.
+                                            No se encontró personal con los filtros aplicados.
                                         @else
-                                            Aún no hay personal registrado en el sistema.
+                                            Comience registrando el primer miembro de su equipo.
                                         @endif
                                     </p>
-                                    @if(request()->hasAny(['buscar', 'categoria_id', 'estatus']))
-                                        <div class="mt-4">
-                                            <a href="{{ route('personal.index') }}" 
-                                               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded text-gray-700 bg-gray-100 hover:bg-gray-200">
-                                                Limpiar filtros
-                                            </a>
-                                        </div>
-                                    @endif
+                                    <a href="{{ route('personal.create') }}" 
+                                       class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded inline-flex items-center transition duration-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                                        </svg>
+                                        Registrar Personal
+                                    </a>
                                 </div>
                             </td>
                         </tr>

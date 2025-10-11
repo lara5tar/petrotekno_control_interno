@@ -365,27 +365,26 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <tr>
-                        <td colspan="7" class="px-6 py-8 text-center">
-                            <div class="flex flex-col items-center">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        <td colspan="7" class="px-6 py-4">
+                            <div class="text-center py-8">
+                                <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                                 </svg>
-                                <h3 class="mt-2 text-sm font-medium text-gray-900">No hay obras</h3>
-                                <p class="mt-1 text-sm text-gray-500">
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">No hay obras registradas</h3>
+                                <p class="text-gray-500 mb-6">
                                     @if(request()->hasAny(['search', 'estatus', 'fecha_inicio']))
-                                        No se encontraron obras con los criterios especificados.
+                                        No se encontraron obras con los filtros aplicados.
                                     @else
-                                        Aún no hay obras registradas en el sistema.
+                                        Comience registrando la primera obra de su proyecto.
                                     @endif
                                 </p>
-                                @if(request()->hasAny(['search', 'estatus', 'fecha_inicio']))
-                                    <div class="mt-4">
-                                        <a href="{{ route('obras.index') }}" 
-                                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded text-gray-700 bg-gray-100 hover:bg-gray-200">
-                                            Limpiar filtros
-                                        </a>
-                                    </div>
-                                @endif
+                                <a href="{{ route('obras.create') }}" 
+                                   class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded inline-flex items-center transition duration-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    Registrar Obra
+                                </a>
                             </div>
                         </td>
                     </tr>
