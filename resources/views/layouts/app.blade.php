@@ -57,14 +57,20 @@
         // Aplicar estado inmediatamente antes de que se muestre la página
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.flex-1.flex.flex-col');
             const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
             
             // Deshabilitar transiciones temporalmente
             sidebar.style.transition = 'none';
+            if (mainContent) mainContent.style.transition = 'none';
             
             if (isCollapsed) {
                 sidebar.classList.remove('md:w-64');
                 sidebar.classList.add('md:w-16');
+                if (mainContent) {
+                    mainContent.classList.remove('md:ml-64');
+                    mainContent.classList.add('md:ml-16');
+                }
                 // Ocultar textos inmediatamente
                 const labels = sidebar.querySelectorAll('.sidebar-label');
                 const title = sidebar.querySelector('.sidebar-title');
@@ -75,26 +81,34 @@
             } else {
                 sidebar.classList.remove('md:w-16');
                 sidebar.classList.add('md:w-64');
+                if (mainContent) {
+                    mainContent.classList.remove('md:ml-16');
+                    mainContent.classList.add('md:ml-64');
+                }
             }
             
             // Reactivar transiciones después de un pequeño delay
             setTimeout(() => {
                 sidebar.style.transition = '';
                 sidebar.classList.add('transition-all', 'duration-300', 'ease-in-out');
+                if (mainContent) {
+                    mainContent.style.transition = '';
+                    mainContent.classList.add('transition-all', 'duration-300', 'ease-in-out');
+                }
             }, 50);
         });
     </script>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col md:flex-row">
-    <!-- Menú lateral (amarillo) -->
-    <div id="sidebar" class="bg-petroyellow w-full md:w-64 md:min-h-screen flex flex-col">
+<body class="bg-gray-100 h-screen flex flex-col md:flex-row overflow-hidden">
+    <!-- Menú lateral (amarillo) - FIJO -->
+    <div id="sidebar" class="bg-petroyellow w-full md:w-64 h-screen flex flex-col md:fixed md:left-0 md:top-0 overflow-y-auto">
         <x-sidebar />
     </div>
     
-    <!-- Contenido principal -->
-    <div class="flex-1">
-        <!-- Barra superior (negra) -->
-        <div class="bg-petrodark text-white p-4 flex justify-between items-center">
+    <!-- Contenido principal - CON SCROLL -->
+    <div class="flex-1 flex flex-col md:ml-64 h-screen overflow-hidden">
+        <!-- Barra superior (negra) - FIJA -->
+        <div class="bg-petrodark text-white p-4 flex justify-between items-center flex-shrink-0">
             <div class="flex items-center">
                 <!-- Botón para móviles -->
                 <button class="md:hidden mr-4" id="menu-toggle-mobile">
@@ -134,8 +148,8 @@
             </div>
         </div>
         
-        <!-- Contenido de la página -->
-        <div class="p-6">
+        <!-- Contenido de la página - CON SCROLL -->
+        <div class="p-6 overflow-y-auto flex-1">
             <!-- Notificaciones globales mejoradas -->
             <x-notifications />
 
@@ -154,12 +168,15 @@
         // Funcionalidad para escritorio (colapsar/expandir)
         document.getElementById('menu-toggle-desktop').addEventListener('click', function() {
             const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.flex-1.flex.flex-col');
             const isCollapsed = sidebar.classList.contains('md:w-16');
             
             if (isCollapsed) {
                 // Expandir
                 sidebar.classList.remove('md:w-16');
                 sidebar.classList.add('md:w-64');
+                mainContent.classList.remove('md:ml-16');
+                mainContent.classList.add('md:ml-64');
                 // Mostrar textos
                 const labels = sidebar.querySelectorAll('.sidebar-label');
                 const title = sidebar.querySelector('.sidebar-title');
@@ -173,6 +190,8 @@
                 // Colapsar
                 sidebar.classList.remove('md:w-64');
                 sidebar.classList.add('md:w-16');
+                mainContent.classList.remove('md:ml-64');
+                mainContent.classList.add('md:ml-16');
                 // Ocultar textos
                 const labels = sidebar.querySelectorAll('.sidebar-label');
                 const title = sidebar.querySelector('.sidebar-title');
