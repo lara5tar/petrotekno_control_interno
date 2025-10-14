@@ -261,22 +261,6 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- Información de contacto -->
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Categoría</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                {{ $obra->encargado->categoria ? $obra->encargado->categoria->nombre_categoria : 'Sin categoría' }}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm text-gray-600">Teléfono</label>
-                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
-                                                {{ $obra->encargado->telefono ?? 'No registrado' }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
                                     <!-- Cuenta de usuario si existe -->
                                     @if($obra->encargado->usuario)
                                     <div>
