@@ -1071,11 +1071,11 @@
 </div>
 
 <!-- Botones de Acción Flotantes -->
-<div class="fixed bottom-6 right-6 flex space-x-3 z-50">
+<div class="fixed bottom-2 right-6 flex space-x-3 z-50">
     @hasPermission('actualizar_obras')
     <!-- Botón Editar -->
     <a href="{{ route('obras.edit', $obra->id) }}" 
-       class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+       class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 inline-flex items-center space-x-2 shadow-lg h-9"
        title="Editar Obra">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
             <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -1088,15 +1088,15 @@
     <!-- Botón Eliminar -->
     <form action="{{ route('obras.destroy', $obra->id) }}" 
           method="POST" 
-          class="inline" 
           onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta obra? Esta acción no se puede deshacer.')">
         @csrf
         @method('DELETE')
         <button type="submit" 
-                class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 inline-flex items-center space-x-2 shadow-lg h-9"
                 title="Eliminar Obra">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm2.5 4a.5.5 0 01.5-.5h4a.5.5 0 01.5.5v2a.5.5 0 01-.5.5H7a.5.5 0 01-.5-.5V9z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
             </svg>
             <span>Eliminar</span>
         </button>

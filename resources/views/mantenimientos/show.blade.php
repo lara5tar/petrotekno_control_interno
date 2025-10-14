@@ -99,13 +99,13 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-600">Marca y Modelo</label>
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                    {{ $mantenimiento->vehiculo->marca }} {{ $mantenimiento->vehiculo->modelo }}
+                                    {{ $mantenimiento->vehiculo->marca ?: 'Sin marca' }} {{ $mantenimiento->vehiculo->modelo ?: 'Sin modelo' }}
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-600">Año</label>
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                    {{ $mantenimiento->vehiculo->anio }}
+                                    {{ $mantenimiento->vehiculo->anio ?: 'Sin año' }}
                                 </div>
                             </div>
                         </div>
@@ -113,13 +113,13 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-600">Placas</label>
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                    {{ $mantenimiento->vehiculo->placas }}
+                                    {{ $mantenimiento->vehiculo->placas ?: 'Sin placas' }}
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-600">Número de Serie</label>
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                    {{ $mantenimiento->vehiculo->n_serie }}
+                                    {{ $mantenimiento->vehiculo->n_serie ?: 'Sin serie' }}
                                 </div>
                             </div>
                         </div>
@@ -127,7 +127,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-600">Kilometraje Actual</label>
                                 <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                    {{ number_format($mantenimiento->vehiculo->kilometraje_actual) }} km
+                                    {{ $mantenimiento->vehiculo->kilometraje_actual ? number_format($mantenimiento->vehiculo->kilometraje_actual) . ' km' : 'Sin kilometraje' }}
                                 </div>
                             </div>
                         </div>
@@ -253,51 +253,40 @@
             @endif
         </div>
     </div>
-
-    <!-- Acciones principales -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mt-6">
-        <div class="px-6 py-4">
-            <div class="flex flex-wrap justify-center gap-3">
-                <a href="{{ route('mantenimientos.edit', $mantenimiento->id) }}" 
-                   class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg flex items-center transition-colors duration-200">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                    </svg>
-                    Editar Mantenimiento
-                </a>
-                
-                <form method="POST" 
-                      action="{{ route('mantenimientos.destroy', $mantenimiento->id) }}" 
-                      class="inline"
-                      onsubmit="return confirm('¿Está seguro de eliminar este mantenimiento?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" 
-                            class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg flex items-center transition-colors duration-200">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                        Eliminar
-                    </button>
-                </form>
-                
-                <a href="{{ route('mantenimientos.index') }}" 
-                   class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg flex items-center transition-colors duration-200">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                    </svg>
-                    Volver al Listado
-                </a>
-
-                <a href="{{ route('mantenimientos.create') }}" 
-                   class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg flex items-center transition-colors duration-200">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    Nuevo Mantenimiento
-                </a>
-            </div>
-        </div>
-    </div>
 </div>
+
+<!-- Botones de Acción Flotantes -->
+<div class="fixed bottom-6 right-6 flex space-x-3 z-50">
+    @hasPermission('actualizar_mantenimientos')
+    <!-- Botón Editar -->
+    <a href="{{ route('mantenimientos.edit', $mantenimiento->id) }}" 
+       class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 inline-flex items-center space-x-2 shadow-lg h-9"
+       title="Editar Mantenimiento">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+        </svg>
+        <span>Editar</span>
+    </a>
+    @endhasPermission
+
+    @hasPermission('eliminar_mantenimientos')
+    <!-- Botón Eliminar -->
+    <form action="{{ route('mantenimientos.destroy', $mantenimiento->id) }}" 
+          method="POST" 
+          onsubmit="return confirm('¿Estás seguro de que quieres eliminar este mantenimiento? Esta acción no se puede deshacer.')">
+        @csrf
+        @method('DELETE')
+        <button type="submit" 
+                class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 inline-flex items-center space-x-2 shadow-lg h-9"
+                title="Eliminar Mantenimiento">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+            </svg>
+            <span>Eliminar</span>
+        </button>
+    </form>
+    @endhasPermission
+</div>
+
 @endsection
