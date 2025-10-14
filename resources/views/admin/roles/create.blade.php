@@ -209,62 +209,105 @@
     </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Script de roles cargado');
+    
     // Seleccionar/deseleccionar todos los permisos
-    document.getElementById('selectAll').addEventListener('click', function() {
-        document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
-            checkbox.checked = true;
+    const selectAllBtn = document.getElementById('selectAll');
+    const deselectAllBtn = document.getElementById('deselectAll');
+    
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Seleccionar todos');
+            document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
+                checkbox.checked = true;
+            });
+            document.querySelectorAll('.module-select').forEach(checkbox => {
+                checkbox.checked = true;
+                checkbox.indeterminate = false;
+            });
         });
-        updateModuleSelectors();
-    });
+    }
 
-    document.getElementById('deselectAll').addEventListener('click', function() {
-        document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
-            checkbox.checked = false;
+    if (deselectAllBtn) {
+        deselectAllBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Deseleccionar todos');
+            document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            document.querySelectorAll('.module-select').forEach(checkbox => {
+                checkbox.checked = false;
+                checkbox.indeterminate = false;
+            });
         });
-        updateModuleSelectors();
-    });
+    }
 
     // Seleccionar/deseleccionar permisos por módulo
     document.querySelectorAll('.module-select').forEach(moduleCheckbox => {
-        moduleCheckbox.addEventListener('change', function() {
+        moduleCheckbox.addEventListener('change', function(e) {
             const module = this.dataset.module;
-            const modulePermissions = document.querySelectorAll(`[data-module="${module}"].permission-checkbox`);
+            const isChecked = this.checked;
+            console.log(`Módulo ${module} cambiado a:`, isChecked);
+            
+            const modulePermissions = document.querySelectorAll(`input.permission-checkbox[data-module="${module}"]`);
+            console.log(`Permisos encontrados para ${module}:`, modulePermissions.length);
             
             modulePermissions.forEach(permission => {
-                permission.checked = this.checked;
+                permission.checked = isChecked;
             });
+            
+            this.indeterminate = false;
         });
     });
 
     // Actualizar estado de checkbox de módulo cuando se cambian permisos individuales
     document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', updateModuleSelectors);
+        checkbox.addEventListener('change', function() {
+            updateModuleSelector(this.dataset.module);
+        });
     });
 
-    function updateModuleSelectors() {
-        document.querySelectorAll('.module-select').forEach(moduleCheckbox => {
-            const module = moduleCheckbox.dataset.module;
-            const modulePermissions = document.querySelectorAll(`[data-module="${module}"].permission-checkbox`);
-            const checkedPermissions = document.querySelectorAll(`[data-module="${module}"].permission-checkbox:checked`);
-            
-            if (checkedPermissions.length === modulePermissions.length) {
-                moduleCheckbox.checked = true;
-                moduleCheckbox.indeterminate = false;
-            } else if (checkedPermissions.length > 0) {
-                moduleCheckbox.checked = false;
-                moduleCheckbox.indeterminate = true;
-            } else {
-                moduleCheckbox.checked = false;
-                moduleCheckbox.indeterminate = false;
-            }
+    function updateModuleSelector(module) {
+        const moduleCheckbox = document.querySelector(`.module-select[data-module="${module}"]`);
+        if (!moduleCheckbox) return;
+        
+        const modulePermissions = document.querySelectorAll(`input.permission-checkbox[data-module="${module}"]`);
+        const checkedPermissions = document.querySelectorAll(`input.permission-checkbox[data-module="${module}"]:checked`);
+        
+        console.log(`Módulo ${module}: ${checkedPermissions.length}/${modulePermissions.length} seleccionados`);
+        
+        if (checkedPermissions.length === modulePermissions.length && modulePermissions.length > 0) {
+            moduleCheckbox.checked = true;
+            moduleCheckbox.indeterminate = false;
+        } else if (checkedPermissions.length > 0) {
+            moduleCheckbox.checked = false;
+            moduleCheckbox.indeterminate = true;
+        } else {
+            moduleCheckbox.checked = false;
+            moduleCheckbox.indeterminate = false;
+        }
+    }
+
+    function updateAllModuleSelectors() {
+        const modules = new Set();
+        document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
+            modules.add(checkbox.dataset.module);
+        });
+        
+        modules.forEach(module => {
+            updateModuleSelector(module);
         });
     }
 
     // Inicializar estado de módulos
-    updateModuleSelectors();
+    updateAllModuleSelectors();
+    
+    console.log('Total checkboxes de permisos:', document.querySelectorAll('.permission-checkbox').length);
+    console.log('Total checkboxes de módulos:', document.querySelectorAll('.module-select').length);
 });
 </script>
-@endsection
+@endpush
