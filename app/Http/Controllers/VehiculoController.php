@@ -102,8 +102,8 @@ class VehiculoController extends Controller
                 'numero_poliza' => $validatedData['numero_poliza'] ?? null,
                 'modelo' => $validatedData['modelo'],
                 'anio' => $validatedData['anio'],
-                'n_serie' => $validatedData['n_serie'],
-                'placas' => $validatedData['placas'],
+                'n_serie' => $validatedData['n_serie'] ?? null, // Corregido: Puede ser null
+                'placas' => $validatedData['placas'] ?? null, // Corregido: Puede ser null
                 'estatus' => EstadoVehiculo::DISPONIBLE->value, // Estatus automático como DISPONIBLE
                 'kilometraje_actual' => $validatedData['kilometraje_actual'] ?? null, // Opcional según tipo de activo
                 'intervalo_km_motor' => $validatedData['intervalo_km_motor'] ?? null,
@@ -111,8 +111,8 @@ class VehiculoController extends Controller
                 'municipio' => $validatedData['municipio'] ?? null, // Guardar el municipio seleccionado
                 'intervalo_km_transmision' => $validatedData['intervalo_km_transmision'] ?? null,
                 'intervalo_km_hidraulico' => $validatedData['intervalo_km_hidraulico'] ?? null,
-                'observaciones' => $validatedData['observaciones'],
-                'operador_id' => $validatedData['operador_id'], // Agregar el operador_id
+                'observaciones' => $validatedData['observaciones'] ?? null, // Corregido: Puede ser null
+                'operador_id' => $validatedData['operador_id'] ?? null, // Corregido: Puede ser null
                 
                 // Fechas de vencimiento
                 'poliza_vencimiento' => $validatedData['poliza_vencimiento'] ?? $validatedData['fecha_vencimiento_seguro'] ?? null,
@@ -127,32 +127,32 @@ class VehiculoController extends Controller
             $archivosMapping = [
                 'poliza_file' => [
                     'url' => 'poliza_url', 
-                    'descripcion' => $validatedData['placas'],
+                    'descripcion' => $validatedData['placas'] ?? 'Sin placas',
                     'tipo_documento_nombre' => 'Póliza de Seguro'
                 ],
                 'poliza_seguro_file' => [
                     'url' => 'poliza_url', 
-                    'descripcion' => $validatedData['placas'],
+                    'descripcion' => $validatedData['placas'] ?? 'Sin placas',
                     'tipo_documento_nombre' => 'Póliza de Seguro'
                 ], // compatibilidad
                 'derecho_file' => [
                     'url' => 'derecho_url', 
-                    'descripcion' => $validatedData['placas'],
+                    'descripcion' => $validatedData['placas'] ?? 'Sin placas',
                     'tipo_documento_nombre' => 'Derecho Vehicular'
                 ],
                 'derecho_vehicular_file' => [
                     'url' => 'derecho_url', 
-                    'descripcion' => $validatedData['placas'],
+                    'descripcion' => $validatedData['placas'] ?? 'Sin placas',
                     'tipo_documento_nombre' => 'Derecho Vehicular'
                 ], // compatibilidad
                 'factura_file' => [
                     'url' => 'factura_url', 
-                    'descripcion' => $validatedData['n_serie'],
+                    'descripcion' => $validatedData['n_serie'] ?? 'Sin número de serie',
                     'tipo_documento_nombre' => 'Factura'
                 ],
                 'factura_pedimento_file' => [
                     'url' => 'factura_url', 
-                    'descripcion' => $validatedData['n_serie'],
+                    'descripcion' => $validatedData['n_serie'] ?? 'Sin número de serie',
                     'tipo_documento_nombre' => 'Factura'
                 ], // compatibilidad
                 'imagen_file' => [
@@ -321,13 +321,13 @@ class VehiculoController extends Controller
                 'numero_poliza' => $validatedData['numero_poliza'] ?? null,
                 'modelo' => $validatedData['modelo'],
                 'anio' => $validatedData['anio'],
-                'n_serie' => $validatedData['n_serie'],
-                'placas' => $validatedData['placas'],
+                'n_serie' => $validatedData['n_serie'] ?? null, // Corregido: Puede ser null
+                'placas' => $validatedData['placas'] ?? null, // Corregido: Puede ser null
                 'kilometraje_actual' => $validatedData['kilometraje_actual'] ?? null, // Opcional según tipo de activo
                 'intervalo_km_motor' => $validatedData['intervalo_km_motor'] ?? null,
                 'intervalo_km_transmision' => $validatedData['intervalo_km_transmision'] ?? null,
                 'intervalo_km_hidraulico' => $validatedData['intervalo_km_hidraulico'] ?? null,
-                'observaciones' => $validatedData['observaciones'],
+                'observaciones' => $validatedData['observaciones'] ?? null, // Corregido: Puede ser null
                 'estado' => $validatedData['estado'] ?? null,
                 'municipio' => $validatedData['municipio'] ?? null,
                 
@@ -340,32 +340,32 @@ class VehiculoController extends Controller
             $archivosMapping = [
                 'poliza_file' => [
                     'url' => 'poliza_url', 
-                    'descripcion' => $validatedData['placas'],
+                    'descripcion' => $validatedData['placas'] ?? 'Sin placas',
                     'tipo_documento_nombre' => 'Póliza de Seguro'
                 ],
                 'poliza_seguro_file' => [
                     'url' => 'poliza_url', 
-                    'descripcion' => $validatedData['placas'],
+                    'descripcion' => $validatedData['placas'] ?? 'Sin placas',
                     'tipo_documento_nombre' => 'Póliza de Seguro'
                 ], // compatibilidad
                 'derecho_file' => [
                     'url' => 'derecho_url', 
-                    'descripcion' => $validatedData['placas'],
+                    'descripcion' => $validatedData['placas'] ?? 'Sin placas',
                     'tipo_documento_nombre' => 'Derecho Vehicular'
                 ],
                 'derecho_vehicular_file' => [
                     'url' => 'derecho_url', 
-                    'descripcion' => $validatedData['placas'],
+                    'descripcion' => $validatedData['placas'] ?? 'Sin placas',
                     'tipo_documento_nombre' => 'Derecho Vehicular'
                 ], // compatibilidad
                 'factura_file' => [
                     'url' => 'factura_url', 
-                    'descripcion' => $validatedData['n_serie'],
+                    'descripcion' => $validatedData['n_serie'] ?? 'Sin número de serie',
                     'tipo_documento_nombre' => 'Factura'
                 ],
                 'factura_pedimento_file' => [
                     'url' => 'factura_url', 
-                    'descripcion' => $validatedData['n_serie'],
+                    'descripcion' => $validatedData['n_serie'] ?? 'Sin número de serie',
                     'tipo_documento_nombre' => 'Factura'
                 ], // compatibilidad
                 'imagen_file' => [

@@ -108,13 +108,60 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <x-form-input name="marca" label="Marca" required placeholder="Ej: Ford, Chevrolet, Toyota"  />
                         <x-form-input name="modelo" label="Modelo" required placeholder="Ej: F-150, Silverado, Hilux" />
-                        <x-form-input name="n_serie" label="Número de Serie (VIN)" required placeholder="1FTFW1ET5DFA12345" />
+                        <div>
+                            <label for="anio" class="block text-sm font-medium text-gray-700 mb-2">
+                                Año
+                            </label>
+                            <input type="number" 
+                                   name="anio" 
+                                   id="anio" 
+                                   min="1950" 
+                                   max="2025" 
+                                   placeholder="2023" 
+                                   value="{{ old('anio') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('anio') border-red-500 @enderror">
+                            @error('anio') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-500">Año de fabricación del activo (opcional)</p>
+                        </div>
                     </div>
                     
-                    <!-- Campos Opcionales -->
+                    <!-- Campos Dinámicos según Tipo de Activo -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                        <x-form-input name="anio" label="Año" type="number" min="1950" max="2025" placeholder="2023" required />
-                        <x-form-input name="placas" label="Placas" placeholder="ABC-123-A" />
+                        <!-- Número de Serie -->
+                        <div id="numero-serie-field">
+                            <div class="form-group">
+                                <label for="n_serie" id="numero-serie-label" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Número de Serie (VIN) <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" 
+                                       name="n_serie" 
+                                       id="n_serie" 
+                                       placeholder="1FTFW1ET5DFA12345"
+                                       value="{{ old('n_serie') }}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('n_serie') border-red-500 @enderror">
+                                @error('n_serie') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                                <p class="mt-1 text-xs text-gray-500">Número de serie único del activo</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Placas -->
+                        <div id="placas-field">
+                            <div class="form-group">
+                                <label for="placas" id="placas-label" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Placas
+                                </label>
+                                <input type="text" 
+                                       name="placas" 
+                                       id="placas" 
+                                       placeholder="ABC-123-A"
+                                       value="{{ old('placas') }}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('placas') border-red-500 @enderror">
+                                @error('placas') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                                <p class="mt-1 text-xs text-gray-500">Placas de circulación del activo</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Kilometraje -->
                         <div id="kilometraje-field">
                             <div class="form-group">
                                 <label for="kilometraje_actual" id="kilometraje-label" class="block text-sm font-medium text-gray-700 mb-2">
@@ -456,6 +503,12 @@
         const kilometrajeInput = document.getElementById('kilometraje_actual');
         const mantenimientoSection = document.getElementById('mantenimiento-section');
         
+        // Obtener referencias a los nuevos campos
+        const placasField = document.getElementById('placas-field');
+        const placasInput = document.getElementById('placas');
+        const numeroSerieField = document.getElementById('numero-serie-field');
+        const numeroSerieInput = document.getElementById('n_serie');
+        
         // Obtener todos los campos de intervalos de mantenimiento
         const intervalosFields = [
             document.getElementById('intervalo_km_motor'),
@@ -469,6 +522,8 @@
             if (!tipoActivoId) {
                 // Si no hay tipo de activo seleccionado, ocultar todo
                 hideKilometrajeFields();
+                hidePlacasFields();
+                hideNumeroSerieFields();
                 return;
             }
             
@@ -478,20 +533,41 @@
                 .then(data => {
                     if (data.success && data.data) {
                         const tieneKilometraje = data.data.tiene_kilometraje;
+                        const tienePlaca = data.data.tiene_placa;
+                        const tieneNumeroSerie = data.data.tiene_numero_serie;
                         
+                        // Manejar campo de kilometraje
                         if (tieneKilometraje) {
                             showKilometrajeFields();
                         } else {
                             hideKilometrajeFields();
                         }
+                        
+                        // Manejar campo de placas
+                        if (tienePlaca) {
+                            showPlacasFields();
+                        } else {
+                            hidePlacasFields();
+                        }
+                        
+                        // Manejar campo de número de serie
+                        if (tieneNumeroSerie) {
+                            showNumeroSerieFields();
+                        } else {
+                            hideNumeroSerieFields();
+                        }
                     } else {
                         console.error('Error al obtener información del tipo de activo');
                         hideKilometrajeFields();
+                        hidePlacasFields();
+                        hideNumeroSerieFields();
                     }
                 })
                 .catch(error => {
                     console.error('Error en la petición AJAX:', error);
                     hideKilometrajeFields();
+                    hidePlacasFields();
+                    hideNumeroSerieFields();
                 });
         }
         
@@ -551,6 +627,80 @@
             });
         }
         
+        // Funciones para manejar campo de placas
+        function showPlacasFields() {
+            const placasField = document.getElementById('placas-field');
+            const placasInput = document.getElementById('placas');
+            const placasLabel = document.getElementById('placas-label');
+            
+            if (placasField) {
+                placasField.style.display = 'block';
+            }
+            if (placasInput) {
+                placasInput.disabled = false;
+                placasInput.required = true;
+                placasInput.style.backgroundColor = '';
+                placasInput.style.color = '';
+            }
+            if (placasLabel) {
+                placasLabel.innerHTML = 'Placas <span class="text-red-500">*</span>';
+            }
+        }
+        
+        function hidePlacasFields() {
+            const placasField = document.getElementById('placas-field');
+            const placasInput = document.getElementById('placas');
+            const placasLabel = document.getElementById('placas-label');
+            
+            if (placasField) {
+                placasField.style.display = 'block'; // Mantener visible pero deshabilitado
+            }
+            if (placasInput) {
+                placasInput.disabled = true;
+                placasInput.required = false;
+                placasInput.value = '';
+                placasInput.style.backgroundColor = '#f3f4f6';
+                placasInput.style.color = '#9ca3af';
+            }
+            if (placasLabel) {
+                placasLabel.innerHTML = 'Placas';
+            }
+        }
+        
+        // Funciones para manejar campo de número de serie
+        function showNumeroSerieFields() {
+            const numeroSerieField = document.getElementById('numero-serie-field');
+            const numeroSerieInput = document.getElementById('n_serie');
+            const numeroSerieLabel = document.getElementById('numero-serie-label');
+            
+            if (numeroSerieField) {
+                numeroSerieField.style.display = 'block';
+            }
+            if (numeroSerieInput) {
+                numeroSerieInput.disabled = false;
+                numeroSerieInput.required = true;
+                numeroSerieInput.style.backgroundColor = '';
+                numeroSerieInput.style.color = '';
+            }
+        }
+        
+        function hideNumeroSerieFields() {
+            const numeroSerieField = document.getElementById('numero-serie-field');
+            const numeroSerieInput = document.getElementById('n_serie');
+            const numeroSerieLabel = document.getElementById('numero-serie-label');
+            
+            if (numeroSerieField) {
+                numeroSerieField.style.display = 'block'; // Mantener visible pero deshabilitado
+            }
+            if (numeroSerieInput) {
+                numeroSerieInput.disabled = true;
+                numeroSerieInput.required = false;
+                numeroSerieInput.value = '';
+                numeroSerieInput.style.backgroundColor = '#f3f4f6';
+                numeroSerieInput.style.color = '#9ca3af';
+            }
+        }
+        
         // Ejecutar al cargar la página
         toggleKilometrajeFields();
         
@@ -563,18 +713,17 @@
         const form = document.querySelector('form');
         if (form) {
             form.addEventListener('submit', function(e) {
-                // Validar campos requeridos
-                const camposRequeridos = [
+                // Validar campos básicos requeridos
+                const camposBasicos = [
                     { id: 'tipo_activo_id', nombre: 'Tipo de Activo' },
                     { id: 'marca', nombre: 'Marca' },
-                    { id: 'modelo', nombre: 'Modelo' },
-                    { id: 'n_serie', nombre: 'Número de Serie' }
+                    { id: 'modelo', nombre: 'Modelo' }
                 ];
                 
                 let errores = [];
                 
-                // Validar campos básicos requeridos
-                camposRequeridos.forEach(campo => {
+                // Validar campos básicos
+                camposBasicos.forEach(campo => {
                     const input = document.getElementById(campo.id);
                     if (input && (!input.value || input.value.trim() === '')) {
                         errores.push(campo.nombre);
@@ -584,20 +733,26 @@
                     }
                 });
                 
-                // Validación específica para kilometraje en vehículos
-                const tipoActivoSelect = document.getElementById('tipo_activo_id');
-                const kilometrajeInput = document.getElementById('kilometraje_actual');
+                // Validar campos dinámicos visibles y habilitados
+                if (numeroSerieInput && !numeroSerieInput.disabled && numeroSerieInput.required && (!numeroSerieInput.value || numeroSerieInput.value.trim() === '')) {
+                    errores.push('Número de Serie');
+                    numeroSerieInput.classList.add('border-red-500');
+                } else if (numeroSerieInput) {
+                    numeroSerieInput.classList.remove('border-red-500');
+                }
                 
-                if (tipoActivoSelect && kilometrajeInput) {
-                    const tipoActivoId = tipoActivoSelect.value;
-                    
-                    // Si es tipo de activo con kilometraje (ID 1 = Vehículo)
-                    if (tipoActivoId === '1' && (!kilometrajeInput.value || kilometrajeInput.value.trim() === '')) {
-                        errores.push('Kilometraje Actual (requerido para vehículos)');
-                        kilometrajeInput.classList.add('border-red-500');
-                    } else if (kilometrajeInput) {
-                        kilometrajeInput.classList.remove('border-red-500');
-                    }
+                if (placasInput && !placasInput.disabled && placasInput.required && (!placasInput.value || placasInput.value.trim() === '')) {
+                    errores.push('Placas');
+                    placasInput.classList.add('border-red-500');
+                } else if (placasInput) {
+                    placasInput.classList.remove('border-red-500');
+                }
+                
+                if (kilometrajeInput && !kilometrajeInput.disabled && kilometrajeInput.required && (!kilometrajeInput.value || kilometrajeInput.value.trim() === '')) {
+                    errores.push('Kilometraje Actual');
+                    kilometrajeInput.classList.add('border-red-500');
+                } else if (kilometrajeInput) {
+                    kilometrajeInput.classList.remove('border-red-500');
                 }
                 
                 // Si hay errores, prevenir el envío
@@ -608,7 +763,7 @@
                     alert('Por favor, complete los siguientes campos obligatorios:\n\n• ' + errores.join('\n• '));
                     
                     // Enfocar el primer campo con error
-                    const primerCampoError = camposRequeridos.find(campo => {
+                    const primerCampoError = camposBasicos.find(campo => {
                         const input = document.getElementById(campo.id);
                         return input && (!input.value || input.value.trim() === '');
                     });

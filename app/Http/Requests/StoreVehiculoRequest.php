@@ -42,22 +42,13 @@ class StoreVehiculoRequest extends FormRequest
                 'min:2',
             ],
             'anio' => [
-                'required',
+                'nullable',
                 'integer',
                 'min:1950',
                 'max:' . (date('Y') + 1),
             ],
-            'n_serie' => [
-                'required',
-                'string',
-                'max:100',
-            ],
-            'placas' => [
-                'nullable',
-                'string',
-                'max:20',
-                'regex:/^[A-Z0-9\-]+$/',
-            ],
+            'n_serie' => $this->getNumeroSerieRules(),
+            'placas' => $this->getPlacasRules(),
             'kilometraje_actual' => $this->getKilometrajeRules(),
             'tipo_activo_id' => [
                 'required',
@@ -90,7 +81,7 @@ class StoreVehiculoRequest extends FormRequest
             'operador_id' => [
                 'nullable',
                 'integer',
-                'exists:users,id',
+                'exists:personal,id',
             ],
             'estado' => [
                 'nullable',
@@ -404,6 +395,55 @@ class StoreVehiculoRequest extends FormRequest
             'integer',
             'min:0',
             'max:9999999',
+        ];
+    }
+
+    /**
+     * Get validation rules for n_serie based on tipo_activo
+     */
+    protected function getNumeroSerieRules(): array
+    {
+        $tipoActivoId = $this->input('tipo_activo_id');
+        
+        if (!$tipoActivoId) {
+            return ['nullable', 'string', 'max:100'];
+        }
+        
+        $tipoActivo = TipoActivo::find($tipoActivoId);
+        
+        if (!$tipoActivo || !$tipoActivo->tiene_numero_serie) {
+            return ['nullable', 'string', 'max:100'];
+        }
+        
+        return [
+            'required',
+            'string',
+            'max:100',
+        ];
+    }
+
+    /**
+     * Get validation rules for placas based on tipo_activo
+     */
+    protected function getPlacasRules(): array
+    {
+        $tipoActivoId = $this->input('tipo_activo_id');
+        
+        if (!$tipoActivoId) {
+            return ['nullable', 'string', 'max:20', 'regex:/^[A-Z0-9\-]+$/'];
+        }
+        
+        $tipoActivo = TipoActivo::find($tipoActivoId);
+        
+        if (!$tipoActivo || !$tipoActivo->tiene_placa) {
+            return ['nullable', 'string', 'max:20', 'regex:/^[A-Z0-9\-]+$/'];
+        }
+        
+        return [
+            'required',
+            'string',
+            'max:20',
+            'regex:/^[A-Z0-9\-]+$/',
         ];
     }
 

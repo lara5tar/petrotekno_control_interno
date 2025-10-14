@@ -456,7 +456,7 @@ class Vehiculo extends Model
      */
     public function getPlacasAttribute($value)
     {
-        return strtoupper($value);
+        return $value ? strtoupper($value) : null;
     }
 
     /**
@@ -464,7 +464,7 @@ class Vehiculo extends Model
      */
     public function setPlacasAttribute($value)
     {
-        $this->attributes['placas'] = strtoupper($value);
+        $this->attributes['placas'] = $value ? strtoupper($value) : null;
     }
 
     /**

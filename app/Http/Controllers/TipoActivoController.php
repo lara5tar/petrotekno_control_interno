@@ -64,10 +64,14 @@ class TipoActivoController extends Controller
     {
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
-            'tiene_kilometraje' => 'boolean'
+            'tiene_kilometraje' => 'boolean',
+            'tiene_placa' => 'boolean',
+            'tiene_numero_serie' => 'boolean'
         ]);
 
         $validated['tiene_kilometraje'] = $request->input('tiene_kilometraje', 0);
+        $validated['tiene_placa'] = $request->input('tiene_placa', 1);
+        $validated['tiene_numero_serie'] = $request->input('tiene_numero_serie', 1);
 
         $tipoActivo = TipoActivo::create($validated);
 
@@ -127,7 +131,9 @@ class TipoActivoController extends Controller
             'data' => [
                 'id' => $tipoActivo->id,
                 'nombre' => $tipoActivo->nombre,
-                'tiene_kilometraje' => $tipoActivo->tiene_kilometraje
+                'tiene_kilometraje' => $tipoActivo->tiene_kilometraje,
+                'tiene_placa' => $tipoActivo->tiene_placa ?? true,
+                'tiene_numero_serie' => $tipoActivo->tiene_numero_serie ?? true
             ]
         ]);
     }
@@ -147,10 +153,14 @@ class TipoActivoController extends Controller
     {
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
-            'tiene_kilometraje' => 'boolean'
+            'tiene_kilometraje' => 'boolean',
+            'tiene_placa' => 'boolean',
+            'tiene_numero_serie' => 'boolean'
         ]);
 
         $validated['tiene_kilometraje'] = $request->input('tiene_kilometraje', 0);
+        $validated['tiene_placa'] = $request->input('tiene_placa', 1);
+        $validated['tiene_numero_serie'] = $request->input('tiene_numero_serie', 1);
 
         $tipoActivo->update($validated);
 

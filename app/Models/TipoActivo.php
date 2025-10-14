@@ -14,11 +14,15 @@ class TipoActivo extends Model
     
     protected $fillable = [
         'nombre',
-        'tiene_kilometraje'
+        'tiene_kilometraje',
+        'tiene_placa',
+        'tiene_numero_serie'
     ];
 
     protected $casts = [
-        'tiene_kilometraje' => 'boolean'
+        'tiene_kilometraje' => 'boolean',
+        'tiene_placa' => 'boolean',
+        'tiene_numero_serie' => 'boolean'
     ];
 
     /**

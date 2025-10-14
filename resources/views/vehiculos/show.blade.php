@@ -2053,14 +2053,18 @@
         @endif
         
         fetch(this.action, {
-            method: 'POST', // Cambiar a POST y usar _method en FormData
-            body: formData, // FormData ya incluye _token y _method
+            method: 'POST',
+            body: formData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
-                // No incluir X-CSRF-TOKEN cuando usamos FormData con _token
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 showNotification(data.message, 'success');
@@ -2071,12 +2075,12 @@
                     window.location.href = data.redirect;
                 }, 1500);
             } else {
-                showNotification(data.error, 'error');
+                showNotification(data.error || 'Error al cambiar el operador', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('Error al cambiar el operador', 'error');
+            showNotification('Error al cambiar el operador: ' + error.message, 'error');
         })
         .finally(() => {
             // Rehabilitar botón

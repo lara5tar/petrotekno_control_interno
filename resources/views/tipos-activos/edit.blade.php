@@ -158,6 +158,86 @@
                             </p>
                 </div>
 
+                <!-- Tiene Placa -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        ¿Este tipo de activo maneja placas? <span class="text-red-500">*</span>
+                    </label>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <input type="radio" 
+                                   id="tiene_placa_si" 
+                                   name="tiene_placa" 
+                                   value="1" 
+                                   {{ old('tiene_placa', $tipoActivo->tiene_placa ?? true) == '1' ? 'checked' : '' }}
+                                   class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300">
+                            <label for="tiene_placa_si" class="ml-3 block text-sm text-gray-700">
+                                <span class="font-medium">Sí</span> - Este tipo de activo requiere placas
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" 
+                                   id="tiene_placa_no" 
+                                   name="tiene_placa" 
+                                   value="0" 
+                                   {{ old('tiene_placa', $tipoActivo->tiene_placa ?? true) == '0' ? 'checked' : '' }}
+                                   class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300">
+                            <label for="tiene_placa_no" class="ml-3 block text-sm text-gray-700">
+                                <span class="font-medium">No</span> - Este tipo de activo no requiere placas
+                            </label>
+                        </div>
+                    </div>
+                    @error('tiene_placa')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="text-sm text-gray-500 mt-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                        Los vehículos y activos móviles generalmente requieren placas.
+                    </p>
+                </div>
+
+                <!-- Tiene Número de Serie -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        ¿Este tipo de activo maneja número de serie? <span class="text-red-500">*</span>
+                    </label>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <input type="radio" 
+                                   id="tiene_numero_serie_si" 
+                                   name="tiene_numero_serie" 
+                                   value="1" 
+                                   {{ old('tiene_numero_serie', $tipoActivo->tiene_numero_serie ?? true) == '1' ? 'checked' : '' }}
+                                   class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300">
+                            <label for="tiene_numero_serie_si" class="ml-3 block text-sm text-gray-700">
+                                <span class="font-medium">Sí</span> - Este tipo de activo requiere número de serie (VIN)
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" 
+                                   id="tiene_numero_serie_no" 
+                                   name="tiene_numero_serie" 
+                                   value="0" 
+                                   {{ old('tiene_numero_serie', $tipoActivo->tiene_numero_serie ?? true) == '0' ? 'checked' : '' }}
+                                   class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300">
+                            <label for="tiene_numero_serie_no" class="ml-3 block text-sm text-gray-700">
+                                <span class="font-medium">No</span> - Este tipo de activo no requiere número de serie
+                            </label>
+                        </div>
+                    </div>
+                    @error('tiene_numero_serie')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="text-sm text-gray-500 mt-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                        El número de serie permite identificar únicamente cada activo.
+                    </p>
+                </div>
+
                 <!-- Botones -->
                 <div class="flex justify-end space-x-3">
                     <a href="{{ route('tipos-activos.show', $tipoActivo) }}" 
