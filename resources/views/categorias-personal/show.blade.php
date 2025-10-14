@@ -8,7 +8,7 @@
     {{-- Breadcrumb --}}
     <x-breadcrumb :items="[
         ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
-        ['label' => 'Personal', 'url' => route('personal.index')],
+        ['label' => 'Configuración', 'url' => route('admin.configuracion.index')],
         ['label' => 'Categorías de Personal', 'url' => route('categorias-personal.index')],
         ['label' => $categoriaPersonal->nombre_categoria]
     ]" />
