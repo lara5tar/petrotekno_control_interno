@@ -524,17 +524,102 @@
             </div>
 
             <!-- Botones de acción -->
-            <div class="mt-8 flex justify-end space-x-4">
-                <a href="{{ route('vehiculos.index') }}" 
-                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                    Cancelar
-                </a>
-                <button type="submit" 
-                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-petrodark bg-petroyellow hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-petroyellow">
-                    Guardar Activo
+            <div class="mt-8 flex justify-between items-center">
+                <!-- Botón Dar de Baja (izquierda) -->
+                @if(!in_array($vehiculo->estatus?->value, ['baja', 'baja_por_venta', 'baja_por_perdida']))
+                <button type="button" 
+                        onclick="openBajaModal()"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Dar de Baja Activo
                 </button>
+                @else
+                <div></div> <!-- Espacio vacío cuando el activo ya está dado de baja -->
+                @endif
+
+                <!-- Botones de Guardar y Cancelar (derecha) -->
+                <div class="flex space-x-4">
+                    <a href="{{ route('vehiculos.index') }}" 
+                       class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-petroyellow">
+                        Cancelar
+                    </a>
+                    <button type="submit" 
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-petrodark bg-petroyellow hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-petroyellow">
+                        Guardar Activo
+                    </button>
+                </div>
             </div>
         </form>
+    </div>
+
+    <!-- Modal de Baja Simple -->
+    <div id="bajaModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <!-- Encabezado -->
+                <div class="flex items-center justify-between pb-4 border-b">
+                    <h3 class="text-lg font-medium text-gray-900">Dar de Baja el Activo</h3>
+                    <button onclick="closeBajaModal()" class="text-gray-400 hover:text-gray-500">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Formulario -->
+                <form id="bajaForm" class="mt-4">
+                    @csrf
+                    <div class="space-y-4">
+                        <!-- Tipo de Baja -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Tipo de Baja <span class="text-red-500">*</span>
+                            </label>
+                            <select id="tipo_baja" name="tipo_baja" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                                <option value="">Seleccione un tipo</option>
+                                <option value="baja">Baja General</option>
+                                <option value="baja_por_venta">Baja por Venta</option>
+                                <option value="baja_por_perdida">Baja por Pérdida</option>
+                            </select>
+                        </div>
+
+                        <!-- Observación -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Observaciones/Motivo (opcional)
+                            </label>
+                            <textarea id="observacion_baja" 
+                                      name="observacion_baja" 
+                                      rows="4" 
+                                      maxlength="1000"
+                                      placeholder="Describa el motivo de la baja..."
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"></textarea>
+                            <p class="mt-1 text-xs text-gray-500">La fecha y hora se agregarán automáticamente</p>
+                        </div>
+                    </div>
+
+                    <!-- Mensaje de error -->
+                    <div id="bajaError" class="hidden mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded"></div>
+
+                    <!-- Botones -->
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button type="button" 
+                                onclick="closeBajaModal()"
+                                class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            Cancelar
+                        </button>
+                        <button type="submit" 
+                                id="btnConfirmarBaja"
+                                class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                            Confirmar Baja
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -967,6 +1052,72 @@
             fileStatus[type] = fileInfo;
         }
     }
+
+    // ===== FUNCIONES PARA MODAL DE BAJA =====
+    function openBajaModal() {
+        document.getElementById('bajaModal').classList.remove('hidden');
+    }
+
+    function closeBajaModal() {
+        document.getElementById('bajaModal').classList.add('hidden');
+        document.getElementById('bajaForm').reset();
+        document.getElementById('bajaError').classList.add('hidden');
+    }
+
+    // Manejo del formulario de baja
+    document.getElementById('bajaForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const btn = document.getElementById('btnConfirmarBaja');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = 'Procesando...';
+        
+        const formData = new FormData(this);
+        
+        fetch('{{ route("vehiculos.dar-baja", $vehiculo) }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                return response.text().then(text => {
+                    console.error('Response error:', text);
+                    throw new Error('HTTP error! status: ' + response.status);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            if (data.success) {
+                alert(data.message);
+                window.location.reload();
+            } else {
+                document.getElementById('bajaError').textContent = data.message || 'Error desconocido';
+                document.getElementById('bajaError').classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            document.getElementById('bajaError').textContent = 'Error al procesar la solicitud: ' + error.message;
+            document.getElementById('bajaError').classList.remove('hidden');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
+    });
+
+    // Cerrar modal al hacer clic fuera
+    document.getElementById('bajaModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeBajaModal();
+    });
 </script>
 
 <script src="{{ asset('js/estados-municipios.js') }}"></script>

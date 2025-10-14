@@ -9,6 +9,8 @@ enum EstadoVehiculo: string
     case EN_MANTENIMIENTO = 'en_mantenimiento';
     case FUERA_DE_SERVICIO = 'fuera_de_servicio';
     case BAJA = 'baja';
+    case BAJA_POR_VENTA = 'baja_por_venta';
+    case BAJA_POR_PERDIDA = 'baja_por_perdida';
 
     /**
      * Obtener el nombre para mostrar del estado
@@ -21,6 +23,8 @@ enum EstadoVehiculo: string
             self::EN_MANTENIMIENTO => 'En Mantenimiento',
             self::FUERA_DE_SERVICIO => 'Fuera de Servicio',
             self::BAJA => 'Baja',
+            self::BAJA_POR_VENTA => 'Baja por Venta',
+            self::BAJA_POR_PERDIDA => 'Baja por Pérdida',
         };
     }
 
@@ -35,6 +39,8 @@ enum EstadoVehiculo: string
             self::EN_MANTENIMIENTO => 'El vehículo está en mantenimiento',
             self::FUERA_DE_SERVICIO => 'El vehículo está temporalmente fuera de servicio',
             self::BAJA => 'El vehículo ha sido dado de baja del inventario',
+            self::BAJA_POR_VENTA => 'El vehículo ha sido vendido',
+            self::BAJA_POR_PERDIDA => 'El vehículo se ha reportado como perdido o robado',
         };
     }
 
@@ -49,6 +55,8 @@ enum EstadoVehiculo: string
             self::EN_MANTENIMIENTO => 'yellow',
             self::FUERA_DE_SERVICIO => 'orange',
             self::BAJA => 'red',
+            self::BAJA_POR_VENTA => 'purple',
+            self::BAJA_POR_PERDIDA => 'gray',
         };
     }
 

@@ -296,6 +296,18 @@
                             @endif
                         </div>
                     </div>
+
+                    <!-- Observaciones -->
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-600 mb-2">Observaciones</label>
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            @if(!empty($vehiculo->observaciones))
+                                <div class="text-sm text-gray-700 whitespace-pre-wrap">{{ $vehiculo->observaciones }}</div>
+                            @else
+                                <div class="text-sm text-gray-400 italic">Sin observaciones</div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
 

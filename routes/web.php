@@ -98,6 +98,11 @@ Route::middleware('auth')->prefix('vehiculos')->name('vehiculos.')->group(functi
         ->name('update')
         ->middleware('permission:editar_vehiculos');
     
+                                       // Ruta para dar de baja un vehículo
+    Route::post('/{vehiculo}/dar-baja', [App\Http\Controllers\VehiculoController::class, 'darBaja'])
+        ->name('dar-baja')
+        ->middleware('permission:editar_vehiculos');
+    
     Route::delete('/{vehiculo}', [App\Http\Controllers\VehiculoController::class, 'destroy'])
         ->name('destroy')
         ->middleware('permission:eliminar_vehiculos');

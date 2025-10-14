@@ -73,28 +73,57 @@ class TipoActivoController extends Controller
         $validated['tiene_placa'] = $request->input('tiene_placa', 1);
         $validated['tiene_numero_serie'] = $request->input('tiene_numero_serie', 1);
 
-        $tipoActivo = TipoActivo::create($validated);
+        try {
+            $tipoActivo = TipoActivo::create($validated);
 
-        // Log de auditoría
-        LogAccion::create([
-            'usuario_id' => Auth::id(),
-            'accion' => 'crear_tipo_activo',
-            'tabla_afectada' => 'tipo_activos',
-            'registro_id' => $tipoActivo->id,
-            'detalles' => "Tipo de activo creado: {$tipoActivo->nombre}",
-        ]);
+            // Log de auditoría (opcional, no debe romper la creación)
+            try {
+                LogAccion::create([
+                    'usuario_id' => Auth::id(),
+                    'accion' => 'crear_tipo_activo',
+                    'tabla_afectada' => 'tipo_activos',
+                    'registro_id' => $tipoActivo->id,
+                    'detalles' => "Tipo de activo creado: {$tipoActivo->nombre}",
+                ]);
+            } catch (\Exception $e) {
+                // Si falla el log, solo registrarlo pero no romper el flujo
+                \Log::warning('Error al crear log de acción', [
+                    'error' => $e->getMessage(),
+                    'tipo_activo_id' => $tipoActivo->id
+                ]);
+            }
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Tipo de activo creado exitosamente',
-                'data' => $tipoActivo,
-            ], 201);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Tipo de activo creado exitosamente',
+                    'data' => $tipoActivo,
+                ], 201);
+            }
+
+            return redirect()
+                ->route('tipos-activos.index')
+                ->with('success', 'Tipo de activo creado exitosamente');
+
+        } catch (\Exception $e) {
+            \Log::error('Error al crear tipo de activo', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'data' => $validated
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al crear el tipo de activo: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['error' => 'Error al crear el tipo de activo: ' . $e->getMessage()]);
         }
-
-        return redirect()
-            ->route('tipos-activos.index')
-            ->with('success', 'Tipo de activo creado exitosamente');
     }
 
     /**

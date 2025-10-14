@@ -176,24 +176,22 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ !empty($vehiculo->n_serie) ? $vehiculo->n_serie : 'Sin serie' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @php
-                                // Asignar colores basándose en el estado del activo
-                                $estadoActivo = $vehiculo->estatus;
-                                if ($estadoActivo === 'disponible') {
-                                    $colorClass = 'bg-green-100 text-green-800';
-                                } elseif ($estadoActivo === 'asignado') {
-                                    $colorClass = 'bg-blue-100 text-blue-800';
-                                } elseif ($estadoActivo === 'en_mantenimiento') {
-                                    $colorClass = 'bg-yellow-100 text-yellow-800';
-                                } elseif ($estadoActivo === 'fuera_de_servicio') {
-                                    $colorClass = 'bg-orange-100 text-orange-800';
-                                } elseif ($estadoActivo === 'baja') {
-                                    $colorClass = 'bg-red-100 text-red-800';
-                                } else {
-                                    // Valor por defecto para estados desconocidos
-                                    $colorClass = 'bg-gray-100 text-gray-800';
-                                }
+                                // Asignar colores con efecto translúcido basándose en el estado del activo
+                                $estadoActivo = $vehiculo->estatus->value ?? $vehiculo->estatus;
+                                
+                                $colores = [
+                                    'disponible' => 'bg-green-100 text-green-700',
+                                    'asignado' => 'bg-blue-100 text-blue-700',
+                                    'en_mantenimiento' => 'bg-yellow-100 text-yellow-700',
+                                    'fuera_de_servicio' => 'bg-orange-100 text-orange-700',
+                                    'baja' => 'bg-red-100 text-red-700',
+                                    'baja_por_venta' => 'bg-purple-100 text-purple-700',
+                                    'baja_por_perdida' => 'bg-gray-100 text-gray-700',
+                                ];
+                                
+                                $colorClass = $colores[$estadoActivo] ?? 'bg-gray-100 text-gray-700';
                             @endphp
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $colorClass }}">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $colorClass }}">
                                 {{ $vehiculo->estatus->nombre() }}
                             </span>
                         </td>

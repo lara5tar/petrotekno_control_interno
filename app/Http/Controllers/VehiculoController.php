@@ -58,10 +58,14 @@ class VehiculoController extends Controller
 
         $vehiculos = $query->orderBy('id')->paginate(15);
 
-        // Obtener valores únicos para filtros
-        $estados = collect(EstadoVehiculo::cases())->mapWithKeys(function ($estado) {
-            return [$estado->value => $estado->nombre()];
-        });
+        // Obtener valores únicos para filtros (excluyendo "fuera_de_servicio")
+        $estados = collect(EstadoVehiculo::cases())
+            ->filter(function ($estado) {
+                return $estado->value !== 'fuera_de_servicio';
+            })
+            ->mapWithKeys(function ($estado) {
+                return [$estado->value => $estado->nombre()];
+            });
         
         // Obtener todos los tipos de activo para el filtro
         $tiposActivo = TipoActivo::orderBy('nombre')->get();
@@ -1446,5 +1450,84 @@ class VehiculoController extends Controller
             new VehiculosFiltradosExport($vehiculos, $filtrosAplicados, $estadisticas),
             'reporte-vehiculos-filtrados-' . now()->format('Y-m-d-H-i-s') . '.xlsx'
         );
+    }
+
+    /**
+     * Dar de baja un vehículo (simple - solo cambia estado_actual y agrega observación)
+     */
+    public function darBaja(Request $request, Vehiculo $vehiculo)
+    {
+        try {
+            $this->authorize('editar_vehiculos');
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para dar de baja este activo.'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'tipo_baja' => ['required', 'in:baja,baja_por_venta,baja_por_perdida'],
+            'observacion_baja' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        try {
+            // Preparar observación con fecha y hora
+            $observacionBaja = "=== BAJA DEL ACTIVO ===\n";
+            $observacionBaja .= "Fecha: " . now()->format('d/m/Y H:i') . "\n";
+            $observacionBaja .= "Tipo: ";
+            
+            switch ($validated['tipo_baja']) {
+                case 'baja':
+                    $observacionBaja .= "Baja General\n";
+                    break;
+                case 'baja_por_venta':
+                    $observacionBaja .= "Baja por Venta\n";
+                    break;
+                case 'baja_por_perdida':
+                    $observacionBaja .= "Baja por Pérdida\n";
+                    break;
+            }
+            
+            if ($validated['observacion_baja'] ?? null) {
+                $observacionBaja .= "Motivo: " . $validated['observacion_baja'] . "\n";
+            }
+            
+            // Agregar observación anterior si existe
+            if ($vehiculo->observaciones) {
+                $observacionBaja .= "\n--- Observaciones anteriores ---\n" . $vehiculo->observaciones;
+            }
+
+            // Actualizar vehículo usando el enum correcto
+            $vehiculo->update([
+                'estatus' => \App\Enums\EstadoVehiculo::from($validated['tipo_baja']),
+                'motivo_baja' => $validated['observacion_baja'] ?? null,
+                'fecha_baja' => now(),
+                'observaciones' => $observacionBaja,
+            ]);
+
+            \Log::info('Vehículo dado de baja', [
+                'vehiculo_id' => $vehiculo->id,
+                'tipo_baja' => $validated['tipo_baja'],
+                'usuario' => auth()->user()->name
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'El activo ha sido dado de baja exitosamente.'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error al dar de baja vehículo', [
+                'vehiculo_id' => $vehiculo->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al dar de baja el activo: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
