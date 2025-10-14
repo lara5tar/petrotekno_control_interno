@@ -1630,8 +1630,8 @@
                         // Actualizar el estado actual
                         statusSelector.dataset.currentStatus = newStatus;
                         
-                        // Mostrar mensaje de éxito
-                        showNotification('Estado actualizado exitosamente', 'success');
+                        // Mostrar mensaje de éxito (usar el mensaje del servidor)
+                        showNotification(data.message || 'Estado actualizado exitosamente', 'success');
                         
                         // Recargar la página después de un breve delay para mostrar los cambios
                         setTimeout(() => {

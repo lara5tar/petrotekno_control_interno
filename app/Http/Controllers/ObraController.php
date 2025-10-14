@@ -1109,21 +1109,64 @@ class ObraController extends Controller
                 $obra->avance = 100;
             }
 
+            // Si se cancela, liberar todas las asignaciones
+            if ($nuevoEstatus === Obra::ESTATUS_CANCELADA) {
+                // Liberar encargado
+                $encargadoAnterior = $obra->encargado_id;
+                $obra->encargado_id = null;
+                
+                // Liberar todas las asignaciones activas de vehículos
+                $asignacionesLiberadas = AsignacionObra::where('obra_id', $obra->id)
+                    ->where('estado', AsignacionObra::ESTADO_ACTIVA)
+                    ->get();
+                
+                foreach ($asignacionesLiberadas as $asignacion) {
+                    $asignacion->update([
+                        'estado' => AsignacionObra::ESTADO_LIBERADA,
+                        'fecha_liberacion' => now(),
+                        'observaciones' => ($asignacion->observaciones ? $asignacion->observaciones . "\n" : '') 
+                                         . 'Liberada automáticamente por cancelación de obra el ' . now()->format('d/m/Y H:i'),
+                    ]);
+                    
+                    // Actualizar estado del vehículo a disponible
+                    if ($asignacion->vehiculo) {
+                        $asignacion->vehiculo->update([
+                            'estatus' => \App\Enums\EstadoVehiculo::DISPONIBLE,
+                        ]);
+                    }
+                }
+                
+                Log::info("Obra cancelada - Liberadas {$asignacionesLiberadas->count()} asignaciones", [
+                    'obra_id' => $obra->id,
+                    'encargado_anterior' => $encargadoAnterior,
+                ]);
+            }
+
             $obra->estatus = $nuevoEstatus;
             $obra->save();
 
             // Log de la acción
+            $detalles = "Estatus cambiado de '{$estatusActual}' a '{$nuevoEstatus}'";
+            if ($nuevoEstatus === Obra::ESTATUS_CANCELADA && isset($asignacionesLiberadas)) {
+                $detalles .= ". Se liberaron {$asignacionesLiberadas->count()} asignaciones de vehículos.";
+            }
+            
             LogAccion::create([
                 'usuario_id' => Auth::id(),
                 'accion' => 'actualizar_estatus_obra',
                 'tabla_afectada' => 'obras',
                 'registro_id' => $obra->id,
-                'detalles' => "Estatus cambiado de '{$estatusActual}' a '{$nuevoEstatus}'",
+                'detalles' => $detalles,
             ]);
+
+            $mensaje = 'Estatus actualizado exitosamente.';
+            if ($nuevoEstatus === Obra::ESTATUS_CANCELADA && isset($asignacionesLiberadas)) {
+                $mensaje .= " Se liberaron {$asignacionesLiberadas->count()} asignaciones de vehículos.";
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Estatus actualizado exitosamente.',
+                'message' => $mensaje,
                 'data' => [
                     'estatus' => $obra->estatus,
                     'estatus_display' => ucfirst(str_replace('_', ' ', $obra->estatus)),
