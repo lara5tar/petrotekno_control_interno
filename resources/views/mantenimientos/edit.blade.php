@@ -1,70 +1,86 @@
 @extends('layouts.app')
 
 @section('title', 'Editar Mantenimiento')
+
 @section('header', 'Editar Mantenimiento')
 
 @section('content')
-<!-- Header -->
-<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-    <div>
-        <h1 class="text-2xl font-semibold text-gray-900 flex items-center mb-2">
-            <svg class="w-6 h-6 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+    {{-- Breadcrumb --}}
+    <x-breadcrumb :items="[
+        ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
+        ['label' => 'Mantenimientos', 'url' => route('mantenimientos.index')],
+        ['label' => 'Editar Mantenimiento']
+    ]" />
+
+    {{-- Mensaje de éxito --}}
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6" role="alert">
+            <strong class="font-bold">¡Éxito!</strong>
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
+
+    {{-- Mensaje de error --}}
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
+            <strong class="font-bold">¡Error!</strong>
+            <span class="block sm:inline">{{ session('error') }}</span>
+        </div>
+    @endif
+
+    {{-- Errores de validación --}}
+    @if($errors->any())
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">
+                        Se encontraron {{ $errors->count() }} error(es) en el formulario:
+                    </h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        <ul class="list-disc list-inside space-y-1">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Encabezado --}}
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Editar Mantenimiento</h2>
+        <a href="{{ route('mantenimientos.index') }}" 
+           class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
             </svg>
-            Editar Mantenimiento #{{ $mantenimiento->id }}
-        </h1>
-        <p class="text-gray-600">Modifica la información del mantenimiento seleccionado</p>
-    </div>
-    <div class="flex space-x-2 mt-4 sm:mt-0">
-        <a href="{{ route('mantenimientos.show', $mantenimiento->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-            Ver Detalles
+            Volver al listado
         </a>
-        <a href="{{ route('mantenimientos.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
-            Volver al Listado
-        </a>
     </div>
-</div>
 
-<!-- Errores de validación -->
-@if ($errors->any())
-<div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-    <div class="flex items-center mb-2">
-        <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-        </svg>
-        <h3 class="text-sm font-medium text-red-800">Se encontraron los siguientes errores:</h3>
-    </div>
-    <ul class="list-disc list-inside text-sm text-red-700">
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
-@endif
-
-<!-- Formulario principal -->
-<div class="bg-white p-6 rounded-lg shadow-md">
-    <form method="POST" action="{{ route('mantenimientos.update', $mantenimiento->id) }}" class="space-y-6">
-        @csrf
-        @method('PUT')
-
+    {{-- Formulario --}}
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="POST" action="{{ route('mantenimientos.update', $mantenimiento->id) }}">
+            @csrf
+            @method('PUT')
+            
+            <div class="space-y-8">
+                {{-- Información del Activo --}}
         <!-- Información del Activo -->
-        <div class="border-b border-gray-200 pb-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-6 pb-3 border-b border-gray-200 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                 </svg>
                 Información del Activo
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            </h3>            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Activo -->
                 <div>
                     <label for="vehiculo_id" class="block text-sm font-medium text-gray-700 mb-1">Activo *</label>
@@ -118,9 +134,9 @@
         </div>
 
         <!-- Información del Servicio -->
-        <div class="border-b border-gray-200 pb-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-6 pb-3 border-b border-gray-200 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
                 Información del Servicio
@@ -166,9 +182,9 @@
         </div>
 
         <!-- Fechas y Costo -->
-        <div class="border-b border-gray-200 pb-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-6 pb-3 border-b border-gray-200 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
                 Fechas y Costo
@@ -218,43 +234,41 @@
             </div>
         </div>
 
-        <!-- Información del Mantenimiento -->
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 class="text-sm font-medium text-blue-800 mb-2 flex items-center">
-                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <!-- Información de Auditoría -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" clip-rule="evenodd" />
                 </svg>
-                Información del Mantenimiento
-            </h4>
-            <div class="text-sm text-blue-700">
-                <p><strong>Creado:</strong> {{ $mantenimiento->created_at ? $mantenimiento->created_at->format('d/m/Y H:i:s') : 'No disponible' }}</p>
-                <p><strong>Última modificación:</strong> {{ $mantenimiento->updated_at ? $mantenimiento->updated_at->format('d/m/Y H:i:s') : 'No disponible' }}</p>
+                Información de Auditoría
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Creación</label>
+                    <div class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-lg text-sm text-gray-800">
+                        {{ $mantenimiento->created_at ? $mantenimiento->created_at->format('d/m/Y H:i') : 'No disponible' }}
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Última Actualización</label>
+                    <div class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-lg text-sm text-gray-800">
+                        {{ $mantenimiento->updated_at ? $mantenimiento->updated_at->format('d/m/Y H:i') : 'No disponible' }}
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Botones de acción -->
-        <div class="flex flex-col sm:flex-row gap-3 pt-4">
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                Actualizar Mantenimiento
-            </button>
-            
-            <a href="{{ route('mantenimientos.show', $mantenimiento->id) }}" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                </svg>
-                Ver Detalles
-            </a>
-            
-            <a href="{{ route('mantenimientos.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
+        <div class="flex justify-end space-x-4 pt-4">
+            <a href="{{ route('mantenimientos.index') }}" 
+               class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-200">
                 Cancelar
             </a>
+            <button type="submit" 
+                    class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md transition duration-200">
+                Actualizar Mantenimiento
+            </button>
         </div>
     </form>
 </div>

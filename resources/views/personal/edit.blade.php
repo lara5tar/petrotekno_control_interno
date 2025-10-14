@@ -340,96 +340,179 @@
             </div>
         </div>
 
-        {{-- Acceso al Sistema --}}
-        <div class="bg-white border border-gray-200 rounded-lg p-6">
-            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" />
-                </svg>
-                Acceso al Sistema
-            </h3>
-            <p class="text-sm text-gray-500 mb-6">Configurar cuenta de usuario (opcional)</p>
+         {{-- Información de Usuario del Sistema --}}
+         <div class="bg-white border border-gray-200 rounded-lg p-6">
+             <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd" />
+                 </svg>
+                 Información de Usuario del Sistema
+             </h3>
+             
+             @if($personal->usuario)
+                 {{-- Mostrar información del usuario existente --}}
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div>
+                         <label class="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico</label>
+                         <div class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-lg text-sm text-gray-800">
+                             {{ $personal->usuario->email }}
+                         </div>
+                     </div>
+                     <div>
+                         <label class="block text-sm font-medium text-gray-700 mb-2">Rol</label>
+                         <div class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-lg text-sm text-gray-800">
+                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                                 {{ $personal->usuario->role === 'admin' ? 'bg-red-100 text-red-800' : '' }}
+                                 {{ $personal->usuario->role === 'encargado' ? 'bg-blue-100 text-blue-800' : '' }}
+                                 {{ $personal->usuario->role === 'operador' ? 'bg-green-100 text-green-800' : '' }}">
+                                 {{ ucfirst($personal->usuario->role) }}
+                             </span>
+                         </div>
+                     </div>
+                     <div>
+                         <label class="block text-sm font-medium text-gray-700 mb-2">Estado de la Cuenta</label>
+                         <div class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-lg text-sm text-gray-800">
+                             @if($personal->usuario->is_active)
+                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                     <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                     </svg>
+                                     Activo
+                                 </span>
+                             @else
+                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                     <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                     </svg>
+                                     Inactivo
+                                 </span>
+                             @endif
+                         </div>
+                     </div>
+                     <div>
+                         <label class="block text-sm font-medium text-gray-700 mb-2">Usuario Creado el</label>
+                         <div class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-lg text-sm text-gray-800">
+                             {{ $personal->usuario->created_at ? $personal->usuario->created_at->format('d/m/Y H:i') : 'No disponible' }}
+                         </div>
+                     </div>
+                 </div>
+             @else
+                 {{-- Formulario para crear usuario si no tiene --}}
+                 <div class="space-y-4">
+                     <div class="flex items-center">
+                         <input type="checkbox" id="crear_usuario_nuevo" name="crear_usuario" value="1" 
+                                x-model="crearUsuario" 
+                                class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300 rounded">
+                         <label for="crear_usuario_nuevo" class="ml-2 block text-sm text-gray-900 font-medium">
+                             Crear usuario para acceso al sistema
+                         </label>
+                     </div>
 
-            <div class="space-y-4">
-                <div class="flex items-center">
-                    <input type="checkbox" id="crear_usuario" name="crear_usuario" value="1" 
-                           x-model="crearUsuario" 
-                           class="h-4 w-4 text-petroyellow focus:ring-petroyellow border-gray-300 rounded">
-                    <label for="crear_usuario" class="ml-2 block text-sm text-gray-900 font-medium">
-                        Crear usuario para acceso al sistema
-                    </label>
-                </div>
+                     <div x-show="crearUsuario" x-transition class="space-y-4 pl-6 border-l-2 border-petroyellow">
+                         <div class="bg-gray-50 border border-gray-200 rounded-md p-3">
+                             <div class="flex">
+                                 <div class="flex-shrink-0">
+                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                     </svg>
+                                 </div>
+                                 <div class="ml-3">
+                                     <p class="text-sm text-gray-700">
+                                         Al marcar esta opción se creará una cuenta de usuario para que el personal tenga acceso al sistema. 
+                                         Se generarán credenciales de acceso automáticamente.
+                                     </p>
+                                 </div>
+                             </div>
+                         </div>
 
-                <div x-show="crearUsuario" x-transition class="space-y-4 pl-6 border-l-2 border-gray-200">
-                    <div class="bg-gray-50 border border-gray-200 rounded-md p-3">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm text-gray-700">
-                                    Al marcar esta opción se creará que el personal tenga acceso al sistema. 
-                                    Se generarán credenciales de acceso automáticamente.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                             <div>
+                                 <label for="email_usuario" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico *</label>
+                                 <input type="email" id="email_usuario" name="email_usuario" 
+                                        placeholder="correo@ejemplo.com"
+                                        value="{{ old('email_usuario') }}"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-petroyellow focus:border-petroyellow"
+                                        x-bind:required="crearUsuario">
+                             </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="email_usuario" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico *</label>
-                            <input type="email" id="email_usuario" name="email_usuario" 
-                                   placeholder="correo@ejemplo.com"
-                                   class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow"
-                                   x-bind:required="crearUsuario">
-                        </div>
+                             <div>
+                                 <label for="rol_usuario" class="block text-sm font-medium text-gray-700 mb-1">Rol en el Sistema *</label>
+                                 <select id="rol_usuario" name="rol_usuario" 
+                                         x-bind:required="crearUsuario"
+                                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-petroyellow focus:border-petroyellow">
+                                     <option value="">Seleccione un rol</option>
+                                     <option value="admin" {{ old('rol_usuario') == 'admin' ? 'selected' : '' }}>Administrador</option>
+                                     <option value="encargado" {{ old('rol_usuario') == 'encargado' ? 'selected' : '' }}>Encargado</option>
+                                     <option value="operador" {{ old('rol_usuario') == 'operador' ? 'selected' : '' }}>Operador</option>
+                                 </select>
+                             </div>
+                         </div>
 
-                        <div>
-                            <label for="rol_usuario" class="block text-sm font-medium text-gray-700 mb-1">Rol en el Sistema *</label>
-                            <select id="rol_usuario" name="rol_usuario" 
-                                    x-bind:required="crearUsuario"
-                                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">
-                                <option value="">Seleccione un rol</option>
-                                @if(isset($roles))
-                                    @foreach($roles as $rol)
-                                        <option value="{{ $rol->id }}" 
-                                                {{ old('rol_usuario', $personal->usuario?->rol_id) == $rol->id ? 'selected' : '' }}>
-                                            {{ $rol->nombre_rol }}
-                                        </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                    </div>
+                         {{-- Campo oculto para especificar que siempre será contraseña aleatoria --}}
+                         <input type="hidden" name="tipo_password" value="aleatoria">
 
-                    {{-- Campo oculto para especificar que siempre será contraseña aleatoria --}}
-                    <input type="hidden" name="tipo_password" value="aleatoria">
+                         <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                             <div class="flex">
+                                 <div class="flex-shrink-0">
+                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+                                         <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" />
+                                     </svg>
+                                 </div>
+                                 <div class="ml-3">
+                                     <h3 class="text-sm font-medium text-blue-800">Generación automática de contraseña</h3>
+                                     <div class="mt-2 text-sm text-blue-700">
+                                         <ul class="list-disc pl-5 space-y-1">
+                                             <li>Se generará automáticamente una contraseña segura</li>
+                                             <li>La contraseña se mostrará después de crear el usuario</li>
+                                             <li>Se enviará un correo con las credenciales de acceso</li>
+                                             <li>El usuario puede cambiar su contraseña desde el perfil</li>
+                                         </ul>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
 
-                    <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-blue-800">Generación automática de contraseña</h3>
-                                <div class="mt-2 text-sm text-blue-700">
-                                    <ul class="list-disc pl-5 space-y-1">
-                                        <li>Se generará automáticamente una contraseña segura</li>
-                                        <li>La contraseña se mostrará después de crear el usuario</li>
-                                        <li>Se enviará un correo con las credenciales de acceso</li>
-                                        <li>El usuario puede cambiar su contraseña desde el perfil</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                     {{-- Mensaje cuando no está marcado el checkbox --}}
+                     <div x-show="!crearUsuario" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                         <div class="flex items-center">
+                             <svg class="w-5 h-5 text-yellow-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                             </svg>
+                             <div>
+                                 <p class="text-sm font-medium text-yellow-800">Este personal no tiene usuario del sistema</p>
+                                 <p class="text-xs text-yellow-700 mt-1">Marque la casilla de arriba para crear un usuario y darle acceso al sistema</p>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             @endif
+         </div>
+
+         {{-- Información de Auditoría --}}
+         <div class="bg-white border border-gray-200 rounded-lg p-6">
+             <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                     <path fill-rule="evenodd" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" clip-rule="evenodd" />
+                 </svg>
+                 Información de Auditoría
+             </h3>
+             
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <div>
+                     <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Creación</label>
+                     <div class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-lg text-sm text-gray-800">
+                         {{ $personal->created_at ? $personal->created_at->format('d/m/Y H:i') : 'No disponible' }}
+                     </div>
+                 </div>
+                 <div>
+                     <label class="block text-sm font-medium text-gray-700 mb-2">Última Actualización</label>
+                     <div class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-lg text-sm text-gray-800">
+                         {{ $personal->updated_at ? $personal->updated_at->format('d/m/Y H:i') : 'No disponible' }}
+                     </div>
+                 </div>
+             </div>
+         </div>
 
          {{-- Botones de acción --}}
          <div class="flex justify-end space-x-4">

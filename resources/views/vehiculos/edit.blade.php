@@ -523,6 +523,33 @@
                 </div>
             </div>
 
+            <div class="mt-8"></div>
+
+            {{-- Información de Auditoría --}}
+            <div class="bg-white border border-gray-200 rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" clip-rule="evenodd" />
+                    </svg>
+                    Información de Auditoría
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Creación</label>
+                        <div class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-lg text-sm text-gray-800">
+                            {{ $vehiculo->created_at ? $vehiculo->created_at->format('d/m/Y H:i') : 'No disponible' }}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Última Actualización</label>
+                        <div class="bg-gray-50 border border-gray-200 px-4 py-3 rounded-lg text-sm text-gray-800">
+                            {{ $vehiculo->updated_at ? $vehiculo->updated_at->format('d/m/Y H:i') : 'No disponible' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Botones de acción -->
             <div class="mt-8 flex justify-between items-center">
                 <!-- Botón Dar de Baja (izquierda) -->
