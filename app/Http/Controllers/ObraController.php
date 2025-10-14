@@ -666,7 +666,8 @@ class ObraController extends Controller
                 'operador:id,nombre_completo',
                 'encargado:id,nombre_completo', // CORREGIDO: Removido 'email' ya que no existe en la tabla personal
                 'encargado.categoria:id,nombre_categoria', // CORREGIDO: Cambiar de 'encargado.personal' a 'encargado.categoria'
-                'asignacionesActivas'
+                'asignacionesActivas.vehiculo:id,marca,modelo,placas,anio,estatus',
+                'asignacionesActivas.operador:id,nombre_completo'
             ])->find($id);
 
             if (! $obra) {
