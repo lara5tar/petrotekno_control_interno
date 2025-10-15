@@ -60,23 +60,23 @@ class VehiculosFiltradosExport implements FromCollection, WithHeadings, WithMapp
     public function map($vehiculo): array
     {
         // Obtener obra asignada activa
-        $obraAsignada = 'Sin obra asignada';
+        $obraAsignada = 'N/A';
         $asignacionActiva = $vehiculo->asignacionesActivas()->first();
-        if ($asignacionActiva && $asignacionActiva->obra) {
-            $obraAsignada = $asignacionActiva->obra->nombre_obra;
+        if ($asignacionActiva && $asignacionActiva->obra && !empty($asignacionActiva->obra->nombre_obra)) {
+            $obraAsignada = trim($asignacionActiva->obra->nombre_obra);
         }
 
         return [
-            $vehiculo->id,
-            $vehiculo->marca,
-            $vehiculo->modelo,
-            $vehiculo->anio,
-            $vehiculo->placas ?: 'N/A',
-            $vehiculo->n_serie ?: 'N/A',
-            $vehiculo->tipoActivo ? $vehiculo->tipoActivo->nombre : 'Sin tipo',
-            $vehiculo->estatus ? $vehiculo->estatus->nombre() : 'N/A',
-            $vehiculo->kilometraje_actual ? number_format($vehiculo->kilometraje_actual) . ' km' : 'Sin registro',
-            ($vehiculo->estado && $vehiculo->municipio) ? $vehiculo->estado . ', ' . $vehiculo->municipio : ($vehiculo->estado ?: ($vehiculo->municipio ?: 'Sin ubicación')),
+            !empty($vehiculo->id) ? $vehiculo->id : 'N/A',
+            !empty($vehiculo->marca) && trim($vehiculo->marca) !== '' ? $vehiculo->marca : 'N/A',
+            !empty($vehiculo->modelo) && trim($vehiculo->modelo) !== '' ? $vehiculo->modelo : 'N/A',
+            ($vehiculo->anio !== null && $vehiculo->anio !== '' && $vehiculo->anio > 0) ? $vehiculo->anio : 'N/A',
+            !empty($vehiculo->placas) && trim($vehiculo->placas) !== '' ? $vehiculo->placas : 'N/A',
+            !empty($vehiculo->n_serie) && trim($vehiculo->n_serie) !== '' ? $vehiculo->n_serie : 'N/A',
+            ($vehiculo->tipoActivo && !empty($vehiculo->tipoActivo->nombre) && trim($vehiculo->tipoActivo->nombre) !== '') ? $vehiculo->tipoActivo->nombre : 'N/A',
+            ($vehiculo->estatus && !empty($vehiculo->estatus->nombre()) && trim($vehiculo->estatus->nombre()) !== '') ? $vehiculo->estatus->nombre() : 'N/A',
+            !empty($vehiculo->kilometraje_actual) && $vehiculo->kilometraje_actual > 0 ? number_format($vehiculo->kilometraje_actual) . ' km' : 'N/A',
+            (!empty($vehiculo->estado) && !empty($vehiculo->municipio)) ? trim($vehiculo->estado) . ', ' . trim($vehiculo->municipio) : (!empty($vehiculo->estado) ? trim($vehiculo->estado) : (!empty($vehiculo->municipio) ? trim($vehiculo->municipio) : 'N/A')),
             $obraAsignada,
             $vehiculo->created_at ? $vehiculo->created_at->format('d/m/Y') : 'N/A'
         ];

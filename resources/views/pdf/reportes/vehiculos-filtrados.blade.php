@@ -101,15 +101,15 @@
                     <td class="text-bold">
                         {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
                     </td>
-                    <td class="text-center">{{ $vehiculo->tipo_activo_nombre ?? 'Sin tipo' }}</td>
-                    <td class="text-center">{{ $vehiculo->anio }}</td>
+                    <td class="text-center">{{ $vehiculo->tipo_activo_nombre ?? 'N/A' }}</td>
+                    <td class="text-center">{{ ($vehiculo->anio !== null && $vehiculo->anio !== '' && $vehiculo->anio > 0) ? $vehiculo->anio : 'N/A' }}</td>
                     <td class="text-center no-wrap">{{ $vehiculo->placas ?: 'N/A' }}</td>
                     <td class="font-small break-word">{{ $vehiculo->n_serie ?: 'N/A' }}</td>
                     <td class="text-center">
                         @if($vehiculo->estado || $vehiculo->municipio)
                             {{ $vehiculo->estado }}{{ $vehiculo->estado && $vehiculo->municipio ? ', ' : '' }}{{ $vehiculo->municipio }}
                         @else
-                            Sin ubicación
+                            N/A
                         @endif
                     </td>
                     <td class="text-center">
@@ -132,7 +132,7 @@
                         @if($vehiculo->kilometraje_actual)
                             <span class="text-bold">{{ number_format($vehiculo->kilometraje_actual) }} km</span>
                         @else
-                            <span class="text-muted font-small">Sin registro</span>
+                            <span class="text-muted font-small">N/A</span>
                         @endif
                     </td>
                     <td class="text-center font-small">
@@ -188,7 +188,7 @@
         <ul class="notes-list">
             <li>Este reporte incluye únicamente los vehículos que cumplen con los criterios de filtrado aplicados.</li>
             <li>Los datos de kilometraje corresponden al último registro disponible en el sistema.</li>
-            <li>Los vehículos sin ubicación específica se muestran como "Sin ubicación".</li>
+            <li>Los campos sin información se muestran como "N/A" (No Aplica).</li>
             <li>El estado de cada vehículo refleja su situación actual en el sistema de control interno.</li>
             @if(isset($filtros['buscar']) && $filtros['buscar'])
                 <li>La búsqueda aplicada incluye coincidencias en marca, modelo, placas y número de serie.</li>
