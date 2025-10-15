@@ -4,7 +4,8 @@
     'entityIdField' => 'id',
     'entityDisplayField' => 'nombre',
     'routeName' => '',
-    'additionalText' => 'Esta acción no se puede deshacer.'
+    'additionalText' => 'Esta acción no se puede deshacer.',
+    'useTraditionalSubmit' => false
 ])
 
 <!-- Modal de confirmación para eliminar -->
@@ -26,7 +27,7 @@
                 </p>
             </div>
             <div class="flex gap-3 justify-center">
-                <form id="{{ $id }}-form" method="POST" class="inline">
+                <form id="{{ $id }}-form" method="POST" class="inline" data-use-traditional="{{ $useTraditionalSubmit ? 'true' : 'false' }}">
                     @csrf
                     @method('DELETE')
                     <button type="button" id="{{ $id }}-btn-cancelar" class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 mr-2">
@@ -104,6 +105,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Manejar el envío del formulario de eliminación
         formEliminar.addEventListener('submit', function(e) {
+            const useTraditional = this.getAttribute('data-use-traditional') === 'true';
+            
+            // Si se usa envío tradicional, permitir que el navegador envíe el formulario normalmente
+            if (useTraditional) {
+                return true; // Permite el envío normal del formulario
+            }
+            
+            // Caso contrario, usar AJAX
             e.preventDefault();
             
             const submitBtn = this.querySelector('button[type="submit"]');
@@ -122,38 +131,69 @@ document.addEventListener('DOMContentLoaded', function() {
             // Realizar la petición de eliminación
             const formData = new FormData(this);
             const url = this.getAttribute('action');
+            
+            // Obtener el token CSRF del meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfToken) {
+                console.error('No se encontró el token CSRF');
+                alert('Error: No se puede procesar la solicitud. Por favor, recargue la página.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                return;
+            }
 
             fetch(url, {
                 method: 'POST',
                 body: formData,
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
+                    'X-CSRF-TOKEN': csrfToken.getAttribute('content')
+                },
+                credentials: 'same-origin'
             })
             .then(response => {
-                if (response.ok) {
+                // Verificar si es un error 419 (CSRF token mismatch)
+                if (response.status === 419) {
+                    // Intentar con envío tradicional del formulario como respaldo
+                    console.warn('Token CSRF expirado, usando envío tradicional');
+                    this.setAttribute('data-use-traditional', 'true');
+                    this.submit();
+                    return;
+                }
+                
+                if (response.ok || response.redirected) {
                     // Verificar si es una respuesta JSON o redirección
                     const contentType = response.headers.get('content-type');
                     if (contentType && contentType.includes('application/json')) {
                         return response.json().then(data => {
                             if (data.success) {
-                                window.location.reload();
+                                // Redirigir a la URL especificada o recargar
+                                if (data.redirect) {
+                                    window.location.href = data.redirect;
+                                } else {
+                                    window.location.reload();
+                                }
                             } else {
                                 throw new Error(data.message || 'Error en la eliminación');
                             }
                         });
                     } else {
-                        // Si no es JSON, asumir que es exitoso (redirect)
-                        window.location.reload();
+                        // Si es una redirección HTML, seguirla
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                        } else {
+                            window.location.reload();
+                        }
                     }
                 } else {
-                    throw new Error('Error en la eliminación');
+                    return response.text().then(text => {
+                        throw new Error(`Error ${response.status}: ${response.statusText}`);
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error al eliminar la entidad. Por favor, inténtelo de nuevo.');
+                alert(error.message || 'Error al eliminar la entidad. Por favor, inténtelo de nuevo.');
                 
                 // Restaurar botón
                 submitBtn.disabled = false;

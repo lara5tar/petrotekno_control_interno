@@ -1657,6 +1657,7 @@
     entityDisplayField="vehiculo-info"
     routeName="vehiculos"
     additionalText="Esta acción no se puede deshacer y eliminará toda la información asociada al vehículo."
+    :useTraditionalSubmit="true"
 />
 
 @push('scripts')

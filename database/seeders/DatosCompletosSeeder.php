@@ -487,6 +487,13 @@ class DatosCompletosSeeder extends Seeder
 
         $this->command->info('📊 Creando registros de kilometraje...');
 
+        // Obtener usuario admin para los registros
+        $adminUser = \App\Models\User::first();
+        if (!$adminUser) {
+            $this->command->warn('No se encontró usuario administrador, omitiendo registros de kilometraje');
+            return;
+        }
+
         $kilometrajes = [];
         
         // Solo para vehículos con kilometraje
@@ -498,6 +505,7 @@ class DatosCompletosSeeder extends Seeder
                 'vehiculo_id' => $vehiculo->id,
                 'kilometraje' => max(0, $vehiculo->kilometraje_actual - 6000),
                 'fecha_captura' => Carbon::now()->subMonths(6),
+                'usuario_captura_id' => $adminUser->id,
                 'observaciones' => 'REGISTRO INICIAL DEL SISTEMA',
             ];
 
@@ -506,6 +514,7 @@ class DatosCompletosSeeder extends Seeder
                 'vehiculo_id' => $vehiculo->id,
                 'kilometraje' => max(0, $vehiculo->kilometraje_actual - 3000),
                 'fecha_captura' => Carbon::now()->subMonths(3),
+                'usuario_captura_id' => $adminUser->id,
                 'observaciones' => 'ACTUALIZACIÓN TRIMESTRAL',
             ];
 
@@ -514,6 +523,7 @@ class DatosCompletosSeeder extends Seeder
                 'vehiculo_id' => $vehiculo->id,
                 'kilometraje' => max(0, $vehiculo->kilometraje_actual - 500),
                 'fecha_captura' => Carbon::now()->subMonth(),
+                'usuario_captura_id' => $adminUser->id,
                 'observaciones' => 'REVISIÓN MENSUAL',
             ];
 
@@ -522,6 +532,7 @@ class DatosCompletosSeeder extends Seeder
                 'vehiculo_id' => $vehiculo->id,
                 'kilometraje' => $vehiculo->kilometraje_actual,
                 'fecha_captura' => Carbon::now(),
+                'usuario_captura_id' => $adminUser->id,
                 'observaciones' => 'REGISTRO ACTUAL',
             ];
         }
@@ -544,7 +555,7 @@ class DatosCompletosSeeder extends Seeder
      */
     private function asignarVehiculosObras(array $vehiculos, array $obras, array $personal): void
     {
-        if (empty($vehiculos) || empty($obras)) {
+        if (empty($vehiculos) || empty($obras) || empty($personal)) {
             return;
         }
 
@@ -557,9 +568,18 @@ class DatosCompletosSeeder extends Seeder
         
         $vehiculosParaAsignar = array_slice($vehiculos, 0, min(count($vehiculos), 5));
         
+        // Obtener operadores disponibles
+        $operadoresDisponibles = array_filter($personal, fn($p) => $p->categoria_personal_id !== null);
+        
+        if (empty($operadoresDisponibles)) {
+            $this->command->warn('No hay personal disponible para asignar como operador');
+            return;
+        }
+        
         foreach ($vehiculosParaAsignar as $index => $vehiculo) {
             if (!empty($obrasActivas) && $index < count($obrasActivas)) {
                 $obra = array_values($obrasActivas)[$index];
+                $operador = array_values($operadoresDisponibles)[$index % count($operadoresDisponibles)];
                 
                 // Actualizar estatus del vehículo si no está asignado
                 if ($vehiculo->estatus === 'disponible') {
@@ -569,8 +589,11 @@ class DatosCompletosSeeder extends Seeder
                 $asignaciones[] = [
                     'vehiculo_id' => $vehiculo->id,
                     'obra_id' => $obra->id,
+                    'operador_id' => $operador->id,
                     'fecha_asignacion' => Carbon::now()->subDays(rand(10, 60)),
-                    'fecha_devolucion' => null,
+                    'fecha_liberacion' => null,
+                    'kilometraje_inicial' => $vehiculo->kilometraje_actual ? max(0, $vehiculo->kilometraje_actual - rand(100, 500)) : null,
+                    'estado' => 'activa',
                     'observaciones' => 'ASIGNACIÓN ACTIVA A OBRA EN PROGRESO',
                 ];
             }
