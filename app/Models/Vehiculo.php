@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EstadoVehiculo;
+use App\Traits\UppercaseAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -63,7 +64,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Vehiculo extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, UppercaseAttributes;
+
+    /**
+     * Campos que se convertirán automáticamente a MAYÚSCULAS
+     */
+    protected $uppercaseFields = [
+        'marca',
+        'modelo',
+        'n_serie',
+        'placas',
+        'observaciones',
+        'estado',      // Estado de la República (ej: NUEVO LEÓN, JALISCO)
+        'municipio',   // Municipio/Ciudad (ej: MONTERREY, GUADALAJARA)
+        'numero_poliza',
+    ];
 
     /**
      * Nombre de la tabla
@@ -449,38 +464,6 @@ class Vehiculo extends Model
         $anio = $this->anio ?? 'Sin año';
         
         return "{$marca} {$modelo} ({$anio})";
-    }
-
-    /**
-     * Accessor para placas en mayúsculas
-     */
-    public function getPlacasAttribute($value)
-    {
-        return $value ? strtoupper($value) : null;
-    }
-
-    /**
-     * Mutator para placas en mayúsculas
-     */
-    public function setPlacasAttribute($value)
-    {
-        $this->attributes['placas'] = $value ? strtoupper($value) : null;
-    }
-
-    /**
-     * Mutator para marca en formato título
-     */
-    public function setMarcaAttribute($value)
-    {
-        $this->attributes['marca'] = ucwords(strtolower($value));
-    }
-
-    /**
-     * Mutator para modelo en formato título
-     */
-    public function setModeloAttribute($value)
-    {
-        $this->attributes['modelo'] = ucwords(strtolower($value));
     }
 
     /**

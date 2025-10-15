@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseAttributes;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +11,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Kilometraje extends Model
 {
-    use HasFactory;
+    use HasFactory, UppercaseAttributes;
+
+    /**
+     * Campos que se convertirán automáticamente a MAYÚSCULAS
+     */
+    protected $uppercaseFields = [
+        'observaciones',
+    ];
 
     protected $table = 'kilometrajes';
 

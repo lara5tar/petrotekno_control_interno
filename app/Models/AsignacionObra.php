@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,14 @@ use Carbon\Carbon;
 
 class AsignacionObra extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, UppercaseAttributes;
+
+    /**
+     * Campos que se convertirán automáticamente a MAYÚSCULAS
+     */
+    protected $uppercaseFields = [
+        'observaciones',
+    ];
 
     protected $table = 'asignaciones_obra';
 

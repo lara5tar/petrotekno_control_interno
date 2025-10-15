@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseAttributes;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,7 +26,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Obra extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, UppercaseAttributes;
+
+    /**
+     * Campos que se convertirán automáticamente a MAYÚSCULAS
+     */
+    protected $uppercaseFields = [
+        'nombre_obra',
+        'ubicacion',
+        'observaciones',
+    ];
 
     /**
      * Nombre de la tabla en la base de datos
@@ -314,18 +324,6 @@ class Obra extends Model
     public function scopeEntreFechas($query, $fechaInicio, $fechaFin)
     {
         return $query->whereBetween('fecha_inicio', [$fechaInicio, $fechaFin]);
-    }
-
-    /**
-     * Mutator para el nombre de obra (formato título y sanitización XSS)
-     */
-    public function setNombreObraAttribute($value)
-    {
-        // Sanitizar contenido peligroso (XSS)
-        $value = strip_tags($value); // Remover todas las etiquetas HTML
-        $value = str_replace(['javascript:', 'vbscript:', 'onload=', 'onerror='], '', $value);
-
-        $this->attributes['nombre_obra'] = trim(ucwords(strtolower($value)));
     }
 
     /**

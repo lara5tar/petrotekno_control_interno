@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,7 +40,20 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Personal extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, UppercaseAttributes;
+
+    /**
+     * Campos que se convertirán automáticamente a MAYÚSCULAS
+     */
+    protected $uppercaseFields = [
+        'nombre_completo',
+        'curp_numero',
+        'rfc',
+        'nss',
+        'no_licencia',
+        'direccion',
+        'ine',
+    ];
 
     protected $table = 'personal';
 
@@ -88,15 +102,6 @@ class Personal extends Model
         }
 
         $this->attributes['estatus'] = $value;
-    }
-
-    /**
-     * Mutator para limpiar y validar nombre_completo contra XSS
-     */
-    public function setNombreCompletoAttribute($value): void
-    {
-        // Sanitización básica sin usar mews/purifier directamente
-        $this->attributes['nombre_completo'] = strip_tags(trim($value));
     }
 
     /**
