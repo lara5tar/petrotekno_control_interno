@@ -53,7 +53,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">Sistema del Activo</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $mantenimiento->sistema_vehiculo ?: 'General' }}
+                                {{ strtoupper($mantenimiento->sistema_vehiculo ?: 'GENERAL') }}
                             </div>
                         </div>
                     </div>

@@ -162,10 +162,12 @@ class Vehiculo extends Model
 
     /**
      * Relación con mantenimientos
+    /**
+     * Relación con mantenimientos
      */
     public function mantenimientos(): HasMany
     {
-        return $this->hasMany(Mantenimiento::class);
+        return $this->hasMany(Mantenimiento::class)->orderBy('id', 'desc');
     }
 
     /**

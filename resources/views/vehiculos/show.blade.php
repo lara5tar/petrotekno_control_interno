@@ -945,7 +945,7 @@
                                                     {{ ucfirst(strtolower($mantenimiento->tipo_servicio)) }}
                                                 </td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ ucfirst($mantenimiento->sistema_vehiculo ?? 'General') }}
+                                                    {{ strtoupper($mantenimiento->sistema_vehiculo ?? 'GENERAL') }}
                                                 </td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                                     {{ number_format($mantenimiento->kilometraje_servicio ?? 0) }} km

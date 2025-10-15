@@ -90,8 +90,8 @@ class MantenimientoController extends Controller
             $query->where('costo', '<=', $request->costo_max);
         }
 
-        // Orden
-        $query->orderBy('fecha_inicio', 'desc');
+        // Orden por ID descendente (más reciente primero)
+        $query->orderBy('id', 'desc');
 
         // Paginación
         $perPage = $request->get('per_page', 15);
@@ -563,7 +563,7 @@ class MantenimientoController extends Controller
             ->select('mantenimientos.*')
             ->join('vehiculos', 'mantenimientos.vehiculo_id', '=', 'vehiculos.id')
             ->whereRaw('(vehiculos.kilometraje_actual - mantenimientos.kilometraje_servicio) >= ?', [$limite])
-            ->orderBy('fecha_inicio', 'desc')
+            ->orderBy('mantenimientos.id', 'desc')
             ->get();
 
         return response()->json([
@@ -715,7 +715,7 @@ class MantenimientoController extends Controller
         }
 
         // Obtener mantenimientos con límite para PDF (máximo 2000 registros)
-        $mantenimientos = $query->orderBy('fecha_inicio', 'desc')->limit(2000)->get();
+        $mantenimientos = $query->orderBy('id', 'desc')->limit(2000)->get();
 
         // Preparar estadísticas
         $estadisticas = [
@@ -838,7 +838,7 @@ class MantenimientoController extends Controller
         }
 
         // Para Excel podemos manejar más registros (máximo 5000)
-        $mantenimientos = $query->orderBy('fecha_inicio', 'desc')->limit(5000)->get();
+        $mantenimientos = $query->orderBy('id', 'desc')->limit(5000)->get();
 
         // Preparar estadísticas
         $estadisticas = [

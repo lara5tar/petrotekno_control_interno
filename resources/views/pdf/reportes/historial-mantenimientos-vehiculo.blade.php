@@ -207,11 +207,11 @@
                     <td class="text-center font-small">
                         @php
                             $sistemaFormatted = match($mantenimiento->sistema_vehiculo) {
-                                'motor' => 'Motor',
-                                'transmision' => 'Transmisión',
-                                'hidraulico' => 'Hidráulico',
-                                'general' => 'General',
-                                default => ucfirst($mantenimiento->sistema_vehiculo ?? 'N/A')
+                                'motor' => 'MOTOR',
+                                'transmision' => 'TRANSMISIÓN',
+                                'hidraulico' => 'HIDRÁULICO',
+                                'general' => 'GENERAL',
+                                default => strtoupper($mantenimiento->sistema_vehiculo ?? 'N/A')
                             };
                         @endphp
                         {{ $sistemaFormatted }}
@@ -255,11 +255,11 @@
                     ->map(function($grupo, $sistema) {
                         return [
                             'sistema' => match($sistema) {
-                                'motor' => 'Motor',
-                                'transmision' => 'Transmisión',
-                                'hidraulico' => 'Hidráulico',
-                                'general' => 'General',
-                                default => ucfirst($sistema)
+                                'motor' => 'MOTOR',
+                                'transmision' => 'TRANSMISIÓN',
+                                'hidraulico' => 'HIDRÁULICO',
+                                'general' => 'GENERAL',
+                                default => strtoupper($sistema)
                             },
                             'total_servicios' => $grupo->count(),
                             'costo_total' => $grupo->sum('costo'),

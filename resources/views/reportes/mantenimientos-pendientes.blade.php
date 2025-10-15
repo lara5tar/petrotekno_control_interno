@@ -179,7 +179,7 @@
                                 <option value="">Todos los sistemas</option>
                                 @foreach($sistemasVehiculo as $sistema)
                                     <option value="{{ $sistema }}" {{ request('sistema_vehiculo') == $sistema ? 'selected' : '' }}>
-                                        {{ ucfirst($sistema) }}
+                                        {{ strtoupper($sistema) }}
                                     </option>
                                 @endforeach
                             </select>
@@ -252,7 +252,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-medium text-gray-900">{{ $mantenimiento->tipo_servicio }}</div>
-                                        <div class="text-sm text-gray-500">{{ ucfirst($mantenimiento->sistema_vehiculo) }}</div>
+                                        <div class="text-sm text-gray-500">{{ strtoupper($mantenimiento->sistema_vehiculo) }}</div>
                                     </td>
                                     <td class="px-6 py-4">
                                         <div class="text-sm text-gray-900">{{ $mantenimiento->descripcion }}</div>

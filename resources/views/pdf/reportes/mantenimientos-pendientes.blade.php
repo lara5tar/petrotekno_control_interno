@@ -19,7 +19,7 @@
             <p><strong>Tipo de servicio:</strong> {{ $tipoServicio }}</p>
         @endif
         @if($sistemaVehiculo)
-            <p><strong>Sistema:</strong> {{ ucfirst($sistemaVehiculo) }}</p>
+            <p><strong>Sistema:</strong> {{ strtoupper($sistemaVehiculo) }}</p>
         @endif
         @if($proveedor)
             <p><strong>Proveedor:</strong> {{ $proveedor }}</p>
@@ -85,7 +85,7 @@
                         <td>{{ $mantenimiento->vehiculo->marca }} {{ $mantenimiento->vehiculo->modelo }}</td>
                         <td>{{ $mantenimiento->vehiculo->placas }}</td>
                         <td>{{ $mantenimiento->tipo_servicio }}</td>
-                        <td>{{ ucfirst($mantenimiento->sistema_vehiculo) }}</td>
+                        <td>{{ strtoupper($mantenimiento->sistema_vehiculo) }}</td>
                         <td>{{ $mantenimiento->descripcion }}</td>
                         <td>{{ $mantenimiento->proveedor ?? 'Sin asignar' }}</td>
                         <td>{{ $mantenimiento->fecha_inicio->format('d/m/Y') }}</td>
@@ -180,7 +180,7 @@
             <tbody>
                 @foreach($resumenSistemas as $resumen)
                     <tr>
-                        <td>{{ ucfirst($resumen['sistema']) }}</td>
+                        <td>{{ strtoupper($resumen['sistema']) }}</td>
                         <td class="text-center">{{ $resumen['cantidad'] }}</td>
                         <td class="text-center">{{ number_format($resumen['dias_promedio'], 1) }} días</td>
                         <td class="text-right">${{ number_format($resumen['costo_total'], 2) }}</td>
