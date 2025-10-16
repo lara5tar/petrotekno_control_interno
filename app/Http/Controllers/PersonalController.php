@@ -506,7 +506,7 @@ class PersonalController extends Controller
                 'archivo_nss' => ['tipo_id' => 12, 'campo_url' => 'url_nss', 'contenido' => 'NSS'],
                 'archivo_licencia' => ['tipo_id' => 8, 'campo_url' => 'url_licencia', 'contenido' => 'Licencia de Conducir'],
                 'archivo_comprobante_domicilio' => ['tipo_id' => 16, 'campo_url' => 'url_comprobante_domicilio', 'contenido' => 'Comprobante de Domicilio'],
-                'archivo_cv' => ['tipo_id' => 1, 'campo_url' => null, 'contenido' => 'CV Profesional']
+                'archivo_cv' => ['tipo_id' => 1, 'campo_url' => 'url_cv', 'contenido' => 'CV Profesional']
             ];
 
             // Log para depuración

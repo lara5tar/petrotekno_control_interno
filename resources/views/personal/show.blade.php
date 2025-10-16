@@ -325,28 +325,32 @@
 
         <!-- Panel Derecho - Información Adicional -->
         <div class="space-y-6">
-            <!-- Tabs de Información -->
-            <div class="bg-white border border-gray-300 rounded-lg">
-                <div class="bg-gray-50 px-4 py-0 border-b border-gray-300">
-                    <div class="flex space-x-0" role="tablist">
-                        {{-- <button id="asignacion-tab" 
-                                class="px-4 py-3 text-sm font-medium border-b-2 border-blue-600 text-blue-600 bg-white transition-colors duration-200"
-                                onclick="switchTab('asignacion')" 
-                                role="tab" 
-                                aria-selected="true"
-                                aria-controls="asignacion-content">
-                            Asignación
-                        </button> --}}
-                        <button id="documentos-tab" 
-                                class="px-4 py-3 text-sm font-medium border-b-2 border-gray-600 text-gray-600 bg-white transition-colors duration-200"
-                                onclick="switchTab('documentos')" 
+            <!-- Tabs de Información - Diseño tipo carpetas -->
+            <div class="bg-white flex-1 flex flex-col" id="tabs-container">
+                <div class="relative">
+                    <nav class="flex space-x-1 pr-3 pt-3">
+                        <button onclick="switchTab('documentos')" 
+                                id="documentos-tab"
+                                class="relative px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-0 ml-0 bg-gray-50 border-gray-300 border-t border-l border-r text-gray-800 shadow-sm z-10"
                                 role="tab" 
                                 aria-selected="true"
                                 aria-controls="documentos-content">
-                            Documentos
+                            <span class="flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                 </svg>
+                                Documentos
+                            </span>
                         </button>
-                    </div>
+                    </nav>
+                    <!-- Línea base que conecta con las pestañas -->
+                    <div class="absolute bottom-0 left-0 right-0 h-px bg-gray-300 z-0"></div>
                 </div>
+
+                <!-- Contenido de pestañas con bordes tipo carpeta -->
+                <div class="flex-1 overflow-hidden bg-gray-50 border-l border-r border-b border-gray-300 rounded-b-lg">
+                <div class="flex-1 overflow-hidden">
                 
                 {{-- <!-- Contenido de Asignación -->
                 <div id="asignacion-content" class="tab-content p-4" role="tabpanel" aria-labelledby="asignacion-tab">
@@ -413,7 +417,7 @@
                 </div> --}}
 
                 <!-- Contenido de Documentos -->
-                <div id="documentos-content" class="tab-content p-4" role="tabpanel" aria-labelledby="documentos-tab">
+                <div id="documentos-content" class="p-6 bg-gray-50 tab-content" role="tabpanel" aria-labelledby="documentos-tab" style="display: block;">
                     <div class="space-y-6">
                             <!-- Documentos del Personal -->
                         <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
@@ -426,270 +430,133 @@
                                 </h5>
                             </div>
                             
+                            <!-- Documentos del Personal -->
+                            <h6 class="text-sm font-medium text-gray-700 mb-2">Documentos del Personal</h6>
                             <!-- Lista unificada de documentos -->
-                            <ul class="divide-y divide-gray-200 mb-4">
+                            <ul class="divide-y divide-gray-200 mb-6">
                                 @php
-                                    $documentosObligatorios = ['INE', 'CURP', 'RFC', 'NSS'];
+                                    $documentosObligatorios = [
+                                        'INE' => ['titulo' => 'Identificación Oficial (INE)', 'url_field' => 'url_ine'],
+                                        'CURP' => ['titulo' => 'CURP', 'url_field' => 'url_curp'],
+                                        'RFC' => ['titulo' => 'RFC', 'url_field' => 'url_rfc'],
+                                        'NSS' => ['titulo' => 'NSS (Número de Seguro Social)', 'url_field' => 'url_nss'],
+                                    ];
                                 @endphp
                                 
-                                @foreach($documentosObligatorios as $tipoDoc)
+                                @foreach($documentosObligatorios as $tipoDoc => $config)
                                     @php
                                         $documento = $documentosPorTipo[$tipoDoc] ?? null;
                                         $tieneDocumento = !is_null($documento) && is_object($documento);
+                                        $urlField = $personal->{$config['url_field']} ?? null;
                                         
-                                        // También verificar URLs directas en el modelo personal
-                                        $urlField = '';
+                                        // Obtener el valor del campo de texto (número de documento)
+                                        $valorCampo = null;
                                         switch($tipoDoc) {
                                             case 'INE':
-                                                $urlField = $personal->url_ine;
+                                                $valorCampo = $personal->ine;
                                                 break;
                                             case 'CURP':
-                                                $urlField = $personal->url_curp;
+                                                $valorCampo = $personal->curp_numero;
                                                 break;
                                             case 'RFC':
-                                                $urlField = $personal->url_rfc;
+                                                $valorCampo = $personal->rfc;
                                                 break;
                                             case 'NSS':
-                                                $urlField = $personal->url_nss;
+                                                $valorCampo = $personal->nss;
                                                 break;
                                         }
                                         
-                                        $tieneArchivoDirecto = !empty($urlField);
-                                        $tieneAlgunArchivo = $tieneDocumento || $tieneArchivoDirecto;
+                                        // Generar subtítulo
+                                        $subtitle = null;
+                                        if($tieneDocumento && isset($documento->fecha_vencimiento) && $documento->fecha_vencimiento) {
+                                            $subtitle = '<p class="text-xs text-gray-500">Vence: ' . \Carbon\Carbon::parse($documento->fecha_vencimiento)->format('d/m/Y') . '</p>';
+                                        } elseif($tieneDocumento && isset($documento->descripcion)) {
+                                            $subtitle = '<p class="text-xs text-gray-500">' . e($documento->descripcion) . '</p>';
+                                        } elseif(!empty($valorCampo)) {
+                                            $subtitle = '<p class="text-xs text-gray-500">' . e($valorCampo) . '</p>';
+                                        }
                                     @endphp
                                     
-                                    <li class="py-2 flex items-center justify-between">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2 text-{{ $tieneAlgunArchivo ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                            </svg>
-                                            <div>
-                                                <span class="text-sm font-medium text-gray-800">
-                                                    @if($tipoDoc === 'INE')
-                                                        Identificación Oficial (INE)
-                                                    @elseif($tipoDoc === 'NSS')
-                                                        NSS (Número de Seguro Social)
-                                                    @else
-                                                        {{ $tipoDoc }}
-                                                    @endif
-                                                </span>
-                                                @if($tieneDocumento && isset($documento->fecha_vencimiento) && $documento->fecha_vencimiento)
-                                                    <p class="text-xs text-gray-500">Vence: {{ \Carbon\Carbon::parse($documento->fecha_vencimiento)->format('d/m/Y') }}</p>
-                                                @elseif($tieneDocumento)
-                                                    <p class="text-xs text-gray-500">{{ $documento->descripcion ?? 'Documento disponible' }}</p>
-                                                @elseif($tieneArchivoDirecto)
-                                                    <p class="text-xs text-gray-500">Documento disponible</p>
-                                                @else
-                                                    <p class="text-xs text-red-500">No disponible</p>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        @if($tieneDocumento)
-                                            <div class="flex space-x-2">
-                                                <button data-document-id="{{ $documento->id }}" class="btn-view-document bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    </svg>
-                                                    Ver
-                                                </button>
-                                                <button data-document-id="{{ $documento->id }}" class="btn-download-document bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                                    </svg>
-                                                    Descargar
-                                                </button>
-                                            </div>
-                                        @elseif($tieneArchivoDirecto)
-                                            <div class="flex space-x-2">
-                                                <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200" 
-                                                        onclick="viewPersonalDocument('{{ asset('storage/' . $urlField) }}')"
-                                                        title="Ver documento">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    </svg>
-                                                    Ver
-                                                </button>
-                                            </div>
-                                        @else
-                                            <div class="text-xs text-red-500">
-                                                Faltante
-                                            </div>
-                                        @endif
-                                    </li>
+                                    <x-document-field 
+                                        :title="$config['titulo']"
+                                        :subtitle="$subtitle"
+                                        :hasDocument="$tieneDocumento"
+                                        :documentId="$tieneDocumento ? $documento->id : null"
+                                        :directUrl="$urlField"
+                                    />
                                 @endforeach
 
                                 <!-- Licencia de Manejo -->
                                 @php
                                     $documentoLicencia = $documentosPorTipo['licencia'] ?? $documentosPorTipo['Licencia de Conducir'] ?? null;
                                     $tieneDocumentoLicencia = !is_null($documentoLicencia) && is_object($documentoLicencia);
-                                    $tieneArchivoLicencia = !empty($personal->url_licencia);
-                                    $tieneAlgunaLicencia = $tieneDocumentoLicencia || $tieneArchivoLicencia;
+                                    $urlLicencia = $personal->url_licencia ?? null;
+                                    
+                                    $subtitleLicencia = '<p class="text-xs text-gray-500">Número: ' . ($personal->no_licencia ?? 'No registrado') . '</p>';
+                                    if($tieneDocumentoLicencia && isset($documentoLicencia->fecha_vencimiento) && $documentoLicencia->fecha_vencimiento) {
+                                        $subtitleLicencia .= '<p class="text-xs text-gray-500">Vence: ' . \Carbon\Carbon::parse($documentoLicencia->fecha_vencimiento)->format('d/m/Y') . '</p>';
+                                    }
                                 @endphp
-                                    <li class="py-2 flex items-center justify-between">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2 text-{{ $tieneAlgunaLicencia ? 'green' : 'orange' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                            </svg>
-                                            <div>
-                                                <span class="text-sm font-medium text-gray-800">Licencia de Manejo</span>
-                                                <p class="text-xs text-gray-500">
-                                                    Número: {{ $personal->no_licencia ?? 'No registrado' }}
-                                                </p>
-                                                @if($tieneDocumentoLicencia && isset($documentoLicencia->fecha_vencimiento) && $documentoLicencia->fecha_vencimiento)
-                                                    <p class="text-xs text-gray-500">Vence: {{ \Carbon\Carbon::parse($documentoLicencia->fecha_vencimiento)->format('d/m/Y') }}</p>
-                                                @elseif($tieneAlgunaLicencia)
-                                                    <p class="text-xs text-gray-500">Documento disponible</p>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        @if($tieneDocumentoLicencia)
-                                            <div class="flex space-x-2">
-                                                <button data-document-id="{{ $documentoLicencia->id }}" class="btn-view-document bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    </svg>
-                                                    Ver
-                                                </button>
-                                                <button data-document-id="{{ $documentoLicencia->id }}" class="btn-download-document bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                                    </svg>
-                                                    Descargar
-                                                </button>
-                                            </div>
-                                        @elseif($personal->url_licencia)
-                                            <div class="flex space-x-2">
-                                                <button class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200" 
-                                                        onclick="viewPersonalDocument('{{ asset('storage/' . $personal->url_licencia) }}')"
-                                                        title="Ver archivo adjunto">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    </svg>
-                                                    Ver
-                                                </button>
-                                            </div>
-                                        @else
-                                            <div class="text-xs text-gray-500">
-                                                No disponible
-                                            </div>
-                                        @endif
-                                    </li>
+                                
+                                <x-document-field 
+                                    title="Licencia de Manejo"
+                                    :subtitle="$subtitleLicencia"
+                                    :hasDocument="$tieneDocumentoLicencia"
+                                    :documentId="$tieneDocumentoLicencia ? $documentoLicencia->id : null"
+                                    :directUrl="$urlLicencia"
+                                />
 
                                     <!-- Comprobante de Domicilio -->
                                     @php
                                         $documentoComprobante = $documentosPorTipo['domicilio'] ?? $documentosPorTipo['Comprobante de Domicilio'] ?? null;
                                         $tieneDocumentoComprobante = !is_null($documentoComprobante) && is_object($documentoComprobante);
+                                        $urlComprobante = $personal->url_comprobante_domicilio ?? null;
+                                        
+                                        $subtitleComprobante = '<p class="text-xs text-gray-500">' . ($personal->direccion ? Str::limit($personal->direccion, 50) : 'Dirección no registrada') . '</p>';
+                                        if($tieneDocumentoComprobante && isset($documentoComprobante->fecha_vencimiento) && $documentoComprobante->fecha_vencimiento) {
+                                            $subtitleComprobante .= '<p class="text-xs text-gray-500">Vence: ' . \Carbon\Carbon::parse($documentoComprobante->fecha_vencimiento)->format('d/m/Y') . '</p>';
+                                        }
                                     @endphp
-                                    <li class="py-2 flex items-center justify-between">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2 text-{{ $tieneDocumentoComprobante || $personal->url_comprobante_domicilio ? 'green' : 'orange' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v0a2 2 0 002-2h10a2 2 0 002 2v0a2 2 0 00-2-2H5z"></path>
-                                            </svg>
-                                            <div>
-                                                <span class="text-sm font-medium text-gray-800">Comprobante de Domicilio</span>
-                                                <p class="text-xs text-gray-500">
-                                                    {{ $personal->direccion ? Str::limit($personal->direccion, 50) : 'Dirección no registrada' }}
-                                                </p>
-                                                @if($tieneDocumentoComprobante && isset($documentoComprobante->fecha_vencimiento) && $documentoComprobante->fecha_vencimiento)
-                                                    <p class="text-xs text-gray-500">Vence: {{ \Carbon\Carbon::parse($documentoComprobante->fecha_vencimiento)->format('d/m/Y') }}</p>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        @if($tieneDocumentoComprobante)
-                                            <div class="flex space-x-2">
-                                                <button data-document-id="{{ $documentoComprobante->id }}" class="btn-view-document bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    </svg>
-                                                    Ver
-                                                </button>
-                                                <button data-document-id="{{ $documentoComprobante->id }}" class="btn-download-document bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                                    </svg>
-                                                    Descargar
-                                                </button>
-                                            </div>
-                                        @elseif($personal->url_comprobante_domicilio)
-                                            <div class="flex space-x-2">
-                                                <button class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200" 
-                                                        onclick="viewPersonalDocument('{{ asset('storage/' . $personal->url_comprobante_domicilio) }}')"
-                                                        title="Ver comprobante de domicilio">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    </svg>
-                                                    Ver
-                                                </button>
-                                            </div>
-                                        @else
-                                            <div class="text-xs text-gray-500">
-                                                No disponible
-                                            </div>
-                                        @endif
-                                    </li>
+                                    
+                                    <x-document-field 
+                                        title="Comprobante de Domicilio"
+                                        :subtitle="$subtitleComprobante"
+                                        :hasDocument="$tieneDocumentoComprobante"
+                                        :documentId="$tieneDocumentoComprobante ? $documentoComprobante->id : null"
+                                        :directUrl="$urlComprobante"
+                                    />
 
                                     <!-- CV Profesional -->
                                     @php
                                         $documentoCV = $documentosPorTipo['cv'] ?? $documentosPorTipo['CV Profesional'] ?? null;
                                         $tieneDocumentoCV = !is_null($documentoCV) && is_object($documentoCV);
-                                        $tieneArchivoCV = !empty($personal->url_cv);
-                                        $tieneAlgunCV = $tieneDocumentoCV || $tieneArchivoCV;
+                                        $urlCV = $personal->url_cv ?? null;
+                                        $tieneAlgunCV = $tieneDocumentoCV || !empty($urlCV);
+                                        
+                                        $subtitleCV = null;
+                                        if($tieneAlgunCV) {
+                                            if($tieneDocumentoCV && isset($documentoCV->descripcion)) {
+                                                $subtitleCV = '<p class="text-xs text-gray-500">' . e($documentoCV->descripcion) . '</p>';
+                                            } else {
+                                                $subtitleCV = '<p class="text-xs text-gray-500">Curriculum vitae del empleado</p>';
+                                            }
+                                            if($tieneDocumentoCV && isset($documentoCV->created_at)) {
+                                                $subtitleCV .= '<p class="text-xs text-gray-500">Actualizado: ' . \Carbon\Carbon::parse($documentoCV->created_at)->format('d/m/Y') . '</p>';
+                                            }
+                                        }
                                     @endphp
-                                    <li class="py-2 flex items-center justify-between">
-                                        <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2 text-{{ $tieneAlgunCV ? 'green' : 'orange' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                            </svg>
-                                            <div>
-                                                <span class="text-sm font-medium text-gray-800">CV Profesional</span>
-                                                @if($tieneDocumentoCV && isset($documentoCV->descripcion))
-                                                    <p class="text-xs text-gray-500">{{ $documentoCV->descripcion }}</p>
-                                                @elseif($tieneAlgunCV)
-                                                    <p class="text-xs text-gray-500">Curriculum vitae del empleado</p>
-                                                @else
-                                                    <p class="text-xs text-gray-500">No disponible</p>
-                                                @endif
-                                                @if($tieneDocumentoCV && isset($documentoCV->fecha_vencimiento) && $documentoCV->fecha_vencimiento)
-                                                    <p class="text-xs text-gray-500">Actualizado: {{ \Carbon\Carbon::parse($documentoCV->created_at)->format('d/m/Y') }}</p>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        @if($tieneDocumentoCV)
-                                            <div class="flex space-x-2">
-                                                <button data-document-id="{{ $documentoCV->id }}" class="btn-view-document bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    </svg>
-                                                    Ver
-                                                </button>
-                                                <button data-document-id="{{ $documentoCV->id }}" class="btn-download-document bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                                    </svg>
-                                                    Descargar
-                                                </button>
-                                            </div>
-                                        @elseif($tieneArchivoCV)
-                                            <div class="flex space-x-2">
-                                                <button class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200" 
-                                                        onclick="viewPersonalDocument('{{ asset('storage/' . $personal->url_cv) }}')"
-                                                        title="Ver CV">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    </svg>
-                                                    Ver
-                                                </button>
-                                            </div>
-                                        @else
-                                            <div class="text-xs text-gray-500">
-                                                No disponible
-                                            </div>
-                                        @endif
-                                    </li>
+                                    
+                                    <x-document-field 
+                                        title="CV Profesional"
+                                        :subtitle="$subtitleCV"
+                                        :hasDocument="$tieneDocumentoCV"
+                                        :documentId="$tieneDocumentoCV ? $documentoCV->id : null"
+                                        :directUrl="$urlCV"
+                                    />
                                 </ul>
                         </div>
                     </div>
-
+                </div>
                 </div>
             </div>
         </div>
@@ -763,22 +630,20 @@ window.switchTab = function(tabName) {
         }
         
         if (tab === tabName) {
-            // Activar pestaña seleccionada
-            tabButton.classList.add('border-gray-600', 'text-gray-600', 'bg-white');
-            tabButton.classList.remove('text-gray-400', 'border-transparent');
+            // Activar pestaña seleccionada - estilo carpeta
+            tabButton.className = 'relative px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-0 ml-0 bg-gray-50 border-gray-300 border-t border-l border-r text-gray-800 shadow-sm z-10';
             tabButton.setAttribute('aria-selected', 'true');
             
             // Mostrar contenido de la pestaña activa
-            tabContent.classList.remove('hidden');
+            tabContent.style.display = 'block';
             console.log(`Activated tab: ${tab}`); // Debug
         } else {
-            // Desactivar pestañas no seleccionadas
-            tabButton.classList.remove('border-gray-600', 'text-gray-600', 'bg-white');
-            tabButton.classList.add('text-gray-400', 'border-transparent');
+            // Desactivar pestañas no seleccionadas - estilo carpeta inactivo
+            tabButton.className = 'relative px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-0 bg-gray-100 border-gray-300 border-t border-l border-r text-gray-600 hover:bg-gray-200';
             tabButton.setAttribute('aria-selected', 'false');
             
             // Ocultar contenido de pestañas inactivas
-            tabContent.classList.add('hidden');
+            tabContent.style.display = 'none';
         }
     });
 };
