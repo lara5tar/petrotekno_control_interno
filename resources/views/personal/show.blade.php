@@ -491,10 +491,14 @@
                                     $documentoLicencia = $documentosPorTipo['licencia'] ?? $documentosPorTipo['Licencia de Conducir'] ?? null;
                                     $tieneDocumentoLicencia = !is_null($documentoLicencia) && is_object($documentoLicencia);
                                     $urlLicencia = $personal->url_licencia ?? null;
+                                    $tieneNumeroLicencia = !empty($personal->no_licencia);
                                     
-                                    $subtitleLicencia = '<p class="text-xs text-gray-500">Número: ' . ($personal->no_licencia ?? 'No registrado') . '</p>';
-                                    if($tieneDocumentoLicencia && isset($documentoLicencia->fecha_vencimiento) && $documentoLicencia->fecha_vencimiento) {
-                                        $subtitleLicencia .= '<p class="text-xs text-gray-500">Vence: ' . \Carbon\Carbon::parse($documentoLicencia->fecha_vencimiento)->format('d/m/Y') . '</p>';
+                                    $subtitleLicencia = null;
+                                    if($tieneNumeroLicencia || $tieneDocumentoLicencia || $urlLicencia) {
+                                        $subtitleLicencia = '<p class="text-xs text-gray-500">Número: ' . ($personal->no_licencia ?? 'No registrado') . '</p>';
+                                        if($tieneDocumentoLicencia && isset($documentoLicencia->fecha_vencimiento) && $documentoLicencia->fecha_vencimiento) {
+                                            $subtitleLicencia .= '<p class="text-xs text-gray-500">Vence: ' . \Carbon\Carbon::parse($documentoLicencia->fecha_vencimiento)->format('d/m/Y') . '</p>';
+                                        }
                                     }
                                 @endphp
                                 
@@ -511,10 +515,14 @@
                                         $documentoComprobante = $documentosPorTipo['domicilio'] ?? $documentosPorTipo['Comprobante de Domicilio'] ?? null;
                                         $tieneDocumentoComprobante = !is_null($documentoComprobante) && is_object($documentoComprobante);
                                         $urlComprobante = $personal->url_comprobante_domicilio ?? null;
+                                        $tieneDireccion = !empty($personal->direccion);
                                         
-                                        $subtitleComprobante = '<p class="text-xs text-gray-500">' . ($personal->direccion ? Str::limit($personal->direccion, 50) : 'Dirección no registrada') . '</p>';
-                                        if($tieneDocumentoComprobante && isset($documentoComprobante->fecha_vencimiento) && $documentoComprobante->fecha_vencimiento) {
-                                            $subtitleComprobante .= '<p class="text-xs text-gray-500">Vence: ' . \Carbon\Carbon::parse($documentoComprobante->fecha_vencimiento)->format('d/m/Y') . '</p>';
+                                        $subtitleComprobante = null;
+                                        if($tieneDireccion || $tieneDocumentoComprobante || $urlComprobante) {
+                                            $subtitleComprobante = '<p class="text-xs text-gray-500">' . ($personal->direccion ? Str::limit($personal->direccion, 50) : 'Dirección no registrada') . '</p>';
+                                            if($tieneDocumentoComprobante && isset($documentoComprobante->fecha_vencimiento) && $documentoComprobante->fecha_vencimiento) {
+                                                $subtitleComprobante .= '<p class="text-xs text-gray-500">Vence: ' . \Carbon\Carbon::parse($documentoComprobante->fecha_vencimiento)->format('d/m/Y') . '</p>';
+                                            }
                                         }
                                     @endphp
                                     
