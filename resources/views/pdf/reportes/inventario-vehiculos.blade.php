@@ -77,16 +77,18 @@
     <table class="pdf-table">
         <thead>
             <tr>
-                <th style="width: 5%">#</th>
-                <th style="width: 12%;">Marca/Modelo</th>
-                <th style="width: 10%;">Tipo</th>
-                <th style="width: 6%;">Año</th>
-                <th style="width: 9%;">Placas</th>
-                <th style="width: 12%;">No. Serie</th>
-                <th style="width: 13%;">Ubicación</th>
-                <th style="width: 15%;">Obra asignada</th>
+                <th style="width: 4%">#</th>
+                <th style="width: 10%;">Marca/Modelo</th>
+                <th style="width: 8%;">Tipo</th>
+                <th style="width: 5%;">Año</th>
+                <th style="width: 8%;">Placas</th>
+                <th style="width: 10%;">No. Serie</th>
+                <th style="width: 9%;">Valor Comercial</th>
+                <th style="width: 9%;">Propietario</th>
+                <th style="width: 10%;">Ubicación</th>
+                <th style="width: 12%;">Obra asignada</th>
                 <th style="width: 8%;">Estado</th>
-                <th style="width: 10%;">Km Actual</th>
+                <th style="width: 7%;">Km Actual</th>
             </tr>
         </thead>
         <tbody>
@@ -100,6 +102,14 @@
                     <td class="text-center">{{ $vehiculo->anio }}</td>
                     <td class="text-center no-wrap">{{ $vehiculo->placas ?: 'N/A' }}</td>
                     <td class="font-small break-word">{{ $vehiculo->n_serie ?: 'N/A' }}</td>
+                    <td class="text-center">
+                        @if($vehiculo->valor_comercial)
+                            <span class="text-bold">${{ number_format($vehiculo->valor_comercial, 2) }}</span>
+                        @else
+                            <span class="text-muted font-small">N/A</span>
+                        @endif
+                    </td>
+                    <td class="text-center font-small">{{ $vehiculo->propietario ?: 'N/A' }}</td>
                     <td class="text-center">
                         @if($vehiculo->estado && $vehiculo->municipio)
                             {{ $vehiculo->estado }}, {{ $vehiculo->municipio }}
@@ -148,7 +158,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10" class="text-center text-muted p-15">
+                    <td colspan="12" class="text-center text-muted p-15">
                         No se encontraron activos con los criterios especificados
                     </td>
                 </tr>

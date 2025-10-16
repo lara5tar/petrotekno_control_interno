@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $marca
  * @property string $modelo
  * @property int $anio
+ * @property float|null $valor_comercial Valor comercial del vehículo en MXN
+ * @property string|null $propietario Nombre del propietario del vehículo
  * @property string $n_serie
  * @property string $placas
  * @property string $estado Estado del vehículo usando enum
@@ -56,7 +58,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereNSerie($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereObservaciones($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo wherePlacas($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo wherePropietario($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo whereValorComercial($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehiculo withoutTrashed()
  *
@@ -78,6 +82,7 @@ class Vehiculo extends Model
         'estado',      // Estado de la República (ej: NUEVO LEÓN, JALISCO)
         'municipio',   // Municipio/Ciudad (ej: MONTERREY, GUADALAJARA)
         'numero_poliza',
+        'propietario', // Propietario del vehículo
     ];
 
     /**
@@ -98,6 +103,8 @@ class Vehiculo extends Model
         'marca',
         'modelo',
         'anio',
+        'valor_comercial',
+        'propietario',
         'n_serie',
         'placas',
         'estatus',
@@ -123,6 +130,7 @@ class Vehiculo extends Model
      */
     protected $casts = [
         'anio' => 'integer',
+        'valor_comercial' => 'decimal:2',
         'kilometraje_actual' => 'integer',
         'intervalo_km_motor' => 'integer',
         'intervalo_km_transmision' => 'integer',

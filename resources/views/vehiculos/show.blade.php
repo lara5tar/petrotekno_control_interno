@@ -130,6 +130,21 @@
 
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div>
+                            <label class="block text-sm font-medium text-gray-600">Valor Comercial</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ !empty($vehiculo->valor_comercial) ? '$' . number_format($vehiculo->valor_comercial, 2) . ' MXN' : 'No especificado' }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Propietario</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ !empty($vehiculo->propietario) ? $vehiculo->propietario : 'No especificado' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
                             <label class="block text-sm font-medium text-gray-600">Placas</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
                                 {{ !empty($vehiculo->placas) ? $vehiculo->placas : 'Sin placas' }}

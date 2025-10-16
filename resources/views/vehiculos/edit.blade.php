@@ -126,6 +126,38 @@
                         </div>
                     </div>
                     
+                    <!-- Valor Comercial y Propietario -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <label for="valor_comercial" class="block text-sm font-medium text-gray-700 mb-2">
+                                Valor Comercial (MXN)
+                            </label>
+                            <input type="number" 
+                                   name="valor_comercial" 
+                                   id="valor_comercial" 
+                                   min="0" 
+                                   step="0.01"
+                                   placeholder="250000.00" 
+                                   value="{{ old('valor_comercial', $vehiculo->valor_comercial) }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('valor_comercial') border-red-500 @enderror">
+                            @error('valor_comercial') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-500">Valor comercial del activo en pesos mexicanos (opcional)</p>
+                        </div>
+                        <div>
+                            <label for="propietario" class="block text-sm font-medium text-gray-700 mb-2">
+                                Propietario
+                            </label>
+                            <input type="text" 
+                                   name="propietario" 
+                                   id="propietario" 
+                                   placeholder="Ej: Petrotekno S.A. de C.V." 
+                                   value="{{ old('propietario', $vehiculo->propietario) }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('propietario') border-red-500 @enderror">
+                            @error('propietario') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-500">Nombre del propietario del activo (opcional)</p>
+                        </div>
+                    </div>
+                    
                     <!-- Campos Dinámicos según Tipo de Activo -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                         <!-- Número de Serie -->
