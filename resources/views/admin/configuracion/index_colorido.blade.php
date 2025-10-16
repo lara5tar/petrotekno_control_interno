@@ -45,14 +45,14 @@
                             </div>
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-900">Gestión de Personal y Roles</h3>
-                                <p class="text-sm text-gray-600">Administra categorías operativas y permisos de acceso</p>
+                                <p class="text-sm text-gray-600">Administra puestos operativos y permisos de acceso</p>
                             </div>
                         </div>
                     </div>
                     
                     <!-- DOS TARJETAS PRINCIPALES -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- CATEGORÍAS DE PERSONAL -->
+                        <!-- PUESTOS DE PERSONAL -->
                         <div class="group">
                             <div class="bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-purple-200">
                                 <div class="flex items-start justify-between mb-4">
@@ -68,7 +68,7 @@
                                     </div>
                                 </div>
                                 
-                                <h3 class="text-xl font-bold mb-2">Categorías de Personal</h3>
+                                <h3 class="text-xl font-bold mb-2">Puestos de Personal</h3>
                                 <p class="text-purple-100 text-sm mb-6 leading-relaxed">
                                     Gestiona las clasificaciones operativas del personal de campo y administrativo
                                 </p>
@@ -78,7 +78,7 @@
                                     <div class="grid grid-cols-2 gap-4">
                                         <div class="text-center">
                                             <div class="text-2xl font-bold text-white">{{ \App\Models\CategoriaPersonal::count() }}</div>
-                                            <div class="text-xs text-purple-200 uppercase tracking-wider">Categorías</div>
+                                            <div class="text-xs text-purple-200 uppercase tracking-wider">Puestos</div>
                                         </div>
                                         <div class="text-center">
                                             <div class="text-2xl font-bold text-white">{{ \App\Models\Personal::count() }}</div>
@@ -92,7 +92,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                     </svg>
-                                    <span>Gestionar Categorías</span>
+                                    <span>Gestionar Puestos</span>
                                 </a>
                             </div>
                         </div>
@@ -200,7 +200,7 @@
                             <div class="text-sm">
                                 <p class="font-medium text-amber-900 mb-1">Diferenciación Importante</p>
                                 <p class="text-amber-800 leading-relaxed">
-                                    Las <strong>categorías de personal</strong> se utilizan para clasificar operativamente a los trabajadores (técnicos, supervisores, etc.), mientras que los <strong>roles de usuario</strong> determinan qué funcionalidades pueden acceder en el sistema.
+                                    Los <strong>puestos de personal</strong> se utilizan para clasificar operativamente a los trabajadores (técnicos, supervisores, etc.), mientras que los <strong>roles de usuario</strong> determinan qué funcionalidades pueden acceder en el sistema.
                                 </p>
                             </div>
                         </div>

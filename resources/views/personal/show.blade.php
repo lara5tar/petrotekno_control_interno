@@ -35,9 +35,9 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600">Categoría</label>
+                            <label class="block text-sm font-medium text-gray-600">Puesto</label>
                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                {{ $personal->categoria->nombre_categoria ?? 'Sin categoría' }}
+                                {{ $personal->categoria->nombre_categoria ?? 'Sin puesto' }}
                             </div>
                         </div>
                     </div>

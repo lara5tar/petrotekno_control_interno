@@ -32,13 +32,13 @@
                     </div>
                     <div class="ml-5">
                         <h3 class="text-lg font-medium text-gray-900">Gestión de Personal y Roles</h3>
-                        <p class="text-sm text-gray-500">Categorías operativas y roles de acceso al sistema</p>
+                        <p class="text-sm text-gray-500">Puestos operativos y roles de acceso al sistema</p>
                     </div>
                 </div>
                 
                 <!-- DOS BOTONES PRINCIPALES SEPARADOS -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- BOTÓN 1: GESTIONAR CATEGORÍAS DE PERSONAL -->
+                    <!-- BOTÓN 1: GESTIONAR PUESTOS DE PERSONAL -->
                     <div class="bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                         <div class="text-center">
                             <div class="mb-4">
@@ -46,12 +46,12 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                                 </svg>
                             </div>
-                            <h3 class="text-xl font-bold mb-2">CATEGORÍAS DE PERSONAL</h3>
+                            <h3 class="text-xl font-bold mb-2">PUESTOS DE PERSONAL</h3>
                             <p class="text-purple-100 text-sm mb-4">Gestiona las clasificaciones operativas del personal</p>
                             <div class="bg-white/20 rounded-lg p-3 mb-4">
                                 <div class="text-sm">
                                     <div class="flex justify-between">
-                                        <span>Total categorías:</span>
+                                        <span>Total puestos:</span>
                                         <span class="font-bold">{{ \App\Models\CategoriaPersonal::count() }}</span>
                                     </div>
                                     <div class="flex justify-between">
@@ -61,7 +61,7 @@
                                 </div>
                             </div>
                             <a href="{{ route('categorias-personal.index') }}" class="w-full bg-white text-purple-700 py-3 px-6 rounded-lg font-bold hover:bg-purple-50 transition-colors duration-200 inline-block">
-                                🏷️ GESTIONAR CATEGORÍAS
+                                🏷️ GESTIONAR PUESTOS
                             </a>
                         </div>
                     </div>
@@ -133,7 +133,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             <div>
-                                <strong>Diferencia importante:</strong> Las <em>categorías</em> clasifican el personal operativamente, mientras que los <em>roles</em> controlan el acceso al sistema.
+                                <strong>Diferencia importante:</strong> Los <em>puestos</em> clasifican el personal operativamente, mientras que los <em>roles</em> controlan el acceso al sistema.
                             </div>
                         </div>
                     </div>

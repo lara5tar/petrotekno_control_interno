@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Categoría de Personal')
+@section('title', 'Editar Puesto de Personal')
 
-@section('header', 'Editar Categoría')
+@section('header', 'Editar Puesto')
 
 @section('content')
     {{-- Breadcrumb --}}
@@ -10,13 +10,13 @@
     <x-breadcrumb :items="[
         ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
         ['label' => 'Configuración', 'url' => route('admin.configuracion.index')],
-        ['label' => 'Categorías de Personal', 'url' => route('categorias-personal.index')],
-        ['label' => 'Editar Categoría']
+        ['label' => 'Puestos de Personal', 'url' => route('categorias-personal.index')],
+        ['label' => 'Editar Puesto']
     ]" />
 
     <!-- Encabezado -->
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Editar Categoría: {{ $categoriaPersonal->nombre_categoria }}</h2>
+        <h2 class="text-2xl font-bold text-gray-800">Editar Puesto: {{ $categoriaPersonal->nombre_categoria }}</h2>
         <div class="flex space-x-3">
             <a href="{{ route('categorias-personal.show', $categoriaPersonal) }}" 
                class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded flex items-center transition duration-200">
@@ -31,7 +31,7 @@
     <!-- Alertas de errores -->
     @if ($errors->any())
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
-            <div class="font-bold">Error al actualizar la categoría:</div>
+            <div class="font-bold">Error al actualizar el puesto:</div>
             <ul class="mt-2 list-disc list-inside">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -47,7 +47,7 @@
                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
             </svg>
             <div class="text-sm text-blue-800">
-                <p class="font-medium">Información de la categoría:</p>
+                <p class="font-medium">Información del puesto:</p>
                 <ul class="mt-1 list-disc list-inside space-y-1">
                     <li>ID: {{ $categoriaPersonal->id }}</li>
                     <li>Personal asignado: {{ $categoriaPersonal->personal_count ?? 0 }} {{ ($categoriaPersonal->personal_count ?? 0) == 1 ? 'empleado' : 'empleados' }}</li>
@@ -64,10 +64,10 @@
             @method('PUT')
             
             <div class="grid grid-cols-1 gap-6">
-                <!-- Nombre de la Categoría -->
+                <!-- Nombre del Puesto -->
                 <div>
                     <label for="nombre_categoria" class="block text-sm font-medium text-gray-700 mb-2">
-                        Nombre de la Categoría <span class="text-red-500">*</span>
+                        Nombre del Puesto <span class="text-red-500">*</span>
                     </label>
                     <input type="text" 
                            name="nombre_categoria" 
@@ -95,14 +95,14 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                         </svg>
-                        Actualizar Categoría
+                        Actualizar Puesto
                     </button>
                 </div>
 
                 <!-- Botón de eliminar (solo si no tiene personal asignado) -->
                 @if(($categoriaPersonal->personal_count ?? 0) == 0)
                     <form action="{{ route('categorias-personal.destroy', $categoriaPersonal) }}" method="POST" class="inline"
-                          onsubmit="return confirm('¿Estás seguro de que quieres eliminar la categoría {{ $categoriaPersonal->nombre_categoria }}? Esta acción no se puede deshacer.')">
+                          onsubmit="return confirm('¿Estás seguro de que quieres eliminar el puesto {{ $categoriaPersonal->nombre_categoria }}? Esta acción no se puede deshacer.')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" 
@@ -110,7 +110,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                             </svg>
-                            Eliminar Categoría
+                            Eliminar Puesto
                         </button>
                     </form>
                 @else
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
-                Actualizar Categoría
+                Actualizar Puesto
             `;
         }, 5000);
     });

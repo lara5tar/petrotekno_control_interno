@@ -23,13 +23,13 @@
     <div class="mb-10">
         <div class="mb-4">
             <h3 class="text-xl font-bold text-gray-800 mb-2">👥 Gestión de Personal</h3>
-            <p class="text-gray-600">Administra categorías operativas y roles de usuario del sistema</p>
+            <p class="text-gray-600">Administra puestos operativos y roles de usuario del sistema</p>
         </div>
 
         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
             <div class="divide-y divide-gray-200">
                 
-                <!-- Categorías de Personal -->
+                <!-- Puestos de Personal -->
                 <div class="p-6 hover:bg-gray-50 transition duration-200">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center flex-1">
@@ -39,10 +39,10 @@
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <h4 class="text-lg font-semibold text-gray-900">Categorías de Personal</h4>
+                                <h4 class="text-lg font-semibold text-gray-900">Puestos de Personal</h4>
                                 <p class="text-gray-600">Clasificaciones operativas del personal de campo y administrativo</p>
                                 <div class="flex items-center mt-2 space-x-4">
-                                    <span class="text-sm text-gray-500">1 categorías</span>
+                                    <span class="text-sm text-gray-500">1 puestos</span>
                                     <span class="text-sm text-gray-500">18 personal registrado</span>
                                 </div>
                             </div>
@@ -111,7 +111,7 @@
                 <div class="text-sm">
                     <p class="font-medium text-yellow-800 mb-1">Diferenciación Importante</p>
                     <p class="text-yellow-700">
-                        Las <strong>categorías de personal</strong> clasifican operativamente a los trabajadores (técnicos, supervisores, etc.), 
+                        Los <strong>puestos de personal</strong> clasifican operativamente a los trabajadores (técnicos, supervisores, etc.), 
                         mientras que los <strong>roles de usuario</strong> controlan el acceso a las funcionalidades del sistema.
                     </p>
                 </div>

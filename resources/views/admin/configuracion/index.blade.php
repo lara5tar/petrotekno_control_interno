@@ -36,7 +36,7 @@
         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
             <div class="divide-y divide-gray-200">
                 
-                <!-- Categorías de Personal -->
+                <!-- Puestos de Personal -->
                 <div class="p-6 hover:bg-gray-50 transition duration-200">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center flex-1">
@@ -46,8 +46,8 @@
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <h4 class="text-lg font-semibold text-gray-900">Categorías de Personal</h4>
-                                <p class="text-sm text-gray-500 mt-1">Administra las categorías y clasificaciones de personal</p>
+                                <h4 class="text-lg font-semibold text-gray-900">Puestos de Personal</h4>
+                                <p class="text-sm text-gray-500 mt-1">Administra los puestos y clasificaciones de personal</p>
                             </div>
                         </div>
                         <div class="ml-6">

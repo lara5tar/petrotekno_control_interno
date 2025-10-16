@@ -39,10 +39,10 @@
                                     <td>{{ $operador->nombre_completo }}</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Categoría:</strong></td>
+                                    <td><strong>Puesto:</strong></td>
                                     <td>
                                         <span class="badge bg-info">
-                                            {{ $operador->categoria->nombre_categoria ?? 'Sin categoría' }}
+                                            {{ $operador->categoria->nombre_categoria ?? 'Sin puesto' }}
                                         </span>
                                     </td>
                                 </tr>
