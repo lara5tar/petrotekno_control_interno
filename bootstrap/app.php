@@ -12,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Confiar en proxies (importante para HTTPS detrás de nginx/cloudflare)
+        $middleware->trustProxies(at: '*');
+        
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
