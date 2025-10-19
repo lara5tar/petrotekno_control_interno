@@ -176,7 +176,7 @@
                             </div>
                             <div>
                                 <h4 class="text-sm font-semibold text-gray-900">Fuera de Servicio</h4>
-                                <p class="text-xs text-gray-500">No operativo</p>
+                                <p class="text-xs text-gray-500">Fuera de servicio, mantenimiento y asignados</p>
                             </div>
                         </div>
                         <div class="space-y-2">

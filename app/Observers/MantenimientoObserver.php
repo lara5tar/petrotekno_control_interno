@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Jobs\RecalcularAlertasVehiculo;
 use App\Models\Mantenimiento;
 use App\Models\Kilometraje;
+use App\Enums\EstadoVehiculo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -23,6 +24,9 @@ class MantenimientoObserver
 
         // Actualizar kilometraje del vehículo si es necesario
         $this->actualizarKilometrajeVehiculo($mantenimiento);
+
+        // 🆕 Cambiar estado del vehículo a "en_mantenimiento" si no tiene fecha_fin
+        $this->actualizarEstadoVehiculoPorMantenimiento($mantenimiento, 'created');
 
         // Recalcular alertas
         $this->recalcularAlertas($mantenimiento, 'mantenimiento_created');
@@ -49,6 +53,11 @@ class MantenimientoObserver
             $this->recalcularAlertas($mantenimiento, 'mantenimiento_updated');
         }
 
+        // 🆕 Si cambió la fecha_fin, actualizar estado del vehículo
+        if ($mantenimiento->wasChanged('fecha_fin')) {
+            $this->actualizarEstadoVehiculoPorMantenimiento($mantenimiento, 'updated');
+        }
+
         // También recalcular si cambió el sistema del vehículo
         if ($mantenimiento->wasChanged('sistema_vehiculo')) {
             $this->recalcularAlertas($mantenimiento, 'sistema_vehiculo_updated');
@@ -68,6 +77,9 @@ class MantenimientoObserver
         // Al eliminar un mantenimiento, recalcular el kilometraje del vehículo
         $this->recalcularKilometrajeVehiculo($mantenimiento->vehiculo_id);
 
+        // 🆕 Actualizar estado del vehículo después de eliminar el mantenimiento
+        $this->actualizarEstadoVehiculoPorMantenimiento($mantenimiento, 'deleted');
+
         // Recalcular alertas
         $this->recalcularAlertas($mantenimiento, 'mantenimiento_deleted');
     }
@@ -84,6 +96,9 @@ class MantenimientoObserver
 
         // Al restaurar, actualizar kilometraje si es necesario
         $this->actualizarKilometrajeVehiculo($mantenimiento);
+
+        // 🆕 Actualizar estado del vehículo si el mantenimiento restaurado no tiene fecha_fin
+        $this->actualizarEstadoVehiculoPorMantenimiento($mantenimiento, 'restored');
 
         // Recalcular alertas
         $this->recalcularAlertas($mantenimiento, 'mantenimiento_restored');
@@ -226,6 +241,101 @@ class MantenimientoObserver
                 'vehiculo_id' => $mantenimiento->vehiculo_id,
                 'trigger' => $trigger,
                 'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Actualiza el estado del vehículo basándose en el estado de sus mantenimientos.
+     * Si tiene mantenimientos sin fecha_fin (activos) → EN_MANTENIMIENTO
+     * Si no tiene mantenimientos activos → DISPONIBLE o ASIGNADO (según obras activas)
+     * No modifica vehículos en estados de baja.
+     */
+    private function actualizarEstadoVehiculoPorMantenimiento(Mantenimiento $mantenimiento, string $action): void
+    {
+        try {
+            $vehiculo = $mantenimiento->vehiculo;
+            
+            if (!$vehiculo) {
+                Log::warning('MantenimientoObserver: Vehículo no encontrado', [
+                    'mantenimiento_id' => $mantenimiento->id,
+                    'vehiculo_id' => $mantenimiento->vehiculo_id
+                ]);
+                return;
+            }
+
+            // No modificar el estado si el vehículo está en cualquiera de los estados de baja
+            $estadosBaja = [
+                EstadoVehiculo::BAJA,
+                EstadoVehiculo::BAJA_POR_VENTA,
+                EstadoVehiculo::BAJA_POR_PERDIDA
+            ];
+
+            if (in_array($vehiculo->estatus, $estadosBaja)) {
+                Log::info('MantenimientoObserver: Vehículo en estado de baja, no se modifica el estado', [
+                    'vehiculo_id' => $vehiculo->id,
+                    'estado_actual' => $vehiculo->estatus->value
+                ]);
+                return;
+            }
+
+            // Contar mantenimientos activos (sin fecha_fin) excluyendo el actual si fue eliminado
+            $mantenimientosActivos = $vehiculo->mantenimientos()
+                ->whereNull('fecha_fin')
+                ->when($action === 'deleted', function ($query) use ($mantenimiento) {
+                    return $query->where('id', '!=', $mantenimiento->id);
+                })
+                ->count();
+
+            $estadoAnterior = $vehiculo->estatus;
+            $nuevoEstado = null;
+
+            // Determinar el nuevo estado basándose en mantenimientos activos
+            if ($mantenimientosActivos > 0) {
+                // Tiene mantenimientos activos → EN_MANTENIMIENTO
+                $nuevoEstado = EstadoVehiculo::EN_MANTENIMIENTO;
+            } else {
+                // No tiene mantenimientos activos → verificar si tiene obras activas
+                $obrasActivas = $vehiculo->asignacionesObra()
+                    ->where('estado', \App\Models\AsignacionObra::ESTADO_ACTIVA)
+                    ->count();
+
+                if ($obrasActivas > 0) {
+                    // Tiene obras activas → ASIGNADO
+                    $nuevoEstado = EstadoVehiculo::ASIGNADO;
+                } else {
+                    // No tiene obras ni mantenimientos activos → DISPONIBLE
+                    $nuevoEstado = EstadoVehiculo::DISPONIBLE;
+                }
+            }
+
+            // Solo actualizar si el estado cambió
+            if ($nuevoEstado !== $estadoAnterior) {
+                $vehiculo->estatus = $nuevoEstado;
+                $vehiculo->save();
+
+                Log::info('MantenimientoObserver: Estado del vehículo actualizado', [
+                    'action' => $action,
+                    'mantenimiento_id' => $mantenimiento->id,
+                    'vehiculo_id' => $vehiculo->id,
+                    'estado_anterior' => $estadoAnterior->value,
+                    'estado_nuevo' => $nuevoEstado->value,
+                    'mantenimientos_activos' => $mantenimientosActivos,
+                    'fecha_fin_mantenimiento' => $mantenimiento->fecha_fin?->format('Y-m-d')
+                ]);
+            } else {
+                Log::info('MantenimientoObserver: Estado del vehículo sin cambios', [
+                    'action' => $action,
+                    'vehiculo_id' => $vehiculo->id,
+                    'estado_actual' => $estadoAnterior->value,
+                    'mantenimientos_activos' => $mantenimientosActivos
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar estado del vehículo desde MantenimientoObserver', [
+                'error' => $e->getMessage(),
+                'mantenimiento_id' => $mantenimiento->id,
+                'vehiculo_id' => $mantenimiento->vehiculo_id ?? null
             ]);
         }
     }

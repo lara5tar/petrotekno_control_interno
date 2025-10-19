@@ -45,6 +45,8 @@
                                 'mantenimiento' => 'status-mantenimiento',
                                 'fuera_servicio' => 'status-fuera-servicio',
                                 'baja' => 'status-baja',
+                                'baja_por_venta' => 'status-baja',
+                                'baja_por_perdida' => 'status-baja',
                                 default => 'status-disponible'
                             };
                         @endphp
