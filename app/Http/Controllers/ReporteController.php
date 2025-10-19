@@ -46,6 +46,7 @@ class ReporteController extends Controller
 
         // Obtener filtros
         $estatus = $request->get('estatus');
+        $estatusMultiple = $request->get('estatus_multiple'); // Nuevo: para filtrar por múltiples estados
         $marca = $request->get('marca');
         $anio = $request->get('anio');
         $formato = $request->get('formato', 'html'); // html, excel, pdf
@@ -70,7 +71,11 @@ class ReporteController extends Controller
         ]);
 
         // Aplicar filtros
-        if ($estatus) {
+        if ($estatusMultiple && is_array($estatusMultiple)) {
+            // Filtrar por múltiples estados
+            $query->whereIn('vehiculos.estatus', $estatusMultiple);
+        } elseif ($estatus) {
+            // Filtrar por un solo estado
             $query->where('vehiculos.estatus', $estatus);
         }
 
@@ -121,7 +126,7 @@ class ReporteController extends Controller
             'vehiculos_disponibles' => $vehiculos->where('estatus', EstadoVehiculo::DISPONIBLE)->count(),
             'vehiculos_asignados' => $vehiculos->where('estatus', EstadoVehiculo::ASIGNADO)->count(),
             'vehiculos_mantenimiento' => $vehiculos->where('estatus', EstadoVehiculo::EN_MANTENIMIENTO)->count(),
-            'vehiculos_fuera_servicio' => $vehiculos->where('estatus', EstadoVehiculo::FUERA_DE_SERVICIO)->count(),
+            // 'vehiculos_fuera_servicio' => $vehiculos->where('estatus', EstadoVehiculo::FUERA_DE_SERVICIO)->count(),
             'vehiculos_baja' => $vehiculos->where('estatus', EstadoVehiculo::BAJA)->count(),
             'vehiculos_baja_por_venta' => $vehiculos->where('estatus', EstadoVehiculo::BAJA_POR_VENTA)->count(),
             'vehiculos_baja_por_perdida' => $vehiculos->where('estatus', EstadoVehiculo::BAJA_POR_PERDIDA)->count(),
@@ -131,7 +136,7 @@ class ReporteController extends Controller
                 'disponible' => $vehiculos->where('estatus', EstadoVehiculo::DISPONIBLE)->count(),
                 'asignado' => $vehiculos->where('estatus', EstadoVehiculo::ASIGNADO)->count(),
                 'mantenimiento' => $vehiculos->where('estatus', EstadoVehiculo::EN_MANTENIMIENTO)->count(),
-                'fuera_servicio' => $vehiculos->where('estatus', EstadoVehiculo::FUERA_DE_SERVICIO)->count(),
+                // 'fuera_servicio' => $vehiculos->where('estatus', EstadoVehiculo::FUERA_DE_SERVICIO)->count(),
                 'baja' => $vehiculos->where('estatus', EstadoVehiculo::BAJA)->count(),
                 'baja_por_venta' => $vehiculos->where('estatus', EstadoVehiculo::BAJA_POR_VENTA)->count(),
                 'baja_por_perdida' => $vehiculos->where('estatus', EstadoVehiculo::BAJA_POR_PERDIDA)->count(),
@@ -262,10 +267,18 @@ class ReporteController extends Controller
 
     /**
      * Reporte de vehículos fuera de servicio
+     * Incluye: FUERA_DE_SERVICIO, EN_MANTENIMIENTO y ASIGNADO
      */
     public function vehiculosFueraServicio(Request $request)
     {
-        $request->merge(['estatus' => EstadoVehiculo::FUERA_DE_SERVICIO->value]);
+        // Filtrar por múltiples estados: fuera de servicio, en mantenimiento y asignado
+        $estadosFiltro = [
+            EstadoVehiculo::FUERA_DE_SERVICIO->value,
+            EstadoVehiculo::EN_MANTENIMIENTO->value,
+            EstadoVehiculo::ASIGNADO->value
+        ];
+        
+        $request->merge(['estatus_multiple' => $estadosFiltro]);
         return $this->inventarioVehiculos($request);
     }
 
@@ -274,7 +287,13 @@ class ReporteController extends Controller
      */
     public function vehiculosBaja(Request $request)
     {
-        $request->merge(['estatus' => EstadoVehiculo::BAJA->value]);
+        // Filtrar por los tres estados de baja
+        $estadosBaja = [
+            EstadoVehiculo::BAJA->value,
+            EstadoVehiculo::BAJA_POR_VENTA->value,
+            EstadoVehiculo::BAJA_POR_PERDIDA->value
+        ];
+        $request->merge(['estatus_multiple' => $estadosBaja]);
         return $this->inventarioVehiculos($request);
     }
 

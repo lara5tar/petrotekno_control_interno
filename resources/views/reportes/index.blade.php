@@ -185,7 +185,7 @@
                             </div>
                             <div class="flex-1">
                                 <h4 class="text-lg font-semibold text-gray-900">Activos Fuera de Servicio</h4>
-                                <p class="text-sm text-gray-500 mt-1">Activos temporalmente no operativos por diversas causas</p>
+                                <p class="text-sm text-gray-500 mt-1">Activos en estados: Fuera de Servicio, En Mantenimiento y Asignados</p>
                             </div>
                         </div>
                         <div class="flex space-x-2">

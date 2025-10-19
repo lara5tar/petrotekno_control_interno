@@ -27,10 +27,7 @@
                         <span class="stat-number">{{ $estadisticas['por_estado']['mantenimiento'] ?? 0 }}</span>
                         <span class="stat-label">Mantenimiento</span>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-number">{{ $estadisticas['por_estado']['fuera_servicio'] ?? 0 }}</span>
-                        <span class="stat-label">Fuera Servicio</span>
-                    </div>
+                    <!-- Eliminado bloque de fuera de servicio -->
                     <div class="stat-item">
                         <span class="stat-number">{{ $estadisticas['por_estado']['baja'] ?? 0 }}</span>
                         <span class="stat-label">Baja</span>

@@ -198,7 +198,7 @@ trait PdfGeneratorTrait
                 'disponible' => $vehiculos->where('estatus', 'disponible')->count(),
                 'asignado' => $vehiculos->where('estatus', 'asignado')->count(),
                 'mantenimiento' => $vehiculos->where('estatus', 'mantenimiento')->count(),
-                'fuera_servicio' => $vehiculos->where('estatus', 'fuera_servicio')->count(),
+                // Eliminado contador fuera de servicio
                 'baja' => $vehiculos->where('estatus', 'baja')->count(),
                 'baja_por_venta' => $vehiculos->where('estatus', 'baja_por_venta')->count(),
                 'baja_por_perdida' => $vehiculos->where('estatus', 'baja_por_perdida')->count(),
