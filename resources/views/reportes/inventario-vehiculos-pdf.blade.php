@@ -267,6 +267,18 @@
                 <span class="stat-label">En Mantenimiento</span>
             </div>
             <div class="stat-item">
+                <span class="stat-number">{{ $estadisticas['vehiculos_baja'] ?? 0 }}</span>
+                <span class="stat-label">Baja</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ $estadisticas['vehiculos_baja_por_venta'] ?? 0 }}</span>
+                <span class="stat-label">Baja por Venta</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ $estadisticas['vehiculos_baja_por_perdida'] ?? 0 }}</span>
+                <span class="stat-label">Baja por Pérdida</span>
+            </div>
+            <div class="stat-item">
                 <span class="stat-number">{{ $estadisticas['vehiculos_con_kilometraje_registrado'] }}</span>
                 <span class="stat-label">Con Kilometraje</span>
             </div>

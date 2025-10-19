@@ -271,6 +271,45 @@
         </div>
     </div>
 
+    @php
+        // Calcular estadísticas de estados de vehículos involucrados
+        $vehiculosInvolucrados = $mantenimientos->pluck('vehiculo')->unique('id')->filter();
+        $totalVehiculos = $vehiculosInvolucrados->count();
+        $vehiculosBaja = $vehiculosInvolucrados->where('estatus', 'baja')->count();
+        $vehiculosBajaVenta = $vehiculosInvolucrados->where('estatus', 'baja_por_venta')->count();
+        $vehiculosBajaPerdida = $vehiculosInvolucrados->where('estatus', 'baja_por_perdida')->count();
+        $totalBajas = $vehiculosBaja + $vehiculosBajaVenta + $vehiculosBajaPerdida;
+    @endphp
+
+    @if($totalBajas > 0)
+        <div class="estadisticas" style="margin-top: 15px; background-color: #fef3c7; border-color: #f59e0b;">
+            <h3 style="margin-bottom: 8px; color: #ea580c;">Estados de Baja de Activos</h3>
+            <div class="stats-grid">
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <div class="stat-number" style="color: #dc2626;">{{ number_format($vehiculosBaja) }}</div>
+                        <div class="stat-label">Baja</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" style="color: #9333ea;">{{ number_format($vehiculosBajaVenta) }}</div>
+                        <div class="stat-label">Baja por Venta</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" style="color: #6b7280;">{{ number_format($vehiculosBajaPerdida) }}</div>
+                        <div class="stat-label">Baja por Pérdida</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ number_format($totalVehiculos) }}</div>
+                        <div class="stat-label">Total Activos</div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 8px; padding: 6px; background-color: #fff; border-radius: 3px; font-size: 8px; color: #92400e; text-align: center;">
+                <strong>Nota:</strong> {{ $totalBajas }} activo(s) de {{ $totalVehiculos }} tiene(n) estado de baja
+            </div>
+        </div>
+    @endif
+
     <!-- Tabla de datos -->
     @if($mantenimientos->count() > 0)
         <h3 style="margin-bottom: 8px; color: #ea580c;">Detalle de Mantenimientos ({{ $mantenimientos->count() }} registros)</h3>

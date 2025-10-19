@@ -33,7 +33,15 @@
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">{{ $estadisticas['por_estado']['baja'] ?? 0 }}</span>
-                        <span class="stat-label">Dados de Baja</span>
+                        <span class="stat-label">Baja</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $estadisticas['por_estado']['baja_por_venta'] ?? 0 }}</span>
+                        <span class="stat-label">Baja por Venta</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ $estadisticas['por_estado']['baja_por_perdida'] ?? 0 }}</span>
+                        <span class="stat-label">Baja por Pérdida</span>
                     </div>
                 </div>
             </div>
@@ -121,6 +129,8 @@
                                 'mantenimiento' => 'status-mantenimiento',
                                 'fuera_servicio' => 'status-fuera-servicio',
                                 'baja' => 'status-baja',
+                                'baja_por_venta' => 'status-baja',
+                                'baja_por_perdida' => 'status-baja',
                                 default => 'status-disponible'
                             };
                         @endphp

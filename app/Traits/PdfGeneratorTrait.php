@@ -200,6 +200,8 @@ trait PdfGeneratorTrait
                 'mantenimiento' => $vehiculos->where('estatus', 'mantenimiento')->count(),
                 'fuera_servicio' => $vehiculos->where('estatus', 'fuera_servicio')->count(),
                 'baja' => $vehiculos->where('estatus', 'baja')->count(),
+                'baja_por_venta' => $vehiculos->where('estatus', 'baja_por_venta')->count(),
+                'baja_por_perdida' => $vehiculos->where('estatus', 'baja_por_perdida')->count(),
             ],
             'con_kilometraje' => $vehiculos->whereNotNull('kilometraje_actual')->count(),
             'promedio_kilometraje' => $vehiculos->whereNotNull('kilometraje_actual')->avg('kilometraje_actual'),

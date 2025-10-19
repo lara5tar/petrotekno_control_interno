@@ -585,6 +585,45 @@
                 </div>
             </div>
         </div>
+
+        @php
+            // Calcular estadísticas de estados de vehículos involucrados
+            $vehiculosInvolucrados = $asignaciones->pluck('vehiculo')->unique('id')->filter();
+            $totalVehiculos = $vehiculosInvolucrados->count();
+            $vehiculosBaja = $vehiculosInvolucrados->where('estatus', 'baja')->count();
+            $vehiculosBajaVenta = $vehiculosInvolucrados->where('estatus', 'baja_por_venta')->count();
+            $vehiculosBajaPerdida = $vehiculosInvolucrados->where('estatus', 'baja_por_perdida')->count();
+            $totalBajas = $vehiculosBaja + $vehiculosBajaVenta + $vehiculosBajaPerdida;
+        @endphp
+
+        @if($totalBajas > 0)
+            <div class="resumen-adicional" style="margin-top: 15px;">
+                <h3>Estados de Baja de Activos</h3>
+                <div class="resumen-grid">
+                    <div class="resumen-column">
+                        <div class="resumen-item">
+                            <span class="resumen-label">Activos en Baja</span>
+                            <span class="resumen-value" style="color: #dc2626;">{{ number_format($vehiculosBaja) }}</span>
+                        </div>
+                    </div>
+                    <div class="resumen-column">
+                        <div class="resumen-item">
+                            <span class="resumen-label">Activos con Baja por Venta</span>
+                            <span class="resumen-value" style="color: #9333ea;">{{ number_format($vehiculosBajaVenta) }}</span>
+                        </div>
+                    </div>
+                    <div class="resumen-column">
+                        <div class="resumen-item">
+                            <span class="resumen-label">Activos con Baja por Pérdida</span>
+                            <span class="resumen-value" style="color: #6b7280;">{{ number_format($vehiculosBajaPerdida) }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 8px; padding: 8px; background-color: #fef3c7; border-left: 3px solid #f59e0b; font-size: 10px; color: #92400e;">
+                    <strong>Nota:</strong> Se encontraron {{ $totalBajas }} activo(s) con estado de baja de un total de {{ $totalVehiculos }} activo(s) involucrado(s) en las asignaciones mostradas.
+                </div>
+            </div>
+        @endif
     @endif
 
     <div class="footer">

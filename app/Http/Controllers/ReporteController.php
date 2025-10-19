@@ -123,6 +123,8 @@ class ReporteController extends Controller
             'vehiculos_mantenimiento' => $vehiculos->where('estatus', EstadoVehiculo::EN_MANTENIMIENTO)->count(),
             'vehiculos_fuera_servicio' => $vehiculos->where('estatus', EstadoVehiculo::FUERA_DE_SERVICIO)->count(),
             'vehiculos_baja' => $vehiculos->where('estatus', EstadoVehiculo::BAJA)->count(),
+            'vehiculos_baja_por_venta' => $vehiculos->where('estatus', EstadoVehiculo::BAJA_POR_VENTA)->count(),
+            'vehiculos_baja_por_perdida' => $vehiculos->where('estatus', EstadoVehiculo::BAJA_POR_PERDIDA)->count(),
             
             // Mapeo para la vista PDF (estructura esperada por la vista)
             'por_estado' => [
@@ -131,6 +133,8 @@ class ReporteController extends Controller
                 'mantenimiento' => $vehiculos->where('estatus', EstadoVehiculo::EN_MANTENIMIENTO)->count(),
                 'fuera_servicio' => $vehiculos->where('estatus', EstadoVehiculo::FUERA_DE_SERVICIO)->count(),
                 'baja' => $vehiculos->where('estatus', EstadoVehiculo::BAJA)->count(),
+                'baja_por_venta' => $vehiculos->where('estatus', EstadoVehiculo::BAJA_POR_VENTA)->count(),
+                'baja_por_perdida' => $vehiculos->where('estatus', EstadoVehiculo::BAJA_POR_PERDIDA)->count(),
             ],
             
             // Estadísticas de kilometraje para el PDF

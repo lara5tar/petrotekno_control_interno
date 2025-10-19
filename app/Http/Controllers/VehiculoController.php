@@ -1362,6 +1362,8 @@ class VehiculoController extends Controller
                 'mantenimiento' => $vehiculos->where('estatus', EstadoVehiculo::EN_MANTENIMIENTO)->count(),
                 'fuera_servicio' => $vehiculos->where('estatus', EstadoVehiculo::FUERA_DE_SERVICIO)->count(),
                 'baja' => $vehiculos->where('estatus', EstadoVehiculo::BAJA)->count(),
+                'baja_por_venta' => $vehiculos->where('estatus', EstadoVehiculo::BAJA_POR_VENTA)->count(),
+                'baja_por_perdida' => $vehiculos->where('estatus', EstadoVehiculo::BAJA_POR_PERDIDA)->count(),
             ],
         ];
 
@@ -1435,6 +1437,8 @@ class VehiculoController extends Controller
                 'mantenimiento' => $vehiculos->where('estatus', EstadoVehiculo::EN_MANTENIMIENTO)->count(),
                 'fuera_servicio' => $vehiculos->where('estatus', EstadoVehiculo::FUERA_DE_SERVICIO)->count(),
                 'baja' => $vehiculos->where('estatus', EstadoVehiculo::BAJA)->count(),
+                'baja_por_venta' => $vehiculos->where('estatus', EstadoVehiculo::BAJA_POR_VENTA)->count(),
+                'baja_por_perdida' => $vehiculos->where('estatus', EstadoVehiculo::BAJA_POR_PERDIDA)->count(),
             ],
         ];
 
