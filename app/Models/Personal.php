@@ -1,0 +1,262 @@
+<?php
+
+namespace App\Models;
+
+use App\Traits\UppercaseAttributes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+/**
+ * @property int $id
+ * @property string $nombre_completo
+ * @property string $estatus
+ * @property int $categoria_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\CategoriaPersonal $categoria
+ * @property-read \App\Models\User|null $usuario
+ *
+ * @method static \Database\Factories\PersonalFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal whereCategoriaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal whereEstatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal whereNombreCompleto($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Personal withoutTrashed()
+ *
+ * @mixin \Eloquent
+ */
+class Personal extends Model
+{
+    use HasFactory, SoftDeletes, UppercaseAttributes;
+
+    /**
+     * Campos que se convertirán automáticamente a MAYÚSCULAS
+     */
+    protected $uppercaseFields = [
+        'nombre_completo',
+        'curp_numero',
+        'rfc',
+        'nss',
+        'no_licencia',
+        'direccion',
+        'ine',
+    ];
+
+    protected $table = 'personal';
+
+    protected $fillable = [
+        'nombre_completo',
+        'estatus',
+        'categoria_id',
+        'curp_numero',
+        'rfc',
+        'nss',
+        'no_licencia',
+        'direccion',
+        'ine',
+        'url_ine',
+        'url_curp',
+        'url_rfc',
+        'url_nss',
+        'url_licencia',
+        'url_comprobante_domicilio',
+        'url_cv',
+    ];
+
+    /**
+     * @var array<string>
+     */
+    protected $dates = ['deleted_at'];
+
+    /**
+     * Estados válidos para personal
+     */
+    public const ESTATUS_VALIDOS = ['activo', 'inactivo', 'suspendido', 'vacaciones'];
+
+    /**
+     * Validar y limpiar el estatus
+     */
+    public function setEstatusAttribute($value): void
+    {
+        // Si el valor es null o vacío, establecer 'activo' por defecto
+        if (is_null($value) || $value === '') {
+            $this->attributes['estatus'] = 'activo';
+            return;
+        }
+
+        if (! in_array($value, self::ESTATUS_VALIDOS)) {
+            throw new \InvalidArgumentException("Estatus inválido: {$value}. Los valores válidos son: " . implode(', ', self::ESTATUS_VALIDOS));
+        }
+
+        $this->attributes['estatus'] = $value;
+    }
+
+    /**
+     * Relación con CategoriaPersonal
+     */
+    public function categoria(): BelongsTo
+    {
+        return $this->belongsTo(CategoriaPersonal::class, 'categoria_id');
+    }
+
+    /**
+     * Relación con User
+     */
+    public function usuario(): HasOne
+    {
+        return $this->hasOne(User::class, 'personal_id');
+    }
+
+    /**
+     * Relación con Obras (como operador)
+     */
+    public function obras(): HasMany
+    {
+        return $this->hasMany(Obra::class, 'operador_id');
+    }
+
+    /**
+     * Relación con obras activas (no liberadas)
+     */
+    public function obrasActivas(): HasMany
+    {
+        return $this->obras()->whereNull('fecha_liberacion');
+    }
+
+    /**
+     * Relación con Documentos
+     */
+    public function documentos(): HasMany
+    {
+        return $this->hasMany(Documento::class, 'personal_id');
+    }
+
+    /**
+     * Relación con asignaciones de obra
+     */
+    public function asignacionesObra(): HasMany
+    {
+        return $this->hasMany(AsignacionObra::class, 'operador_id');
+    }
+
+    /**
+     * Relación con asignaciones de obra activas
+     */
+    public function asignacionesObraActivas(): HasMany
+    {
+        return $this->asignacionesObra()->activas();
+    }
+
+    /**
+     * Relación con historial de operadores (como operador nuevo)
+     */
+    public function historialOperadorVehiculo(): HasMany
+    {
+        return $this->hasMany(HistorialOperadorVehiculo::class, 'operador_nuevo_id');
+    }
+
+    /**
+     * Relación con historial de operadores donde aparece como operador anterior
+     */
+    public function historialComoOperadorAnterior(): HasMany
+    {
+        return $this->hasMany(HistorialOperadorVehiculo::class, 'operador_anterior_id');
+    }
+
+    /**
+     * Relación con historial de operadores donde aparece como operador nuevo
+     */
+    public function historialComoOperadorNuevo(): HasMany
+    {
+        return $this->hasMany(HistorialOperadorVehiculo::class, 'operador_nuevo_id');
+    }
+
+    /**
+     * Obtener vehículo actualmente asignado a este operador
+     */
+    public function vehiculoActual()
+    {
+        return Vehiculo::where('operador_id', $this->id)->first();
+    }
+
+    /**
+     * Obtener la asignación de obra activa actual
+     */
+    public function asignacionObraActual()
+    {
+        return $this->asignacionesObraActivas()->latest('fecha_asignacion')->first();
+    }
+
+    /**
+     * Verificar si tiene asignación de obra activa
+     */
+    public function tieneAsignacionObraActiva(): bool
+    {
+        return $this->asignacionesObraActivas()->exists();
+    }
+
+    /**
+     * Scopes
+     */
+    public function scopeActivos($query)
+    {
+        return $query->where('estatus', 'activo');
+    }
+
+    public function scopeOperadores($query)
+    {
+        return $query->whereHas('categoria', function ($q) {
+            $q->where('nombre_categoria', 'like', '%operador%')
+                ->orWhere('nombre_categoria', 'like', '%conductor%')
+                ->orWhere('nombre_categoria', 'like', '%chofer%');
+        });
+    }
+
+    public function scopeEncargados($query)
+    {
+        return $query->whereHas('categoria', function ($q) {
+            $q->where('nombre_categoria', 'like', '%encargado%')
+                ->orWhere('nombre_categoria', 'like', '%supervisor%')
+                ->orWhere('nombre_categoria', 'like', '%jefe%')
+                ->orWhere('nombre_categoria', 'like', '%coordinador%');
+        });
+    }
+
+    public function scopeDisponibles($query)
+    {
+        return $query->activos()->whereDoesntHave('obras', function ($q) {
+            $q->whereNull('fecha_liberacion');
+        });
+    }
+
+    /**
+     * Scope para búsqueda de personal
+     */
+    public function scopeBuscar($query, $termino)
+    {
+        return $query->where(function ($q) use ($termino) {
+            $q->where('nombre_completo', 'like', "%{$termino}%")
+                ->orWhere('rfc', 'like', "%{$termino}%")
+                ->orWhere('curp_numero', 'like', "%{$termino}%")
+                ->orWhere('nss', 'like', "%{$termino}%")
+                ->orWhere('ine', 'like', "%{$termino}%")
+                ->orWhere('no_licencia', 'like', "%{$termino}%")
+                ->orWhereHas('categoria', function ($cq) use ($termino) {
+                    $cq->where('nombre_categoria', 'like', "%{$termino}%");
+                });
+        });
+    }
+}

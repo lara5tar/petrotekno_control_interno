@@ -1,0 +1,1803 @@
+@extends('layouts.app')
+
+@section('title', 'Detalles de la Obra')
+
+@section('content')
+<!-- Breadcrumb -->
+<x-breadcrumb :items="[
+    ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
+    ['label' => 'Obras', 'url' => route('obras.index')],
+    ['label' => 'Detalle de la Obra']
+]" />
+
+<div class="h-[calc(100vh-120px)] flex flex-col gap-4">
+
+    <!-- Contenido Principal en Grid 50/50 -->
+    <div class="flex-1 grid grid-cols-2 gap-4">
+        <!-- Panel Izquierdo -->
+        <div class="flex flex-col gap-4">
+            <!-- Datos Generales -->
+            <div class="bg-white border border-gray-300 rounded-lg">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
+                    <h3 class="font-semibold text-gray-800">Datos Generales</h3>
+                </div>
+                <div class="p-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Nombre de la Obra</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->nombre_obra }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">ID</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ str_pad($obra->id, 6, '0', STR_PAD_LEFT) }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Ubicación</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->ubicacion ?: 'No especificada' }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Fecha de Inicio</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->fecha_inicio ? \Carbon\Carbon::parse($obra->fecha_inicio)->format('d/m/Y') : 'No definida' }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Fecha de Finalización</label>
+                            <div class="bg-{{ $obra->fecha_fin && \Carbon\Carbon::now()->gt(\Carbon\Carbon::parse($obra->fecha_fin)) ? 'red' : 'gray' }}-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->fecha_fin ? \Carbon\Carbon::parse($obra->fecha_fin)->format('d/m/Y') : 'No definida' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Avance</label>
+                            <div class="bg-gray-100 rounded-full h-3 mt-1">
+                                <div class="bg-{{ $obra->avance >= 100 ? 'green' : ($obra->avance >= 75 ? 'blue' : ($obra->avance >= 50 ? 'yellow' : 'orange')) }}-500 h-3 rounded-full transition-all duration-500 shadow-sm" 
+                                     style="width: {{ min(100, $obra->avance ?? 0) }}%"></div>
+                            </div>
+                            <div class="text-right text-sm font-medium text-gray-600 mt-1">
+                                {{ $obra->avance ?? 0 }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas y Cronograma -->
+            <div class="bg-white border border-gray-300 rounded-lg">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
+                    <h3 class="font-semibold text-gray-800">Cronograma y Estadísticas</h3>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Días Transcurridos</label>
+                            <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->dias_transcurridos ?? 0 }} días
+                            </div>
+                        </div>
+                        @if($obra->dias_restantes !== null)
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Días Restantes</label>
+                            <div class="bg-{{ $obra->dias_restantes > 0 ? 'green' : 'red' }}-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->dias_restantes }} días
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                    
+                    @if($obra->duracion_total)
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Duración Total</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->duracion_total }} días
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Progreso de Tiempo</label>
+                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                {{ $obra->porcentaje_tiempo_transcurrido }}%
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="bg-white border border-gray-300 rounded-lg">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-300">
+                    <h3 class="font-semibold text-gray-800">Observaciones y Notas</h3>
+                </div>
+                <div class="p-4">
+                    <div class="bg-yellow-50 border border-yellow-200 px-4 py-3 rounded text-sm">
+                        {{ $obra->observaciones ?: 'No hay observaciones registradas para esta obra.' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Derecho -->
+        <div class="flex flex-col gap-4">
+            <!-- Estado y Resumen en fila horizontal -->
+            <div class="grid grid-cols-1 gap-3">
+                <!-- Estado Actual -->
+                <div>
+                    <div class="text-sm font-medium text-gray-600 mb-1">Estado Actual</div>
+                    <div id="status-container" class="relative">
+                        <select id="status-selector" 
+                                class="w-full p-2 rounded text-center font-bold text-white border-0 focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                                style="background-color: {{ $obra->estatus === 'en_progreso' ? '#10b981' : ($obra->estatus === 'completada' ? '#3b82f6' : '#f59e0b') }}"
+                                data-obra-id="{{ $obra->id }}"
+                                data-current-status="{{ $obra->estatus }}">
+                            @php
+                                $statusOptions = [
+                                    'planificada' => 'Planificada',
+                                    'en_progreso' => 'En Progreso',
+                                    'suspendida' => 'Suspendida',
+                                    'completada' => 'Completada',
+                                    'cancelada' => 'Cancelada'
+                                ];
+                            @endphp
+                            
+                            @foreach($statusOptions as $value => $label)
+                                <option value="{{ $value }}" 
+                                        {{ $obra->estatus === $value ? 'selected' : '' }}
+                                        data-color="{{ $value === 'en_progreso' ? '#10b981' : ($value === 'completada' ? '#3b82f6' : '#f59e0b') }}">
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                        
+                        @if($obra->esta_atrasada)
+                        <div class="text-xs bg-red-600 text-white inline-block px-2 py-0.5 rounded mt-1">Atrasada</div>
+                        @endif
+                        
+                        <!-- Loading indicator -->
+                        <div id="status-loading" class="hidden absolute inset-0 bg-gray-500 bg-opacity-50 rounded flex items-center justify-center">
+                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestañas de Información -->
+            <div class="bg-white border border-gray-300 rounded-lg" x-data="{ activeTab: 'recursos' }">
+                <div class="bg-gray-50 px-4 py-0 border-b border-gray-300">
+                    <div class="flex space-x-0" role="tablist">
+                        <button @click="activeTab = 'recursos'" 
+                                :class="activeTab === 'recursos' ? 'border-gray-600 text-gray-600 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                class="px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-200"
+                                role="tab" 
+                                aria-selected="true"
+                                aria-controls="recursos-content">
+                            Recursos
+                        </button>
+                        <button @click="activeTab = 'documentos'" 
+                                :class="activeTab === 'documentos' ? 'border-gray-600 text-gray-600 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                class="px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-200"
+                                role="tab" 
+                                aria-selected="false"
+                                aria-controls="documentos-content">
+                            Documentos
+                        </button>
+                        <button @click="activeTab = 'asignaciones'" 
+                                :class="activeTab === 'asignaciones' ? 'border-gray-600 text-gray-600 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                class="px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-200"
+                                role="tab" 
+                                aria-selected="false"
+                                aria-controls="asignaciones-content">
+                            Asignaciones
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Contenido de pestañas -->
+                <div class="min-h-[400px]">
+                    <!-- Contenido de Recursos -->
+                    <div x-show="activeTab === 'recursos'" class="tab-content p-4" role="tabpanel" aria-labelledby="recursos-tab">
+                        <div class="space-y-6">
+                            <!-- Sección: Encargado de la Obra -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        Encargado de la Obra
+                                    </h5>
+                                    
+                                    <button onclick="openCambiarResponsableModal()" 
+                                       class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs"
+                                       id="btn-cambiar-responsable">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                        @if($obra->encargado)
+                                            Cambiar Responsable
+                                        @else
+                                            Asignar Responsable
+                                        @endif
+                                    </button>
+                                </div>
+                                
+                                @if($obra->encargado)
+                                <div class="space-y-4">
+                                    <!-- Nombre completo en componente gris -->
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Nombre Completo</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                            {{ $obra->encargado->nombre_completo }}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Información básica -->
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">ID Personal</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $obra->encargado->id }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Categoría</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                {{ $obra->encargado->categoria ? $obra->encargado->categoria->nombre_categoria : 'Sin categoría' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Cuenta de usuario si existe -->
+                                    @if($obra->encargado->usuario)
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Cuenta de Usuario</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm flex justify-between items-center">
+                                            <span>{{ $obra->encargado->usuario->email }}</span>
+                                            <span class="bg-gray-800 px-2 py-0.5 rounded-full text-xs">
+                                                {{ $obra->encargado->usuario->rol ? $obra->encargado->usuario->rol->nombre_rol : 'Sin rol' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    @endif
+                                    
+                                    <!-- Detalles adicionales -->
+                                    <div class="grid grid-cols-3 gap-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Fecha de Alta</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $obra->encargado->created_at ? $obra->encargado->created_at->format('d/m/Y') : 'No disponible' }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Estatus</label>
+                                            <div class="bg-{{ $obra->encargado->estatus === 'activo' ? 'green' : 'red' }}-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ ucfirst($obra->encargado->estatus ?? 'No definido') }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Obras Asignadas</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                {{ $obra->encargado->obras_count ?? 'Desconocido' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Observaciones si existen -->
+                                    @if($obra->encargado->observaciones)
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Observaciones</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                            {{ $obra->encargado->observaciones }}
+                                        </div>
+                                    </div>
+                                    @endif
+                                    
+                                    <!-- Botón Ver Detalles del Encargado -->
+                                    <div class="pt-3 border-t border-gray-200 flex gap-2">
+                                        <a href="{{ route('personal.show', $obra->encargado->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-md transition-colors duration-200 flex items-center text-xs w-fit">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                            Ver Detalles
+                                        </a>
+                                        
+                                        <button onclick="openLiberarResponsableModal()" 
+                                           class="bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded-md transition-colors duration-200 flex items-center text-xs"
+                                           id="btn-liberar-responsable">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            Liberar Responsable
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                @else
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-5 text-center">
+                                    <svg class="w-12 h-12 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                    <h5 class="text-lg font-medium text-red-800 mb-2">No hay responsable asignado</h5>
+                                    <p class="text-sm text-red-600">Esta obra no tiene un responsable asignado actualmente.</p>
+                                </div>
+                                @endif
+                            </div>
+
+                            <!-- Sección: Vehículos Asignados -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                        Activos Asignados
+                                    </h5>
+                                    
+                                    @hasPermission('actualizar_obras')
+                                    <button onclick="openAsignarActivosModal()" 
+                                       class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs"
+                                       id="btn-asignar-vehiculos">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Asignar Activos
+                                    </button>
+                                    @endhasPermission
+                                </div>
+                                
+                                @if($asignacionesActivas && $asignacionesActivas->count() > 0)
+                                    <div class="space-y-4">
+                                        @foreach($asignacionesActivas as $asignacion)
+                                        <div class="space-y-3">
+                                            <!-- Información del vehículo en componentes grises -->
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Activo</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                    {{ ($asignacion->vehiculo->marca ?: 'Sin marca') }} {{ ($asignacion->vehiculo->modelo ?: 'Sin modelo') }}
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-sm text-gray-600">Placas</label>
+                                                    <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                        {{ $asignacion->vehiculo->placas ?: 'Sin placa' }}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm text-gray-600">Año</label>
+                                                    <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                        {{ $asignacion->vehiculo->anio ?: 'Sin año' }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-sm text-gray-600">Serie</label>
+                                                    <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                        {{ $asignacion->vehiculo->n_serie ?: 'Sin serie' }}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm text-gray-600">Kilometraje</label>
+                                                    <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                        {{ $asignacion->vehiculo->kilometraje_actual ? number_format($asignacion->vehiculo->kilometraje_actual) . ' km' : 'Sin kilometraje' }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-sm text-gray-600">Fecha de Asignación</label>
+                                                    <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y H:i') }}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm text-gray-600">Operador</label>
+                                                    <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                        {{ $asignacion->operador ? $asignacion->operador->nombre_completo : 'Sin operador' }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Botones de acción -->
+                                            <div class="flex gap-2 pt-3 border-t border-gray-200">
+                                                <a href="{{ route('vehiculos.show', $asignacion->vehiculo->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-md transition-colors duration-200 flex items-center text-xs h-8">
+                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    Ver Detalles
+                                                </a>
+                                                
+                                                @if(isset($permisos) && $permisos->contains('liberar_asignaciones'))
+                                                <form action="{{ route('obras.liberar-asignacion', ['obra' => $obra->id, 'asignacion' => $asignacion->id]) }}" method="POST" onsubmit="return confirm('¿Estás seguro de liberar la asignación de este vehículo?')" class="inline">
+                                                    @csrf
+                                                    <button type="submit" class="bg-red-100 text-red-600 hover:bg-red-200 py-1 px-3 rounded-md text-xs flex items-center transition-colors duration-200 h-8">
+                                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
+                                                            <circle cx="12" cy="16" r="1"></circle>
+                                                            <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+                                                        </svg>
+                                                        Liberar Asignación
+                                                    </button>
+                                                </form>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        
+                                        @if(!$loop->last)
+                                        <div class="border-b border-gray-300 my-4"></div>
+                                        @endif
+                                        @endforeach
+                                    </div>
+                                @elseif($obra->vehiculo)
+                                    <!-- Mostrar el vehículo único asociado directamente a la obra -->
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="block text-sm text-gray-600">Activo</label>
+                                            <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
+                                                {{ ($obra->vehiculo->marca ?: 'Sin marca') }} {{ ($obra->vehiculo->modelo ?: 'Sin modelo') }}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Placas</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $obra->vehiculo->placas ?: 'Sin placa' }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Año</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $obra->vehiculo->anio ?: 'Sin año' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Serie</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $obra->vehiculo->n_serie ?: 'Sin serie' }}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm text-gray-600">Kilometraje</label>
+                                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                                    {{ $obra->vehiculo->kilometraje_actual ? number_format($obra->vehiculo->kilometraje_actual) . ' km' : 'Sin kilometraje' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="pt-3 border-t border-gray-200">
+                                            <a href="{{ route('vehiculos.show', $obra->vehiculo->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded-md transition-colors duration-200 flex items-center text-xs w-fit">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                                Ver Activo
+                                            </a>
+                                        </div>
+                                    </div>
+                                @else
+                                    <!-- Mostrar mensaje cuando no hay vehículos asignados -->
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
+                                        <svg class="w-10 h-10 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                        </svg>
+                                        <h5 class="text-lg font-medium text-red-800 mb-2">Sin activo asignado</h5>
+                                        <p class="text-sm text-red-600 mb-4">Esta obra no tiene activos asignados actualmente.</p>
+                                        
+                                        @if(isset($permisos) && $permisos->contains('editar_obras'))
+                                        <a href="{{ route('obras.edit', ['obra' => $obra->id]) }}" class="inline-block bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md text-sm transition-colors duration-200">
+                                            Asignar Activo
+                                        </a>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+
+                            @if($obra->vehiculo_id && $obra->kilometraje_inicial)
+                            <!-- Información de Kilometraje -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                        </svg>
+                                        Registro de Kilometraje
+                                    </h5>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Kilometraje Inicial</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                            {{ number_format($obra->kilometraje_inicial) }} km
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Kilometraje Final</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                            {{ $obra->kilometraje_final ? number_format($obra->kilometraje_final) . ' km' : 'En progreso' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                @if($obra->kilometraje_final)
+                                <div class="mt-4">
+                                    <label class="block text-sm text-gray-600">Kilómetros Recorridos</label>
+                                    <div class="bg-blue-600 text-white px-3 py-2 rounded text-sm font-bold">
+                                        {{ number_format($obra->kilometraje_final - $obra->kilometraje_inicial) }} km
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                            @endif
+
+                            @if($obra->combustible_inicial || $obra->combustible_final || $obra->combustible_suministrado)
+                            <!-- Información de Combustible -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        Registro de Combustible
+                                    </h5>
+                                </div>
+                                
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Inicial</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                            {{ $obra->combustible_inicial ? number_format($obra->combustible_inicial, 2) . ' L' : 'N/A' }}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Suministrado</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                            {{ $obra->combustible_suministrado ? number_format($obra->combustible_suministrado, 2) . ' L' : 'N/A' }}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-600">Final</label>
+                                        <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm">
+                                            {{ $obra->combustible_final ? number_format($obra->combustible_final, 2) . ' L' : 'En progreso' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                @if($obra->costo_combustible)
+                                <div class="mt-4">
+                                    <label class="block text-sm text-gray-600">Costo Total de Combustible</label>
+                                    <div class="bg-green-600 text-white px-3 py-2 rounded text-sm font-bold">
+                                        ${{ number_format($obra->costo_combustible, 2) }}
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                            @endif
+                        </div>
+                        
+                        <!-- Espacio en blanco al final de la pestaña de recursos -->
+                        <div style="height: 100px;"></div>
+                    </div>
+
+                    <!-- Contenido de Documentos -->
+                    <div x-show="activeTab === 'documentos'" class="tab-content p-4" role="tabpanel" aria-labelledby="documentos-tab">
+                        <div class="space-y-6">
+                            <!-- Documentos del Proyecto -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v2m0 0h14" />
+                                        </svg>
+                                        Documentos del Proyecto
+                                    </h5>
+                                    <div class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                        {{ $obra->getPorcentajeDocumentosCompletados() }}% completo
+                                    </div>
+                                </div>
+                                
+                                <ul class="divide-y divide-gray-200 mb-6">
+                                    <!-- Contrato -->
+                                    <li class="py-3 flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <svg class="w-5 h-5 mr-3 text-{{ $obra->tieneContrato() ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <div>
+                                                <span class="text-sm font-medium text-gray-800">Contrato</span>
+                                                @if($obra->fecha_subida_contrato)
+                                                    <p class="text-xs text-gray-500">Subido: {{ \Carbon\Carbon::parse($obra->fecha_subida_contrato)->format('d/m/Y') }}</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            @if($obra->tieneContrato())
+                                                <a href="{{ $obra->getUrlContrato() }}" target="_blank" 
+                                                class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    Ver
+                                                </a>
+                                                <a href="{{ $obra->getUrlContrato() }}" download class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                    </svg>
+                                                    Descargar
+                                                </a>
+                                            @else
+                                                <span class="text-xs text-red-600 font-medium">Faltante</span>
+                                            @endif
+                                        </div>
+                                    </li>
+                                    
+                                    <!-- Fianza -->
+                                    <li class="py-3 flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <svg class="w-5 h-5 mr-3 text-{{ $obra->tieneFianza() ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                            </svg>
+                                            <div>
+                                                <span class="text-sm font-medium text-gray-800">Fianza</span>
+                                                @if($obra->fecha_subida_fianza)
+                                                    <p class="text-xs text-gray-500">Subido: {{ \Carbon\Carbon::parse($obra->fecha_subida_fianza)->format('d/m/Y') }}</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            @if($obra->tieneFianza())
+                                                <a href="{{ $obra->getUrlFianza() }}" target="_blank" 
+                                                class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    Ver
+                                                </a>
+                                                <a href="{{ $obra->getUrlFianza() }}" download class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                    </svg>
+                                                    Descargar
+                                                </a>
+                                            @else
+                                                <span class="text-xs text-red-600 font-medium">Faltante</span>
+                                            @endif
+                                        </div>
+                                    </li>
+                                    
+                                    <!-- Acta Entrega-Recepción -->
+                                    <li class="py-3 flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <svg class="w-5 h-5 mr-3 text-{{ $obra->tieneActaEntregaRecepcion() ? 'green' : 'red' }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                            <div>
+                                                <span class="text-sm font-medium text-gray-800">Acta Entrega-Recepción</span>
+                                                @if($obra->fecha_subida_acta)
+                                                    <p class="text-xs text-gray-500">Subido: {{ \Carbon\Carbon::parse($obra->fecha_subida_acta)->format('d/m/Y') }}</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            @if($obra->tieneActaEntregaRecepcion())
+                                                <a href="{{ $obra->getUrlActaEntregaRecepcion() }}" target="_blank" 
+                                                class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    Ver
+                                                </a>
+                                                <a href="{{ $obra->getUrlActaEntregaRecepcion() }}" download class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs flex items-center transition-colors duration-200">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                    </svg>
+                                                    Descargar
+                                                </a>
+                                            @else
+                                                <span class="text-xs text-red-600 font-medium">Faltante</span>
+                                            @endif
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contenido de Asignaciones -->
+                    <div x-show="activeTab === 'asignaciones'" class="tab-content p-4" role="tabpanel" aria-labelledby="asignaciones-tab">
+                        <div class="space-y-6">
+                            <!-- Asignaciones Activas -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Asignaciones Activas
+                                    </h5>
+                                    @if(isset($permisos) && $permisos->contains('crear_asignaciones'))
+                                    <a href="{{ route('obras.edit', ['obra' => $obra->id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded-md transition-colors duration-200 flex items-center text-xs">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Nueva Asignación
+                                    </a>
+                                    @endif
+                                </div>
+                                
+                                <!-- Tabla de Asignaciones -->
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operador</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Asignación</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @if($obra->vehiculo_id && $obra->operador_id)
+                                            <tr>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {{ $obra->vehiculo ? $obra->vehiculo->marca . ' ' . $obra->vehiculo->modelo : 'Sin activo' }}
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $obra->operador ? $obra->operador->nombre_completo : 'Sin operador' }}
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $obra->fecha_asignacion ? \Carbon\Carbon::parse($obra->fecha_asignacion)->format('d/m/Y') : 'N/A' }}
+                                                </td>
+                                                <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                    {{ $obra->kilometraje_inicial ? number_format($obra->kilometraje_inicial) : 'N/A' }} km
+                                                </td>
+                                            </tr>
+                                            @elseif($asignacionesActivas && $asignacionesActivas->count() > 0)
+                                                @foreach($asignacionesActivas as $asignacion)
+                                                <tr>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                        {{ $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo : 'Sin activo' }}
+                                                        @if($asignacion->vehiculo && $asignacion->vehiculo->estatus)
+                                                            <div class="mt-1">
+                                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                                                    @if($asignacion->vehiculo->estatus->value === 'asignado')
+                                                                        bg-blue-100 text-blue-800
+                                                                    @elseif($asignacion->vehiculo->estatus->value === 'disponible')
+                                                                        bg-green-100 text-green-800
+                                                                    @elseif($asignacion->vehiculo->estatus->value === 'en_mantenimiento')
+                                                                        bg-yellow-100 text-yellow-800
+                                                                    @elseif($asignacion->vehiculo->estatus->value === 'fuera_de_servicio')
+                                                                        bg-red-100 text-red-800
+                                                                    @else
+                                                                        bg-gray-100 text-gray-800
+                                                                    @endif
+                                                                ">
+                                                                    {{ $asignacion->vehiculo->estatus->nombre() }}
+                                                                </span>
+                                                            </div>
+                                                        @endif
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        {{ $asignacion->operador ? $asignacion->operador->nombre_completo : 'Sin operador' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y H:i') }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        {{ number_format($asignacion->kilometraje_inicial) }} km
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            @else
+                                                <tr>
+                                                    <td colspan="4" class="px-3 py-4 text-center text-sm text-gray-500">
+                                                        No hay asignaciones activas para esta obra
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Paginación para Asignaciones Activas -->
+                                @if($asignacionesActivas && $asignacionesActivas->hasPages())
+                                <div class="mt-4 px-4 py-3 bg-gray-50 border-t border-gray-200 sm:px-6">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex-1 flex justify-between sm:hidden">
+                                            @if ($asignacionesActivas->onFirstPage())
+                                                <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md">
+                                                    Anterior
+                                                </span>
+                                            @else
+                                                <a href="{{ $asignacionesActivas->previousPageUrl() }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                                                    Anterior
+                                                </a>
+                                            @endif
+
+                                            @if ($asignacionesActivas->hasMorePages())
+                                                <a href="{{ $asignacionesActivas->nextPageUrl() }}" class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                                                    Siguiente
+                                                </a>
+                                            @else
+                                                <span class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md">
+                                                    Siguiente
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                            <div>
+                                                <p class="text-sm text-gray-700">
+                                                    Mostrando
+                                                    <span class="font-medium">{{ $asignacionesActivas->firstItem() ?? 0 }}</span>
+                                                    a
+                                                    <span class="font-medium">{{ $asignacionesActivas->lastItem() ?? 0 }}</span>
+                                                    de
+                                                    <span class="font-medium">{{ $asignacionesActivas->total() }}</span>
+                                                    resultados
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <span class="relative z-0 inline-flex shadow-sm rounded-md">
+                                                    @if ($asignacionesActivas->onFirstPage())
+                                                        <span aria-disabled="true" aria-label="Anterior">
+                                                            <span class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-l-md leading-5" aria-hidden="true">
+                                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+                                                    @else
+                                                        <a href="{{ $asignacionesActivas->previousPageUrl() }}" rel="prev" class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md leading-5 hover:text-gray-400 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150" aria-label="Anterior">
+                                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </a>
+                                                    @endif
+
+                                                    @foreach ($asignacionesActivas->getUrlRange(1, $asignacionesActivas->lastPage()) as $page => $url)
+                                                        @if ($page == $asignacionesActivas->currentPage())
+                                                            <span aria-current="page">
+                                                                <span class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-white bg-blue-600 border border-blue-600 cursor-default leading-5">{{ $page }}</span>
+                                                            </span>
+                                                        @else
+                                                            <a href="{{ $url }}" class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 hover:text-gray-500 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150" aria-label="Ir a la página {{ $page }}">{{ $page }}</a>
+                                                        @endif
+                                                    @endforeach
+
+                                                    @if ($asignacionesActivas->hasMorePages())
+                                                        <a href="{{ $asignacionesActivas->nextPageUrl() }}" rel="next" class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md leading-5 hover:text-gray-400 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150" aria-label="Siguiente">
+                                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </a>
+                                                    @else
+                                                        <span aria-disabled="true" aria-label="Siguiente">
+                                                            <span class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-r-md leading-5" aria-hidden="true">
+                                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+                                                    @endif
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+
+                            <!-- Asignaciones Históricas -->
+                            <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h5 class="text-base font-semibold text-gray-800 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Historial de Asignaciones
+                                    </h5>
+                                </div>
+                                
+                                <!-- Tabla de Asignaciones Liberadas -->
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operador</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Asignación</th>
+                                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asignado Por</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @if($asignacionesLiberadas && $asignacionesLiberadas->count() > 0)
+                                                @foreach($asignacionesLiberadas as $asignacion)
+                                                <tr>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                        {{ $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo . ' (' . $asignacion->vehiculo->placas . ')' : 'Sin activo' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        {{ $asignacion->operador ? $asignacion->operador->nombre_completo : 'Sin operador' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        {{ \Carbon\Carbon::parse($asignacion->fecha_asignacion)->format('d/m/Y H:i') }} - 
+                                                        {{ $asignacion->fecha_liberacion ? \Carbon\Carbon::parse($asignacion->fecha_liberacion)->format('d/m/Y H:i') : 'En curso' }}
+                                                    </td>
+                                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                                        Sistema
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            @else
+                                                <tr>
+                                                    <td colspan="4" class="px-3 py-4 text-center text-sm text-gray-500">
+                                                        No hay historial de asignaciones para esta obra
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Controles de paginación -->
+                                @if($asignacionesLiberadas && $asignacionesLiberadas->hasPages())
+                                <div class="mt-4 px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex-1 flex justify-between sm:hidden">
+                                            @if ($asignacionesLiberadas->onFirstPage())
+                                                <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md">
+                                                    Anterior
+                                                </span>
+                                            @else
+                                                <a href="{{ $asignacionesLiberadas->previousPageUrl() }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                                                    Anterior
+                                                </a>
+                                            @endif
+
+                                            @if ($asignacionesLiberadas->hasMorePages())
+                                                <a href="{{ $asignacionesLiberadas->nextPageUrl() }}" class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                                                    Siguiente
+                                                </a>
+                                            @else
+                                                <span class="relative inline-flex items-center px-4 py-2 ml-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md">
+                                                    Siguiente
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                            <div>
+                                                <p class="text-sm text-gray-700 leading-5">
+                                                    Mostrando
+                                                    <span class="font-medium">{{ $asignacionesLiberadas->firstItem() }}</span>
+                                                    a
+                                                    <span class="font-medium">{{ $asignacionesLiberadas->lastItem() }}</span>
+                                                    de
+                                                    <span class="font-medium">{{ $asignacionesLiberadas->total() }}</span>
+                                                    resultados
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <span class="relative z-0 inline-flex shadow-sm rounded-md">
+                                                    {{-- Botón Anterior --}}
+                                                    @if ($asignacionesLiberadas->onFirstPage())
+                                                        <span aria-disabled="true" aria-label="Anterior">
+                                                            <span class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-l-md leading-5" aria-hidden="true">
+                                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+                                                    @else
+                                                        <a href="{{ $asignacionesLiberadas->previousPageUrl() }}" rel="prev" class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md leading-5 hover:text-gray-400 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150" aria-label="Anterior">
+                                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </a>
+                                                    @endif
+
+                                                    {{-- Enlaces de páginas --}}
+                                                    @foreach ($asignacionesLiberadas->getUrlRange(1, $asignacionesLiberadas->lastPage()) as $page => $url)
+                                                        @if ($page == $asignacionesLiberadas->currentPage())
+                                                            <span aria-current="page">
+                                                                <span class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-white bg-blue-600 border border-gray-300 cursor-default leading-5">{{ $page }}</span>
+                                                            </span>
+                                                        @else
+                                                            <a href="{{ $url }}" class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 hover:text-gray-500 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150" aria-label="Ir a la página {{ $page }}">{{ $page }}</a>
+                                                        @endif
+                                                    @endforeach
+
+                                                    {{-- Botón Siguiente --}}
+                                                    @if ($asignacionesLiberadas->hasMorePages())
+                                                        <a href="{{ $asignacionesLiberadas->nextPageUrl() }}" rel="next" class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md leading-5 hover:text-gray-400 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150" aria-label="Siguiente">
+                                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </a>
+                                                    @else
+                                                        <span aria-disabled="true" aria-label="Siguiente">
+                                                            <span class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-r-md leading-5" aria-hidden="true">
+                                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+                                                    @endif
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Botones de Acción Flotantes -->
+<div class="fixed bottom-2 right-6 flex space-x-3 z-50">
+    @hasPermission('actualizar_obras')
+    <!-- Botón Editar -->
+    <a href="{{ route('obras.edit', $obra->id) }}" 
+       class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 inline-flex items-center space-x-2 shadow-lg h-9"
+       title="Editar Obra">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+        </svg>
+        <span>Editar</span>
+    </a>
+    @endhasPermission
+
+    @hasPermission('eliminar_obras')
+    <!-- Botón Eliminar -->
+    <form action="{{ route('obras.destroy', $obra->id) }}" 
+          method="POST" 
+          onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta obra? Esta acción no se puede deshacer.')">
+        @csrf
+        @method('DELETE')
+        <button type="submit" 
+                class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded text-sm transition-colors duration-200 inline-flex items-center space-x-2 shadow-lg h-9"
+                title="Eliminar Obra">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+            </svg>
+            <span>Eliminar</span>
+        </button>
+    </form>
+    @endhasPermission
+</div>
+
+@endsection
+
+<!-- Modal para Cambiar Responsable de la Obra -->
+<div id="cambiar-responsable-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="modal-responsable-title" class="text-lg font-semibold text-gray-900">
+                @if($obra->encargado)
+                    Cambiar Responsable de la Obra
+                @else
+                    Asignar Responsable a la Obra
+                @endif
+            </h3>
+            <button onclick="closeCambiarResponsableModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="mb-4 text-sm text-gray-600">
+            <p><strong>Obra:</strong> {{ $obra->nombre_obra }}</p>
+            @if($obra->encargado)
+                <p><strong>Responsable Actual:</strong> {{ $obra->encargado->nombre_completo }}</p>
+            @else
+                <p><strong>Estado:</strong> Sin responsable asignado</p>
+            @endif
+        </div>
+
+        <form id="cambiar-responsable-form" method="POST" action="{{ route('obras.cambiar-encargado', $obra) }}">
+            @csrf
+            @method('PATCH')
+            
+            <!-- Selección de Nuevo Responsable -->
+            <div class="mb-4">
+                <label for="responsable_id" class="block text-sm font-medium text-gray-700 mb-1">
+                    @if($obra->encargado)
+                        Nuevo Responsable
+                    @else
+                        Responsable a Asignar
+                    @endif
+                </label>
+                <select id="responsable_id" name="responsable_id" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                    <option value="">Seleccionar responsable...</option>
+                    @foreach($responsables ?? [] as $responsable)
+                        <option value="{{ $responsable->id }}" 
+                                {{ ($obra->encargado && $obra->encargado->id == $responsable->id) ? 'selected' : '' }}>
+                            {{ $responsable->nombre_completo }} 
+                            @if($responsable->categoria)
+                                - {{ $responsable->categoria->nombre_categoria }}
+                            @endif
+                        </option>
+                    @endforeach
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Selecciona el personal con categoría "Responsable de obra" para supervisión del proyecto</p>
+            </div>
+            
+
+            
+            <!-- Observaciones -->
+            <div class="mb-4">
+                <label for="observaciones_responsable" class="block text-sm font-medium text-gray-700 mb-1">
+                    Observaciones (opcional)
+                </label>
+                <textarea id="observaciones_responsable" 
+                         name="observaciones" 
+                         rows="3" 
+                         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                         placeholder="Motivo del cambio u observaciones adicionales..."></textarea>
+            </div>
+            
+            <!-- Botones -->
+            <div class="flex justify-end space-x-3">
+                <button type="button" 
+                        onclick="closeCambiarResponsableModal()" 
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                        id="submit-responsable-btn"
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    @if($obra->encargado)
+                        Cambiar Responsable
+                    @else
+                        Asignar Responsable
+                    @endif
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Liberar Responsable de la Obra -->
+<div id="liberar-responsable-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">
+                Liberar Responsable de la Obra
+            </h3>
+            <button onclick="closeLiberarResponsableModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="mb-4 text-sm text-gray-600">
+            <p><strong>Obra:</strong> {{ $obra->nombre_obra }}</p>
+            @if($obra->encargado)
+                <p><strong>Responsable Actual:</strong> {{ $obra->encargado->nombre_completo }}</p>
+            @endif
+        </div>
+
+        <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div class="flex">
+                <svg class="w-5 h-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <div>
+                    <h4 class="text-sm font-medium text-yellow-800">Confirmación requerida</h4>
+                    <p class="text-sm text-yellow-700 mt-1">
+                        Esta acción liberará al responsable actual de la obra. La obra quedará sin responsable asignado hasta que se asigne uno nuevo.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <form id="liberar-responsable-form" method="POST" action="{{ route('obras.liberar-encargado', $obra) }}">
+            @csrf
+            @method('PATCH')
+            
+            <!-- Observaciones -->
+            <div class="mb-4">
+                <label for="observaciones_liberar" class="block text-sm font-medium text-gray-700 mb-1">
+                    Observaciones (opcional)
+                </label>
+                <textarea id="observaciones_liberar" 
+                         name="observaciones" 
+                         rows="3" 
+                         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                         placeholder="Motivo de la liberación u observaciones adicionales..."></textarea>
+            </div>
+            
+            <!-- Botones -->
+            <div class="flex justify-end space-x-3">
+                <button type="button" 
+                        onclick="closeLiberarResponsableModal()" 
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Liberar Responsable
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Asignar Vehículos a la Obra -->
+<div id="asignar-vehiculos-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="modal-vehiculos-title" class="text-lg font-semibold text-gray-900">
+                Asignar Activos a la Obra
+            </h3>
+            <button onclick="closeAsignarActivosModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="mb-4 text-sm text-gray-600">
+            <p><strong>Obra:</strong> {{ $obra->nombre_obra }}</p>
+            <p><strong>Activos Actuales:</strong> {{ $obra->vehiculos ? $obra->vehiculos->count() : 0 }}</p>
+        </div>
+
+        <form id="asignar-vehiculos-form" method="POST" action="{{ route('obras.asignar-vehiculos', $obra) }}">
+            @csrf
+            @method('PATCH')
+            
+            <!-- Lista de Vehículos Disponibles -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Seleccionar Activos Disponibles
+                </label>
+                <div class="max-h-64 overflow-y-auto border border-gray-300 rounded-md p-3 bg-gray-50">
+                    <div class="space-y-2" id="vehiculos-disponibles">
+                        @php
+                            // Separar vehículos disponibles y no disponibles
+                            $vehiculosOrdenados = collect($vehiculosDisponibles ?? [])->sortBy(function($vehiculo) use ($obra) {
+                                $obraActual = $vehiculo->obraActual()->first();
+                                $yaAsignadoAOtraObra = $obraActual && $obraActual->id !== $obra->id;
+                                // Los disponibles (false) van primero, los no disponibles (true) van al final
+                                return $yaAsignadoAOtraObra ? 1 : 0;
+                            });
+                        @endphp
+                        @php
+                            // Separar vehículos disponibles y no disponibles
+                            $vehiculosOrdenados = collect($vehiculosDisponibles ?? [])->sortBy(function($vehiculo) use ($obra) {
+                                $obraActual = $vehiculo->obraActual()->first();
+                                $yaAsignadoAOtraObra = $obraActual && $obraActual->id !== $obra->id;
+                                // Los disponibles (false) van primero, los no disponibles (true) van al final
+                                return $yaAsignadoAOtraObra ? 1 : 0;
+                            });
+                            
+                            $vehiculosDisponiblesReales = $vehiculosOrdenados->filter(function($vehiculo) use ($obra) {
+                                $obraActual = $vehiculo->obraActual()->first();
+                                return !($obraActual && $obraActual->id !== $obra->id);
+                            });
+                            
+                            $vehiculosNoDisponibles = $vehiculosOrdenados->filter(function($vehiculo) use ($obra) {
+                                $obraActual = $vehiculo->obraActual()->first();
+                                return $obraActual && $obraActual->id !== $obra->id;
+                            });
+                        @endphp
+                        
+                        @if($vehiculosDisponiblesReales->count() > 0)
+                            <!-- Encabezado para vehículos disponibles -->
+                            <div class="bg-green-50 border border-green-200 rounded p-2 mb-2">
+                                <h6 class="text-sm font-semibold text-green-800 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Activos Disponibles ({{ $vehiculosDisponiblesReales->count() }})
+                                </h6>
+                            </div>
+                            
+                            @foreach($vehiculosDisponiblesReales as $vehiculo)
+                                @php
+                                    $obraActual = $vehiculo->obraActual()->first();
+                                    $yaAsignadoAOtraObra = $obraActual && $obraActual->id !== $obra->id;
+                                    $yaAsignadoAEstaObra = $obra->vehiculos && $obra->vehiculos->contains($vehiculo->id);
+                                @endphp
+                                <label class="flex items-center space-x-3 p-2 rounded hover:bg-white cursor-pointer">
+                                    <input type="checkbox" 
+                                           name="vehiculos[]" 
+                                           value="{{ $vehiculo->id }}"
+                                           class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                           {{ $yaAsignadoAEstaObra ? 'checked' : '' }}>
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-900">
+                                            {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            Placas: {{ $vehiculo->placas }} | 
+                                            Año: {{ $vehiculo->anio }} | 
+                                            Kilometraje: {{ number_format($vehiculo->kilometraje_actual ?? 0) }} km
+                                        </div>
+                                        @if($yaAsignadoAEstaObra)
+                                            <div class="text-xs text-green-600 font-medium">
+                                                Asignado a esta obra
+                                            </div>
+                                        @endif
+                                    </div>
+                                </label>
+                            @endforeach
+                        @endif
+                        
+                        @if($vehiculosNoDisponibles->count() > 0)
+                            <!-- Separador -->
+                            @if($vehiculosDisponiblesReales->count() > 0)
+                                <div class="border-t border-gray-300 my-3"></div>
+                            @endif
+                            
+                            <!-- Encabezado para vehículos no disponibles -->
+                            <div class="bg-red-50 border border-red-200 rounded p-2 mb-2">
+                                <h6 class="text-sm font-semibold text-red-800 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Activos No Disponibles ({{ $vehiculosNoDisponibles->count() }})
+                                </h6>
+                                <p class="text-xs text-red-600 mt-1">Estos activos están asignados a otras obras</p>
+                            </div>
+                            
+                            @foreach($vehiculosNoDisponibles as $vehiculo)
+                                @php
+                                    $obraActual = $vehiculo->obraActual()->first();
+                                    $yaAsignadoAOtraObra = $obraActual && $obraActual->id !== $obra->id;
+                                    $yaAsignadoAEstaObra = $obra->vehiculos && $obra->vehiculos->contains($vehiculo->id);
+                                @endphp
+                                <label class="flex items-center space-x-3 p-2 rounded bg-gray-100 cursor-not-allowed opacity-60">
+                                    <input type="checkbox" 
+                                           name="vehiculos[]" 
+                                           value="{{ $vehiculo->id }}"
+                                           class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                           {{ $yaAsignadoAEstaObra ? 'checked' : '' }}
+                                           disabled>
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-500">
+                                            {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
+                                            <span class="text-xs text-red-600 ml-2">(No disponible)</span>
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            Placas: {{ $vehiculo->placas }} | 
+                                            Año: {{ $vehiculo->anio }} | 
+                                            Kilometraje: {{ number_format($vehiculo->kilometraje_actual ?? 0) }} km
+                                        </div>
+                                        @if($obraActual)
+                                            <div class="text-xs text-red-600 font-medium">
+                                                Asignado a: {{ $obraActual->nombre_obra }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                </label>
+                            @endforeach
+                        @endif
+                        
+                        @if($vehiculosDisponiblesReales->count() === 0 && $vehiculosNoDisponibles->count() === 0)
+                            <p class="text-sm text-gray-500 text-center py-4">No hay activos disponibles</p>
+                        @endif
+                    </div>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Selecciona uno o más activos para asignar a esta obra. Los activos ya asignados aparecen marcados.</p>
+            </div>
+            
+            <!-- Observaciones -->
+            <div class="mb-4">
+                <label for="observaciones_vehiculos" class="block text-sm font-medium text-gray-700 mb-1">
+                    Observaciones (opcional)
+                </label>
+                <textarea id="observaciones_vehiculos" 
+                         name="observaciones" 
+                         rows="3" 
+                         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                         placeholder="Motivo de la asignación u observaciones adicionales..."></textarea>
+            </div>
+            
+            <!-- Botones -->
+            <div class="flex justify-end space-x-3">
+                <button type="button" 
+                        onclick="closeAsignarActivosModal()" 
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                        id="submit-activos-btn"
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Asignar Activos
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    function handleImageLoad() {
+// ... (código existente)
+    }
+
+    function handleImageError() {
+        // ... (código existente)
+    }
+    
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    // Funciones para el modal de cambiar responsable
+    function openCambiarResponsableModal() {
+        const modal = document.getElementById('cambiar-responsable-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeCambiarResponsableModal() {
+        const modal = document.getElementById('cambiar-responsable-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            
+            const form = document.getElementById('cambiar-responsable-form');
+            if (form) {
+                form.reset();
+            }
+        }
+    }
+
+    // Funciones para el modal de liberar responsable
+    function openLiberarResponsableModal() {
+        const modal = document.getElementById('liberar-responsable-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeLiberarResponsableModal() {
+        const modal = document.getElementById('liberar-responsable-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            
+            const form = document.getElementById('liberar-responsable-form');
+            if (form) {
+                form.reset();
+            }
+        }
+    }
+
+    // Funciones para el modal de asignar activos
+    function openAsignarActivosModal() {
+        const modal = document.getElementById('asignar-vehiculos-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeAsignarActivosModal() {
+        const modal = document.getElementById('asignar-vehiculos-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            
+            const form = document.getElementById('asignar-vehiculos-form');
+            if (form) {
+                form.reset();
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('cambiar-responsable-modal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeCambiarResponsableModal();
+                }
+            });
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeCambiarResponsableModal();
+                closeAsignarActivosModal();
+            }
+        });
+
+        const form = document.getElementById('cambiar-responsable-form');
+        if(form) {
+            form.addEventListener('submit', function(e){
+                const submitBtn = document.getElementById('submit-responsable-btn');
+                if(submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Guardando...';
+                }
+            });
+        }
+
+        // Event listeners para modal de activos
+        const modalActivos = document.getElementById('asignar-vehiculos-modal');
+        if (modalActivos) {
+            modalActivos.addEventListener('click', function(e) {
+                if (e.target === modalActivos) {
+                    closeAsignarActivosModal();
+                }
+            });
+        }
+
+        const formActivos = document.getElementById('asignar-vehiculos-form');
+        if(formActivos) {
+            formActivos.addEventListener('submit', function(e){
+                const submitBtn = document.getElementById('submit-activos-btn');
+                if(submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Asignando...';
+                }
+            });
+        }
+
+        // Status selector functionality
+        const statusSelector = document.getElementById('status-selector');
+        console.log('Status selector found:', !!statusSelector);
+        if (statusSelector) {
+            console.log('Adding change event listener to status selector');
+            statusSelector.addEventListener('change', function(e) {
+                console.log('Status selector change event triggered');
+                const newStatus = e.target.value;
+                const currentStatus = e.target.dataset.currentStatus;
+                const obraId = e.target.dataset.obraId;
+                
+                console.log('New status:', newStatus);
+                console.log('Current status:', currentStatus);
+                console.log('Obra ID:', obraId);
+                
+                if (newStatus === currentStatus) {
+                    console.log('No change detected, returning');
+                    return; // No cambio
+                }
+
+                // Mostrar loading
+                console.log('Showing loading indicator');
+                const loadingIndicator = document.getElementById('status-loading');
+                if (loadingIndicator) {
+                    loadingIndicator.classList.remove('hidden');
+                }
+
+                // Hacer petición AJAX
+                console.log('Making AJAX request to:', `/obras/${obraId}/update-status`);
+                fetch(`/obras/${obraId}/update-status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        estatus: newStatus
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Actualizar el color del selector
+                        const selectedOption = statusSelector.querySelector(`option[value="${newStatus}"]`);
+                        const newColor = selectedOption.dataset.color;
+                        statusSelector.style.backgroundColor = newColor;
+                        
+                        // Actualizar el estado actual
+                        statusSelector.dataset.currentStatus = newStatus;
+                        
+                        // Mostrar mensaje de éxito (usar el mensaje del servidor)
+                        showNotification(data.message || 'Estado actualizado exitosamente', 'success');
+                        
+                        // Recargar la página después de un breve delay para mostrar los cambios
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        throw new Error(data.error || 'Error al actualizar el estado');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Revertir el selector al estado anterior
+                    statusSelector.value = currentStatus;
+                    showNotification(error.message || 'Error al actualizar el estado', 'error');
+                })
+                .finally(() => {
+                    // Ocultar loading
+                    if (loadingIndicator) {
+                        loadingIndicator.classList.add('hidden');
+                    }
+                });
+            });
+        }
+    });
+
+    // Función para mostrar notificaciones
+    function showNotification(message, type = 'info') {
+        // Crear elemento de notificación
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white ${
+            type === 'success' ? 'bg-green-500' : 
+            type === 'error' ? 'bg-red-500' : 
+            'bg-blue-500'
+        }`;
+        notification.textContent = message;
+        
+        // Agregar al DOM
+        document.body.appendChild(notification);
+        
+        // Remover después de 3 segundos
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Función para abrir el modal de liberar asignación
+    function abrirModalLiberarAsignacion(asignacionId, vehiculoNombre, kilometrajeInicial) {
+        document.getElementById('asignacion-id').value = asignacionId;
+        document.getElementById('vehiculo-nombre').textContent = vehiculoNombre;
+        document.getElementById('kilometraje-inicial').textContent = kilometrajeInicial;
+        document.getElementById('kilometraje-final').min = kilometrajeInicial;
+        document.getElementById('modal-liberar-asignacion').classList.remove('hidden');
+    }
+
+    // Función para cerrar el modal de liberar asignación
+    function cerrarModalLiberarAsignacion() {
+        document.getElementById('modal-liberar-asignacion').classList.add('hidden');
+        document.getElementById('form-liberar-asignacion').reset();
+    }
+
+    // Función para confirmar la liberación de asignación
+    function confirmarLiberarAsignacion() {
+        const form = document.getElementById('form-liberar-asignacion');
+        const formData = new FormData(form);
+        const asignacionId = document.getElementById('asignacion-id').value;
+        
+        // Mostrar loading
+        const submitBtn = document.getElementById('btn-confirmar-liberacion');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Liberando...';
+
+        fetch(`/obras/{{ $obra->id }}/liberar-asignacion/${asignacionId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                showNotification(data.message, 'success');
+                cerrarModalLiberarAsignacion();
+                // Recargar la página para mostrar los cambios
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else if (data.error) {
+                throw new Error(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification(error.message || 'Error al liberar la asignación', 'error');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        });
+    }
+</script>
+
+<!-- Modal para liberar asignación -->
+<div id="modal-liberar-asignacion" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Liberar Asignación</h3>
+                <button onclick="cerrarModalLiberarAsignacion()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="form-liberar-asignacion" onsubmit="event.preventDefault(); confirmarLiberarAsignacion();">
+                <input type="hidden" id="asignacion-id" name="asignacion_id">
+                
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">
+                        ¿Está seguro de que desea liberar la asignación del vehículo 
+                        <strong id="vehiculo-nombre"></strong>?
+                    </p>
+                </div>
+
+                <div class="mb-4">
+                    <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
+                        <p class="text-sm text-blue-700">
+                            <strong>Kilometraje Final:</strong> Se utilizará automáticamente el kilometraje actual del vehículo.
+                        </p>
+                        <p class="text-xs text-gray-600 mt-1">
+                            Kilometraje inicial: <span id="kilometraje-inicial"></span> km
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="observaciones-liberacion" class="block text-sm font-medium text-gray-700 mb-2">
+                        Observaciones
+                    </label>
+                    <textarea id="observaciones-liberacion" 
+                              name="observaciones_liberacion" 
+                              rows="3" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="Observaciones sobre la liberación (opcional)"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button type="button" 
+                            onclick="cerrarModalLiberarAsignacion()" 
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        Cancelar
+                    </button>
+                    <button type="submit" 
+                            id="btn-confirmar-liberacion"
+                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        Liberar Asignación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Espacio en blanco al final de la página -->
+<div style="height: 100px;"></div>
+
+@endpush

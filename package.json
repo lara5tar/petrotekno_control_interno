@@ -1,19 +1,36 @@
 {
-    "$schema": "https://json.schemastore.org/package.json",
-    "private": true,
-    "type": "module",
-    "scripts": {
-        "build": "vite build",
-        "dev": "vite"
-    },
-    "devDependencies": {
-        "@tailwindcss/vite": "^4.0.0",
-        "autoprefixer": "^10.4.21",
-        "axios": "^1.8.2",
-        "concurrently": "^9.0.1",
-        "laravel-vite-plugin": "^1.2.0",
-        "postcss": "^8.5.6",
-        "tailwindcss": "^4.1.11",
-        "vite": "^6.2.4"
-    }
+  "$schema": "https://json.schemastore.org/package.json",
+  "private": true,
+  "type": "module",
+  "name": "petrotekno-control-interno",
+  "version": "1.0.0",
+  "description": "Sistema de Control Interno Petrotekno",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "autoprefixer": "^10.4.21",
+    "axios": "^1.8.2",
+    "laravel-vite-plugin": "^1.2.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11",
+    "vite": "^6.2.4"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@tabler/icons": "^3.34.1",
+    "puppeteer": "^24.24.1"
+  },
+  "keywords": [
+    "laravel",
+    "petrotekno",
+    "control-interno"
+  ],
+  "author": "",
+  "license": "ISC",
+  "directories": {
+    "doc": "docs"
+  }
 }

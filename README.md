@@ -1,61 +1,247 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema de Control Interno - Petrotekno
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema de gestión y control interno para vehículos, personal, obras y mantenimientos.
 
-## About Laravel
+## 🚀 Características Principales
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Gestión de Vehículos**: Control completo de flota vehicular y maquinaria
+- **Gestión de Personal**: Administración de operadores y responsables
+- **Control de Obras**: Seguimiento de proyectos y asignaciones
+- **Mantenimientos**: Registro de servicios preventivos y correctivos
+- **Kilometrajes**: Control de kilometraje y alertas automáticas
+- **Documentación**: Sistema de archivos por módulo
+- **Reportes PDF/Excel**: Exportación de datos filtrados
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📋 Requisitos del Sistema
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP >= 8.1
+- MySQL >= 8.0
+- Composer
+- Node.js >= 18
+- NPM
 
-## Learning Laravel
+## 🔧 Instalación
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```bash
+# 1. Clonar el repositorio
+git clone <repository-url>
+cd petrotekno_control_interno
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+# 2. Instalar dependencias PHP
+composer install
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# 3. Instalar dependencias JavaScript
+npm install
 
-## Laravel Sponsors
+# 4. Configurar archivo .env
+cp .env.example .env
+php artisan key:generate
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 5. Configurar base de datos en .env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=nombre_base_datos
+DB_USERNAME=usuario
+DB_PASSWORD=contraseña
 
-### Premium Partners
+# 6. Ejecutar migraciones y seeders
+php artisan migrate --seed
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# 7. Compilar assets
+npm run build
 
-## Contributing
+# 8. Crear enlace simbólico para storage
+php artisan storage:link
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 👤 Usuario Administrador por Defecto
 
-## Code of Conduct
+Después de ejecutar los seeders, se crea un usuario administrador:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **Email**: admin@petrotekno.com
+- **Contraseña**: Admin123!
 
-## Security Vulnerabilities
+## 📊 Seeders Disponibles
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+# Seeders básicos del sistema
+php artisan db:seed --class=DatabaseSeeder
 
-## License
+# Datos de prueba completos (Vehículos, Personal, Obras, Mantenimientos)
+php artisan db:seed --class=DatosCompletosSeeder
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🎨 Sistema de Mayúsculas Automáticas
+
+El sistema incluye un trait `UppercaseAttributes` que convierte automáticamente los datos importantes a MAYÚSCULAS:
+
+### Modelos con conversión automática:
+- **Vehículos**: marca, modelo, placas, serie, ubicación, observaciones
+- **Personal**: nombre completo, CURP, RFC, NSS, licencia, dirección
+- **Obras**: nombre obra, ubicación, observaciones
+- **Mantenimientos**: proveedor, descripción
+
+### Comando de conversión masiva:
+```bash
+# Ver preview de cambios
+php artisan datos:mayusculas --dry-run
+
+# Convertir datos existentes
+php artisan datos:mayusculas
+```
+
+Ver documentación completa en `MAYUSCULAS.md`
+
+## 📁 Estructura del Proyecto
+
+```
+app/
+├── Console/Commands/      # Comandos Artisan
+├── Enums/                # Enumeraciones (EstadoVehiculo, etc.)
+├── Exports/              # Exportaciones Excel
+├── Http/Controllers/     # Controladores
+├── Mail/                 # Emails
+├── Models/               # Modelos Eloquent
+├── Traits/               # Traits reutilizables
+└── Services/             # Servicios
+
+database/
+├── migrations/           # Migraciones
+└── seeders/             # Seeders
+
+resources/
+├── views/               # Vistas Blade
+├── css/                 # Estilos
+└── js/                  # JavaScript
+
+routes/
+├── web.php             # Rutas web
+└── api.php             # Rutas API
+```
+
+## 🔐 Roles y Permisos
+
+El sistema utiliza Spatie Laravel Permission con 3 roles principales:
+
+1. **Administrador del sistema**: Acceso completo
+2. **Supervisor**: Gestión y reportes
+3. **Operador**: Consulta y operación básica
+
+## 📝 Módulos Principales
+
+### 1. Vehículos
+- Registro de vehículos y maquinaria
+- Control de kilometraje
+- Alertas de mantenimiento
+- Asignación a obras
+- Gestión de documentos
+
+### 2. Personal
+- Registro de personal operativo
+- Categorías (Operador, Responsable, etc.)
+- Documentación (CURP, RFC, Licencias)
+- Historial de asignaciones
+
+### 3. Obras
+- Gestión de proyectos
+- Estados: Planificada, En Progreso, Completada, Suspendida, Cancelada
+- Asignación de vehículos y operadores
+- Control de avance
+
+### 4. Mantenimientos
+- Servicios preventivos y correctivos
+- Sistemas: Motor, Transmisión, Hidráulico, General
+- Control de costos
+- Historial por vehículo
+- Alertas automáticas
+
+## 📊 Reportes Disponibles
+
+- Inventario de vehículos
+- Vehículos filtrados (PDF/Excel)
+- Historial de mantenimientos
+- Mantenimientos pendientes
+- Historial de obras por vehículo
+- Historial de operadores
+
+## 🛠️ Comandos Útiles
+
+```bash
+# Desarrollo
+php artisan serve
+npm run dev
+
+# Producción
+npm run build
+
+# Limpiar cachés
+php artisan optimize:clear
+
+# Convertir datos a mayúsculas
+php artisan datos:mayusculas
+
+# Crear datos de prueba
+php artisan db:seed --class=DatosCompletosSeeder
+```
+
+## 🌐 Características Técnicas
+
+- **Framework**: Laravel 11.x
+- **Base de datos**: MySQL con Eloquent ORM
+- **Frontend**: Blade + TailwindCSS + Alpine.js
+- **Autenticación**: Laravel Breeze
+- **Permisos**: Spatie Laravel Permission
+- **PDFs**: DomPDF
+- **Excel**: Maatwebsite Excel
+- **Emails**: Laravel Mail + Resend
+
+## 📧 Configuración de Email
+
+El sistema usa Resend para envío de emails. Configura en `.env`:
+
+```env
+MAIL_MAILER=resend
+RESEND_KEY=tu_clave_api
+```
+
+## 🗂️ Archivos de Datos
+
+- `estados.json`: 32 estados de México
+- `estados-municipios.json`: 2,464 municipios de México
+
+Ambos archivos contienen datos en MAYÚSCULAS para consistencia.
+
+## 📄 Documentación Adicional
+
+- **MAYUSCULAS.md**: Documentación completa del sistema de mayúsculas
+- **GUIA_RAPIDA_MAYUSCULAS.md**: Guía rápida de uso
+- **IMPLEMENTACION_MAYUSCULAS.md**: Detalles de implementación
+- **REGISTROS_CREADOS.md**: Listado de registros de prueba
+
+## 🐛 Solución de Problemas
+
+### Error de permisos en storage
+```bash
+chmod -R 775 storage bootstrap/cache
+```
+
+### Error de clave de aplicación
+```bash
+php artisan key:generate
+```
+
+### Error de base de datos
+Verificar credenciales en `.env` y ejecutar:
+```bash
+php artisan migrate:fresh --seed
+```
+
+## 📞 Soporte
+
+Para problemas o consultas, contactar al equipo de desarrollo.
+
+---
+
+**Versión**: 1.0.0  
+**Última actualización**: 15 de octubre de 2025

@@ -1,24 +1,64 @@
 @extends('layouts.app')
 
-@section('title', 'Vehículos')
+@section('title', 'Activos')
 
-@section('header', 'Gestión de Vehículos')
+@section('header', 'Gestión de Activos')
 
 @section('content')
+    {{-- Breadcrumb --}}
+    <x-breadcrumb :items="[
+        ['label' => 'Inicio', 'url' => route('home'), 'icon' => true],
+        ['label' => 'Activos']
+    ]" />
+
+    {{-- Mensaje de éxito --}}
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6" role="alert">
+            <strong class="font-bold">¡Éxito!</strong>
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
+
+    {{-- Mensaje de error --}}
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
+            <strong class="font-bold">¡Error!</strong>
+            <span class="block sm:inline">{{ session('error') }}</span>
+
+        </div>
+    @endif
+
     <!-- Encabezado con botón de agregar -->
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Listado de Vehículos</h2>
-        <button class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md flex items-center">
+        <h2 class="text-2xl font-bold text-gray-800">Listado de Activos</h2>
+
+        @php
+            $user = auth()->user();
+            $canCreateVehicles = $user && $user->hasPermission('crear_vehiculos');
+        @endphp
+
+        @if($canCreateVehicles)
+        <a href="{{ route('vehiculos.create') }}" class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
             </svg>
-            Agregar Vehículo
-        </button>
+            Agregar Activo
+        </a>
+        @elseif(auth()->check() && auth()->user()->email === 'admin@petrotekno.com')
+        <!-- Botón de emergencia para admin -->
+        <a href="{{ route('vehiculos.create') }}" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md flex items-center transition duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            ADMIN: Agregar Activo
+        </a>
+        @endif
+
     </div>
     
     <!-- Filtros y búsqueda -->
     <div class="bg-white p-4 rounded-lg shadow-md mb-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <form method="GET" action="{{ route('vehiculos.index') }}" id="filtrosForm" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div class="flex-1">
                 <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
                 <div class="relative">
@@ -27,273 +67,490 @@
                             <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <input type="text" id="search" placeholder="Buscar por placa, modelo, etc." class="pl-10 p-2 border border-gray-300 rounded-md w-full">
+                    <input type="text" 
+                           id="buscar" 
+                           name="buscar" 
+                           value="{{ request('buscar') }}"
+                           placeholder="Buscar por marca, modelo, placas o número de serie..." 
+                           class="pl-10 pr-10 p-2 border border-gray-300 rounded-lg w-full h-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                           autocomplete="off">
+                    
+                    <!-- Loading indicator -->
+                    <div id="search-loading" class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none hidden">
+                        <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                    
+                    <!-- Clear button -->
+                    <button type="button" 
+                            id="clear-search" 
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200 hidden">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div class="flex-1 md:flex-none md:w-48">
-                <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                <select id="estado" class="p-2 border border-gray-300 rounded-md w-full">
-                    <option value="">Todos</option>
-                    <option value="activo">Activo</option>
-                    <option value="mantenimiento">En Mantenimiento</option>
-                    <option value="reparacion">En Reparación</option>
-                    <option value="inactivo">Inactivo</option>
+                <label for="tipo_activo" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Activo</label>
+                <select id="tipo_activo" name="tipo_activo_id" class="p-2 border border-gray-300 rounded-md w-full h-10">
+                    <option value="">Todos los tipos</option>
+                    @foreach($tiposActivo as $tipo)
+                        <option value="{{ $tipo->id }}" {{ request('tipo_activo_id') == $tipo->id ? 'selected' : '' }}>
+                            {{ $tipo->nombre }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
             <div class="flex-1 md:flex-none md:w-48">
-                <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                <select id="tipo" class="p-2 border border-gray-300 rounded-md w-full">
-                    <option value="">Todos</option>
-                    <option value="automovil">Automóvil</option>
-                    <option value="camioneta">Camioneta</option>
-                    <option value="camion">Camión</option>
-                    <option value="maquinaria">Maquinaria</option>
+                <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                <select id="estado" name="estado" class="p-2 border border-gray-300 rounded-md w-full h-10">
+                    <option value="">Todos los estados</option>
+                    @foreach($estados as $estadoKey => $estadoNombre)
+                        <option value="{{ $estadoKey }}" {{ request('estado') == $estadoKey ? 'selected' : '' }}>
+                            {{ $estadoNombre }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
-        </div>
+
+            <!-- Botones de acción -->
+            <div class="flex flex-col">
+                <!-- Label invisible para alineación -->
+                <label class="block text-sm font-medium text-gray-700 mb-1 invisible">Acciones</label>
+                <div class="flex gap-2">
+                    @if(request()->hasAny(['buscar', 'estado', 'tipo_activo_id']))
+                        <a href="{{ route('vehiculos.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-1.5 px-3 rounded text-sm h-10 flex items-center justify-center transition duration-200">
+                            Limpiar
+                        </a>
+                    @endif
+                    
+                    <!-- Botones de descarga compactos -->
+                    <button onclick="descargarReporte('excel')" class="bg-green-600 hover:bg-green-700 text-white font-medium py-1.5 px-3 rounded text-sm h-10 flex items-center gap-1 transition duration-200" title="Descargar Excel">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Excel
+                    </button>
+                    
+                    <button onclick="descargarReporte('pdf')" class="bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 px-3 rounded text-sm h-10 flex items-center gap-1 transition duration-200" title="Descargar PDF">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        PDF
+                    </button>
+                </div>
+            </div>
+
+        </form>
     </div>
-    
-    <!-- Tabla de vehículos -->
+
+    <!-- Tabla de activos -->
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table id="vehiculos-table" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Placa</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marca/Modelo</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marca</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Modelo</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Año</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo de Activo</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Placas</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número de Serie</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kilometraje</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Última Revisión</th>
                         <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <!-- Vehículo 1 -->
+                    @forelse($vehiculos as $vehiculo)
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">ABC-123</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Toyota Hilux</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2022</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Camioneta</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $vehiculo->id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ !empty($vehiculo->marca) ? $vehiculo->marca : 'Sin marca' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ !empty($vehiculo->modelo) ? $vehiculo->modelo : 'Sin modelo' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ !empty($vehiculo->anio) ? $vehiculo->anio : 'Sin año' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $vehiculo->tipoActivo ? $vehiculo->tipoActivo->nombre : 'No asignado' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ !empty($vehiculo->placas) ? $vehiculo->placas : 'Sin placas' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ !empty($vehiculo->n_serie) ? $vehiculo->n_serie : 'Sin serie' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
+                            @php
+                                // Asignar colores con efecto translúcido basándose en el estado del activo
+                                $estadoActivo = $vehiculo->estatus->value ?? $vehiculo->estatus;
+                                
+                                $colores = [
+                                    'disponible' => 'bg-green-100 text-green-700',
+                                    'asignado' => 'bg-blue-100 text-blue-700',
+                                    'en_mantenimiento' => 'bg-yellow-100 text-yellow-700',
+                                    'fuera_de_servicio' => 'bg-orange-100 text-orange-700',
+                                    'baja' => 'bg-red-100 text-red-700',
+                                    'baja_por_venta' => 'bg-purple-100 text-purple-700',
+                                    'baja_por_perdida' => 'bg-gray-100 text-gray-700',
+                                ];
+                                
+                                $colorClass = $colores[$estadoActivo] ?? 'bg-gray-100 text-gray-700';
+                            @endphp
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $colorClass }}">
+                                {{ $vehiculo->estatus->nombre() }}
+                            </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">45,780 km</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15/05/2023</td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end space-x-2">
-                                <a href="#" class="text-blue-600 hover:text-blue-900">
+                                @hasPermission('ver_vehiculos')
+                                <a href="{{ route('vehiculos.show', ['vehiculo' => $vehiculo]) }}" class="text-blue-600 hover:text-blue-900" title="Ver detalles">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                                         <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
                                     </svg>
                                 </a>
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900">
+                                @endhasPermission
+                                @hasPermission('editar_vehiculos')
+                                <a href="{{ route('vehiculos.edit', ['vehiculo' => $vehiculo]) }}" class="text-indigo-600 hover:text-indigo-900" title="Editar activo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                     </svg>
                                 </a>
-                                <a href="#" class="text-red-600 hover:text-red-900">
+                                @endhasPermission
+                                
+                                @hasPermission('eliminar_vehiculos')
+                                <button data-activo-id="{{ $vehiculo->id }}" data-activo-placas="{{ !empty($vehiculo->placas) ? $vehiculo->placas : 'Sin placas' }}" class="btn-eliminar text-red-600 hover:text-red-900" title="Eliminar activo">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                                     </svg>
+                                </button>
+                                @endhasPermission
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="9" class="px-6 py-4">
+                            <div class="text-center py-8">
+                                <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                                </svg>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">No hay activos registrados</h3>
+                                <p class="text-gray-500 mb-6">
+                                    @if(request()->hasAny(['buscar', 'estado', 'tipo_activo_id']))
+                                        No se encontraron activos con los filtros aplicados.
+                                    @else
+                                        Comience registrando el primer activo de su flota.
+                                    @endif
+                                </p>
+                                <a href="{{ route('vehiculos.create') }}" 
+                                   class="bg-petroyellow hover:bg-yellow-500 text-petrodark font-medium py-2 px-4 rounded inline-flex items-center transition duration-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    Registrar Activo
                                 </a>
                             </div>
                         </td>
                     </tr>
-                    
-                    <!-- Vehículo 2 -->
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">XYZ-789</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Ford Ranger</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2021</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Camioneta</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Mantenimiento</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">67,230 km</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">02/06/2023</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex justify-end space-x-2">
-                                <a href="#" class="text-blue-600 hover:text-blue-900">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </a>
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                    </svg>
-                                </a>
-                                <a href="#" class="text-red-600 hover:text-red-900">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                    </svg>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    
-                    <!-- Vehículo 3 -->
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">DEF-456</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Chevrolet Silverado</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Camioneta</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">12,450 km</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10/06/2023</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex justify-end space-x-2">
-                                <a href="#" class="text-blue-600 hover:text-blue-900">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </a>
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                    </svg>
-                                </a>
-                                <a href="#" class="text-red-600 hover:text-red-900">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                    </svg>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    
-                    <!-- Vehículo 4 -->
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">GHI-789</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Caterpillar 320</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2020</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Maquinaria</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Reparación</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">3,200 hrs</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">28/05/2023</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex justify-end space-x-2">
-                                <a href="#" class="text-blue-600 hover:text-blue-900">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </a>
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                    </svg>
-                                </a>
-                                <a href="#" class="text-red-600 hover:text-red-900">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                    </svg>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    
-                    <!-- Vehículo 5 -->
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">JKL-012</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Komatsu PC200</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2021</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Maquinaria</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Inactivo</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2,800 hrs</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15/04/2023</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex justify-end space-x-2">
-                                <a href="#" class="text-blue-600 hover:text-blue-900">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </a>
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                    </svg>
-                                </a>
-                                <a href="#" class="text-red-600 hover:text-red-900">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                    </svg>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
+
+                    @endforelse
                 </tbody>
             </table>
         </div>
         
         <!-- Paginación -->
+        @if($vehiculos->hasPages())
         <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
             <div class="flex items-center justify-between">
                 <div class="flex-1 flex justify-between sm:hidden">
-                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Anterior
-                    </a>
-                    <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Siguiente
-                    </a>
+                    @if($vehiculos->onFirstPage())
+                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-500 bg-white cursor-default">
+                            Anterior
+                        </span>
+                    @else
+                        <a href="{{ $vehiculos->previousPageUrl() }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Anterior
+                        </a>
+                    @endif
+
+                    @if($vehiculos->hasMorePages())
+                        <a href="{{ $vehiculos->nextPageUrl() }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Siguiente
+                        </a>
+                    @else
+                        <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-500 bg-white cursor-default">
+                            Siguiente
+                        </span>
+                    @endif
                 </div>
                 <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                     <div>
                         <p class="text-sm text-gray-700">
-                            Mostrando <span class="font-medium">1</span> a <span class="font-medium">5</span> de <span class="font-medium">12</span> resultados
+                            Mostrando
+                            <span class="font-medium">{{ $vehiculos->firstItem() }}</span>
+                            a
+                            <span class="font-medium">{{ $vehiculos->lastItem() }}</span>
+                            de
+                            <span class="font-medium">{{ $vehiculos->total() }}</span>
+                            resultados
                         </p>
                     </div>
                     <div>
-                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                <span class="sr-only">Anterior</span>
-                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                </svg>
-                            </a>
-                            <a href="#" aria-current="page" class="z-10 bg-petroyellow text-petrodark relative inline-flex items-center px-4 py-2 border border-petroyellow text-sm font-medium">
-                                1
-                            </a>
-                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                2
-                            </a>
-                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                3
-                            </a>
-                            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-                                ...
-                            </span>
-                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                8
-                            </a>
-                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                9
-                            </a>
-                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                10
-                            </a>
-                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                <span class="sr-only">Siguiente</span>
-                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                </svg>
-                            </a>
-                        </nav>
+                        {{ $vehiculos->appends(request()->query())->links() }}
                     </div>
                 </div>
             </div>
         </div>
+        @endif
     </div>
+
+    <!-- Modal de confirmación para eliminar -->
+    <x-delete-confirmation-modal 
+        id="modal-eliminar"
+        entity="el activo"
+        entityIdField="activo-id"
+        entityDisplayField="activo-placas"
+        routeName="vehiculos"
+        additionalText="Esta acción no se puede deshacer."
+    />
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Vehiculos page loaded - SIMPLIFIED VERSION');
+    
+    // VERSIÓN ULTRA SIMPLE - SOLO FILTROS BÁSICOS
+    const estadoSelect = document.getElementById('estado');
+    const tipoActivoSelect = document.getElementById('tipo_activo');
+    const filtrosForm = document.getElementById('filtrosForm');
+    const searchInput = document.getElementById('buscar');
+    
+    console.log('Elements found:', {
+        estadoSelect: !!estadoSelect,
+        tipoActivoSelect: !!tipoActivoSelect,
+        filtrosForm: !!filtrosForm,
+        searchInput: !!searchInput
+    });
+    
+    // Función para limpiar campos vacíos antes de enviar
+    function limpiarCamposVacios() {
+        // Si el campo de búsqueda está vacío, removerlo del formulario temporalmente
+        if (searchInput && searchInput.value.trim() === '') {
+            searchInput.removeAttribute('name');
+        } else if (searchInput) {
+            searchInput.setAttribute('name', 'buscar');
+        }
+        
+        // Si estado está en "Todos", removerlo
+        if (estadoSelect && estadoSelect.value === '') {
+            estadoSelect.removeAttribute('name');
+        } else if (estadoSelect) {
+            estadoSelect.setAttribute('name', 'estado');
+        }
+    }
+    
+    // Función simple: limpiar y submit del formulario
+    function aplicarFiltros() {
+        console.log('📤 Submitting form with filters...');
+        console.log('Estado:', estadoSelect ? estadoSelect.value : 'N/A');
+        
+        if (filtrosForm) {
+            limpiarCamposVacios();
+            filtrosForm.submit();
+        }
+    }
+    
+    // Event listener para estado
+    if (estadoSelect) {
+        estadoSelect.addEventListener('change', function() {
+            console.log('📊 Estado changed to:', this.value);
+            aplicarFiltros();
+        });
+    }
+    
+    // Event listener para tipo de activo
+    if (tipoActivoSelect) {
+        tipoActivoSelect.addEventListener('change', function() {
+            console.log('🏗️ Tipo de activo changed to:', this.value);
+            aplicarFiltros();
+        });
+    }
+    
+    // Búsqueda básica (solo input, sin AJAX)
+    if (searchInput) {
+        let searchTimeout;
+        
+        searchInput.addEventListener('input', function() {
+            const value = this.value;
+            console.log('🔍 Search input:', value);
+            
+            // Clear previous timeout
+            clearTimeout(searchTimeout);
+            
+            // Simple debounce - submit form after 1 second of no typing
+            searchTimeout = setTimeout(function() {
+                if (value.length >= 2 || value.length === 0) {
+                    console.log('📤 Submitting search form...');
+                    
+                    // Guardar la posición del cursor antes del envío
+                    const cursorPosition = searchInput.selectionStart;
+                    
+                    // Agregar parámetros ocultos para mantener el estado
+                    const cursorInput = document.createElement('input');
+                    cursorInput.type = 'hidden';
+                    cursorInput.name = 'cursor_position';
+                    cursorInput.value = cursorPosition;
+                    filtrosForm.appendChild(cursorInput);
+                    
+                    limpiarCamposVacios();
+                    filtrosForm.submit();
+                }
+            }, 1000);
+        });
+        
+        // Submit on Enter
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                console.log('⏎ Enter pressed, submitting form...');
+                
+                // Guardar la posición del cursor antes del envío
+                const cursorPosition = searchInput.selectionStart;
+                
+                // Agregar parámetros ocultos para mantener el estado
+                const cursorInput = document.createElement('input');
+                cursorInput.type = 'hidden';
+                cursorInput.name = 'cursor_position';
+                cursorInput.value = cursorPosition;
+                filtrosForm.appendChild(cursorInput);
+                
+                limpiarCamposVacios();
+                filtrosForm.submit();
+            }
+        });
+    }
+    
+    console.log('✅ Simple filters initialized');
+    
+    // Restaurar el cursor después de la carga de la página
+    window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const cursorPosition = urlParams.get('cursor_position');
+        
+        if (cursorPosition && searchInput && searchInput.value) {
+            searchInput.focus();
+            searchInput.setSelectionRange(parseInt(cursorPosition), parseInt(cursorPosition));
+        }
+    });
+});
+
+// Función para manejar eliminación de vehículos usando el componente reutilizable
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar el modal de eliminación con configuración específica para vehículos
+    if (typeof window.initDeleteModal === 'function') {
+        window.initDeleteModal({
+            modalId: 'modal-eliminar',
+            entityIdField: 'activo-id',
+            entityDisplayField: 'activo-placas',
+            deleteButtonSelector: '.btn-eliminar',
+            baseUrl: '{{ url("vehiculos") }}'
+        });
+    } else {
+        console.error('Error: initDeleteModal no está disponible');
+    }
+});
+
+// Función para descargar reportes manteniendo los filtros aplicados
+function descargarReporte(tipo) {
+    // Obtener los parámetros de filtro actuales
+    const urlParams = new URLSearchParams(window.location.search);
+    const filtros = {};
+    
+    // Capturar filtros de la URL
+    if (urlParams.get('buscar')) {
+        filtros.buscar = urlParams.get('buscar');
+    }
+    if (urlParams.get('estado')) {
+        filtros.estado = urlParams.get('estado');
+    }
+    if (urlParams.get('tipo_activo_id')) {
+        filtros.tipo_activo_id = urlParams.get('tipo_activo_id');
+    }
+    if (urlParams.get('anio')) {
+        filtros.anio = urlParams.get('anio');
+    }
+    
+    // Si hay una búsqueda activa en tiempo real, usar ese término
+    const searchInput = document.getElementById('buscar');
+    if (searchInput && searchInput.value.trim()) {
+        filtros.buscar = searchInput.value.trim();
+    }
+    
+    // Capturar estado actual del filtro
+    const estadoSelect = document.getElementById('estado');
+    if (estadoSelect && estadoSelect.value) {
+        filtros.estado = estadoSelect.value;
+    }
+    
+    // Capturar tipo de activo actual del filtro
+    const tipoActivoSelect = document.getElementById('tipo_activo');
+    if (tipoActivoSelect && tipoActivoSelect.value) {
+        filtros.tipo_activo_id = tipoActivoSelect.value;
+    }
+    
+    // Mostrar información sobre filtros aplicados
+    let filtrosInfo = [];
+    if (filtros.buscar) filtrosInfo.push(`Búsqueda: "${filtros.buscar}"`);
+    if (filtros.estado) filtrosInfo.push(`Estado: "${filtros.estado}"`);
+    if (filtros.tipo_activo_id) {
+        const tipoActivoText = tipoActivoSelect ? tipoActivoSelect.options[tipoActivoSelect.selectedIndex].text : filtros.tipo_activo_id;
+        filtrosInfo.push(`Tipo: "${tipoActivoText}"`);
+    }
+    if (filtros.anio) filtrosInfo.push(`Año: "${filtros.anio}"`);
+    
+    const tipoReporte = tipo === 'pdf' ? 'PDF' : 'Excel';
+    if (filtrosInfo.length > 0) {
+        console.log(`Generando reporte ${tipoReporte} con filtros: ${filtrosInfo.join(', ')}`);
+    } else {
+        console.log(`Generando reporte ${tipoReporte} de todos los vehículos`);
+    }
+    
+    // Construir la URL de descarga
+    let url;
+    if (tipo === 'pdf') {
+        url = '{{ route("vehiculos.descargar-reporte-pdf") }}';
+    } else if (tipo === 'excel') {
+        url = '{{ route("vehiculos.descargar-reporte-excel") }}';
+    }
+    
+    // Agregar parámetros de filtro a la URL
+    const params = new URLSearchParams(filtros);
+    if (params.toString()) {
+        url += '?' + params.toString();
+    }
+    
+    // Mostrar indicador de carga
+    const boton = event.target.closest('button');
+    const textoOriginal = boton.innerHTML;
+    boton.disabled = true;
+    boton.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Generando...
+    `;
+    
+    // Crear enlace temporal para descarga
+    const link = document.createElement('a');
+    link.href = url;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Restaurar botón después de un breve delay
+    setTimeout(() => {
+        boton.disabled = false;
+        boton.innerHTML = textoOriginal;
+    }, 2000);
+}
+</script>
+@endpush

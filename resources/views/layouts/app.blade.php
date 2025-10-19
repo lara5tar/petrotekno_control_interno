@@ -13,6 +13,32 @@
 
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js -->
+    <style>[x-cloak] { display: none !important; }</style>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Alpine.js Controllers -->
+    <script>
+        window.formController = function() {
+            return {
+                crearUsuario: false,
+                passwordType: 'aleatoria',
+                fileStatus: {},
+                init() {
+                    this.crearUsuario = false;
+                    this.passwordType = 'aleatoria';
+                    this.fileStatus = {};
+                },
+                handleFileInput(event, type) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        this.fileStatus[type] = `Archivo seleccionado: ${file.name}`;
+                    }
+                }
+            }
+        }
+    </script>
     <script>
         tailwind.config = {
             theme: {
@@ -25,41 +51,246 @@
             }
         }
     </script>
-</head>
-<body class="bg-gray-100 min-h-screen flex flex-col md:flex-row">
-    <!-- Menú lateral (amarillo) -->
-    <x-sidebar />
     
-    <!-- Contenido principal -->
-    <div class="flex-1">
-        <!-- Barra superior (negra) -->
-        <div class="bg-petrodark text-white p-4 flex justify-between items-center">
+    <!-- Script para aplicar estado inicial sin animación -->
+    <script>
+        // Aplicar estado inmediatamente antes de que se muestre la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.flex-1.flex.flex-col');
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            
+            // Deshabilitar transiciones temporalmente
+            sidebar.style.transition = 'none';
+            if (mainContent) mainContent.style.transition = 'none';
+            
+            if (isCollapsed) {
+                sidebar.classList.remove('md:w-64');
+                sidebar.classList.add('md:w-16');
+                if (mainContent) {
+                    mainContent.classList.remove('md:ml-64');
+                    mainContent.classList.add('md:ml-16');
+                }
+                // Ocultar textos y logo, mostrar espaciadores
+                const labels = sidebar.querySelectorAll('.sidebar-label');
+                const logo = sidebar.querySelector('.sidebar-logo');
+                const subtitle = sidebar.querySelector('.sidebar-subtitle');
+                const logoSpacer = sidebar.querySelector('.sidebar-spacer');
+                const subtitleSpacer = sidebar.querySelector('.sidebar-subtitle-spacer');
+                const itemContents = sidebar.querySelectorAll('.sidebar-item-content');
+                const icons = sidebar.querySelectorAll('.sidebar-item-content svg');
+                
+                labels.forEach(label => label.classList.add('hidden'));
+                if (logo) logo.classList.add('hidden');
+                if (subtitle) subtitle.classList.add('hidden');
+                if (logoSpacer) logoSpacer.classList.remove('hidden');
+                if (subtitleSpacer) subtitleSpacer.classList.remove('hidden');
+                
+                // Centrar iconos y quitar margen
+                itemContents.forEach(content => {
+                    content.classList.remove('justify-start');
+                    content.classList.add('md:justify-center');
+                });
+                icons.forEach(icon => {
+                    icon.classList.remove('md:mr-3');
+                });
+            } else {
+                sidebar.classList.remove('md:w-16');
+                sidebar.classList.add('md:w-64');
+                if (mainContent) {
+                    mainContent.classList.remove('md:ml-16');
+                    mainContent.classList.add('md:ml-64');
+                }
+                // Mostrar textos y logo, ocultar espaciadores
+                const logoSpacer = sidebar.querySelector('.sidebar-spacer');
+                const subtitleSpacer = sidebar.querySelector('.sidebar-subtitle-spacer');
+                const itemContents = sidebar.querySelectorAll('.sidebar-item-content');
+                const icons = sidebar.querySelectorAll('.sidebar-item-content svg');
+                
+                if (logoSpacer) logoSpacer.classList.add('hidden');
+                if (subtitleSpacer) subtitleSpacer.classList.add('hidden');
+                
+                // Alineación a la izquierda y margen del icono
+                itemContents.forEach(content => {
+                    content.classList.remove('md:justify-center');
+                    content.classList.add('justify-start');
+                });
+                icons.forEach(icon => {
+                    icon.classList.add('md:mr-3');
+                });
+            }
+            
+            // Reactivar transiciones después de un pequeño delay
+            setTimeout(() => {
+                sidebar.style.transition = '';
+                sidebar.classList.add('transition-all', 'duration-300', 'ease-in-out');
+                if (mainContent) {
+                    mainContent.style.transition = '';
+                    mainContent.classList.add('transition-all', 'duration-300', 'ease-in-out');
+                }
+            }, 50);
+        });
+    </script>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col md:flex-row overflow-hidden">
+    <!-- Menú lateral (amarillo) - FIJO -->
+    <div id="sidebar" class="bg-petroyellow w-full md:w-64 h-screen flex flex-col md:fixed md:left-0 md:top-0 overflow-y-auto">
+        <x-sidebar />
+    </div>
+    
+    <!-- Contenido principal - CON SCROLL -->
+    <div class="flex-1 flex flex-col md:ml-64 h-screen overflow-hidden">
+        <!-- Barra superior (negra) - FIJA -->
+        <div class="bg-petrodark text-white p-4 flex justify-between items-center flex-shrink-0">
             <div class="flex items-center">
-                <button class="md:hidden mr-4" id="menu-toggle">
+                <!-- Botón para móviles -->
+                <button class="md:hidden mr-4" id="menu-toggle-mobile">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                <!-- Botón para escritorio -->
+                <button class="hidden md:block mr-4" id="menu-toggle-desktop">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
                 <h1 class="text-xl font-medium">@yield('header', 'Dashboard')</h1>
             </div>
-            <div class="flex items-center">
-                <span class="text-petroyellow mr-4">{{ Auth::user()->name ?? 'Usuario' }}</span>
+            <div class="flex items-center space-x-4">
+                <!-- Botón de Alertas -->
+                <a href="{{ route('alertas.index') }}" 
+                   class="relative p-2 rounded-full hover:bg-gray-700 transition-colors duration-200 group"
+                   title="Alertas - Ver todas las alertas del sistema">
+                    <!-- Icono de campana -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white group-hover:text-petroyellow transition-colors duration-200" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20h4c0 1.1-.9 2-2 2s-2-.9-2-2zm10-2.65V19H4v-1.65l2-1.88v-5.15C6 7.4 7.56 5.1 10 4.34v-.38c0-1.42 1.49-2.5 2.99-1.76.65.32 1.01 1.03 1.01 1.76v.39c2.44.75 4 3.06 4 5.98v5.15l2 1.88z"/>
+                    </svg>
+                    
+                    <!-- Badge con número de alertas -->
+                    @if(isset($alertasCount) && $alertasCount > 0)
+                        <span class="absolute -top-1 -right-1 h-5 w-5 {{ isset($tieneAlertasUrgentes) && $tieneAlertasUrgentes ? 'bg-red-500' : 'bg-yellow-500' }} text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                            {{ $alertasCount > 99 ? '99+' : $alertasCount }}
+                        </span>
+                    @endif
+                </a>
+                
+                <!-- Información del usuario -->
+                <span class="text-petroyellow">{{ Auth::user()->nombre_completo ?? 'Usuario' }}</span>
                 <span class="text-sm text-gray-400">v1.0</span>
             </div>
         </div>
         
-        <!-- Contenido de la página -->
-        <div class="p-6">
+        <!-- Contenido de la página - CON SCROLL -->
+        <div class="p-6 overflow-y-auto flex-1">
+            <!-- Notificaciones globales mejoradas -->
+            <x-notifications />
+
             @yield('content')
         </div>
     </div>
     
-    <!-- Script para el menú móvil -->
+    <!-- Script para el menú -->
     <script>
-        document.getElementById('menu-toggle').addEventListener('click', function() {
-            const menu = document.querySelector('.bg-petroyellow');
-            menu.classList.toggle('hidden');
+        // Funcionalidad para móviles (ocultar/mostrar)
+        document.getElementById('menu-toggle-mobile').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        });
+        
+        // Funcionalidad para escritorio (colapsar/expandir)
+        document.getElementById('menu-toggle-desktop').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.flex-1.flex.flex-col');
+            const isCollapsed = sidebar.classList.contains('md:w-16');
+            
+            if (isCollapsed) {
+                // Expandir
+                sidebar.classList.remove('md:w-16');
+                sidebar.classList.add('md:w-64');
+                mainContent.classList.remove('md:ml-16');
+                mainContent.classList.add('md:ml-64');
+                // Mostrar textos y logo, ocultar espaciadores
+                const labels = sidebar.querySelectorAll('.sidebar-label');
+                const logo = sidebar.querySelector('.sidebar-logo');
+                const subtitle = sidebar.querySelector('.sidebar-subtitle');
+                const logoSpacer = sidebar.querySelector('.sidebar-spacer');
+                const subtitleSpacer = sidebar.querySelector('.sidebar-subtitle-spacer');
+                const itemContents = sidebar.querySelectorAll('.sidebar-item-content');
+                const icons = sidebar.querySelectorAll('.sidebar-item-content svg');
+                
+                labels.forEach(label => label.classList.remove('hidden'));
+                if (logo) logo.classList.remove('hidden');
+                if (subtitle) subtitle.classList.remove('hidden');
+                if (logoSpacer) logoSpacer.classList.add('hidden');
+                if (subtitleSpacer) subtitleSpacer.classList.add('hidden');
+                
+                // Restaurar alineación a la izquierda y margen del icono
+                itemContents.forEach(content => {
+                    content.classList.remove('md:justify-center');
+                    content.classList.add('justify-start');
+                });
+                icons.forEach(icon => {
+                    icon.classList.add('md:mr-3');
+                });
+                
+                // Guardar estado
+                localStorage.setItem('sidebarCollapsed', false);
+            } else {
+                // Colapsar
+                sidebar.classList.remove('md:w-64');
+                sidebar.classList.add('md:w-16');
+                mainContent.classList.remove('md:ml-64');
+                mainContent.classList.add('md:ml-16');
+                // Ocultar textos y logo, mostrar espaciadores
+                const labels = sidebar.querySelectorAll('.sidebar-label');
+                const logo = sidebar.querySelector('.sidebar-logo');
+                const subtitle = sidebar.querySelector('.sidebar-subtitle');
+                const logoSpacer = sidebar.querySelector('.sidebar-spacer');
+                const subtitleSpacer = sidebar.querySelector('.sidebar-subtitle-spacer');
+                const itemContents = sidebar.querySelectorAll('.sidebar-item-content');
+                const icons = sidebar.querySelectorAll('.sidebar-item-content svg');
+                
+                labels.forEach(label => label.classList.add('hidden'));
+                if (logo) logo.classList.add('hidden');
+                if (subtitle) subtitle.classList.add('hidden');
+                if (logoSpacer) logoSpacer.classList.remove('hidden');
+                if (subtitleSpacer) subtitleSpacer.classList.remove('hidden');
+                
+                // Centrar iconos y quitar margen
+                itemContents.forEach(content => {
+                    content.classList.remove('justify-start');
+                    content.classList.add('md:justify-center');
+                });
+                icons.forEach(icon => {
+                    icon.classList.remove('md:mr-3');
+                });
+                
+                // Guardar estado
+                localStorage.setItem('sidebarCollapsed', true);
+            }
         });
     </script>
+    
+    <!-- Script para auto-ocultar alertas -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-ocultar alertas después de 5 segundos
+            const alerts = ['success-alert', 'error-alert', 'validation-errors'];
+            alerts.forEach(alertId => {
+                const alert = document.getElementById(alertId);
+                if (alert) {
+                    setTimeout(() => {
+                        alert.style.opacity = '0';
+                        setTimeout(() => {
+                            alert.style.display = 'none';
+                        }, 300);
+                    }, 5000);
+                }
+            });
+        });
+    </script>
+    
+    @stack('scripts')
 </body>
 </html>

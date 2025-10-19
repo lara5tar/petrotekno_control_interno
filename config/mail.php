@@ -47,6 +47,12 @@ return [
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+            'verify_peer' => false,
+        ],
+
+        'resend' => [
+            'transport' => 'resend',
         ],
 
         'ses' => [
@@ -82,7 +88,7 @@ return [
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
-                'smtp',
+                'resend',
                 'log',
             ],
             'retry_after' => 60,
@@ -91,8 +97,8 @@ return [
         'roundrobin' => [
             'transport' => 'roundrobin',
             'mailers' => [
-                'ses',
-                'postmark',
+                'resend',
+                'log',
             ],
             'retry_after' => 60,
         ],
