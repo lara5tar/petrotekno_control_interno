@@ -149,7 +149,7 @@
                             <input type="text" 
                                    name="propietario" 
                                    id="propietario" 
-                                   placeholder="Ej: Petrotekno S.A. de C.V." 
+                                   placeholder="Ej: Transportes López S.A. de C.V." 
                                    value="{{ old('propietario') }}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-petroyellow focus:border-petroyellow @error('propietario') border-red-500 @enderror">
                             @error('propietario') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
