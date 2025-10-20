@@ -258,6 +258,63 @@
             </div>
         </div>
 
+        {{-- Información Laboral --}}
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                </svg>
+                Información Laboral
+            </h3>
+            <p class="text-sm text-gray-500 mb-6">Fechas de inicio y término laboral (Opcional)</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {{-- Fecha y Documento de Inicio Laboral --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio Laboral</label>
+                    <div class="space-y-2">
+                        <input type="date" name="fecha_inicio_laboral" 
+                               value="{{ old('fecha_inicio_laboral') }}"
+                               class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">
+                        <div class="relative">
+                            <input type="file" name="archivo_inicio_laboral" accept=".pdf,.jpg,.jpeg,.png" 
+                                   class="hidden" id="archivo_inicio_laboral" x-on:change="handleFileInput($event, 'inicioLaboral')">
+                            <label for="archivo_inicio_laboral" 
+                                   class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
+                                <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <span class="text-base">Subir Documento de Inicio</span>
+                            </label>
+                            <p class="text-xs text-gray-500 text-center mt-2" x-text="fileStatus.inicioLaboral || 'PDF, PNG, JPG (máx. 10MB)'"></p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Fecha y Documento de Término Laboral --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Término Laboral</label>
+                    <div class="space-y-2">
+                        <input type="date" name="fecha_termino_laboral" 
+                               value="{{ old('fecha_termino_laboral') }}"
+                               class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">
+                        <div class="relative">
+                            <input type="file" name="archivo_termino_laboral" accept=".pdf,.jpg,.jpeg,.png" 
+                                   class="hidden" id="archivo_termino_laboral" x-on:change="handleFileInput($event, 'terminoLaboral')">
+                            <label for="archivo_termino_laboral" 
+                                   class="cursor-pointer inline-flex items-center justify-center w-full px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-petroyellow transition-colors">
+                                <svg class="h-8 w-8 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <span class="text-base">Subir Documento de Término</span>
+                            </label>
+                            <p class="text-xs text-gray-500 text-center mt-2" x-text="fileStatus.terminoLaboral || 'PDF, PNG, JPG (máx. 10MB)'"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- Acceso al Sistema --}}
         <div class="bg-white border border-gray-200 rounded-lg p-6">
             <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-3 mb-6">
@@ -364,6 +421,8 @@
             return {
                 crearUsuario: false,
                 fileStatus: {
+                    inicioLaboral: '',
+                    terminoLaboral: '',
                     ine: '',
                     curp: '',
                     rfc: '',
@@ -400,6 +459,8 @@
                         
                         // Validar tipo de archivo según el campo
                         const allowedTypes = {
+                            'inicioLaboral': ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],
+                            'terminoLaboral': ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],
                             'ine': ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],
                             'curp': ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],
                             'rfc': ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'],

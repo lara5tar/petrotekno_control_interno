@@ -15,6 +15,24 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $nombre_completo
  * @property string $estatus
  * @property int $categoria_id
+ * @property string|null $curp_numero
+ * @property string|null $rfc
+ * @property string|null $nss
+ * @property string|null $no_licencia
+ * @property string|null $direccion
+ * @property string|null $ine
+ * @property string|null $url_ine
+ * @property string|null $url_curp
+ * @property string|null $url_rfc
+ * @property string|null $url_nss
+ * @property string|null $url_licencia
+ * @property string|null $url_comprobante_domicilio
+ * @property string|null $url_cv
+ * @property \Illuminate\Support\Carbon|null $fecha_inicio_laboral
+ * @property string|null $url_inicio_laboral
+ * @property \Illuminate\Support\Carbon|null $fecha_termino_laboral
+ * @property string|null $url_termino_laboral
+ * @property string|null $cuenta_bancaria
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -74,12 +92,27 @@ class Personal extends Model
         'url_licencia',
         'url_comprobante_domicilio',
         'url_cv',
+        'fecha_inicio_laboral',
+        'url_inicio_laboral',
+        'fecha_termino_laboral',
+        'url_termino_laboral',
+        'cuenta_bancaria',
     ];
 
     /**
      * @var array<string>
      */
     protected $dates = ['deleted_at'];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'fecha_inicio_laboral' => 'date',
+        'fecha_termino_laboral' => 'date',
+    ];
 
     /**
      * Estados válidos para personal

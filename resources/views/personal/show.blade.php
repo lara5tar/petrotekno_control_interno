@@ -239,6 +239,93 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Fechas Laborales --}}
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Fecha de Inicio Laboral -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Fecha de Inicio Laboral</label>
+                            <div class="flex items-center space-x-2">
+                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                    {{ $personal->fecha_inicio_laboral ? $personal->fecha_inicio_laboral->format('d/m/Y') : 'No registrado' }}
+                                </div>
+                                @if($personal->url_inicio_laboral)
+                                    <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                            onclick="viewPersonalDocument('{{ asset('storage/' . $personal->url_inicio_laboral) }}')"
+                                            title="Ver documento de inicio laboral">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                        </svg>
+                                    </button>
+                                @else
+                                    <span class="bg-red-600 text-white p-2 rounded text-sm text-xs">
+                                        Sin archivo
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Fecha de Término Laboral -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">Fecha de Término Laboral</label>
+                            <div class="flex items-center space-x-2">
+                                <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium flex-1">
+                                    {{ $personal->fecha_termino_laboral ? $personal->fecha_termino_laboral->format('d/m/Y') : 'No registrado' }}
+                                </div>
+                                @if($personal->url_termino_laboral)
+                                    <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded text-sm transition duration-200 flex items-center" 
+                                            onclick="viewPersonalDocument('{{ asset('storage/' . $personal->url_termino_laboral) }}')"
+                                            title="Ver documento de término laboral">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                        </svg>
+                                    </button>
+                                @else
+                                    <span class="bg-red-600 text-white p-2 rounded text-sm text-xs">
+                                        Sin archivo
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Antigüedad (si hay fecha de inicio) --}}
+                    @if($personal->fecha_inicio_laboral)
+                        <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-700">Antigüedad</span>
+                                </div>
+                                <span class="text-sm font-bold text-blue-700">
+                                    @php
+                                        $fechaInicio = $personal->fecha_inicio_laboral;
+                                        $fechaFin = $personal->fecha_termino_laboral ?? now();
+                                        $diff = $fechaInicio->diff($fechaFin);
+                                        
+                                        $years = $diff->y;
+                                        $months = $diff->m;
+                                        $days = $diff->d;
+                                        
+                                        $antiguedad = [];
+                                        if ($years > 0) {
+                                            $antiguedad[] = $years . ($years == 1 ? ' año' : ' años');
+                                        }
+                                        if ($months > 0) {
+                                            $antiguedad[] = $months . ($months == 1 ? ' mes' : ' meses');
+                                        }
+                                        if ($days > 0 && $years == 0) {
+                                            $antiguedad[] = $days . ($days == 1 ? ' día' : ' días');
+                                        }
+                                        
+                                        echo !empty($antiguedad) ? implode(', ', $antiguedad) : 'Menos de un día';
+                                    @endphp
+                                </span>
+                            </div>
+                        </div>
+                    @endif
                     
 
                 </div>
@@ -561,7 +648,55 @@
                                         :documentId="$tieneDocumentoCV ? $documentoCV->id : null"
                                         :directUrl="$urlCV"
                                     />
-                                </ul>
+
+                                <!-- Documento de Inicio Laboral -->
+                                @php
+                                    $documentoInicioLaboral = $documentosPorTipo['inicio_laboral'] ?? $documentosPorTipo['Documento de Inicio Laboral'] ?? null;
+                                    $tieneDocumentoInicioLaboral = !is_null($documentoInicioLaboral) && is_object($documentoInicioLaboral);
+                                    $urlInicioLaboral = $personal->url_inicio_laboral ?? null;
+                                    $tieneFechaInicio = !empty($personal->fecha_inicio_laboral);
+                                    
+                                    $subtitleInicioLaboral = null;
+                                    if($tieneFechaInicio || $tieneDocumentoInicioLaboral || $urlInicioLaboral) {
+                                        $subtitleInicioLaboral = '<p class="text-xs text-gray-500">Fecha: ' . ($personal->fecha_inicio_laboral ? $personal->fecha_inicio_laboral->format('d/m/Y') : 'No registrada') . '</p>';
+                                        if($tieneDocumentoInicioLaboral && isset($documentoInicioLaboral->descripcion)) {
+                                            $subtitleInicioLaboral .= '<p class="text-xs text-gray-500">' . e($documentoInicioLaboral->descripcion) . '</p>';
+                                        }
+                                    }
+                                @endphp
+                                
+                                <x-document-field 
+                                    title="Documento de Inicio Laboral"
+                                    :subtitle="$subtitleInicioLaboral"
+                                    :hasDocument="$tieneDocumentoInicioLaboral"
+                                    :documentId="$tieneDocumentoInicioLaboral ? $documentoInicioLaboral->id : null"
+                                    :directUrl="$urlInicioLaboral"
+                                />
+
+                                <!-- Documento de Término Laboral -->
+                                @php
+                                    $documentoTerminoLaboral = $documentosPorTipo['termino_laboral'] ?? $documentosPorTipo['Documento de Término Laboral'] ?? null;
+                                    $tieneDocumentoTerminoLaboral = !is_null($documentoTerminoLaboral) && is_object($documentoTerminoLaboral);
+                                    $urlTerminoLaboral = $personal->url_termino_laboral ?? null;
+                                    $tieneFechaTermino = !empty($personal->fecha_termino_laboral);
+                                    
+                                    $subtitleTerminoLaboral = null;
+                                    if($tieneFechaTermino || $tieneDocumentoTerminoLaboral || $urlTerminoLaboral) {
+                                        $subtitleTerminoLaboral = '<p class="text-xs text-gray-500">Fecha: ' . ($personal->fecha_termino_laboral ? $personal->fecha_termino_laboral->format('d/m/Y') : 'No registrada') . '</p>';
+                                        if($tieneDocumentoTerminoLaboral && isset($documentoTerminoLaboral->descripcion)) {
+                                            $subtitleTerminoLaboral .= '<p class="text-xs text-gray-500">' . e($documentoTerminoLaboral->descripcion) . '</p>';
+                                        }
+                                    }
+                                @endphp
+                                
+                                <x-document-field 
+                                    title="Documento de Término Laboral"
+                                    :subtitle="$subtitleTerminoLaboral"
+                                    :hasDocument="$tieneDocumentoTerminoLaboral"
+                                    :documentId="$tieneDocumentoTerminoLaboral ? $documentoTerminoLaboral->id : null"
+                                    :directUrl="$urlTerminoLaboral"
+                                />
+                            </ul>
                         </div>
                     </div>
                 </div>

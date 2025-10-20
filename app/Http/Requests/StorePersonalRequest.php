@@ -91,7 +91,38 @@ class StorePersonalRequest extends FormRequest
                 'string'
             ],
 
+            // Fechas laborales
+            'fecha_inicio_laboral' => [
+                'nullable',
+                'date'
+            ],
+            'fecha_termino_laboral' => [
+                'nullable',
+                'date',
+                function ($attribute, $value, $fail) {
+                    if ($value && request('fecha_inicio_laboral')) {
+                        $fechaInicio = \Carbon\Carbon::parse(request('fecha_inicio_laboral'));
+                        $fechaTermino = \Carbon\Carbon::parse($value);
+                        if ($fechaTermino->lt($fechaInicio)) {
+                            $fail('La fecha de término laboral debe ser igual o posterior a la fecha de inicio.');
+                        }
+                    }
+                }
+            ],
+
             // Archivos de documentos
+            'archivo_inicio_laboral' => [
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:10240' // 10MB
+            ],
+            'archivo_termino_laboral' => [
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:10240' // 10MB
+            ],
             'archivo_ine' => [
                 'nullable',
                 'file',
@@ -179,7 +210,20 @@ class StorePersonalRequest extends FormRequest
             // Dirección
             'direccion.max' => 'La dirección no puede exceder 500 caracteres.',
 
+            // Fechas laborales
+            'fecha_inicio_laboral.date' => 'La fecha de inicio laboral debe ser una fecha válida.',
+            'fecha_termino_laboral.date' => 'La fecha de término laboral debe ser una fecha válida.',
+            'fecha_termino_laboral.after_or_equal' => 'La fecha de término laboral debe ser igual o posterior a la fecha de inicio.',
+
             // Archivos
+            'archivo_inicio_laboral.file' => 'Debe seleccionar un archivo válido para el documento de inicio laboral.',
+            'archivo_inicio_laboral.mimes' => 'El archivo de inicio laboral debe ser PDF, JPG, JPEG o PNG.',
+            'archivo_inicio_laboral.max' => 'El archivo de inicio laboral no puede exceder 10MB.',
+
+            'archivo_termino_laboral.file' => 'Debe seleccionar un archivo válido para el documento de término laboral.',
+            'archivo_termino_laboral.mimes' => 'El archivo de término laboral debe ser PDF, JPG, JPEG o PNG.',
+            'archivo_termino_laboral.max' => 'El archivo de término laboral no puede exceder 10MB.',
+
             'archivo_ine.file' => 'Debe seleccionar un archivo válido para la identificación.',
             'archivo_ine.mimes' => 'El archivo de identificación debe ser PDF, JPG, JPEG o PNG.',
             'archivo_ine.max' => 'El archivo de identificación no puede exceder 10MB.',
@@ -234,6 +278,10 @@ class StorePersonalRequest extends FormRequest
             'nss' => 'NSS',
             'no_licencia' => 'número de licencia',
             'direccion' => 'dirección',
+            'fecha_inicio_laboral' => 'fecha de inicio laboral',
+            'fecha_termino_laboral' => 'fecha de término laboral',
+            'archivo_inicio_laboral' => 'archivo de inicio laboral',
+            'archivo_termino_laboral' => 'archivo de término laboral',
             'archivo_ine' => 'archivo de identificación',
             'archivo_curp' => 'archivo del CURP',
             'archivo_rfc' => 'archivo del RFC',

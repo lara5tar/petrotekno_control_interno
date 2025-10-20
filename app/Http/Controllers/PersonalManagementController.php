@@ -32,6 +32,8 @@ class PersonalManagementController extends Controller
             $documentosData = [];
             $urlsPersonal = []; // URLs que se incluirán directamente en la creación del personal
             $tiposDocumento = [
+                'archivo_inicio_laboral' => 17,  // Documento de Inicio Laboral
+                'archivo_termino_laboral' => 18, // Documento de Término Laboral
                 'identificacion_file' => 9,    // INE - Identificación Oficial
                 'curp_file' => 10,             // CURP
                 'rfc_file' => 11,              // RFC
@@ -54,6 +56,8 @@ class PersonalManagementController extends Controller
 
                     // Obtener el número de identificación correspondiente según el tipo de documento
                     $descripcion = match ($requestKey) {
+                        'archivo_inicio_laboral' => $request->input('fecha_inicio_laboral') ? 'Inicio Laboral: ' . $request->input('fecha_inicio_laboral') : 'Documento de Inicio Laboral',
+                        'archivo_termino_laboral' => $request->input('fecha_termino_laboral') ? 'Término Laboral: ' . $request->input('fecha_termino_laboral') : 'Documento de Término Laboral',
                         'identificacion_file' => $request->input('ine'),
                         'curp_file' => $request->input('curp_numero'),
                         'rfc_file' => $request->input('rfc'),
@@ -77,6 +81,8 @@ class PersonalManagementController extends Controller
 
                     // Mapear URLs para incluir en la creación del personal (solo ruta relativa)
                     $urlField = match ($requestKey) {
+                        'archivo_inicio_laboral' => 'url_inicio_laboral',
+                        'archivo_termino_laboral' => 'url_termino_laboral',
                         'identificacion_file' => 'url_ine',
                         'curp_file' => 'url_curp',
                         'rfc_file' => 'url_rfc',
@@ -111,6 +117,8 @@ class PersonalManagementController extends Controller
                 'nss' => $validatedData['nss'] ?? null,
                 'no_licencia' => $validatedData['no_licencia'] ?? null,
                 'direccion' => $validatedData['direccion'] ?? null,
+                'fecha_inicio_laboral' => $validatedData['fecha_inicio_laboral'] ?? null,
+                'fecha_termino_laboral' => $validatedData['fecha_termino_laboral'] ?? null,
             ];
 
             // Agregar las URLs de los archivos al personal
@@ -280,6 +288,10 @@ class PersonalManagementController extends Controller
             'url_licencia' => $data['url_licencia'] ?? null,
             'direccion' => $data['direccion'] ?? null,
             'url_comprobante_domicilio' => $data['url_comprobante_domicilio'] ?? null,
+            'fecha_inicio_laboral' => $data['fecha_inicio_laboral'] ?? null,
+            'url_inicio_laboral' => $data['url_inicio_laboral'] ?? null,
+            'fecha_termino_laboral' => $data['fecha_termino_laboral'] ?? null,
+            'url_termino_laboral' => $data['url_termino_laboral'] ?? null,
         ]);
     }
 

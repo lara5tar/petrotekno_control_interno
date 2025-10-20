@@ -89,6 +89,25 @@ class CreatePersonalRequest extends FormRequest
                 'max:500'
             ],
 
+            // Fechas laborales
+            'fecha_inicio_laboral' => [
+                'nullable',
+                'date'
+            ],
+            'fecha_termino_laboral' => [
+                'nullable',
+                'date',
+                function ($attribute, $value, $fail) {
+                    if ($value && request('fecha_inicio_laboral')) {
+                        $fechaInicio = \Carbon\Carbon::parse(request('fecha_inicio_laboral'));
+                        $fechaTermino = \Carbon\Carbon::parse($value);
+                        if ($fechaTermino->lt($fechaInicio)) {
+                            $fail('La fecha de término laboral debe ser igual o posterior a la fecha de inicio.');
+                        }
+                    }
+                }
+            ],
+
             // INE
             'ine' => [
                 'nullable',
@@ -136,6 +155,18 @@ class CreatePersonalRequest extends FormRequest
             ],
 
             // Archivos de documentos
+            'archivo_inicio_laboral' => [
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:10240' // 10MB
+            ],
+            'archivo_termino_laboral' => [
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:10240' // 10MB
+            ],
             'identificacion_file' => [
                 'nullable',
                 'file',

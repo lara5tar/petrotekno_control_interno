@@ -74,6 +74,24 @@ class UpdatePersonalRequest extends FormRequest
                 'max:20',
                 'regex:/^[A-Z0-9]+$/'
             ],
+            // Fechas laborales
+            'fecha_inicio_laboral' => [
+                'nullable',
+                'date'
+            ],
+            'fecha_termino_laboral' => [
+                'nullable',
+                'date',
+                function ($attribute, $value, $fail) {
+                    if ($value && request('fecha_inicio_laboral')) {
+                        $fechaInicio = \Carbon\Carbon::parse(request('fecha_inicio_laboral'));
+                        $fechaTermino = \Carbon\Carbon::parse($value);
+                        if ($fechaTermino->lt($fechaInicio)) {
+                            $fail('La fecha de término laboral debe ser igual o posterior a la fecha de inicio.');
+                        }
+                    }
+                }
+            ],
             'url_ine' => [
                 'nullable',
                 'string',
@@ -195,6 +213,18 @@ class UpdatePersonalRequest extends FormRequest
                 'mimes:pdf,doc,docx',
                 'max:10240' // 10MB
             ],
+            'archivo_inicio_laboral' => [
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:10240' // 10MB
+            ],
+            'archivo_termino_laboral' => [
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:10240' // 10MB
+            ],
             // Campos de usuario (opcionales)
             'crear_usuario' => [
                 'nullable',
@@ -246,7 +276,14 @@ class UpdatePersonalRequest extends FormRequest
             'comprobante_file.mimes' => 'El archivo del comprobante debe ser PDF, JPG, JPEG o PNG.',
             'comprobante_file.max' => 'El archivo del comprobante no puede exceder 5MB.',
             'cv_file.mimes' => 'El archivo del CV debe ser PDF, DOC o DOCX.',
-            'cv_file.max' => 'El archivo del CV no puede exceder 10MB.'
+            'cv_file.max' => 'El archivo del CV no puede exceder 10MB.',
+            'fecha_inicio_laboral.date' => 'La fecha de inicio laboral debe ser una fecha válida.',
+            'fecha_termino_laboral.date' => 'La fecha de término laboral debe ser una fecha válida.',
+            'fecha_termino_laboral.after_or_equal' => 'La fecha de término laboral debe ser igual o posterior a la fecha de inicio.',
+            'archivo_inicio_laboral.mimes' => 'El archivo de inicio laboral debe ser PDF, JPG, JPEG o PNG.',
+            'archivo_inicio_laboral.max' => 'El archivo de inicio laboral no puede exceder 10MB.',
+            'archivo_termino_laboral.mimes' => 'El archivo de término laboral debe ser PDF, JPG, JPEG o PNG.',
+            'archivo_termino_laboral.max' => 'El archivo de término laboral no puede exceder 10MB.'
         ];
     }
 
@@ -266,7 +303,11 @@ class UpdatePersonalRequest extends FormRequest
             'nss_file' => 'archivo del NSS',
             'licencia_file' => 'archivo de la licencia',
             'comprobante_file' => 'archivo del comprobante',
-            'cv_file' => 'archivo del CV'
+            'cv_file' => 'archivo del CV',
+            'fecha_inicio_laboral' => 'fecha de inicio laboral',
+            'fecha_termino_laboral' => 'fecha de término laboral',
+            'archivo_inicio_laboral' => 'archivo de inicio laboral',
+            'archivo_termino_laboral' => 'archivo de término laboral'
         ];
     }
 }

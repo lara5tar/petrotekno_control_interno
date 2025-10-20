@@ -141,6 +141,8 @@ class PersonalController extends Controller
 
             // Log para debugging
             \Log::info('Datos validados recibidos:', ['validated' => $validated]);
+            \Log::info('Fecha inicio laboral:', ['fecha_inicio_laboral' => $validated['fecha_inicio_laboral'] ?? 'NO PRESENTE']);
+            \Log::info('Fecha termino laboral:', ['fecha_termino_laboral' => $validated['fecha_termino_laboral'] ?? 'NO PRESENTE']);
 
             // Crear el personal con los datos básicos primero - usando nombres exactos de la BD
             $personal = Personal::create([
@@ -153,10 +155,16 @@ class PersonalController extends Controller
                 'nss' => $validated['nss'] ?? null,
                 'no_licencia' => $validated['no_licencia'] ?? null,
                 'direccion' => $validated['direccion'] ?? null,
+                'fecha_inicio_laboral' => $validated['fecha_inicio_laboral'] ?? null,
+                'fecha_termino_laboral' => $validated['fecha_termino_laboral'] ?? null,
             ]);
+
+            \Log::info('Personal creado:', ['personal' => $personal->toArray()]);
 
             // Procesar archivos de documentos
             $archivosConfig = [
+                'archivo_inicio_laboral' => ['tipo_id' => 17, 'campo_url' => 'url_inicio_laboral', 'contenido' => 'Documento de Inicio Laboral'],
+                'archivo_termino_laboral' => ['tipo_id' => 18, 'campo_url' => 'url_termino_laboral', 'contenido' => 'Documento de Término Laboral'],
                 'archivo_ine' => ['tipo_id' => 9, 'campo_url' => 'url_ine', 'contenido' => 'Identificación Oficial (INE)'],
                 'archivo_curp' => ['tipo_id' => 10, 'campo_url' => 'url_curp', 'contenido' => 'CURP'],
                 'archivo_rfc' => ['tipo_id' => 11, 'campo_url' => 'url_rfc', 'contenido' => 'RFC'],
@@ -496,10 +504,14 @@ class PersonalController extends Controller
                 'nss' => $validated['nss'] ?? $personal->nss,
                 'no_licencia' => $validated['numero_licencia'] ?? $personal->no_licencia,
                 'direccion' => $validated['direccion_completa'] ?? $personal->direccion,
+                'fecha_inicio_laboral' => $validated['fecha_inicio_laboral'] ?? $personal->fecha_inicio_laboral,
+                'fecha_termino_laboral' => $validated['fecha_termino_laboral'] ?? $personal->fecha_termino_laboral,
             ]);
 
             // Manejar archivos de documentos
             $archivosConfig = [
+                'archivo_inicio_laboral' => ['tipo_id' => 17, 'campo_url' => 'url_inicio_laboral', 'contenido' => 'Documento de Inicio Laboral'],
+                'archivo_termino_laboral' => ['tipo_id' => 18, 'campo_url' => 'url_termino_laboral', 'contenido' => 'Documento de Término Laboral'],
                 'archivo_ine' => ['tipo_id' => 9, 'campo_url' => 'url_ine', 'contenido' => 'Identificación Oficial (INE)'],
                 'archivo_curp' => ['tipo_id' => 10, 'campo_url' => 'url_curp', 'contenido' => 'CURP'],
                 'archivo_rfc' => ['tipo_id' => 11, 'campo_url' => 'url_rfc', 'contenido' => 'RFC'],
