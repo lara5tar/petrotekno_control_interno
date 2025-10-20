@@ -153,7 +153,7 @@
     <table class="pdf-table">
         <thead>
             <tr>
-                <th style="width: 4%">#</th>
+                <th style="width: 6%">ID</th>
                 <th style="width: 8%;">Fecha</th>
                 <th style="width: 15%;">Vehículo</th>
                 <th style="width: 8%;">Placas</th>
@@ -167,7 +167,7 @@
         <tbody>
             @forelse($mantenimientos as $index => $mantenimiento)
                 <tr>
-                    <td class="text-center">{{ $loop->iteration }}</td>
+                    <td class="text-center">{{ str_pad($mantenimiento->id, 4, '0', STR_PAD_LEFT) }}</td>
                     <td class="text-center font-small">
                         {{ $mantenimiento->fecha_inicio ? $mantenimiento->fecha_inicio->format('d/m/Y') : 'N/A' }}
                         @if($mantenimiento->fecha_fin)

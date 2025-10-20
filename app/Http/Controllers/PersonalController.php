@@ -788,8 +788,8 @@ class PersonalController extends Controller
         $personal = $query->orderBy('id')->limit(10000)->get();
 
         // Preparar datos para Excel
-        $data = [];
-        $data[] = ['ID', 'Nombre Completo', 'Categoría', 'RFC', 'CURP', 'NSS', 'INE', 'Licencia', 'Dirección', 'Estado', 'Fecha Registro'];
+    $data = [];
+    $data[] = ['id', 'Nombre Completo', 'Categoría', 'RFC', 'CURP', 'NSS', 'INE', 'Licencia', 'Dirección', 'Estado', 'Fecha Registro'];
         
         foreach ($personal as $persona) {
             $data[] = [

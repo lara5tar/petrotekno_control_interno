@@ -119,7 +119,7 @@
             <table class="pdf-table">
                 <thead>
                     <tr>
-                        <th style="width: 5%">ID</th>
+                        <th style="width: 5%">id</th>
                         <th style="width: 25%">Nombre de la Obra</th>
                         <th style="width: 10%">Fecha Inicio</th>
                         <th style="width: 10%">Fecha Fin</th>

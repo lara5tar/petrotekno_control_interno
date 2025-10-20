@@ -54,7 +54,7 @@ class MantenimientosSheet implements FromCollection, WithHeadings, WithMapping, 
     public function headings(): array
     {
         return [
-            'ID',
+            'id',
             'Fecha Inicio',
             'Fecha Fin',
             'Vehículo',

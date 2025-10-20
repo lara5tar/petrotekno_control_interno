@@ -26,6 +26,7 @@ class HistorialOperadorExport implements FromCollection, WithHeadings, WithMappi
     public function headings(): array
     {
         return [
+            'id',
             'Fecha',
             'Tipo',
             'Activo',
@@ -40,6 +41,7 @@ class HistorialOperadorExport implements FromCollection, WithHeadings, WithMappi
     public function map($asignacion): array
     {
         return [
+            $asignacion->id,
             $asignacion->created_at ? $asignacion->created_at->format('d/m/Y') : 'N/A',
             'Asignación',
             $asignacion->vehiculo ? $asignacion->vehiculo->marca . ' ' . $asignacion->vehiculo->modelo : 'N/A',

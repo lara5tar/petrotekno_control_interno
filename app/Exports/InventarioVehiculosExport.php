@@ -26,7 +26,7 @@ class InventarioVehiculosExport implements FromCollection, WithHeadings, WithMap
     public function headings(): array
     {
         return [
-            '#',
+            'id',
             'Marca/Modelo',
             'Año',
             'Placas',

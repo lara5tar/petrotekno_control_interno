@@ -26,6 +26,7 @@ class MantenimientosExport implements FromCollection, WithHeadings, WithMapping,
     public function headings(): array
     {
         return [
+            'ID',
             'Fecha',
             'Activo',
             'Ubicación',
@@ -54,8 +55,8 @@ class MantenimientosExport implements FromCollection, WithHeadings, WithMapping,
         } else {
             $ubicacion = 'Sin ubicación';
         }
-
         return [
+            str_pad($mantenimiento->id, 4, '0', STR_PAD_LEFT),
             $mantenimiento->fecha_inicio ? $mantenimiento->fecha_inicio->format('d/m/Y') : 'N/A',
             $mantenimiento->vehiculo ? $mantenimiento->vehiculo->marca . ' ' . $mantenimiento->vehiculo->modelo : 'N/A',
             $ubicacion,

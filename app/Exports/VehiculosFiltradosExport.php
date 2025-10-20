@@ -42,7 +42,7 @@ class VehiculosFiltradosExport implements FromCollection, WithHeadings, WithMapp
     public function headings(): array
     {
         return [
-            'ID',
+            'id',
             'Marca',
             'Modelo',
             'Año',

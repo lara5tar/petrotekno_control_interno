@@ -26,7 +26,7 @@ class KilometrajesExport implements FromCollection, WithHeadings, WithMapping, W
     public function headings(): array
     {
         return [
-            '#',
+            'id',
             'Kilometraje',
             'Fecha',
             'Combustible',

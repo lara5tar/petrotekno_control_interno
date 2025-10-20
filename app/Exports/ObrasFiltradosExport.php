@@ -54,7 +54,7 @@ class ObrasSheet implements FromCollection, WithHeadings, WithMapping, WithStyle
     public function headings(): array
     {
         return [
-            'ID',
+            'id',
             'Nombre de la Obra',
             'Fecha Inicio',
             'Fecha Fin',

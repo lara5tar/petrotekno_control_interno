@@ -75,7 +75,7 @@
         <table class="pdf-table">
             <thead>
                 <tr>
-                    <th style="width: 8%">#</th>
+                    <th style="width: 8%">id</th>
                     <th style="width: 15%;">Kilometraje</th>
                     <th style="width: 15%;">Fecha</th>
                     <th style="width: 15%;">Combustible</th>
@@ -85,7 +85,6 @@
                 </tr>
             </thead>
             <tbody>
-                @php $contador = 1; @endphp
                 @foreach($kilometrajesPorVehiculo as $vehiculoId => $registrosVehiculo)
                     @php
                         $vehiculo = $registrosVehiculo->first()->vehiculo;
@@ -110,7 +109,7 @@
                     
                     @foreach($registrosVehiculo->sortByDesc('created_at_registro') as $kilometraje)
                         <tr>
-                            <td class="text-center">{{ $contador++ }}</td>
+                            <td class="text-center">{{ $kilometraje->id }}</td>
                             <td class="text-center">
                                 <span class="text-bold">{{ number_format($kilometraje->kilometraje) }} km</span>
                             </td>

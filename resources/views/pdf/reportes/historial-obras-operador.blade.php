@@ -111,7 +111,7 @@
     <table class="pdf-table">
         <thead>
             <tr>
-                <th style="width: 5%;">#</th>
+                <th style="width: 5%;">id</th>
                 <th style="width: 18%;">Obra</th>
                 <th style="width: 16%;">Activo</th>
                 <th style="width: 10%;">Ubicación</th>
@@ -126,7 +126,7 @@
         <tbody>
             @forelse($asignaciones as $index => $asignacion)
                 <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
+                    <td class="text-center">{{ $asignacion->id }}</td>
                     <td class="text-bold">
                         <div>{{ $asignacion->obra->nombre_obra ?? 'N/A' }}</div>
                         @if($asignacion->obra && $asignacion->obra->cliente)

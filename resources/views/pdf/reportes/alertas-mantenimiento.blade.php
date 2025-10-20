@@ -140,7 +140,7 @@
     <table class="pdf-table">
         <thead>
             <tr>
-                <th style="width: 5%;">#</th>
+                <th style="width: 5%;">id</th>
                 <th style="width: 16%;">Activo</th>
                 <th style="width: 10%;">Ubicación</th>
                 <th style="width: 10%;">Tipo Mantenimiento</th>
@@ -156,7 +156,7 @@
         <tbody>
             @forelse($alertas as $index => $alerta)
                 <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
+                    <td class="text-center">{{ $alerta['vehiculo_id'] }}</td>
                     <td>
                         <div class="text-bold">{{ $alerta['vehiculo_info']['nombre_completo'] ?? 'N/A' }}</div>
                         <div class="font-small text-muted">

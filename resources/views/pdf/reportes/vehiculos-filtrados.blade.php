@@ -87,7 +87,7 @@
     <table class="pdf-table">
         <thead>
             <tr>
-                <th style="width: 5%">#</th>
+                <th style="width: 5%;">id</th>
                 <th style="width: 12%;">Marca/Modelo</th>
                 <th style="width: 10%;">Tipo</th>
                 <th style="width: 6%;">Año</th>
@@ -102,7 +102,7 @@
         <tbody>
             @forelse($vehiculos as $index => $vehiculo)
                 <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
+                    <td class="text-center">{{ $vehiculo->id }}</td>
                     <td class="text-bold">
                         {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
                     </td>

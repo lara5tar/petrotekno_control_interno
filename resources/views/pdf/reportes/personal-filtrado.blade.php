@@ -179,7 +179,7 @@
     <table class="personal-table">
         <thead>
             <tr>
-                <th class="col-id">ID</th>
+                <th class="col-id">id</th>
                 <th class="col-nombre">Nombre Completo</th>
                 <th class="col-categoria">Categoría</th>
                 <th class="col-rfc">RFC</th>

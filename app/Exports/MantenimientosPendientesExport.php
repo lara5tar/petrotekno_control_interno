@@ -26,7 +26,7 @@ class MantenimientosPendientesExport implements FromCollection, WithHeadings, Wi
     public function headings(): array
     {
         return [
-            '#',
+            'id',
             'Fecha Inicio',
             'Tipo Servicio',
             'Activo',

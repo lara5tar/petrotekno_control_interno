@@ -34,7 +34,7 @@ class HistorialObrasExport implements FromCollection, WithHeadings, WithMapping,
             'Estado',
             'Kilometraje',
             'Duración',
-            'ID'
+            'id'
         ];
     }
 
