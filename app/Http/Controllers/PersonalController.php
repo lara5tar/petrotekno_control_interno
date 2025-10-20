@@ -155,6 +155,7 @@ class PersonalController extends Controller
                 'nss' => $validated['nss'] ?? null,
                 'no_licencia' => $validated['no_licencia'] ?? null,
                 'direccion' => $validated['direccion'] ?? null,
+                'cuenta_bancaria' => $validated['cuenta_bancaria'] ?? null,
                 'fecha_inicio_laboral' => $validated['fecha_inicio_laboral'] ?? null,
                 'fecha_termino_laboral' => $validated['fecha_termino_laboral'] ?? null,
             ]);
@@ -504,6 +505,7 @@ class PersonalController extends Controller
                 'nss' => $validated['nss'] ?? $personal->nss,
                 'no_licencia' => $validated['numero_licencia'] ?? $personal->no_licencia,
                 'direccion' => $validated['direccion_completa'] ?? $personal->direccion,
+                'cuenta_bancaria' => $validated['cuenta_bancaria'] ?? $personal->cuenta_bancaria,
                 'fecha_inicio_laboral' => $validated['fecha_inicio_laboral'] ?? $personal->fecha_inicio_laboral,
                 'fecha_termino_laboral' => $validated['fecha_termino_laboral'] ?? $personal->fecha_termino_laboral,
             ]);

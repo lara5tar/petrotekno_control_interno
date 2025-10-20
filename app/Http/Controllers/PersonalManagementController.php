@@ -117,6 +117,7 @@ class PersonalManagementController extends Controller
                 'nss' => $validatedData['nss'] ?? null,
                 'no_licencia' => $validatedData['no_licencia'] ?? null,
                 'direccion' => $validatedData['direccion'] ?? null,
+                'cuenta_bancaria' => $validatedData['cuenta_bancaria'] ?? null,
                 'fecha_inicio_laboral' => $validatedData['fecha_inicio_laboral'] ?? null,
                 'fecha_termino_laboral' => $validatedData['fecha_termino_laboral'] ?? null,
             ];
@@ -288,6 +289,7 @@ class PersonalManagementController extends Controller
             'url_licencia' => $data['url_licencia'] ?? null,
             'direccion' => $data['direccion'] ?? null,
             'url_comprobante_domicilio' => $data['url_comprobante_domicilio'] ?? null,
+            'cuenta_bancaria' => $data['cuenta_bancaria'] ?? null,
             'fecha_inicio_laboral' => $data['fecha_inicio_laboral'] ?? null,
             'url_inicio_laboral' => $data['url_inicio_laboral'] ?? null,
             'fecha_termino_laboral' => $data['fecha_termino_laboral'] ?? null,

@@ -89,6 +89,13 @@ class CreatePersonalRequest extends FormRequest
                 'max:500'
             ],
 
+            // Cuenta bancaria
+            'cuenta_bancaria' => [
+                'nullable',
+                'string',
+                'max:50'
+            ],
+
             // Fechas laborales
             'fecha_inicio_laboral' => [
                 'nullable',

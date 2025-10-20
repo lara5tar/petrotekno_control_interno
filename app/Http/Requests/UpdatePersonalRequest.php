@@ -68,6 +68,11 @@ class UpdatePersonalRequest extends FormRequest
                 'string',
                 'max:500'
             ],
+            'cuenta_bancaria' => [
+                'nullable',
+                'string',
+                'max:50'
+            ],
             'ine' => [
                 'nullable',
                 'string',

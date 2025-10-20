@@ -348,7 +348,22 @@
                 </svg>
                 Información Laboral
             </h3>
-            <p class="text-sm text-gray-500 mb-6">Fechas de inicio y término laboral (Opcional)</p>
+            <p class="text-sm text-gray-500 mb-6">Fechas de inicio y término laboral, y cuenta bancaria (Opcional)</p>
+
+            {{-- Cuenta Bancaria --}}
+            <div class="mb-6">
+                <label for="cuenta_bancaria" class="block text-sm font-medium text-gray-700 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                        <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
+                    </svg>
+                    Cuenta Bancaria
+                </label>
+                <input type="text" id="cuenta_bancaria" name="cuenta_bancaria" placeholder="Ej: 123456789012345678" 
+                       value="{{ old('cuenta_bancaria', $personal->cuenta_bancaria ?? '') }}"
+                       class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow">
+                <p class="text-xs text-gray-500 mt-1">Número de cuenta bancaria CLABE (18 dígitos)</p>
+            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {{-- Fecha y Documento de Inicio Laboral --}}
