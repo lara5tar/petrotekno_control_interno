@@ -133,13 +133,13 @@
                             <div class="col-md-3">
                                 <label for="categoria_personal_id" class="form-label">
                                     <i class="fas fa-tags me-1"></i>
-                                    Categoría <span class="text-danger">*</span>
+                                    Puesto <span class="text-danger">*</span>
                                 </label>
                                 <select class="form-select @error('categoria_personal_id') is-invalid @enderror" 
                                         id="categoria_personal_id" 
                                         name="categoria_personal_id" 
                                         required>
-                                    <option value="">Seleccionar categoría</option>
+                                    <option value="">Seleccionar puesto</option>
                                     @foreach($categorias as $categoria)
                                         <option value="{{ $categoria->id }}" 
                                                 {{ old('categoria_personal_id') == $categoria->id ? 'selected' : '' }}>

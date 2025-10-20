@@ -64,6 +64,8 @@ class ReporteController extends Controller
             'vehiculos.estado',
             'vehiculos.municipio',
             'vehiculos.kilometraje_actual',
+            'vehiculos.valor_comercial',
+            'vehiculos.propietario',
             'vehiculos.intervalo_km_motor',
             'vehiculos.intervalo_km_transmision',
             'vehiculos.intervalo_km_hidraulico',

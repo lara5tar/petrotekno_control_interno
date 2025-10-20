@@ -254,9 +254,9 @@
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="block text-sm text-gray-600">Categoría</label>
+                                            <label class="block text-sm text-gray-600">Puesto</label>
                                             <div class="bg-gray-600 text-white px-3 py-2 rounded text-sm font-medium">
-                                                {{ $obra->encargado->categoria ? $obra->encargado->categoria->nombre_categoria : 'Sin categoría' }}
+                                                {{ $obra->encargado->categoria ? $obra->encargado->categoria->nombre_categoria : 'Sin puesto' }}
                                             </div>
                                         </div>
                                     </div>
@@ -1158,7 +1158,7 @@
                         </option>
                     @endforeach
                 </select>
-                <p class="mt-1 text-xs text-gray-500">Selecciona el personal con categoría "Responsable de obra" para supervisión del proyecto</p>
+                <p class="mt-1 text-xs text-gray-500">Selecciona el personal para supervisión del proyecto</p>
             </div>
             
 

@@ -178,7 +178,7 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>Operador</th>
-                                        <th>Categoría</th>
+                                        <th>Puesto</th>
                                         <th>Estado</th>
                                         <th>Total Asignaciones</th>
                                         <th>Vehículo Actual</th>
@@ -210,7 +210,7 @@
                                             </td>
                                             <td>
                                                 <span class="badge bg-info">
-                                                    {{ $operador->categoria->nombre_categoria ?? 'Sin categoría' }}
+                                                    {{ $operador->categoria->nombre_categoria ?? 'Sin puesto' }}
                                                 </span>
                                             </td>
                                             <td>

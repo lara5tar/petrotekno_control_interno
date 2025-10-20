@@ -211,7 +211,7 @@
                             @foreach($encargados as $encargado)
                                 <option value="{{ $encargado['id'] }}" {{ old('encargado_id', $obra->encargado_id) == $encargado['id'] ? 'selected' : '' }}
                                         data-testid="encargado-option-{{ $encargado['id'] }}"
-                                        data-categoria="{{ $encargado['categoria'] ?? 'Sin categoría' }}">
+                                        data-categoria="{{ $encargado['categoria'] ?? 'Sin puesto' }}">
                                     {{ $encargado['nombre_completo'] ?? $encargado['nombre_usuario'] }}
                                     @if(isset($encargado['categoria']))
                                         - {{ $encargado['categoria'] }}
@@ -225,7 +225,7 @@
                     @error('encargado_id')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                    <p class="mt-1 text-xs text-gray-500">Personal activo disponible para supervisión del proyecto (puede ser cualquier categoría)</p>
+                    <p class="mt-1 text-xs text-gray-500">Personal activo disponible para supervisión del proyecto</p>
                 </div>
 
                 {{-- Observaciones --}}

@@ -290,7 +290,7 @@
                 </div>
                 <div class="info-operador-item">
                     <span class="stat-number">{{ $operador->categoria->nombre ?? 'N/A' }}</span>
-                    <span class="stat-label">Categoría</span>
+                    <span class="stat-label">Puesto</span>
                 </div>
             </div>
         </div>

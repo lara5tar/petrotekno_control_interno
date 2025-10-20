@@ -106,6 +106,8 @@ class VehiculoController extends Controller
                 'numero_poliza' => $validatedData['numero_poliza'] ?? null,
                 'modelo' => $validatedData['modelo'],
                 'anio' => $validatedData['anio'],
+                'valor_comercial' => $validatedData['valor_comercial'] ?? null,
+                'propietario' => $validatedData['propietario'] ?? null,
                 'n_serie' => $validatedData['n_serie'] ?? null, // Corregido: Puede ser null
                 'placas' => $validatedData['placas'] ?? null, // Corregido: Puede ser null
                 'estatus' => EstadoVehiculo::DISPONIBLE->value, // Estatus automático como DISPONIBLE
@@ -325,6 +327,8 @@ class VehiculoController extends Controller
                 'numero_poliza' => $validatedData['numero_poliza'] ?? null,
                 'modelo' => $validatedData['modelo'],
                 'anio' => $validatedData['anio'],
+                'valor_comercial' => $validatedData['valor_comercial'] ?? null,
+                'propietario' => $validatedData['propietario'] ?? null,
                 'n_serie' => $validatedData['n_serie'] ?? null, // Corregido: Puede ser null
                 'placas' => $validatedData['placas'] ?? null, // Corregido: Puede ser null
                 'kilometraje_actual' => $validatedData['kilometraje_actual'] ?? null, // Opcional según tipo de activo
@@ -1329,7 +1333,8 @@ class VehiculoController extends Controller
         // Aplicar los mismos filtros que en el index con optimizaciones para grandes volúmenes
         $query = Vehiculo::select([
             'id', 'marca', 'modelo', 'anio', 'placas', 'n_serie', 
-            'estado', 'municipio', 'estatus', 'kilometraje_actual', 'tipo_activo_id', 'created_at'
+            'estado', 'municipio', 'estatus', 'kilometraje_actual', 'valor_comercial', 
+            'propietario', 'tipo_activo_id', 'created_at'
         ])->with(['tipoActivo:id,nombre']);
 
         // Aplicar filtros
@@ -1404,7 +1409,8 @@ class VehiculoController extends Controller
         // Aplicar los mismos filtros que en el index con optimizaciones
         $query = Vehiculo::select([
             'id', 'marca', 'modelo', 'anio', 'placas', 'n_serie', 
-            'estado', 'municipio', 'estatus', 'kilometraje_actual', 'tipo_activo_id', 'created_at'
+            'estado', 'municipio', 'estatus', 'kilometraje_actual', 'valor_comercial', 
+            'propietario', 'tipo_activo_id', 'created_at'
         ])->with(['tipoActivo:id,nombre']);
 
         // Aplicar filtros

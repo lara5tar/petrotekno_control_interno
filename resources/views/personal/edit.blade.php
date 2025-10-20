@@ -68,10 +68,10 @@
                 </div>
 
                 <div>
-                    <label for="categoria_id" class="block text-sm font-medium text-gray-700 mb-1">Categoría *</label>
+                    <label for="categoria_id" class="block text-sm font-medium text-gray-700 mb-1">Puesto *</label>
                     <select id="categoria_id" name="categoria_id" required 
                             class="w-full p-2 border border-gray-300 rounded-md focus:ring-petroyellow focus:border-petroyellow @error('categoria_id') border-red-500 @enderror">
-                        <option value="">Seleccione una categoría</option>
+                        <option value="">Seleccione un puesto</option>
                         @foreach($categorias as $categoria)
                             <option value="{{ $categoria->id }}" {{ old('categoria_id', $personal->categoria_id) == $categoria->id ? 'selected' : '' }}>
                                 {{ $categoria->nombre_categoria }}

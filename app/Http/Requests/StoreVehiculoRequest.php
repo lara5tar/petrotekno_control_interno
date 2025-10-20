@@ -47,6 +47,17 @@ class StoreVehiculoRequest extends FormRequest
                 'min:1950',
                 'max:' . (date('Y') + 1),
             ],
+            'valor_comercial' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:999999999999.99',
+            ],
+            'propietario' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
             'n_serie' => $this->getNumeroSerieRules(),
             'placas' => $this->getPlacasRules(),
             'kilometraje_actual' => $this->getKilometrajeRules(),
@@ -258,6 +269,13 @@ class StoreVehiculoRequest extends FormRequest
             'anio.integer' => 'El año debe ser un número entero',
             'anio.min' => 'El año debe ser mayor o igual a 1950',
             'anio.max' => 'El año no puede ser mayor al próximo año',
+            
+            'valor_comercial.numeric' => 'El valor comercial debe ser un número válido',
+            'valor_comercial.min' => 'El valor comercial no puede ser negativo',
+            'valor_comercial.max' => 'El valor comercial excede el límite permitido',
+            
+            'propietario.string' => 'El propietario debe ser un texto válido',
+            'propietario.max' => 'El propietario no puede exceder 100 caracteres',
             
             'n_serie.required' => 'El número de serie es obligatorio',
             'n_serie.string' => 'El número de serie debe ser un texto válido',

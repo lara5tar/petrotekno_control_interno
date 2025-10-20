@@ -169,7 +169,7 @@
                 <span style="margin-right: 15px;">📊 Estado: {{ ucfirst($filtros['estatus']) }}</span>
             @endif
             @if(isset($filtros['categoria_id']) && $filtros['categoria_id'])
-                <span style="margin-right: 15px;">🏷️ Categoría: ID {{ $filtros['categoria_id'] }}</span>
+                <span style="margin-right: 15px;">🏷️ Puesto: ID {{ $filtros['categoria_id'] }}</span>
             @endif
             <span>📋 Total: {{ count($personal) }} registros</span>
         </div>
@@ -181,7 +181,7 @@
             <tr>
                 <th class="col-id">id</th>
                 <th class="col-nombre">Nombre Completo</th>
-                <th class="col-categoria">Categoría</th>
+                <th class="col-categoria">Puesto</th>
                 <th class="col-rfc">RFC</th>
                 <th class="col-curp">CURP</th>
                 <th class="col-nss">NSS</th>
@@ -196,7 +196,7 @@
                 <tr>
                     <td class="text-center">{{ $persona->id }}</td>
                     <td class="personal-nombre">{{ $persona->nombre_completo }}</td>
-                    <td class="text-center">{{ $persona->categoria->nombre_categoria ?? 'Sin categoría' }}</td>
+                    <td class="text-center">{{ $persona->categoria->nombre_categoria ?? 'Sin puesto' }}</td>
                     <td class="text-center personal-code">{{ $persona->rfc ?: 'N/A' }}</td>
                     <td class="text-center personal-code">{{ $persona->curp_numero ?: 'N/A' }}</td>
                     <td class="text-center personal-code">{{ $persona->nss ?: 'N/A' }}</td>
@@ -240,7 +240,7 @@
     <!-- Resumen por Categorías (Solo si hay datos) -->
     @if(count($personal) > 0)
         <div style="margin-top: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 3px; padding: 10px; page-break-inside: avoid;">
-            <h3 style="color: #2c3e50; font-size: 10px; font-weight: bold; margin-bottom: 8px;">Distribución por Categoría</h3>
+            <h3 style="color: #2c3e50; font-size: 10px; font-weight: bold; margin-bottom: 8px;">Distribución por Puesto</h3>
             <div style="display: table; width: 100%;">
                 @php
                     $categorias = $personal->groupBy('categoria.nombre_categoria');
@@ -251,7 +251,7 @@
                 @foreach($topCategorias as $categoria => $items)
                     <div style="display: table-cell; text-align: center; padding: 5px; border-right: 1px solid #dee2e6; width: {{ 100/6 }}%;">
                         <div style="font-size: 12px; font-weight: bold; color: #f39c12;">{{ $items->count() }}</div>
-                        <div style="font-size: 7px; color: #7f8c8d;">{{ Str::limit($categoria ?: 'Sin categoría', 15) }}</div>
+                        <div style="font-size: 7px; color: #7f8c8d;">{{ Str::limit($categoria ?: 'Sin puesto', 15) }}</div>
                     </div>
                 @endforeach
             </div>

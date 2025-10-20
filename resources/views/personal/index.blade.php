@@ -56,7 +56,7 @@
                                id="buscar" 
                                name="buscar" 
                                value="{{ request('buscar') }}"
-                               placeholder="Buscar por nombre, RFC, CURP, NSS, INE, licencia o categoría..." 
+                               placeholder="Buscar por nombre, RFC, CURP, NSS, INE, licencia o puesto..." 
                                class="pl-10 pr-10 p-2 border border-gray-300 rounded-lg w-full h-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                                autocomplete="off">
                         
@@ -90,7 +90,7 @@
                     </select>
                 </div>
                 <div class="flex-1 md:flex-none md:w-48">
-                    <label for="categoria" class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                    <label for="categoria" class="block text-sm font-medium text-gray-700 mb-1">Puesto</label>
                     <select id="categoria" 
                             name="categoria_id"
                             class="p-2 border border-gray-300 rounded-md w-full h-10">
@@ -142,7 +142,7 @@
                     <tr>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Completo</th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Puesto</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RFC</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CURP</th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NSS</th>
@@ -164,7 +164,7 @@
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                     <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                                        {{ $persona->categoria->nombre_categoria ?? 'Sin categoría' }}
+                                        {{ $persona->categoria->nombre_categoria ?? 'Sin puesto' }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-xs font-mono text-gray-600">
@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('📤 Submitting form');
         console.log('Buscar:', searchInput?.value || '');
         console.log('Estado:', estadoSelect?.value || '');
-        console.log('Categoría:', categoriaSelect?.value || '');
+        console.log('Puesto:', categoriaSelect?.value || '');
         
         // Guardar la posición del cursor antes del envío si hay búsqueda activa
         if (searchInput && searchInput.value && document.activeElement === searchInput) {
@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listener para categoría
     if (categoriaSelect) {
         categoriaSelect.addEventListener('change', function() {
-            console.log('👥 Categoría changed to:', this.value);
+            console.log('👥 Puesto changed to:', this.value);
             aplicarFiltros();
         });
     }
