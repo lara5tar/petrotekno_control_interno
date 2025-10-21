@@ -21,7 +21,7 @@ class AdminUserSeeder extends Seeder
         $this->command->info('👤 Creando usuario administrador del sistema...');
         
         // Crear solo el personal y usuario administrador
-        if (!User::where('email', 'admin@petrotekno.com')->exists()) {
+        if (!User::where('email', 'admin@solupatch.com')->exists()) {
             // Buscar la categoría de Admin (que ya debe existir)
             $categoriaAdmin = CategoriaPersonal::where('nombre_categoria', 'Admin')->first();
             
@@ -48,14 +48,14 @@ class AdminUserSeeder extends Seeder
 
             // Crear usuario administrador
             $adminUser = User::create([
-                'email' => 'admin@petrotekno.com',
+                'email' => 'admin@solupatch.com',
                 'password' => Hash::make('admin123'),
                 'rol_id' => $adminRole->id,
                 'personal_id' => $personal->id,
             ]);
 
             $this->command->info('✅ Usuario administrador creado exitosamente:');
-            $this->command->info('   Email: admin@petrotekno.com');
+            $this->command->info('   Email: admin@solupatch.com');
             $this->command->info('   Password: admin123');
             $this->command->info('   Personal: ' . $personal->nombre_completo);
             

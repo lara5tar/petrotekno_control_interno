@@ -87,19 +87,7 @@
     <table class="pdf-table">
         <thead>
             <tr>
-<<<<<<< HEAD
-                <th style="width: 5%;">id</th>
-                <th style="width: 12%;">Marca/Modelo</th>
-                <th style="width: 10%;">Tipo</th>
-                <th style="width: 6%;">Año</th>
-                <th style="width: 9%;">Placas</th>
-                <th style="width: 12%;">No. Serie</th>
-                <th style="width: 13%;">Ubicación</th>
-                <th style="width: 10%;">Estado</th>
-                <th style="width: 13%;">Km Actual</th>
-                <th style="width: 10%;">Registro</th>
-=======
-                <th style="width: 4%">#</th>
+                <th style="width: 4%;">id</th>
                 <th style="width: 11%;">Marca/Modelo</th>
                 <th style="width: 8%;">Tipo</th>
                 <th style="width: 5%;">Año</th>
@@ -111,7 +99,6 @@
                 <th style="width: 9%;">Estado</th>
                 <th style="width: 9%;">Km Actual</th>
                 <th style="width: 6%;">Registro</th>
->>>>>>> merge/https-solupatch
             </tr>
         </thead>
         <tbody>
@@ -171,7 +158,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="12" class="text-center text-muted p-15">
+                    <td colspan="10" class="text-center text-muted p-15">
                         No se encontraron vehículos con los criterios especificados
                     </td>
                 </tr>
