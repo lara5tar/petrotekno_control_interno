@@ -36,7 +36,7 @@
             <div class="p-6 text-center">
                 <!-- Logo -->
                 <div class="mb-6">
-                    <img src="{{ asset('logo-solupatch.png') }}" alt="Solupatch" class="w-auto h-24 mx-auto">
+                    <img src="{{ asset('logo-solupatch.png') }}" alt="Solupatch" class="w-auto h-16 mx-auto">
                 </div>
                 
                 <!-- Contenido específico de cada vista -->
