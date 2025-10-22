@@ -2,7 +2,7 @@
 <div class="w-full h-full flex flex-col">
     <!-- Logo visible cuando está expandido -->
     <div class="text-center px-5 p-10 sidebar-logo">
-        <img src="{{ asset('logo-petro2.png') }}" alt="Petrotekno" class="w-48 h-auto mx-auto">
+        <img src="{{ asset('logo-solupatch.png') }}" alt="Solupatch" class="w-48 h-auto mx-auto">
     </div>
     
     <!-- Espaciador invisible cuando está colapsado (mantiene la altura) -->
@@ -15,7 +15,7 @@
     
     <div class="">
         <!-- Título visible cuando está expandido -->
-        <h2 class="text-xl font-bold text-black text-center mb-4 sidebar-subtitle">Menú Principal</h2>
+        <h2 class="text-xl font-bold text-gray-700 text-center mb-4 sidebar-subtitle">Menú Principal</h2>
         <!-- Espaciador invisible cuando está colapsado -->
         <div class="sidebar-subtitle-spacer hidden" style="height: 44px;"></div>
         <nav>
@@ -45,11 +45,11 @@
                 icon='<path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>'
                 label="Personal" />
 
-            <x-sidebar-item 
+            {{-- <x-sidebar-item 
                 route="{{ route('obras.index') }}" 
                 :active="request()->routeIs('obras.*')" 
                 icon='<path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>'
-                label="Obras" />
+                label="Obras" /> --}}
 
             <x-sidebar-item 
                 route="{{ route('reportes.index') }}" 

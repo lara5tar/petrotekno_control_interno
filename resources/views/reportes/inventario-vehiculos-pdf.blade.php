@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventario de Activos - Petrotekno</title>
+    <title>Inventario de Activos - Solupatch</title>
     <style>
         * {
             margin: 0;
@@ -238,10 +238,10 @@
 <body>
     <div class="header">
         <div class="logo-section">
-            <img src="data:image/jpeg;base64,{{ base64_encode(file_get_contents(public_path('logo.jpeg'))) }}" alt="Logo Petrotekno" class="logo">
+            <img src="data:image/jpeg;base64,{{ base64_encode(file_get_contents(public_path('logo.jpeg'))) }}" alt="Logo Solupatch" class="logo">
         </div>
         <div class="company-info">
-            <div class="company-name">PETROTEKNO</div>
+            <div class="company-name">SOLUPATCH</div>
             <div class="report-title">Inventario de Activos</div>
             <div class="report-date">Generado el {{ now()->format('d/m/Y H:i:s') }}</div>
         </div>
@@ -400,7 +400,7 @@
 
     <div class="footer">
         <p>
-            <strong>PETROTEKNO S.A. de C.V.</strong> - Sistema de Control Interno<br>
+            <strong>SOLUPATCH S.A. de C.V.</strong> - Sistema de Control Interno<br>
             Reporte generado automáticamente el {{ now()->format('d \d\e F \d\e Y \a \l\a\s H:i:s') }}
         </p>
     </div>

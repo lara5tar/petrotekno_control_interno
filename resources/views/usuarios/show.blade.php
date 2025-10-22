@@ -2,7 +2,7 @@
 
 @section('title', 'Control de Usuarios')
 
-@section('header', 'Control de Usuarios de Petrotekno')
+@section('header', 'Control de Usuarios de Solupatch')
 
 @section('content')
 <div class="bg-white min-h-screen">
@@ -21,7 +21,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
-            <h1 class="text-lg font-semibold">Control de Usuarios de Petrotekno</h1>
+            <h1 class="text-lg font-semibold">Control de Usuarios de Solupatch</h1>
             <span class="text-sm bg-gray-700 px-2 py-1 rounded">v1.0</span>
         </div>
         <div class="text-sm">
@@ -38,7 +38,7 @@
         <!-- Sidebar -->
         <div class="w-64 bg-petroyellow p-4">
             <div class="mb-8">
-                <img src="{{ asset('logo-petro2.png') }}" alt="Petrotekno" class="w-48 mx-auto">
+                <img src="{{ asset('logo-solupatch.png') }}" alt="Solupatch" class="w-48 mx-auto">
             </div>
             
             <div class="text-center mb-8">

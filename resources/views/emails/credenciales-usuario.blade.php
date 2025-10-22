@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Credenciales de Acceso - Sistema Petrotekno</title>
+    <title>Credenciales de Acceso - Sistema Solupatch</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -141,17 +141,17 @@
     <div class="container">
         <div class="header">
             <div class="logo">
-                <img src="{{ $logoUrl }}" alt="Petrotekno" style="display: block; max-width: 180px; height: auto; margin: 0 auto; border: 0;">
+                <img src="{{ $logoUrl }}" alt="Solupatch" style="display: block; max-width: 180px; height: auto; margin: 0 auto; border: 0;">
             </div>
             <h1>Sistema de Control Interno</h1>
-            <p>Petrotekno</p>
+            <p>Solupatch</p>
         </div>
 
         <div class="content">
             <div class="welcome">
                 <h2>¡Bienvenido al sistema!</h2>
                 <p>Estimado/a <strong>{{ $nombrePersonal }}</strong>,</p>
-                <p>Se ha creado exitosamente una cuenta de usuario para ti en el Sistema de Control Interno de Petrotekno. A continuación encontrarás tus credenciales de acceso.</p>
+                <p>Se ha creado exitosamente una cuenta de usuario para ti en el Sistema de Control Interno de Solupatch. A continuación encontrarás tus credenciales de acceso.</p>
             </div>
 
             <div class="credentials">
@@ -181,10 +181,10 @@
         </div>
 
         <div class="footer">
-            <p class="company-name">PETROTEKNO</p>
+            <p class="company-name">SOLUPATCH</p>
             <p>Sistema de Control Interno</p>
             <p>Este es un email automático generado por el sistema. Por favor no responder a este correo.</p>
-            <p>© {{ date('Y') }} Petrotekno. Todos los derechos reservados.</p>
+            <p>© {{ date('Y') }} Solupatch. Todos los derechos reservados.</p>
         </div>
     </div>
 </body>

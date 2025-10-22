@@ -77,7 +77,7 @@ class ResetPasswordNotification extends ResetPassword
     protected function buildMailMessage($url)
     {
         return (new MailMessage)
-            ->subject('Recuperación de Contraseña - Sistema Petrotekno')
+            ->subject('Recuperación de Contraseña - Sistema Solupatch')
             ->view('emails.password-reset', [
                 'actionUrl' => $url,
                 'user' => $this->notifiable ?? null,

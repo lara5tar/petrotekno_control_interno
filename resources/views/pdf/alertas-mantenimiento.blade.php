@@ -222,7 +222,7 @@
     <div class="header">
         <h1>🚨 REPORTE DE ALERTAS DE MANTENIMIENTO</h1>
         <div class="subtitle">
-            Sistema de Control Interno - PetroTekno<br>
+            Sistema de Control Interno - Solupatch<br>
             Generado el {{ $fechaGeneracion }}
         </div>
     </div>
@@ -357,7 +357,7 @@
     @endif
 
     <div class="footer">
-        <p><strong>Sistema de Control Interno - PetroTekno</strong></p>
+        <p><strong>Sistema de Control Interno - Solupatch</strong></p>
         <p>Reporte generado automáticamente | Fecha: {{ $fechaGeneracion }}</p>
         <p>Este documento contiene información confidencial de la empresa</p>
     </div>

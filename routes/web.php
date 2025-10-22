@@ -472,7 +472,8 @@ Route::middleware('auth')->group(function () {
     })->name('api.personal.show')->middleware('permission:ver_personal');
 });
 
-// Rutas para Obras
+// Rutas para Obras - OCULTAS
+/*
 Route::middleware('auth')->group(function () {
     Route::get('/obras', [\App\Http\Controllers\ObraController::class, 'index'])
         ->name('obras.index')
@@ -535,6 +536,7 @@ Route::middleware('auth')->group(function () {
         ->name('obras.liberar-asignacion')
         ->middleware('permission:actualizar_obras');
 });
+*/
 
 // Rutas para Kilometrajes (Vista general independiente + integración en vehículos)
 Route::middleware('auth')->prefix('kilometrajes')->name('kilometrajes.')->group(function () {

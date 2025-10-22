@@ -66,7 +66,7 @@ class GeneradorReportesPDF
         $nombreArchivo = 'alertas-mantenimiento-fallback-' . now()->format('Y-m-d-His') . '.txt';
         $rutaCompleta = storage_path('app/reportes/' . $nombreArchivo);
 
-        $contenido = "REPORTE DE ALERTAS DE MANTENIMIENTO - PETROTEKNO\n";
+        $contenido = "REPORTE DE ALERTAS DE MANTENIMIENTO - SOLUPATCH\n";
         $contenido .= "=" . str_repeat("=", 60) . "\n";
         $contenido .= "Fecha: {$fechaGeneracion}\n\n";
 
@@ -97,7 +97,7 @@ class GeneradorReportesPDF
         }
 
         $contenido .= str_repeat("=", 60) . "\n";
-        $contenido .= "Sistema de Control Interno - PetroTekno\n";
+        $contenido .= "Sistema de Control Interno - Solupatch\n";
         $contenido .= "Reporte generado automáticamente\n";
 
         file_put_contents($rutaCompleta, $contenido);

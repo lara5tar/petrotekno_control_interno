@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recuperación de Contraseña - Petrotekno</title>
+    <title>Recuperación de Contraseña - Solupatch</title>
     <style>
         body {
             margin: 0;
@@ -203,7 +203,7 @@
             </div>
             
             <div class="message">
-                <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en el <strong>Sistema de Control Interno de Petrotekno</strong>.</p>
+                <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en el <strong>Sistema de Control Interno de Solupatch</strong>.</p>
                 
                 <p>Si fuiste tú quien solicitó este cambio, haz clic en el botón de abajo para crear una nueva contraseña:</p>
             </div>
@@ -239,13 +239,13 @@
         </div>
         
         <div class="footer">
-            <p class="company-name">PETROTEKNO</p>
+            <p class="company-name">SOLUPATCH</p>
             <p>Sistema de Control Interno</p>
             <p>Este es un correo automático generado por el sistema. Por favor no responder a este correo.</p>
             
             <div class="contact-info">
-                <p><strong>Soporte Técnico:</strong> soporte@petrotekno.com.mx</p>
-                <p>© {{ date('Y') }} Petrotekno. Todos los derechos reservados.</p>
+                <p><strong>Soporte Técnico:</strong> soporte@solupatch.com</p>
+                <p>© {{ date('Y') }} Solupatch. Todos los derechos reservados.</p>
             </div>
         </div>
     </div>

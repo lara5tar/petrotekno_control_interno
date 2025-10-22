@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial de Obras por Operador - Petrotekno</title>
+    <title>Historial de Obras por Operador - Solupatch</title>
     <style>
         * {
             margin: 0;
@@ -255,10 +255,10 @@
 <body>
     <div class="header">
         <div class="logo-section">
-            <img src="data:image/jpeg;base64,{{ base64_encode(file_get_contents(public_path('logo.jpeg'))) }}" alt="Logo Petrotekno" class="logo">
+            <img src="data:image/jpeg;base64,{{ base64_encode(file_get_contents(public_path('logo.jpeg'))) }}" alt="Logo Solupatch" class="logo">
         </div>
         <div class="company-info">
-            <div class="company-name">PETROTEKNO</div>
+            <div class="company-name">SOLUPATCH</div>
             <div class="report-title">
                 @if($operador)
                     Historial de Obras - {{ $operador->nombre_completo }}
@@ -475,7 +475,7 @@
             <div style="display: table-cell; width: 50%; text-align: right; vertical-align: top;">
                 <div style="font-size: 10px; color: #7f8c8d;">
                     <div>Sistema de Control Interno</div>
-                    <div>PETROTEKNO</div>
+                    <div>SOLUPATCH</div>
                     <div>{{ now()->format('Y') }}</div>
                 </div>
             </div>
@@ -483,7 +483,7 @@
     </div>
 
     <div class="footer">
-        Página <span class="pagenum"></span> de <span class="pagecount"></span> | Historial de Obras por Operador | PETROTEKNO {{ now()->format('Y') }}
+        Página <span class="pagenum"></span> de <span class="pagecount"></span> | Historial de Obras por Operador | SOLUPATCH {{ now()->format('Y') }}
     </div>
 </body>
 </html>

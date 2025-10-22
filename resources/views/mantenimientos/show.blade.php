@@ -2,7 +2,7 @@
 
 @section('title', 'Control de Mantenimientos')
 
-@section('header', 'Control de Mantenimientos de Petrotekno')
+@section('header', 'Control de Mantenimientos de Solupatch')
 
 @php
     use Illuminate\Support\Str;

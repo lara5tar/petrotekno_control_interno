@@ -1,4 +1,4 @@
-# Sistema de Control Interno - Petrotekno
+# Sistema de Control Interno - Solupatch
 
 Sistema de gestión y control interno para vehículos, personal, obras y mantenimientos.
 

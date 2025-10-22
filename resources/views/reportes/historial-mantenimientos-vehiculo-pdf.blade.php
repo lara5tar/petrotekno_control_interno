@@ -202,7 +202,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">PETROTEKNO</div>
+        <div class="logo">SOLUPATCH</div>
         <div class="titulo">Historial de Mantenimientos por Activo</div>
         <div class="subtitulo">Reporte generado el {{ now()->format('d/m/Y H:i:s') }}</div>
     </div>
@@ -411,7 +411,7 @@
 
     <!-- Footer -->
     <div class="footer">
-        <p>PETROTEKNO - Sistema de Control Interno | Página <span class="pagenum"></span> | Generado: {{ now()->format('d/m/Y H:i:s') }}</p>
+        <p>SOLUPATCH - Sistema de Control Interno | Página <span class="pagenum"></span> | Generado: {{ now()->format('d/m/Y H:i:s') }}</p>
     </div>
 
     <script type="text/php">

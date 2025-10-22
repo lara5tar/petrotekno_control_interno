@@ -1,4 +1,4 @@
-{{ $esTest ? '[PRUEBA] ' : '' }}SISTEMA DE ALERTAS DE MANTENIMIENTO - PETROTEKNO
+{{ $esTest ? '[PRUEBA] ' : '' }}SISTEMA DE ALERTAS DE MANTENIMIENTO - SOLUPATCH
 ================================================================
 
 @if($esTest)
@@ -69,11 +69,11 @@ No hay alertas de mantenimiento pendientes.
 @endif
 
 ================================================================
-SISTEMA DE CONTROL INTERNO - PETROTEKNO
+SISTEMA DE CONTROL INTERNO - SOLUPATCH
 Reporte generado automáticamente el {{ now()->format('d/m/Y H:i:s') }}
 
 Este correo es generado automáticamente.
 Para más información, contacta al administrador del sistema.
 
-Sistema: PetroTekno Control Interno
+Sistema: Solupatch Control Interno
 ================================================================

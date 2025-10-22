@@ -179,7 +179,7 @@
     <!-- Información adicional en el pie -->
     <div class="pdf-footer-info">
         <p><strong>Nota:</strong> Este reporte muestra información general de obras y responsables. Para informes más extensos, considere aplicar filtros adicionales o utilice el formato Excel.</p>
-        <p><strong>Sistema:</strong> Petrotekno Control Interno - Módulo de Operadores y Obras</p>
+        <p><strong>Sistema:</strong> Solupatch Control Interno - Módulo de Operadores y Obras</p>
     </div>
 @endsection
 

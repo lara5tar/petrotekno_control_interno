@@ -12,7 +12,7 @@
     
     <div class="mb-6">
         <h2 class="text-2xl font-bold text-gray-800">Bienvenido, {{ Auth::user()->name ?? 'Usuario' }}</h2>
-        <p class="text-gray-600">Panel de control del sistema de Control Interno de Petrotekno</p>
+        <p class="text-gray-600">Panel de control del sistema de Control Interno de Solupatch</p>
         <p class="text-sm text-gray-500 mt-1">Última actualización: {{ now()->format('d/m/Y H:i') }}</p>
     </div>
     

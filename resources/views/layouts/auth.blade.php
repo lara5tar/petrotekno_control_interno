@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Autenticación') - Petrotekno Control Interno</title>
+    <title>@yield('title', 'Autenticación') - Solupatch Control Interno</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -36,7 +36,7 @@
             <div class="p-6 text-center">
                 <!-- Logo -->
                 <div class="mb-6">
-                    <img src="{{ asset('logo-petro2.png') }}" alt="Petrotekno" class="h-40 mx-auto">
+                    <img src="{{ asset('logo-solupatch.png') }}" alt="Solupatch" class="w-auto h-24 mx-auto">
                 </div>
                 
                 <!-- Contenido específico de cada vista -->

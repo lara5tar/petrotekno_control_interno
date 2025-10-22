@@ -32,16 +32,16 @@ class NuevoUsuarioCredenciales extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Bienvenido al Sistema Petrotekno - Credenciales de Acceso')
+            ->subject('Bienvenido al Sistema Solupatch - Credenciales de Acceso')
             ->greeting('¡Hola ' . $this->nombreCompleto . '!')
-            ->line('Has sido registrado en el Sistema de Control Interno de Petrotekno.')
+            ->line('Has sido registrado en el Sistema de Control Interno de Solupatch.')
             ->line('Tus credenciales de acceso son:')
             ->line('**Email:** ' . $notifiable->email)
             ->line('**Contraseña temporal:** ' . $this->passwordTemporal)
             ->line('Por seguridad, debes cambiar tu contraseña en tu primer inicio de sesión.')
             ->action('Acceder al Sistema', url('/login'))
             ->line('Si tienes alguna duda, contacta al administrador del sistema.')
-            ->salutation('Equipo Petrotekno');
+            ->salutation('Equipo Solupatch');
     }
 
     /**

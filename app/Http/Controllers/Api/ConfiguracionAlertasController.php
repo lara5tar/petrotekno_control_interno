@@ -480,7 +480,7 @@ class ConfiguracionAlertasController extends Controller
         \Resend\Laravel\Facades\Resend::emails()->send([
             'from' => config('mail.from.name') . ' <' . config('mail.from.address') . '>',
             'to' => [$email],
-            'subject' => '[API TEST] Alertas de Mantenimiento - Petrotekno',
+            'subject' => '[API TEST] Alertas de Mantenimiento - Solupatch',
             'html' => $html,
             'tags' => [
                 'environment' => config('app.env'),

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Reporte') - Petrotekno</title>
+    <title>@yield('title', 'Reporte') - Solupatch</title>
     <style>
         /* ===========================
            ESTILOS GLOBALES BASE
@@ -440,10 +440,10 @@
     <div class="pdf-header">
         <!-- Header con logo -->
         <div class="header-logo-section">
-            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('logo-petro2.png'))) }}" alt="Logo Petrotekno" class="header-logo">
+            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('logo-solupatch.png'))) }}" alt="Logo Solupatch" class="header-logo">
         </div>
         <div class="header-info-section">
-            <div class="header-company-name">Petrotekno S.A. de C.V.</div>
+            <div class="header-company-name">Solupatch S.A. de C.V.</div>
             <div class="header-report-title">@yield('report-title', 'Reporte del Sistema')</div>
             <div class="header-report-date">Generado el: {{ now()->format('d/m/Y H:i:s') }}</div>
             @hasSection('report-subtitle')
@@ -458,7 +458,7 @@
     <!-- Footer del PDF -->
     <div class="pdf-footer">
         <div class="footer-info">
-            <strong>Petrotekno S.A. de C.V.</strong> - Sistema de Control Interno
+            <strong>Solupatch S.A. de C.V.</strong> - Sistema de Control Interno
         </div>
         <div class="footer-page">
             @yield('footer-info', 'Documento generado automáticamente por el sistema')

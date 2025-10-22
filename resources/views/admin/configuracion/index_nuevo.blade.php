@@ -189,7 +189,7 @@
             </svg>
             <div class="text-sm text-blue-700">
                 <h3 class="font-medium text-blue-900 mb-2">Panel de Configuración del Sistema</h3>
-                <p>Desde este panel puedes gestionar todos los aspectos de configuración del sistema de control interno de Petrotekno. Utiliza las opciones de menú para acceder a las diferentes secciones de administración.</p>
+                <p>Desde este panel puedes gestionar todos los aspectos de configuración del sistema de control interno de Solupatch. Utiliza las opciones de menú para acceder a las diferentes secciones de administración.</p>
                 <p class="mt-2"><strong>Última actualización:</strong> {{ now()->format('d/m/Y H:i') }}</p>
             </div>
         </div>

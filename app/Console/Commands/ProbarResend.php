@@ -138,7 +138,7 @@ class ProbarResend extends Command
         Resend::emails()->send([
             'from' => config('mail.from.name') . ' <' . config('mail.from.address') . '>',
             'to' => [$email],
-            'subject' => '[TEST RESEND] Alertas de Mantenimiento - Petrotekno',
+            'subject' => '[TEST RESEND] Alertas de Mantenimiento - Solupatch',
             'html' => $html,
             'tags' => [
                 'environment' => config('app.env'),

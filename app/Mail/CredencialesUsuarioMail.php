@@ -38,8 +38,8 @@ class CredencialesUsuarioMail extends Mailable
         $this->rolUsuario = $rolUsuario;
         $this->urlLogin = $urlLogin;
         
-        // Usar URL absoluta para el logo desde petrotekno.app
-        $this->logoUrl = 'https://petrotekno.app/logo-petro2.png';
+        // Usar URL absoluta para el logo desde solupatch.app
+        $this->logoUrl = url('logo-solupatch.png');
     }
 
     /**
@@ -49,11 +49,11 @@ class CredencialesUsuarioMail extends Mailable
     {
         return new Headers(
             text: [
-                'X-Mailer' => 'Petrotekno-Control-Interno-v2.0',
+                'X-Mailer' => 'Solupatch-Control-Interno-v2.0',
                 'X-Priority' => '3',
                 'X-MSMail-Priority' => 'Normal',
                 'X-Category' => 'transactional',
-                'X-Entity-Ref-ID' => 'petrotekno-credentials-' . uniqid(),
+                'X-Entity-Ref-ID' => 'solupatch-credentials-' . uniqid(),
                 'Auto-Submitted' => 'auto-generated',
                 'MIME-Version' => '1.0',
             ]
@@ -70,7 +70,7 @@ class CredencialesUsuarioMail extends Mailable
                 config('mail.from.address'),
                 config('mail.from.name')
             ),
-            subject: 'Credenciales de Acceso - Sistema Petrotekno',
+            subject: 'Credenciales de Acceso - Sistema Solupatch',
             tags: ['credenciales', 'usuario-nuevo'],
             metadata: [
                 'tipo' => 'credenciales_usuario',

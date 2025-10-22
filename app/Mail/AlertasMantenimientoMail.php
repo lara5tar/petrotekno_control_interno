@@ -35,11 +35,11 @@ class AlertasMantenimientoMail extends Mailable implements ShouldQueue
     {
         return new Headers(
             text: [
-                'X-Mailer' => 'Petrotekno-Control-Interno-v2.0',
+                'X-Mailer' => 'Solupatch-Control-Interno-v2.0',
                 'X-Priority' => '3',
                 'X-MSMail-Priority' => 'Normal',
                 'X-Category' => 'transactional',
-                'X-Entity-Ref-ID' => 'petrotekno-maintenance-' . uniqid(),
+                'X-Entity-Ref-ID' => 'solupatch-maintenance-' . uniqid(),
                 'Auto-Submitted' => 'auto-generated',
                 'X-Auto-Response-Suppress' => 'All',
                 'List-Unsubscribe' => '<mailto:alertas+unsubscribe@110694.xyz>',
@@ -49,9 +49,9 @@ class AlertasMantenimientoMail extends Mailable implements ShouldQueue
                 'MIME-Version' => '1.0',
                 'X-Report-Abuse' => 'Please report abuse to abuse@110694.xyz',
                 'X-Spam-Status' => 'No',
-                'X-Message-Source' => 'Petrotekno Control Interno',
-                'X-Sender-ID' => 'petrotekno-alerts-system',
-                'Organization' => 'Petrotekno - Sistema de Control Interno',
+                'X-Message-Source' => 'Solupatch Control Interno',
+                'X-Sender-ID' => 'solupatch-alerts-system',
+                'Organization' => 'Solupatch - Sistema de Control Interno',
                 'X-Originating-IP' => '[' . request()->ip() . ']',
             ],
         );
@@ -65,14 +65,14 @@ class AlertasMantenimientoMail extends Mailable implements ShouldQueue
         return new Envelope(
             from: new Address(config('mail.from.address'), config('mail.from.name')),
             replyTo: [
-                new Address('soporte@110694.xyz', 'Soporte Técnico Petrotekno'),
+                new Address('soporte@110694.xyz', 'Soporte Técnico Solupatch'),
             ],
             subject: $this->esTest
-                ? '[PRUEBA] Sistema de Alertas de Mantenimiento - Petrotekno'
-                : 'Alertas de Mantenimiento Vehicular - Acción Requerida',
+                ? '[PRUEBA] Sistema de Alertas de Mantenimiento - Solupatch'
+                : 'Sistema de Alertas de Mantenimiento - Solupatch',
             tags: ['maintenance-alerts', 'transactional', 'system-notification', $this->esTest ? 'test' : 'production'],
             metadata: [
-                'sistema' => 'control-interno-petrotekno',
+                'sistema' => 'control-interno-solupatch',
                 'modulo' => 'alertas-mantenimiento',
                 'version' => '2.0',
                 'ambiente' => config('app.env'),
@@ -87,11 +87,11 @@ class AlertasMantenimientoMail extends Mailable implements ShouldQueue
                 function (Email $message) {
                     // Headers adicionales para mejor deliverability
                     $message->getHeaders()
-                        ->addTextHeader('X-Mailer', 'Petrotekno-Control-Interno-v2.0')
+                        ->addTextHeader('X-Mailer', 'Solupatch-Control-Interno-v2.0')
                         ->addTextHeader('X-Priority', '3')
                         ->addTextHeader('X-MSMail-Priority', 'Normal')
                         ->addTextHeader('Importance', 'Normal')
-                        ->addTextHeader('X-Entity-Ref-ID', 'petrotekno-maintenance-' . uniqid())
+                        ->addTextHeader('X-Entity-Ref-ID', 'solupatch-maintenance-' . uniqid())
                         ->addTextHeader('Auto-Submitted', 'auto-generated')
                         ->addTextHeader('X-Auto-Response-Suppress', 'All')
                         ->addTextHeader('List-Unsubscribe', '<mailto:alertas+unsubscribe@110694.xyz>')
@@ -100,9 +100,9 @@ class AlertasMantenimientoMail extends Mailable implements ShouldQueue
                         ->addTextHeader('Precedence', 'list')
                         ->addTextHeader('X-Report-Abuse', 'abuse@110694.xyz')
                         ->addTextHeader('X-Spam-Status', 'No')
-                        ->addTextHeader('X-Message-Source', 'Petrotekno Control Interno')
-                        ->addTextHeader('X-Sender-ID', 'petrotekno-alerts-system')
-                        ->addTextHeader('Organization', 'Petrotekno - Sistema de Control Interno')
+                        ->addTextHeader('X-Message-Source', 'Solupatch Control Interno')
+                        ->addTextHeader('X-Sender-ID', 'solupatch-alerts-system')
+                        ->addTextHeader('Organization', 'Solupatch - Sistema de Control Interno')
                         ->addTextHeader('X-Originating-IP', '[' . (request()->ip() ?? '127.0.0.1') . ']')
                         ->addTextHeader('Content-Type', 'text/html; charset=UTF-8');
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚧 Alerta de Mantenimiento - Sistema PetroTekno</title>
+    <title>🚧 Alerta de Mantenimiento - Sistema Solupatch</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -235,7 +235,7 @@
                 <div class="test-badge">🧪 CORREO DE PRUEBA</div>
             @endif
             <h1>� Alerta de Mantenimiento</h1>
-            <p>Sistema de Gestión de Vehículos PetroTekno</p>
+            <p>Sistema de Gestión de Vehículos Solupatch</p>
         </div>
 
         <div class="content">
@@ -364,7 +364,7 @@
         </div>
 
         <div class="footer">
-            <p><strong>Sistema de Gestión de Vehículos PetroTekno</strong></p>
+            <p><strong>Sistema de Gestión de Vehículos Solupatch</strong></p>
             <p>Este es un mensaje automático. Para más información, contacta al administrador del sistema.</p>
             <p style="font-size: 12px; margin-top: 15px; color: #999;">
                 📧 Email generado automáticamente el {{ now()->format('d/m/Y H:i:s') }}
